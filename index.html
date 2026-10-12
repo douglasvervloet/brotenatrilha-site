@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brote na Trilha</title>
+<meta name="description" content="Pedais com amigos pelo Espírito Santo. Vídeos de mountain bike, trilhas e cicloturismo no canal Brote na Trilha - MTB.">
+<link rel="canonical" href="https://brotenatrilha.com.br/">
+<meta name="theme-color" content="#2d7046">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Brote na Trilha">
+<meta property="og:title" content="Brote na Trilha">
+<meta property="og:description" content="Pedais com amigos pelo Espírito Santo.">
+<meta property="og:url" content="https://brotenatrilha.com.br/">
+<meta property="og:image" content="https://brotenatrilha.com.br/compartilhar.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" type="image/png" sizes="48x48" href="favicon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icone-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<style>
+  :root {
+    --verde: #2d7046;
+    --verde-escuro: #1e5434;
+    --verde-fundo: #163d27;
+    --ambar: #e8a33d;
+    --ambar-escuro: #c9851f;
+    --fundo: #f6f3ea;
+    --cartao: #ffffff;
+    --texto: #1c2a22;
+    --texto-suave: #4d5e53;
+    --linha: #dcd8c9;
+    --raio: 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fundo: #0f1a13;
+      --cartao: #172a1e;
+      --texto: #e9f0ea;
+      --texto-suave: #a9bbae;
+      --linha: #284534;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--fundo);
+    color: var(--texto);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  img { max-width: 100%; height: auto; display: block; }
+
+  .pular { position: absolute; left: -999px; top: 0; background: #fff; color: #000; padding: 8px 14px; z-index: 10; }
+  .pular:focus { left: 8px; top: 8px; }
+  :focus-visible { outline: 3px solid var(--ambar); outline-offset: 3px; border-radius: 4px; }
+
+  .miolo { width: min(1080px, 100% - 32px); margin-inline: auto; }
+
+  /* ---------- Topo ---------- */
+  .topo { position: absolute; inset: 0 0 auto 0; z-index: 5; }
+  .topo .miolo { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; }
+  .marca { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; font-weight: 700; letter-spacing: .2px; }
+  .marca img { width: 38px; height: 38px; }
+  .menu { display: flex; gap: 22px; }
+  .menu a { color: #e8f1ea; text-decoration: none; font-size: .95rem; padding: 6px 2px; border-bottom: 2px solid transparent; }
+  .menu a:hover { border-bottom-color: var(--ambar); }
+
+  /* ---------- Capa ---------- */
+  .capa {
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    text-align: center;
+    background:
+      radial-gradient(1200px 500px at 50% -10%, #3d8a58 0%, transparent 60%),
+      linear-gradient(180deg, var(--verde) 0%, var(--verde-fundo) 100%);
+    padding: 110px 0 150px;
+  }
+  .capa .miolo { position: relative; z-index: 2; }
+  .capa .logo { width: clamp(150px, 26vw, 230px); margin: 0 auto 18px; filter: drop-shadow(0 14px 28px rgba(0,0,0,.35)); }
+  .capa h1 { margin: 0; font-size: clamp(2.3rem, 7vw, 4rem); line-height: 1.05; letter-spacing: -.5px; }
+  .capa p { margin: 14px auto 0; max-width: 34ch; font-size: clamp(1.05rem, 2.6vw, 1.3rem); color: #dcebe0; }
+  .acoes { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 30px; }
+
+  .botao {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 13px 22px; border-radius: 999px;
+    font-weight: 700; text-decoration: none; font-size: 1rem;
+    border: 2px solid transparent;
+    transition: transform .15s ease, background .15s ease, border-color .15s ease;
+  }
+  .botao svg { width: 22px; height: 22px; flex: none; }
+  .botao:hover { transform: translateY(-2px); }
+  .botao.principal { background: var(--ambar); color: #1b2a1f; }
+  .botao.principal:hover { background: #f0b255; }
+  .botao.contorno { border-color: rgba(255,255,255,.55); color: #fff; }
+  .botao.contorno:hover { background: rgba(255,255,255,.12); border-color: #fff; }
+
+  /* perfil de altimetria no pé da capa */
+  .perfil { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: 120px; z-index: 1; }
+  .perfil .fundo { fill: var(--fundo); }
+  .perfil .serra { fill: rgba(255,255,255,.07); }
+  .perfil .linha { fill: none; stroke: var(--ambar); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; opacity: .9; }
+
+  /* ---------- Seções ---------- */
+  section { padding: 64px 0; }
+  .titulo { margin: 0 0 8px; font-size: clamp(1.6rem, 4vw, 2.1rem); line-height: 1.2; letter-spacing: -.2px; }
+  .titulo::after { content: ""; display: block; width: 52px; height: 4px; border-radius: 2px; background: var(--ambar); margin-top: 10px; }
+  .lead { color: var(--texto-suave); max-width: 60ch; margin: 14px 0 0; }
+
+  .player {
+    margin-top: 28px;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--raio);
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 18px 40px rgba(20, 50, 30, .25);
+  }
+  .player iframe { width: 100%; height: 100%; border: 0; display: block; }
+  .mais { margin-top: 22px; }
+  .botao.verde { background: var(--verde); color: #fff; }
+  .botao.verde:hover { background: var(--verde-escuro); }
+
+  .sobre { display: grid; grid-template-columns: 1.3fr 1fr; gap: 36px; align-items: start; }
+  .sobre p { margin: 14px 0 0; }
+  .cartao {
+    background: var(--cartao);
+    border: 1px solid var(--linha);
+    border-radius: var(--raio);
+    padding: 24px;
+  }
+  .cartao h3 { margin: 0 0 6px; font-size: 1.15rem; }
+  .cartao p { margin: 8px 0 0; color: var(--texto-suave); }
+
+  .redes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 26px; }
+  .rede {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--raio);
+    padding: 20px 22px; text-decoration: none;
+    transition: transform .15s ease, border-color .15s ease;
+  }
+  .rede:hover { transform: translateY(-3px); border-color: var(--verde); }
+  .rede .icone { width: 46px; height: 46px; border-radius: 12px; background: var(--verde); color: #fff; display: grid; place-items: center; flex: none; }
+  .rede .icone svg { width: 26px; height: 26px; }
+  .rede strong { display: block; }
+  .rede span { color: var(--texto-suave); font-size: .92rem; }
+
+  .fundo-claro { background: color-mix(in srgb, var(--verde) 7%, var(--fundo)); border-block: 1px solid var(--linha); }
+
+  /* ---------- Rodapé ---------- */
+  footer { background: var(--verde-fundo); color: #cfe0d3; padding: 34px 0; font-size: .92rem; }
+  footer .miolo { display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: center; justify-content: space-between; }
+  footer a { color: #fff; }
+  footer .peq { color: #9fb7a6; }
+
+  @media (max-width: 760px) {
+    .menu { gap: 14px; }
+    .menu a { font-size: .88rem; }
+    .marca span { display: none; }
+    .capa { padding: 96px 0 130px; }
+    .sobre { grid-template-columns: 1fr; gap: 22px; }
+    section { padding: 48px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .botao, .rede { transition: none; }
+  }
+</style>
+</head>
+<body>
+<a class="pular" href="#videos">Pular para os vídeos</a>
+
+<header class="topo">
+  <div class="miolo">
+    <a class="marca" href="#" aria-label="Brote na Trilha, início">
+      <img src="favicon.png" width="38" height="38" alt="">
+      <span>Brote na Trilha</span>
+    </a>
+    <nav class="menu" aria-label="Principal">
+      <a href="#videos">Vídeos</a>
+      <a href="#sobre">Sobre</a>
+      <a href="#redes">Redes</a>
+      <a href="#contato">Contato</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="capa">
+    <div class="miolo">
+      <img class="logo" src="logo.png" width="230" height="230" alt="Logo do Brote na Trilha: um brote, uma garrafa térmica e uma bike">
+      <h1>Brote na Trilha</h1>
+      <p>Pedais com amigos pelo Espírito Santo.</p>
+      <div class="acoes">
+        <a class="botao principal" href="https://www.youtube.com/@BroteNaTrilha?sub_confirmation=1" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.6 7.2a2.5 2.5 0 0 0-1.76-1.77C18.3 5 12 5 12 5s-6.3 0-7.84.43A2.5 2.5 0 0 0 2.4 7.2C2 8.74 2 12 2 12s0 3.26.4 4.8a2.5 2.5 0 0 0 1.76 1.77C5.7 19 12 19 12 19s6.3 0 7.84-.43a2.5 2.5 0 0 0 1.76-1.77C22 15.26 22 12 22 12s0-3.26-.4-4.8ZM10 15V9l5.2 3L10 15Z"/></svg>
+          Inscrever-se no canal
+        </a>
+        <a class="botao contorno" href="https://www.instagram.com/brotenatrilha/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></svg>
+          Instagram
+        </a>
+      </div>
+    </div>
+
+    <svg class="perfil" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+      <path class="serra" d="M0 90 L120 60 L220 82 L360 30 L470 70 L600 40 L720 78 L860 24 L990 66 L1120 36 L1250 72 L1360 48 L1440 70 L1440 120 L0 120 Z"/>
+      <path class="linha" d="M0 100 C80 96 120 70 200 74 S320 100 420 84 S560 40 660 52 S800 96 900 80 S1040 34 1140 48 S1300 92 1440 70"/>
+      <path class="fundo" d="M0 108 C120 100 200 114 340 108 S560 96 700 106 S980 116 1120 106 S1340 98 1440 106 L1440 120 L0 120 Z"/>
+    </svg>
+  </div>
+
+  <section id="videos">
+    <div class="miolo">
+      <h2 class="titulo">Últimos vídeos</h2>
+      <p class="lead">Os pedais mais recentes do canal. A lista se atualiza sozinha a cada vídeo novo.</p>
+      <div class="player">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/videoseries?list=UU2uS9f0ACz0LZC7HwZWVBPQ"
+          title="Vídeos do Brote na Trilha"
+          loading="lazy"
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen></iframe>
+      </div>
+      <p class="mais">
+        <a class="botao verde" href="https://www.youtube.com/@BroteNaTrilha/videos" target="_blank" rel="noopener">Ver todos os vídeos no YouTube</a>
+      </p>
+    </div>
+  </section>
+
+  <section id="sobre" class="fundo-claro">
+    <div class="miolo sobre">
+      <div>
+        <h2 class="titulo">Sobre o canal</h2>
+        <p>O Brote na Trilha é um canal de pedais com amigos no Espírito Santo: a gente pedala, filma e conta como foi.</p>
+        <p>Cada vídeo mostra o percurso e traz, na descrição, a rota no Strava ou no Komoot, com distância, altimetria e tempo, para quem quiser pedalar o mesmo caminho.</p>
+      </div>
+      <aside class="cartao">
+        <h3>Por que "Brote"?</h3>
+        <p>O brote é um pão de fubá e trigo de origem pomerana. Ele está no logo, ao lado da garrafa térmica e da bike.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section id="redes">
+    <div class="miolo">
+      <h2 class="titulo">Acompanhe</h2>
+      <p class="lead">Vídeos novos no YouTube e o dia a dia dos pedais no Instagram.</p>
+      <div class="redes">
+        <a class="rede" href="https://www.youtube.com/@BroteNaTrilha" target="_blank" rel="noopener">
+          <div class="icone"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.6 7.2a2.5 2.5 0 0 0-1.76-1.77C18.3 5 12 5 12 5s-6.3 0-7.84.43A2.5 2.5 0 0 0 2.4 7.2C2 8.74 2 12 2 12s0 3.26.4 4.8a2.5 2.5 0 0 0 1.76 1.77C5.7 19 12 19 12 19s6.3 0 7.84-.43a2.5 2.5 0 0 0 1.76-1.77C22 15.26 22 12 22 12s0-3.26-.4-4.8ZM10 15V9l5.2 3L10 15Z"/></svg></div>
+          <div><strong>YouTube</strong><span>@BroteNaTrilha</span></div>
+        </a>
+        <a class="rede" href="https://www.instagram.com/brotenatrilha/" target="_blank" rel="noopener">
+          <div class="icone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></svg></div>
+          <div><strong>Instagram</strong><span>@brotenatrilha</span></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="contato" class="fundo-claro">
+    <div class="miolo">
+      <h2 class="titulo">Contato</h2>
+      <p class="lead">Quer pedalar junto, sugerir uma rota ou falar com a gente? Escreva:</p>
+      <p class="mais">
+        <a class="botao verde" href="mailto:brotenatrilha@gmail.com">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          brotenatrilha@gmail.com
+        </a>
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="miolo">
+    <span>© <span id="ano">2026</span> Brote na Trilha</span>
+    <span class="peq">Vídeos editados com o <a href="https://bnteditor.brotenatrilha.com.br">BNT Editor</a></span>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("ano").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

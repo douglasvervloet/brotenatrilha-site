@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://brotenatrilha.com.br/sitemap.xml
