@@ -57,6 +57,7 @@
   }
   a { color: inherit; }
   img { max-width: 100%; height: auto; display: block; }
+  picture { display: contents; }
 
   .pular { position: absolute; left: -999px; top: 0; background: #fff; color: #000; padding: 8px 14px; z-index: 10; }
   .pular:focus { left: 8px; top: 8px; }
@@ -215,6 +216,7 @@
     .botao, .rede { transition: none; }
   }
 </style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebSite", "@id": "https://brotenatrilha.com.br/#site", "url": "https://brotenatrilha.com.br/", "name": "Brote na Trilha", "inLanguage": "pt-BR", "description": "Pedais com amigos pelo Espírito Santo."}, {"@type": "Organization", "@id": "https://brotenatrilha.com.br/#canal", "name": "Brote na Trilha", "url": "https://brotenatrilha.com.br/", "logo": "https://brotenatrilha.com.br/logo.png", "email": "brotenatrilha@gmail.com", "sameAs": ["https://www.youtube.com/@BroteNaTrilha", "https://www.instagram.com/brotenatrilha/"]}]}</script>
 </head>
 <body>
 <a class="pular" href="#videos">Pular para os vídeos</a>
@@ -240,7 +242,7 @@
 <main>
   <div class="capa">
     <div class="miolo">
-      <img class="logo" src="logo.png" width="230" height="230" alt="Logo do Brote na Trilha: um brote, uma garrafa térmica e uma bike">
+      <picture><source srcset="logo.webp" type="image/webp"><img decoding="async" fetchpriority="high" class="logo" src="logo.png" width="230" height="230" alt="Logo do Brote na Trilha: um brote, uma garrafa térmica e uma bike"></picture>
       <h1>Brote na Trilha</h1>
       <p>Pedais com amigos pelo Espírito Santo.</p>
       <div class="acoes">
@@ -353,11 +355,11 @@
       </div>
       <div class="fotos">
         <figure>
-          <img src="brote-forno.jpg" width="1280" height="800" loading="lazy" alt="Brote assado numa forma sobre folha de bananeira, dentro do forno à lenha">
+          <picture><source srcset="brote-forno.webp" type="image/webp"><img decoding="async" src="brote-forno.jpg" width="1280" height="800" loading="lazy" alt="Brote assado numa forma sobre folha de bananeira, dentro do forno à lenha"></picture>
           <figcaption>Brote assado em forno à lenha, sobre folha de bananeira.</figcaption>
         </figure>
         <figure>
-          <img src="brote-cortado.jpg" width="1280" height="800" loading="lazy" alt="Duas fatias de brote com manteiga num prato, ao lado de um copo de café">
+          <picture><source srcset="brote-cortado.webp" type="image/webp"><img decoding="async" src="brote-cortado.jpg" width="1280" height="800" loading="lazy" alt="Duas fatias de brote com manteiga num prato, ao lado de um copo de café"></picture>
           <figcaption>Brote cortado, com manteiga e café.</figcaption>
         </figure>
       </div>
@@ -409,7 +411,7 @@
   <div class="miolo">
     <span>© <span id="ano">2026</span> Brote na Trilha</span>
     <span class="peq">Vídeos editados com o <a href="bnteditor/">BNT Editor</a></span>
-    <span class="aviso">As visitas ao site são contadas sem cookies e sem identificar ninguém.</span>
+    <span class="aviso">As visitas ao site são contadas sem cookies e sem identificar ninguém. <a href="privacidade/">Política de privacidade</a>.</span>
   </div>
 </footer>
 

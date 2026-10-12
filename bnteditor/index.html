@@ -56,6 +56,7 @@
   }
   a { color: inherit; }
   img { max-width: 100%; height: auto; display: block; }
+  picture { display: contents; }
 
   .pular { position: absolute; left: -999px; top: 0; background: #fff; color: #000; padding: 8px 14px; z-index: 10; }
   .pular:focus { left: 8px; top: 8px; }
@@ -157,6 +158,7 @@
     .botao { transition: none; }
   }
 </style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "BNT Editor", "url": "https://brotenatrilha.com.br/bnteditor/", "applicationCategory": "MultimediaApplication", "operatingSystem": "Windows 10, Windows 11", "inLanguage": "pt-BR", "description": "Aplicativo de Windows para editar vídeos de ciclismo: do material bruto da câmera ao vídeo pronto no YouTube, com cortes, painel de GPS, legendas automáticas, capa e envio.", "image": "https://brotenatrilha.com.br/bnteditor/icone.png", "author": {"@type": "Organization", "name": "Brote na Trilha", "url": "https://brotenatrilha.com.br/"}}</script>
 </head>
 <body>
 <a class="pular" href="#recursos">Pular para as funcionalidades</a>
@@ -175,7 +177,7 @@
 <main>
   <div class="capa">
     <div class="miolo">
-      <img class="icone" src="icone.png" width="150" height="150" alt="Ícone do BNT Editor: um ciclista de mountain bike com as letras bnt">
+      <picture><source srcset="icone.webp" type="image/webp"><img decoding="async" fetchpriority="high" class="icone" src="icone.png" width="150" height="150" alt="Ícone do BNT Editor: um ciclista de mountain bike com as letras bnt"></picture>
       <h1>BNT Editor</h1>
       <p class="subtitulo">Editor de vídeos de ciclismo para Windows: do material bruto da câmera ao vídeo pronto no YouTube.</p>
       <div class="acoes">
@@ -183,7 +185,7 @@
       </div>
     </div>
     <div class="janela">
-      <img src="edicao-localizacao.jpg" width="1600" height="987" alt="Aba Edição do BNT Editor: o player mostra um trecho de trilha com o painel de GPS e o nome do lugar sobre a imagem, e a timeline do vídeo inteiro aparece embaixo">
+      <picture><source srcset="edicao-localizacao.webp" type="image/webp"><img decoding="async" src="edicao-localizacao.jpg" width="1600" height="987" alt="Aba Edição do BNT Editor: o player mostra um trecho de trilha com o painel de GPS e o nome do lugar sobre a imagem, e a timeline do vídeo inteiro aparece embaixo"></picture>
     </div>
   </div>
 
@@ -206,23 +208,23 @@
       <p class="lead">O app tem três abas, na ordem em que se trabalha: Cortes, Edição e Entrega. Na Edição, os textos e o painel de GPS aparecem na tela em tempo real, enquanto você assiste. No fim, o app ainda gera sozinho um resumo do passeio.</p>
       <div class="telas">
         <figure class="larga">
-          <img src="cortes.jpg" width="1600" height="987" loading="lazy" alt="Aba Cortes do BNT Editor: o player toca o arquivo bruto, com a forma de onda do som e o trecho do corte em laranja, e a lista de cortes mostra arquivo, entrada, saída e duração de cada um">
+          <picture><source srcset="cortes.webp" type="image/webp"><img decoding="async" src="cortes.jpg" width="1600" height="987" loading="lazy" alt="Aba Cortes do BNT Editor: o player toca o arquivo bruto, com a forma de onda do som e o trecho do corte em laranja, e a lista de cortes mostra arquivo, entrada, saída e duração de cada um"></picture>
           <figcaption><strong>Cortes.</strong> O player toca direto o arquivo bruto, com a forma de onda do som e o trecho do corte em laranja. À direita, a lista de cortes com arquivo, entrada, saída e duração, e a faixa no alto mostra todos os cortes da parte lado a lado.</figcaption>
         </figure>
         <figure>
-          <img src="edicao-localizacao.jpg" width="1600" height="987" loading="lazy" alt="Edição com o nome do lugar sobre o vídeo e o painel de GPS com velocímetro, inclinação, altitude e minimapa">
+          <picture><source srcset="edicao-localizacao.webp" type="image/webp"><img decoding="async" src="edicao-localizacao.jpg" width="1600" height="987" loading="lazy" alt="Edição com o nome do lugar sobre o vídeo e o painel de GPS com velocímetro, inclinação, altitude e minimapa"></picture>
           <figcaption><strong>Localização e painel de GPS.</strong> O nome do lugar vem do GPS, e o painel mostra velocidade, inclinação, altitude, força G e o mapa do percurso.</figcaption>
         </figure>
         <figure>
-          <img src="edicao-informacao.jpg" width="1600" height="987" loading="lazy" alt="Edição com um texto de informação no terço inferior do vídeo e a timeline com as marcas coloridas">
+          <picture><source srcset="edicao-informacao.webp" type="image/webp"><img decoding="async" src="edicao-informacao.jpg" width="1600" height="987" loading="lazy" alt="Edição com um texto de informação no terço inferior do vídeo e a timeline com as marcas coloridas"></picture>
           <figcaption><strong>Informações na tela.</strong> Textos de uma a três linhas no momento certo, com as marcas de cada item na timeline.</figcaption>
         </figure>
         <figure>
-          <img src="entrega.jpg" width="1600" height="987" loading="lazy" alt="Aba Entrega do BNT Editor: opções de saída do render em 4K, lista das partes do vídeo com o progresso de cada etapa e, ao lado, título, descrição, playlist, visibilidade, tags e capa do vídeo">
+          <picture><source srcset="entrega.webp" type="image/webp"><img decoding="async" src="entrega.jpg" width="1600" height="987" loading="lazy" alt="Aba Entrega do BNT Editor: opções de saída do render em 4K, lista das partes do vídeo com o progresso de cada etapa e, ao lado, título, descrição, playlist, visibilidade, tags e capa do vídeo"></picture>
           <figcaption><strong>Entrega.</strong> Render em 4K com a estimativa de tempo, as partes do vídeo e, no mesmo cartão, os dados do YouTube, a capa, as legendas e o envio.</figcaption>
         </figure>
         <figure>
-          <img src="resumo.jpg" width="1600" height="900" loading="lazy" alt="Tela de resumo do passeio gerada pelo app: mapa com o percurso desenhado em laranja, painel com distância, subida acumulada, tempo, velocidades e altitude, e o perfil de altitude embaixo">
+          <picture><source srcset="resumo.webp" type="image/webp"><img decoding="async" src="resumo.jpg" width="1600" height="900" loading="lazy" alt="Tela de resumo do passeio gerada pelo app: mapa com o percurso desenhado em laranja, painel com distância, subida acumulada, tempo, velocidades e altitude, e o perfil de altitude embaixo"></picture>
           <figcaption><strong>Resumo do passeio.</strong> A última parte do vídeo, gerada sozinha a partir do GPX: mapa com o traçado desenhado aos poucos, perfil de altitude e os números do percurso.</figcaption>
         </figure>
       </div>
@@ -314,7 +316,8 @@
   <div class="miolo">
     <span>© <span id="ano">2026</span> Brote na Trilha</span>
     <span class="links">
-      <a href="https://bnteditor.brotenatrilha.com.br/privacidade">Política de privacidade</a>
+      <a href="https://bnteditor.brotenatrilha.com.br/privacidade">Privacidade do aplicativo</a>
+      <a href="../privacidade/">Privacidade do site</a>
       <a href="https://bnteditor.brotenatrilha.com.br/termos-de-uso">Termos de uso</a>
       <a href="../">Canal Brote na Trilha</a>
     </span>
