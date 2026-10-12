@@ -43,8 +43,8 @@
   .mapa.com-fundo img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .mapa.com-fundo svg { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; background: none; }
   .mapa.com-fundo path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-  .mapa.com-fundo .halo { stroke: #163d27; stroke-width: 9; opacity: .6; }
-  .mapa.com-fundo .linha { stroke: #f39a1e; stroke-width: 5; }
+  .mapa.com-fundo .halo { stroke: #ffffff; stroke-width: 8; opacity: .9; }
+  .mapa.com-fundo .linha { stroke: #d6004f; stroke-width: 4.5; }
   .mapa.vazio { display: grid; place-items: center; color: #7fa68d; font-size: .9rem; }
   .corpo { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
   h3 { margin: 0; font-size: 1.12rem; line-height: 1.3; }
