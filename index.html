@@ -104,6 +104,13 @@
   .botao.contorno { border-color: rgba(255,255,255,.55); color: #fff; }
   .botao.contorno:hover { background: rgba(255,255,255,.12); border-color: #fff; }
 
+  /* números do canal (aparecem quando estatisticas.json existe) */
+  .numeros { display: flex; flex-wrap: wrap; gap: 14px 40px; justify-content: center; margin: 34px 0 0; padding: 0; list-style: none; }
+  .numeros[hidden] { display: none; }
+  .numeros li { text-align: center; }
+  .numeros strong { display: block; font-size: clamp(1.5rem, 4vw, 2rem); line-height: 1.1; color: var(--ambar); font-variant-numeric: tabular-nums; }
+  .numeros span { font-size: .82rem; letter-spacing: .6px; text-transform: uppercase; color: #cfe2d4; }
+
   /* perfil de altimetria no pé da capa */
   .perfil { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: 120px; z-index: 1; }
   .perfil .fundo { fill: var(--fundo); }
@@ -241,6 +248,11 @@
           Instagram
         </a>
       </div>
+      <ul class="numeros" id="numeros" hidden aria-label="Números do canal no YouTube">
+        <li><strong id="n-inscritos"></strong><span>inscritos</span></li>
+        <li><strong id="n-visualizacoes"></strong><span>visualizações</span></li>
+        <li><strong id="n-videos"></strong><span>vídeos</span></li>
+      </ul>
     </div>
 
     <svg class="perfil" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
@@ -396,6 +408,18 @@
 
 <script>
   document.getElementById("ano").textContent = new Date().getFullYear();
+
+  // Números do canal: vêm do estatisticas.json, que um robô do GitHub atualiza todo dia. Sem o arquivo, a faixa fica escondida.
+  fetch("estatisticas.json", { cache: "no-cache" })
+    .then((r) => (r.ok ? r.json() : Promise.reject()))
+    .then((d) => {
+      const formato = new Intl.NumberFormat("pt-BR");
+      document.getElementById("n-inscritos").textContent = formato.format(d.inscritos);
+      document.getElementById("n-visualizacoes").textContent = formato.format(d.visualizacoes);
+      document.getElementById("n-videos").textContent = formato.format(d.videos);
+      document.getElementById("numeros").hidden = false;
+    })
+    .catch(() => {});
 
   // Escolher uma playlist troca o que o player mostra e o link "Abrir no YouTube"
   const botoes = document.querySelectorAll(".chip");
