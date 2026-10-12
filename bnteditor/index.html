@@ -121,6 +121,7 @@
 
   .telas { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 28px; }
   .telas figure { margin: 0; }
+  .telas .larga { grid-column: 1 / -1; }
   .telas img { width: 100%; border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.28); border: 1px solid var(--linha); }
   .telas figcaption { margin-top: 10px; font-size: .93rem; color: var(--texto-suave); }
 
@@ -202,8 +203,12 @@
   <section id="telas" class="fundo-claro">
     <div class="miolo">
       <h2 class="titulo">Veja o editor por dentro</h2>
-      <p class="lead">A aba Edição reúne o player do vídeo inteiro e a timeline. Os textos e o painel de GPS aparecem na tela em tempo real, enquanto você assiste.</p>
+      <p class="lead">O app tem três abas, na ordem em que se trabalha: Cortes, Edição e Entrega. Abaixo, a aba Cortes e a aba Edição, onde os textos e o painel de GPS aparecem na tela em tempo real, enquanto você assiste.</p>
       <div class="telas">
+        <figure class="larga">
+          <img src="cortes.jpg" width="1600" height="987" loading="lazy" alt="Aba Cortes do BNT Editor: o player toca o arquivo bruto, com a forma de onda do som e o trecho do corte em laranja, e a lista de cortes mostra arquivo, entrada, saída e duração de cada um">
+          <figcaption><strong>Cortes.</strong> O player toca direto o arquivo bruto, com a forma de onda do som e o trecho do corte em laranja. À direita, a lista de cortes com arquivo, entrada, saída e duração, e a faixa no alto mostra todos os cortes da parte lado a lado.</figcaption>
+        </figure>
         <figure>
           <img src="edicao-localizacao.jpg" width="1600" height="987" loading="lazy" alt="Edição com o nome do lugar sobre o vídeo e o painel de GPS com velocímetro, inclinação, altitude e minimapa">
           <figcaption><strong>Localização e painel de GPS.</strong> O nome do lugar vem do GPS, e o painel mostra velocidade, inclinação, altitude, força G e o mapa do percurso.</figcaption>
