@@ -1,0 +1,57 @@
+# Atualiza a página /pedais/ todos os dias: busca os pedais no Strava, casa com os vídeos do canal e grava pedais/index.html.
+# Segredos usados: STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN (criados por ferramentas/strava_autorizar.ps1)
+# e YOUTUBE_API_KEY. Opcional: GH_PAT_SEGREDOS, um token do GitHub só com permissão de escrever segredos deste repositório,
+# para guardar o refresh token novo caso o Strava o troque (sem ele, o robô avisa e o token precisa ser refeito).
+name: Atualizar página de pedais
+
+on:
+  schedule:
+    - cron: "40 9 * * *"    # todo dia às 09:40 UTC (06:40 em Brasília)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar o Pillow (monta as imagens dos mapas)
+        run: pip install pillow
+
+      - name: Gerar a página
+        env:
+          STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
+          STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
+          STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          NOVO_REFRESH_ARQUIVO: ${{ runner.temp }}/novo_refresh.txt
+        run: python ferramentas/gerar_pedais.py
+
+      - name: Guardar o refresh token novo do Strava (se mudou)
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT_SEGREDOS }}
+          NOVO: ${{ runner.temp }}/novo_refresh.txt
+        run: |
+          if [ -s "$NOVO" ]; then
+            if [ -n "$GH_TOKEN" ]; then
+              gh secret set STRAVA_REFRESH_TOKEN --repo "${{ github.repository }}" < "$NOVO"
+              echo "Refresh token do Strava atualizado."
+            else
+              echo "::warning::O Strava trocou o refresh token e não há GH_PAT_SEGREDOS para guardar o novo. Rode ferramentas/strava_autorizar.ps1 de novo."
+            fi
+          fi
+
+      - name: Gravar se mudou
+        run: |
+          [ -f pedais/index.html ] || { echo "Sem pedais/index.html: nada a gravar."; exit 0; }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pedais
+          git diff --cached --quiet || (git commit -m "Atualiza a página de pedais e os mapas" && git pull --rebase origin main && git push)

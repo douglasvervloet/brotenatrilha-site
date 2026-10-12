@@ -1,0 +1,4 @@
+{
+  "_como_usar": "Para forçar o vídeo de um pedal, escreva o número da atividade do Strava e o código do vídeo do YouTube (as 11 letras depois de v=). Use \"-\" no lugar do código para dizer que o pedal não tem vídeo.",
+  "_exemplo": "\"20352614990\": \"AbCdEfGhIjK\""
+}
