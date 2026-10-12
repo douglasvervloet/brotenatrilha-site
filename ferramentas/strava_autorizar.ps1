@@ -12,6 +12,7 @@ Precisa do GitHub CLI (gh) já logado.
 #>
 param([string]$Repo = "douglasvervloet/brotenatrilha-site", [int]$Porta = 8723)
 $ErrorActionPreference = 'Stop'
+try { Add-Type -AssemblyName System.Web } catch { }   # HttpUtility, no Windows PowerShell 5.1
 
 $id = (Read-Host "Client ID do app do Strava").Trim()
 $seguro = Read-Host "Client Secret do app do Strava" -AsSecureString
