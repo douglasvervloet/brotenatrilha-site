@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BNT Editor</title>
+<meta name="description" content="BNT Editor: aplicativo de Windows para editar vídeos de ciclismo. Do material bruto da câmera ao vídeo pronto no YouTube, com cortes, painel de GPS, legendas automáticas, capa e envio.">
+<link rel="canonical" href="https://brotenatrilha.com.br/bnteditor/">
+<meta name="theme-color" content="#161616">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Brote na Trilha">
+<meta property="og:title" content="BNT Editor">
+<meta property="og:description" content="Editor de vídeos de ciclismo para Windows: do material bruto da câmera ao vídeo pronto no YouTube.">
+<meta property="og:url" content="https://brotenatrilha.com.br/bnteditor/">
+<meta property="og:image" content="https://brotenatrilha.com.br/bnteditor/compartilhar.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" type="image/png" sizes="48x48" href="favicon.png">
+<link rel="icon" type="image/png" sizes="256x256" href="icone.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<style>
+  :root {
+    --laranja: #fe7201;
+    --laranja-botao: #c25400;
+    --laranja-claro: #ff9a4d;
+    --fundo-topo: #161616;
+    --fundo: #f6f3ea;
+    --cartao: #ffffff;
+    --texto: #1f1f1f;
+    --texto-suave: #55524a;
+    --linha: #ded9ca;
+    --raio: 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fundo: #121212;
+      --cartao: #1d1d1d;
+      --texto: #eeeeee;
+      --texto-suave: #adadad;
+      --linha: #333333;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--fundo);
+    color: var(--texto);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  img { max-width: 100%; height: auto; display: block; }
+
+  .pular { position: absolute; left: -999px; top: 0; background: #fff; color: #000; padding: 8px 14px; z-index: 10; }
+  .pular:focus { left: 8px; top: 8px; }
+  :focus-visible { outline: 3px solid var(--laranja); outline-offset: 3px; border-radius: 4px; }
+
+  .miolo { width: min(1080px, 100% - 32px); margin-inline: auto; }
+
+  /* ---------- Topo ---------- */
+  .topo { background: var(--fundo-topo); }
+  .topo .miolo { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; }
+  .voltar { color: #d8d8d8; text-decoration: none; font-size: .95rem; padding: 6px 2px; border-bottom: 2px solid transparent; }
+  .voltar:hover { border-bottom-color: var(--laranja); color: #fff; }
+  .menu { display: flex; gap: 22px; }
+  .menu a { color: #d8d8d8; text-decoration: none; font-size: .95rem; padding: 6px 2px; border-bottom: 2px solid transparent; }
+  .menu a:hover { border-bottom-color: var(--laranja); color: #fff; }
+
+  /* ---------- Capa ---------- */
+  .capa {
+    background:
+      radial-gradient(900px 420px at 50% 0%, rgba(254, 114, 1, .28) 0%, transparent 65%),
+      var(--fundo-topo);
+    color: #fff;
+    text-align: center;
+    padding: 36px 0 0;
+    overflow: hidden;
+  }
+  .capa .icone { width: clamp(110px, 18vw, 150px); margin: 0 auto 16px; border-radius: 26%; box-shadow: 0 16px 36px rgba(0,0,0,.5); }
+  .capa h1 { margin: 0; font-size: clamp(2.2rem, 7vw, 3.6rem); line-height: 1.05; letter-spacing: -.5px; }
+  .capa .subtitulo { margin: 14px auto 0; max-width: 40ch; font-size: clamp(1.05rem, 2.6vw, 1.3rem); color: #e2e2e2; }
+  .acoes { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 28px 0 40px; }
+
+  .botao {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 13px 24px; border-radius: 999px;
+    font-weight: 700; text-decoration: none; font-size: 1rem;
+    border: 2px solid transparent;
+    transition: transform .15s ease, background .15s ease, border-color .15s ease;
+  }
+  .botao:hover { transform: translateY(-2px); }
+  .botao.principal { background: var(--laranja); color: #1a0f05; }
+  .botao.principal:hover { background: var(--laranja-claro); }
+  .botao.contorno { border-color: rgba(255,255,255,.5); color: #fff; }
+  .botao.contorno:hover { background: rgba(255,255,255,.1); border-color: #fff; }
+  .botao.cheio { background: var(--laranja-botao); color: #fff; }
+  .botao.cheio:hover { background: #a54700; }
+
+  /* o print entra na capa, cortado embaixo, como uma janela saindo da página */
+  .janela { width: min(1080px, 100% - 32px); margin: 0 auto; border-radius: 14px 14px 0 0; overflow: hidden;
+    box-shadow: 0 -10px 60px rgba(254, 114, 1, .22), 0 0 0 1px rgba(255,255,255,.12); }
+  .janela img { width: 100%; }
+
+  /* ---------- Seções ---------- */
+  section { padding: 64px 0; }
+  .titulo { margin: 0 0 8px; font-size: clamp(1.6rem, 4vw, 2.1rem); line-height: 1.2; letter-spacing: -.2px; }
+  .titulo::after { content: ""; display: block; width: 52px; height: 4px; border-radius: 2px; background: var(--laranja); margin-top: 10px; }
+  .lead { color: var(--texto-suave); max-width: 62ch; margin: 14px 0 0; }
+  .fundo-claro { background: color-mix(in srgb, var(--laranja) 6%, var(--fundo)); border-block: 1px solid var(--linha); }
+
+  .passos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-top: 28px; counter-reset: passo; }
+  .passo { background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--raio); padding: 22px; counter-increment: passo; }
+  .passo::before { content: counter(passo); display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+    background: var(--laranja-botao); color: #fff; font-weight: 800; margin-bottom: 12px; }
+  .passo h3 { margin: 0 0 6px; font-size: 1.1rem; }
+  .passo p { margin: 0; color: var(--texto-suave); font-size: .96rem; }
+
+  .telas { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 28px; }
+  .telas figure { margin: 0; }
+  .telas img { width: 100%; border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.28); border: 1px solid var(--linha); }
+  .telas figcaption { margin-top: 10px; font-size: .93rem; color: var(--texto-suave); }
+
+  .recursos { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; margin-top: 28px; }
+  .grupo { background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--raio); padding: 24px; }
+  .grupo h3 { margin: 0 0 10px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+  .grupo h3 span { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--laranja-botao); color: #fff; font-size: 1rem; }
+  .grupo ul { margin: 0; padding-left: 1.15em; }
+  .grupo li { margin: 6px 0; color: var(--texto-suave); }
+  .grupo li strong { color: var(--texto); font-weight: 650; }
+
+  /* o último cartão, quando sobra sozinho na linha, ocupa a linha toda */
+  @media (min-width: 1000px) {
+    .grupo:last-child:nth-child(3n + 1) { grid-column: 1 / -1; }
+    .grupo:last-child:nth-child(3n + 1) ul { columns: 2; column-gap: 40px; }
+    .grupo:last-child:nth-child(3n + 1) li { break-inside: avoid; }
+  }
+
+  .requisitos { margin: 24px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .requisitos li { background: var(--cartao); border: 1px solid var(--linha); border-radius: 12px; padding: 14px 18px; color: var(--texto-suave); }
+  .requisitos strong { color: var(--texto); display: block; }
+
+  .convite { text-align: center; }
+  .convite .lead { margin-inline: auto; }
+  .convite .acoes { margin: 26px 0 0; }
+
+  /* ---------- Rodapé ---------- */
+  footer { background: var(--fundo-topo); color: #c8c8c8; padding: 34px 0; font-size: .92rem; }
+  footer .miolo { display: flex; flex-wrap: wrap; gap: 10px 26px; align-items: center; justify-content: space-between; }
+  footer a { color: #fff; }
+  footer .links { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+  footer .peq { flex-basis: 100%; color: #9a9a9a; font-size: .85rem; }
+
+  @media (max-width: 760px) {
+    .menu { display: none; }
+    .telas { grid-template-columns: 1fr; }
+    section { padding: 48px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .botao { transition: none; }
+  }
+</style>
+</head>
+<body>
+<a class="pular" href="#recursos">Pular para as funcionalidades</a>
+
+<header class="topo">
+  <div class="miolo">
+    <a class="voltar" href="../">&larr; Brote na Trilha</a>
+    <nav class="menu" aria-label="Principal">
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#telas">Telas</a>
+      <a href="#recursos">Funcionalidades</a>
+      <a href="#requisitos">Requisitos</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="capa">
+    <div class="miolo">
+      <img class="icone" src="icone.png" width="150" height="150" alt="Ícone do BNT Editor: um ciclista de mountain bike com as letras bnt">
+      <h1>BNT Editor</h1>
+      <p class="subtitulo">Editor de vídeos de ciclismo para Windows: do material bruto da câmera ao vídeo pronto no YouTube.</p>
+      <div class="acoes">
+        <a class="botao principal" href="#recursos">Ver as funcionalidades</a>
+        <a class="botao contorno" href="#testar">Quero testar</a>
+      </div>
+    </div>
+    <div class="janela">
+      <img src="edicao-localizacao.jpg" width="1600" height="987" alt="Aba Edição do BNT Editor: o player mostra um trecho de trilha com o painel de GPS e o nome do lugar sobre a imagem, e a timeline do vídeo inteiro aparece embaixo">
+    </div>
+  </div>
+
+  <section id="como-funciona">
+    <div class="miolo">
+      <h2 class="titulo">Do bruto ao YouTube, num só programa</h2>
+      <p class="lead">O BNT Editor foi feito para quem grava pedais com GoPro e celular. Ele cuida de todo o caminho, sem passar por outro editor.</p>
+      <div class="passos">
+        <div class="passo"><h3>Corta</h3><p>Monte os cortes de cada parte do vídeo direto nos arquivos brutos: teaser, principal e encerramento.</p></div>
+        <div class="passo"><h3>Acrescenta</h3><p>Textos, nomes de lugares, painel de GPS, música, câmera lenta, zoom, transições e ajuste de brilho.</p></div>
+        <div class="passo"><h3>Renderiza</h3><p>Gera o vídeo final em 4K, com a placa de vídeo NVIDIA, e o som no volume certo para o YouTube.</p></div>
+        <div class="passo"><h3>Entrega</h3><p>Capa, legendas automáticas, capítulos, dados do vídeo e envio ao YouTube, tudo na mesma tela.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="telas" class="fundo-claro">
+    <div class="miolo">
+      <h2 class="titulo">Veja o editor por dentro</h2>
+      <p class="lead">A aba Edição reúne o player do vídeo inteiro e a timeline. Os textos e o painel de GPS aparecem na tela em tempo real, enquanto você assiste.</p>
+      <div class="telas">
+        <figure>
+          <img src="edicao-localizacao.jpg" width="1600" height="987" loading="lazy" alt="Edição com o nome do lugar sobre o vídeo e o painel de GPS com velocímetro, inclinação, altitude e minimapa">
+          <figcaption><strong>Localização e painel de GPS.</strong> O nome do lugar vem do GPS, e o painel mostra velocidade, inclinação, altitude, força G e o mapa do percurso.</figcaption>
+        </figure>
+        <figure>
+          <img src="edicao-informacao.jpg" width="1600" height="987" loading="lazy" alt="Edição com um texto de informação no terço inferior do vídeo e a timeline com as marcas coloridas">
+          <figcaption><strong>Informações na tela.</strong> Textos de uma a três linhas no momento certo, com as marcas de cada item na timeline.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="recursos">
+    <div class="miolo">
+      <h2 class="titulo">Funcionalidades</h2>
+      <div class="recursos">
+        <div class="grupo">
+          <h3><span aria-hidden="true">&#9986;</span> Cortes</h3>
+          <ul>
+            <li>Player direto nos <strong>arquivos brutos</strong>, com a taxa de quadros de cada um (GoPro e celular).</li>
+            <li><strong>Forma de onda</strong> do som e trechos de <strong>fala</strong> marcados na barra de tempo.</li>
+            <li>Marcar início e fim, dividir, duplicar, reordenar arrastando e ajustar quadro a quadro.</li>
+            <li>Conferir a emenda entre cortes e tocar a sequência inteira.</li>
+            <li>As marcas (textos, localizações, GPS, música) <strong>acompanham os cortes</strong> quando você move ou apaga trechos.</li>
+          </ul>
+        </div>
+        <div class="grupo">
+          <h3><span aria-hidden="true">&#9998;</span> Textos e painel</h3>
+          <ul>
+            <li><strong>Informações</strong> na tela, com sugestões prontas pelo GPX: ponto mais alto, velocidade máxima e subida mais forte.</li>
+            <li><strong>Localização</strong> com o nome do lugar preenchido pelo GPS, e detecção dos lugares ao longo do trajeto.</li>
+            <li><strong>Painel de GPS</strong> com velocímetro, inclinação, altitude, força G e minimapa, a partir do GPX e da telemetria da GoPro.</li>
+            <li>Botão de <strong>Curtir e Inscrever</strong>, manual ou automático a cada N minutos.</li>
+            <li><strong>Música</strong> de fundo que abaixa sozinha quando há fala.</li>
+            <li><strong>Resumo do passeio</strong>: tela final com mapa, traçado, perfil de altitude e números do percurso.</li>
+          </ul>
+        </div>
+        <div class="grupo">
+          <h3><span aria-hidden="true">&#9889;</span> Efeitos</h3>
+          <ul>
+            <li><strong>Câmera lenta, acelerado e hyperlapse</strong>, com rampa suave de entrada e saída.</li>
+            <li><strong>Desfoque de movimento</strong> para dar sensação de velocidade.</li>
+            <li><strong>Zoom</strong> de até 3x, com retângulos de começo e fim desenhados no player.</li>
+            <li><strong>Transições</strong> em cada emenda: escurecer, corte seco ou fusão.</li>
+            <li><strong>Ajuste de brilho</strong> por clipe, para gravações que escurecem no fim do dia ou clareiam no amanhecer.</li>
+          </ul>
+        </div>
+        <div class="grupo">
+          <h3><span aria-hidden="true">&#9654;</span> Renderização</h3>
+          <ul>
+            <li>Saída em <strong>4K, 1080p ou 720p</strong>, a 60 ou 30 quadros, em 10 bits.</li>
+            <li>Usa a <strong>placa NVIDIA</strong> (HEVC) para ser rápido; sem ela, usa o processador.</li>
+            <li>Cada clipe vira uma peça: ao mudar um detalhe, <strong>só refaz o que mudou</strong>.</li>
+            <li>Som <strong>normalizado para o YouTube</strong> (−14 LUFS).</li>
+            <li>Estimativa de tempo e de espaço em disco, e retomada se o render for interrompido.</li>
+            <li>Pode <strong>deixar tudo rodando sozinho</strong>: render, legendas, envio e desligar o computador.</li>
+          </ul>
+        </div>
+        <div class="grupo">
+          <h3><span aria-hidden="true">&#128172;</span> Legendas</h3>
+          <ul>
+            <li><strong>Legendas automáticas</strong> com o Whisper, rodando no seu computador, sem enviar o áudio a ninguém.</li>
+            <li>Correção da grafia dos <strong>nomes de lugares</strong> do vídeo e do trajeto.</li>
+            <li>Janela de <strong>revisão</strong>: ouvir cada trecho, ajustar tempo e texto, juntar, apagar e trocar uma palavra em todas.</li>
+            <li>Grava um arquivo <strong>.srt</strong> pronto para o YouTube.</li>
+          </ul>
+        </div>
+        <div class="grupo">
+          <h3><span aria-hidden="true">&#9733;</span> Capa e YouTube</h3>
+          <ul>
+            <li><strong>Editor de capa</strong> com textos arrastáveis, modelos salvos e o logo do canal.</li>
+            <li><strong>Capítulos</strong> gerados a partir das marcas do vídeo.</li>
+            <li>Título, descrição, tags, playlist, visibilidade e agendamento preenchidos no app.</li>
+            <li><strong>Envio direto ao YouTube</strong>: vídeo, capa, legendas e playlist, com a visibilidade escolhida.</li>
+            <li><strong>Conferência antes do envio</strong>, para não esquecer nada.</li>
+          </ul>
+        </div>
+        <div class="grupo">
+          <h3><span aria-hidden="true">&#128269;</span> Conferência</h3>
+          <ul>
+            <li><strong>Analisar</strong>: avisos e erros antes de renderizar.</li>
+            <li><strong>Revisão rápida</strong>: um quadro de cada item numa galeria.</li>
+            <li><strong>Prévia de um clipe</strong>, com textos e painel, antes do render completo.</li>
+            <li><strong>Desfazer e refazer</strong> com histórico das edições.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="requisitos" class="fundo-claro">
+    <div class="miolo">
+      <h2 class="titulo">Requisitos</h2>
+      <ul class="requisitos">
+        <li><strong>Windows</strong>Windows 10 (versão 2004 ou mais nova) ou Windows 11.</li>
+        <li><strong>Placa de vídeo NVIDIA</strong>Recomendada: acelera o render e as legendas. Sem ela o app funciona, mas bem mais devagar.</li>
+        <li><strong>Espaço em disco</strong>Um render em 4K usa dezenas de GB de arquivos temporários, que o app apaga ao terminar.</li>
+        <li><strong>FFmpeg e Whisper</strong>O próprio app baixa esses componentes quando você pedir.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="testar" class="convite">
+    <div class="miolo">
+      <h2 class="titulo" style="display:inline-block">Quer testar?</h2>
+      <p class="lead">O BNT Editor nasceu para editar os vídeos do canal Brote na Trilha. Se você também grava pedais e quer experimentar, escreva para a gente.</p>
+      <div class="acoes">
+        <a class="botao cheio" href="mailto:brotenatrilha@gmail.com?subject=BNT%20Editor">brotenatrilha@gmail.com</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="miolo">
+    <span>© <span id="ano">2026</span> Brote na Trilha</span>
+    <span class="links">
+      <a href="https://bnteditor.brotenatrilha.com.br/privacidade">Política de privacidade</a>
+      <a href="https://bnteditor.brotenatrilha.com.br/termos-de-uso">Termos de uso</a>
+      <a href="../">Canal Brote na Trilha</a>
+    </span>
+    <span class="peq">
+      O envio ao YouTube usa os Serviços de API do YouTube. Ao usá-lo, você concorda com os
+      <a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener">Termos de Serviço do YouTube</a>
+      e com a <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Política de Privacidade do Google</a>.
+    </span>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("ano").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
