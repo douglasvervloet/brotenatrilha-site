@@ -416,14 +416,17 @@ def main():
     if atividades is None:
         print("Sem as credenciais do Strava (STRAVA_*): nada a fazer.")
         return 0
+    caminho_ajustes = os.path.join(os.path.dirname(__file__), "ajustes_pedais.json")
+    ajustes = json.load(open(caminho_ajustes, encoding="utf-8")) if os.path.exists(caminho_ajustes) else {}
+    desde = ajustes.get("_desde", "")                  # pedais antes desta data (AAAA-MM-DD) não aparecem
+    ocultar = {str(i) for i in ajustes.get("_ocultar", [])}   # números de atividades do Strava que não devem aparecer
     videos = videos_do_canal()
     com_video = set(atividades_dos_videos(videos))   # pedais que o canal linkou na descrição de algum vídeo
     pedais = [a for a in atividades
               if (PREFIXO.match(a.get("name", "")) or str(a["id"]) in com_video)
-              and a.get("sport_type", a.get("type")) in ("Ride", "GravelRide", "MountainBikeRide", "EBikeRide")]
+              and a.get("sport_type", a.get("type")) in ("Ride", "GravelRide", "MountainBikeRide", "EBikeRide")
+              and a["start_date_local"][:10] >= desde and str(a["id"]) not in ocultar]
     pedais.sort(key=lambda a: a["start_date_local"], reverse=True)
-    caminho_ajustes = os.path.join(os.path.dirname(__file__), "ajustes_pedais.json")
-    ajustes = json.load(open(caminho_ajustes, encoding="utf-8")) if os.path.exists(caminho_ajustes) else {}
     casar_videos(pedais, videos, {k: v for k, v in ajustes.items() if not k.startswith("_")})
     for p in pedais:
         p["_komoot"] = link_komoot(p["_video"])
@@ -437,6 +440,12 @@ def main():
                 p["_mapa"] = gerar_mapa(p["id"], pontos, pasta_mapas, pasta_cache)
             except Exception as erro:               # sem mapa de fundo, o cartão mostra só o traçado
                 print("  sem mapa de fundo:", p["name"], "-", erro)
+    if os.path.isdir(pasta_mapas):                      # tira os mapas de pedais que saíram da página
+        atuais = {f"{p['id']}.webp" for p in pedais}
+        for nome in os.listdir(pasta_mapas):
+            if nome.endswith(".webp") and nome not in atuais:
+                os.remove(os.path.join(pasta_mapas, nome))
+                print("  mapa removido:", nome)
     print(f"{len(pedais)} pedais; {sum(1 for p in pedais if p['_video'])} com vídeo; {sum(1 for p in pedais if p['_komoot'])} com Komoot; "
           f"{sum(1 for p in pedais if p['_mapa'] or svg_do_tracado((p.get('map') or {}).get('summary_polyline') or ''))} com mapa")
     for p in pedais:

@@ -1,4 +1,6 @@
 {
-  "_como_usar": "Para forçar o vídeo de um pedal, escreva o número da atividade do Strava e o código do vídeo do YouTube (as 11 letras depois de v=). Use \"-\" no lugar do código para dizer que o pedal não tem vídeo.",
+  "_desde": "2025-01-01",
+  "_ocultar": [],
+  "_como_usar": "_desde: pedais antes desta data não aparecem. _ocultar: lista de números de atividades do Strava que não devem aparecer. Para forçar o vídeo de um pedal, escreva o número da atividade do Strava e o código do vídeo do YouTube (as 11 letras depois de v=); use \"-\" no lugar do código para dizer que o pedal não tem vídeo.",
   "_exemplo": "\"20352614990\": \"AbCdEfGhIjK\""
 }
