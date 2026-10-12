@@ -139,10 +139,6 @@
     .grupo:last-child:nth-child(3n + 1) li { break-inside: avoid; }
   }
 
-  .requisitos { margin: 24px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
-  .requisitos li { background: var(--cartao); border: 1px solid var(--linha); border-radius: 12px; padding: 14px 18px; color: var(--texto-suave); }
-  .requisitos strong { color: var(--texto); display: block; }
-
   /* ---------- Rodapé ---------- */
   footer { background: var(--fundo-topo); color: #c8c8c8; padding: 34px 0; font-size: .92rem; }
   footer .miolo { display: flex; flex-wrap: wrap; gap: 10px 26px; align-items: center; justify-content: space-between; }
@@ -171,7 +167,6 @@
       <a href="#como-funciona">Como funciona</a>
       <a href="#telas">Telas</a>
       <a href="#recursos">Funcionalidades</a>
-      <a href="#requisitos">Requisitos</a>
     </nav>
   </div>
 </header>
@@ -299,17 +294,6 @@
     </div>
   </section>
 
-  <section id="requisitos" class="fundo-claro">
-    <div class="miolo">
-      <h2 class="titulo">Requisitos</h2>
-      <ul class="requisitos">
-        <li><strong>Windows</strong>Windows 10 (versão 2004 ou mais nova) ou Windows 11.</li>
-        <li><strong>Placa de vídeo NVIDIA</strong>Recomendada: acelera o render e as legendas. Sem ela o app funciona, mas bem mais devagar.</li>
-        <li><strong>Espaço em disco</strong>Um render em 4K usa dezenas de GB de arquivos temporários, que o app apaga ao terminar.</li>
-        <li><strong>FFmpeg e Whisper</strong>O próprio app baixa esses componentes quando você pedir.</li>
-      </ul>
-    </div>
-  </section>
 
 </main>
 
