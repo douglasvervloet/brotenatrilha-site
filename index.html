@@ -152,6 +152,23 @@
   .cartao h3 { margin: 0 0 6px; font-size: 1.15rem; }
   .cartao p { margin: 8px 0 0; color: var(--texto-suave); }
 
+  .brote { display: grid; grid-template-columns: 1.4fr 1fr; gap: 36px; align-items: start; margin-top: 18px; }
+  .brote p { margin: 12px 0 0; }
+  .brote h3 { margin: 26px 0 0; font-size: 1.15rem; }
+  .brote .cartao h3 { margin-top: 0; }
+  .fotos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 34px; }
+  .fotos figure { margin: 0; }
+  .fotos img { width: 100%; border-radius: var(--raio); box-shadow: 0 10px 28px rgba(20, 50, 30, .22); }
+  .fotos figcaption { margin-top: 10px; font-size: .92rem; color: var(--texto-suave); }
+  .fatos { margin: 12px 0 0; }
+  .fatos dt { font-size: .8rem; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--verde); margin-top: 14px; }
+  .fatos dt:first-child { margin-top: 0; }
+  .fatos dd { margin: 2px 0 0; color: var(--texto-suave); }
+  @media (prefers-color-scheme: dark) { .fatos dt { color: #7fcf9d; } }
+  .fontes { margin-top: 28px; font-size: .88rem; color: var(--texto-suave); }
+  .cartao a { color: var(--verde); font-weight: 600; }
+  @media (prefers-color-scheme: dark) { .cartao a { color: #7fcf9d; } }
+
   .redes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 26px; }
   .rede {
     display: flex; align-items: center; gap: 16px;
@@ -178,7 +195,7 @@
     .menu a { font-size: .88rem; }
     .marca span { display: none; }
     .capa { padding: 96px 0 130px; }
-    .sobre { grid-template-columns: 1fr; gap: 22px; }
+    .sobre, .brote, .fotos { grid-template-columns: 1fr; gap: 22px; }
     section { padding: 48px 0; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -200,6 +217,7 @@
       <a href="#videos">Vídeos</a>
       <a href="#playlists">Playlists</a>
       <a href="#sobre">Sobre</a>
+      <a href="#brote">O brote</a>
       <a href="#redes">Redes</a>
       <a href="#contato">Contato</a>
     </nav>
@@ -285,8 +303,51 @@
       </div>
       <aside class="cartao">
         <h3>Por que "Brote"?</h3>
-        <p>O brote é um pão de fubá e trigo de origem pomerana. Ele está no logo, ao lado da garrafa térmica e da bike.</p>
+        <p>O brote é o pão tradicional dos pomeranos do Espírito Santo. Ele está no logo, ao lado da garrafa térmica e da bike.</p>
+        <p><a href="#brote">Saiba mais sobre o brote</a></p>
       </aside>
+    </div>
+  </section>
+
+  <section id="brote" class="fundo-claro">
+    <div class="miolo">
+      <h2 class="titulo">O que é o brote</h2>
+      <div class="brote">
+        <div class="texto">
+          <p>O brote é um pão de milho tradicional dos descendentes de imigrantes pomeranos no Espírito Santo. O nome vem do alemão <em>Brot</em>, que significa "pão"; em pomerano, o de milho é o <em>mijlchebrood</em>.</p>
+          <p>Os pomeranos chegaram ao estado em meados do século XIX. Como o trigo não se adaptou ao clima tropical do interior, passaram a usar o milho. Por muito tempo o pão foi motivo de vergonha, e quem o comia era chamado de "broteiro" de modo pejorativo. Hoje ele é orgulho e símbolo da cultura pomerana, e em 2024 foi reconhecido como patrimônio cultural imaterial do Espírito Santo.</p>
+          <h3>Como é feito</h3>
+          <p>A massa leva fubá de milho, tradicionalmente moído em moinho, raízes raladas, como batata-doce, inhame, cará e aipim, sal e fermento. Depois de crescer, ela é porcionada sobre folhas de bananeira, que evitam que grude, e assada em forno à lenha até a casca escurecer.</p>
+          <h3>Como se come</h3>
+          <p>Com manteiga, linguiça defumada, geleia, coalhada ou café com leite. É presença certa em cafés coloniais e casamentos pomeranos.</p>
+        </div>
+        <aside class="cartao">
+          <h3>Em resumo</h3>
+          <dl class="fatos">
+            <dt>Origem</dt><dd>Pomeranos no Espírito Santo, século XIX</dd>
+            <dt>Feito com</dt><dd>Fubá de milho e raízes</dd>
+            <dt>Assado em</dt><dd>Forno à lenha, sobre folha de bananeira</dd>
+            <dt>Onde é feito</dt><dd>Santa Maria de Jetibá, Santa Leopoldina, Laranja da Terra, Itarana e Vila Pavão</dd>
+            <dt>Reconhecimento</dt><dd>Patrimônio cultural imaterial do Espírito Santo (2024)</dd>
+          </dl>
+        </aside>
+      </div>
+      <div class="fotos">
+        <figure>
+          <img src="brote-forno.jpg" width="1280" height="800" loading="lazy" alt="Brote assado numa forma sobre folha de bananeira, dentro do forno à lenha">
+          <figcaption>Brote assado em forno à lenha, sobre folha de bananeira.</figcaption>
+        </figure>
+        <figure>
+          <img src="brote-cortado.jpg" width="1280" height="800" loading="lazy" alt="Duas fatias de brote com manteiga num prato, ao lado de um copo de café">
+          <figcaption>Brote cortado, com manteiga e café.</figcaption>
+        </figure>
+      </div>
+      <p class="fontes">
+        Fontes:
+        <a href="https://slowfoodbrasil.org.br/arca_do_gosto/brote-pomerano/" target="_blank" rel="noopener">Slow Food Brasil (Arca do Gosto)</a>,
+        <a href="https://eshoje.com.br/geral/cidades/2024/06/pao-pomerano-feito-de-raizes-e-farinha-de-milho-vira-patrimonio-imaterial-do-es/" target="_blank" rel="noopener">ES Hoje</a>
+        e <a href="https://pt.wikipedia.org/wiki/Brote" target="_blank" rel="noopener">Wikipédia</a>.
+      </p>
     </div>
   </section>
 
