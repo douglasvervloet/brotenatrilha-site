@@ -149,6 +149,28 @@
   .chip[aria-pressed="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
   .escolha + .player { margin-top: 18px; }
 
+  /* último pedal (preenchido pelo robô diário) */
+  .ultimo { display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; align-items: center; margin-top: 26px; }
+  .ultimo-mapa { display: block; text-decoration: none; }
+  .ultimo .mapa { display: block; position: relative; aspect-ratio: 5 / 3; border-radius: 16px; overflow: hidden; background: #cfe0c4; box-shadow: 0 14px 36px rgba(20, 50, 30, .22); }
+  .ultimo .mapa img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .ultimo .mapa svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ultimo .mapa path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .ultimo .mapa .halo { stroke: #ffffff; stroke-width: 8; opacity: .9; }
+  .ultimo .mapa .linha { stroke: #d6004f; stroke-width: 4.5; }
+  .ultimo h3 { margin: 0; font-size: clamp(1.3rem, 3.5vw, 1.7rem); line-height: 1.25; }
+  .ultimo h3 a { text-decoration: none; }
+  .ultimo h3 a:hover { text-decoration: underline; }
+  .ultimo .data { margin: 4px 0 0; color: var(--texto-suave); }
+  .ultimo dl { margin: 16px 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .ultimo dl div { background: var(--cartao); border: 1px solid var(--linha); border-radius: 12px; padding: 10px 4px; text-align: center; }
+  .ultimo dt { font-size: .68rem; letter-spacing: .5px; text-transform: uppercase; color: var(--texto-suave); }
+  .ultimo dd { margin: 2px 0 0; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .ultimo .links { margin: 18px 0 0; display: flex; flex-wrap: wrap; gap: 10px; }
+  .botao.borda { border-color: var(--linha); color: var(--texto); }
+  .botao.borda:hover { border-color: var(--verde); }
+  @media (max-width: 760px) { .ultimo { grid-template-columns: 1fr; gap: 20px; } }
+
   .sobre { display: grid; grid-template-columns: 1.3fr 1fr; gap: 36px; align-items: start; }
   .sobre p { margin: 14px 0 0; }
   .cartao {
@@ -289,7 +311,16 @@
     </div>
   </section>
 
-  <section id="playlists" class="fundo-claro">
+  <section id="ultimo-pedal" class="fundo-claro">
+    <div class="miolo">
+      <h2 class="titulo">Último pedal</h2>
+      <p class="lead">O passeio mais recente do canal, com o percurso e os números.</p>
+      <!--ULTIMO_PEDAL-->
+      <!--/ULTIMO_PEDAL-->
+    </div>
+  </section>
+
+  <section id="playlists">
     <div class="miolo">
       <h2 class="titulo">Playlists</h2>
       <p class="lead">Os vídeos do canal separados por assunto. Escolha uma e assista aqui mesmo.</p>
@@ -315,7 +346,7 @@
     </div>
   </section>
 
-  <section id="sobre">
+  <section id="sobre" class="fundo-claro">
     <div class="miolo sobre">
       <div>
         <h2 class="titulo">Sobre o canal</h2>
@@ -330,7 +361,7 @@
     </div>
   </section>
 
-  <section id="brote" class="fundo-claro">
+  <section id="brote">
     <div class="miolo">
       <h2 class="titulo">O que é o brote</h2>
       <p class="pronuncia">Pronuncia-se <strong>BRÔ-te</strong>, com o "o" fechado, como em "bote".</p>
@@ -373,7 +404,7 @@
     </div>
   </section>
 
-  <section id="redes">
+  <section id="redes" class="fundo-claro">
     <div class="miolo">
       <h2 class="titulo">Acompanhe</h2>
       <p class="lead">Vídeos novos no YouTube, o dia a dia dos pedais no Instagram e as atividades no Strava.</p>
@@ -394,7 +425,7 @@
     </div>
   </section>
 
-  <section id="contato" class="fundo-claro">
+  <section id="contato">
     <div class="miolo">
       <h2 class="titulo">Contato</h2>
       <p class="lead">Quer pedalar junto, sugerir uma rota ou falar com a gente? Escreva:</p>

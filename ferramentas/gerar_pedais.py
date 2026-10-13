@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Gera a página /pedais/ do site a partir do Strava e do canal do YouTube.
+Gera as páginas de pedais do site (a lista /pedais/, uma página por pedal, o "Último pedal" da página inicial e o sitemap)
+a partir do Strava e do canal do YouTube.
 
 - Busca no Strava as atividades públicas cujo nome começa com "Brote na Trilha" (precisa de STRAVA_CLIENT_ID,
   STRAVA_CLIENT_SECRET e STRAVA_REFRESH_TOKEN; o escopo activity:read já deixa de fora as zonas de privacidade).
@@ -8,7 +9,8 @@ Gera a página /pedais/ do site a partir do Strava e do canal do YouTube.
   link do Komoot da descrição do vídeo (precisa de YOUTUBE_API_KEY; sem a chave, os cartões saem sem vídeo).
 - Desenha o traçado em SVG, SEM o começo e o fim: os primeiros e os últimos 800 m são cortados, para não mostrar de onde
   o pedal sai (a casa de quem pedala).
-- Grava pedais/index.html (a página é estática, sem JavaScript).
+- Grava pedais/index.html, pedais/<data-título>/index.html, o bloco 'Último pedal' do index.html e o sitemap.xml
+  (páginas estáticas; só a busca e os filtros da lista usam JavaScript).
 
 Uso:  python ferramentas/gerar_pedais.py            (usa as variáveis de ambiente)
       python ferramentas/gerar_pedais.py --teste dados.json --saida pasta/index.html
@@ -20,6 +22,7 @@ import json
 import math
 import os
 import re
+import shutil
 import sys
 import unicodedata
 import urllib.error
@@ -361,24 +364,68 @@ def gerar_mapa(pedal_id, pontos, pasta_mapas, pasta_cache):
 
 
 # ----------------------------------------------------------------------------- página
-def cartao(p):
+ABREV = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
+ESTATICAS = [("https://brotenatrilha.com.br/bnteditor/", "2026-10-12"), ("https://brotenatrilha.com.br/privacidade/", "2026-10-12")]
+
+
+def slug_do_pedal(p):
+    t = re.sub(r"[^a-z0-9]+", "-", sem_acento(titulo_do_pedal(p["name"]).lower())).strip("-")
+    if len(t) > 60:
+        t = t[:60].rsplit("-", 1)[0]
+    return f'{p["start_date_local"][:10]}-{t}'
+
+
+def numeros(p):
     km = p["distance"] / 1000
     media = km / (p["moving_time"] / 3600) if p["moving_time"] else 0
+    return km, media
+
+
+def trecho_descricao(video):
+    """O primeiro parágrafo da descrição do vídeo (sem links, hashtags e chamadas), para o texto da página do pedal."""
+    if not video:
+        return ""
+    linhas = []
+    for linha in video["descricao"].replace("\r", "").split("\n"):
+        linha = linha.strip()
+        if not linha:
+            if linhas:
+                break
+            continue
+        if re.search(r"https?://|^#|strava|komoot|inscreva|^rota[ ,:]|^[-•*]", linha, re.I):
+            if linhas:
+                break
+            continue
+        linhas.append(linha)
+    t = " ".join(linhas)
+    return (t[:480].rsplit(" ", 1)[0] + "…") if len(t) > 480 else t
+
+
+def mapa_html(p, prefixo_mapas, carregar="lazy"):
     if p.get("_mapa"):
-        mapa = (f'<div class="mapa com-fundo"><img src="mapas/{p["id"]}.webp" width="{MAPA_L}" height="{MAPA_A}" '
-                f'loading="lazy" decoding="async" alt="">{p["_mapa"]}</div>')
-    else:
-        mapa = svg_do_tracado((p.get("map") or {}).get("summary_polyline") or "") or '<div class="mapa vazio">Sem traçado</div>'
+        return (f'<div class="mapa com-fundo"><img src="{prefixo_mapas}{p["id"]}.webp" width="{MAPA_L}" height="{MAPA_A}" '
+                f'loading="{carregar}" decoding="async" alt="">{p["_mapa"]}</div>')
+    return svg_do_tracado((p.get("map") or {}).get("summary_polyline") or "") or '<div class="mapa vazio">Sem traçado</div>'
+
+
+def botoes(p, claro_assistir=False, extra=""):
     links = []
     if p.get("_video"):
         links.append(f'<a class="botao" href="https://www.youtube.com/watch?v={p["_video"]["id"]}" target="_blank" rel="noopener">Assistir</a>')
     links.append(f'<a class="botao claro" href="https://www.strava.com/activities/{p["id"]}" target="_blank" rel="noopener">Strava</a>')
     if p.get("_komoot"):
         links.append(f'<a class="botao claro" href="{html.escape(p["_komoot"])}" target="_blank" rel="noopener">Komoot</a>')
-    return f"""      <article class="pedal">
-        {mapa}
+    return " ".join(links) + extra
+
+
+def cartao(p):
+    km, media = numeros(p)
+    titulo = html.escape(titulo_do_pedal(p["name"]))
+    mapa = mapa_html(p, "mapas/")
+    return f"""      <article class="pedal" data-ano="{p["start_date_local"][:4]}" data-km="{km:.1f}" data-nome="{html.escape(normalizar(p["name"]))}">
+        <a class="mapa-link" href="{p['_slug']}/" aria-label="Ver o pedal {titulo}">{mapa}</a>
         <div class="corpo">
-          <h3>{html.escape(titulo_do_pedal(p["name"]))}</h3>
+          <h3><a href="{p['_slug']}/">{titulo}</a></h3>
           <p class="data">{data_longa(p["start_date_local"])}</p>
           <dl>
             <div><dt>Distância</dt><dd>{num(km, 1)} km</dd></div>
@@ -386,23 +433,130 @@ def cartao(p):
             <div><dt>Tempo</dt><dd>{duracao(p["moving_time"])}</dd></div>
             <div><dt>Média</dt><dd>{num(media, 1)} km/h</dd></div>
           </dl>
-          <p class="links">{" ".join(links)}</p>
+          <p class="links">{botoes(p)}</p>
         </div>
       </article>"""
+
+
+def grafico_do_ano(ano, lista, maximo):
+    meses = [0.0] * 12
+    for p in lista:
+        meses[int(p["start_date_local"][5:7]) - 1] += p["distance"] / 1000
+    base, altura_max = 140, 104
+    barras = []
+    for i, km in enumerate(meses):
+        x = 8 + i * 31
+        h = (km / maximo) * altura_max if maximo else 0
+        rotulo = f'<text class="v" x="{x + 12}" y="{base - h - 5:.1f}">{num(km)}</text>' if km > 0 else ""
+        barras.append(f'<g><title>{ABREV[i]}/{ano}: {num(km, 1)} km</title>'
+                      f'<rect x="{x}" y="{base - h:.1f}" width="24" height="{max(h, 0):.1f}" rx="3"/>{rotulo}'
+                      f'<text class="m" x="{x + 12}" y="{base + 16}">{ABREV[i]}</text></g>')
+    km_ano = sum(meses)
+    sub = sum(p["total_elevation_gain"] for p in lista)
+    resumo_txt = f"{ano}: {len(lista)} pedais, {num(km_ano)} km e {num(sub)} m de subida"
+    return (f'<figure class="resumo-ano"><figcaption><strong>{ano}</strong> · {len(lista)} pedais · {num(km_ano)} km · {num(sub)} m de subida</figcaption>'
+            f'<svg viewBox="0 0 384 164" role="img" aria-label="Quilômetros pedalados por mês. {resumo_txt}">{"".join(barras)}</svg></figure>')
 
 
 def montar_pagina(pedais, modelo):
     por_ano = {}
     for p in pedais:
         por_ano.setdefault(p["start_date_local"][:4], []).append(p)
-    blocos = []
-    for ano in sorted(por_ano, reverse=True):
-        blocos.append(f'    <h2 class="ano">{ano}</h2>\n    <div class="grade">\n' + "\n".join(cartao(p) for p in por_ano[ano]) + "\n    </div>")
+    anos = sorted(por_ano, reverse=True)
+    maximo = max((sum(p["distance"] for p in por_ano[a] if p["start_date_local"][5:7] == f"{m:02d}") / 1000
+                  for a in anos for m in range(1, 13)), default=1) or 1
+    graficos = "\n".join("    " + grafico_do_ano(a, por_ano[a], maximo) for a in anos)
+    blocos = [f'    <div class="bloco-ano">\n    <h2 class="ano">{ano}</h2>\n    <div class="grade">\n'
+              + "\n".join(cartao(p) for p in por_ano[ano]) + "\n    </div>\n    </div>" for ano in anos]
+    chips_ano = '<button type="button" class="chip" data-filtro="ano" data-valor="todos" aria-pressed="true">Todos os anos</button>' + "".join(
+        f'<button type="button" class="chip" data-filtro="ano" data-valor="{a}" aria-pressed="false">{a}</button>' for a in anos)
     km = sum(p["distance"] for p in pedais) / 1000
     subida = sum(p["total_elevation_gain"] for p in pedais)
     resumo = f'{len(pedais)} pedais · {num(km)} km · {num(subida)} m de subida'
-    return (modelo.replace("{{RESUMO}}", resumo).replace("{{CONTEUDO}}", "\n".join(blocos))
+    return (modelo.replace("{{RESUMO}}", resumo).replace("{{GRAFICOS}}", graficos).replace("{{CHIPS_ANO}}", chips_ano)
+            .replace("{{CONTEUDO}}", "\n".join(blocos))
             .replace("{{ATUALIZADO}}", data_longa(datetime.now().strftime("%Y-%m-%d"))))
+
+
+def montar_pagina_pedal(p, mais_novo, mais_velho, modelo):
+    km, media = numeros(p)
+    titulo = titulo_do_pedal(p["name"])
+    v = p.get("_video")
+    texto = trecho_descricao(v)
+    descricao_meta = (f"{titulo}: {num(km, 1)} km, {num(p['total_elevation_gain'])} m de subida e {duracao(p['moving_time'])} de pedal "
+                      f"em {data_longa(p['start_date_local'])}. Veja o mapa do percurso e o vídeo.")
+    url = f"https://brotenatrilha.com.br/pedais/{p['_slug']}/"
+    og = f"https://i.ytimg.com/vi/{v['id']}/hqdefault.jpg" if v else "https://brotenatrilha.com.br/compartilhar.jpg"
+    ld = [{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Brote na Trilha", "item": "https://brotenatrilha.com.br/"},
+        {"@type": "ListItem", "position": 2, "name": "Pedais", "item": "https://brotenatrilha.com.br/pedais/"},
+        {"@type": "ListItem", "position": 3, "name": titulo, "item": url}]}]
+    if v:
+        ld.append({"@context": "https://schema.org", "@type": "VideoObject", "name": v["titulo"],
+                   "description": texto or descricao_meta, "thumbnailUrl": [og], "uploadDate": v["data"],
+                   "embedUrl": f"https://www.youtube.com/embed/{v['id']}", "contentUrl": f"https://www.youtube.com/watch?v={v['id']}"})
+    video = (f'<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/{v["id"]}" title="{html.escape(v["titulo"])}" loading="lazy" '
+             'allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" '
+             'referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>') if v else ""
+    nav = []
+    if mais_velho:
+        nav.append(f'<a class="anterior" href="/pedais/{mais_velho["_slug"]}/"><small>← Pedal anterior</small>{html.escape(titulo_do_pedal(mais_velho["name"]))}</a>')
+    if mais_novo:
+        nav.append(f'<a class="proximo" href="/pedais/{mais_novo["_slug"]}/"><small>Próximo pedal →</small>{html.escape(titulo_do_pedal(mais_novo["name"]))}</a>')
+    nums = (f'<div><dt>Distância</dt><dd>{num(km, 1)} km</dd></div><div><dt>Subida</dt><dd>{num(p["total_elevation_gain"])} m</dd></div>'
+            f'<div><dt>Tempo</dt><dd>{duracao(p["moving_time"])}</dd></div><div><dt>Média</dt><dd>{num(media, 1)} km/h</dd></div>')
+    troca = {"{{TITULO}}": html.escape(titulo), "{{DESCRICAO_META}}": html.escape(descricao_meta), "{{URL}}": url,
+             "{{OG_IMAGE}}": og, "{{DATA_LONGA}}": data_longa(p["start_date_local"]), "{{MAPA}}": mapa_html(p, "/pedais/mapas/", "eager"),
+             "{{NUMEROS}}": nums, "{{VIDEO}}": video, "{{TEXTO}}": f"<p class=\"texto\">{html.escape(texto)}</p>" if texto else "",
+             "{{LINKS}}": botoes(p), "{{NAV}}": "".join(nav),
+             "{{JSONLD}}": "".join('<script type="application/ld+json">' + json.dumps(x, ensure_ascii=False) + "</script>\n" for x in ld)}
+    saida = modelo
+    for k, val in troca.items():
+        saida = saida.replace(k, val)
+    return saida
+
+
+def bloco_ultimo(p):
+    """O 'Último pedal' da página inicial (fica entre os marcadores <!--ULTIMO_PEDAL--> do index.html)."""
+    km, media = numeros(p)
+    titulo = html.escape(titulo_do_pedal(p["name"]))
+    assistir = (f'<a class="botao verde" href="https://www.youtube.com/watch?v={p["_video"]["id"]}" target="_blank" rel="noopener">Assistir no YouTube</a> '
+                if p.get("_video") else "")
+    return f"""    <div class="ultimo">
+      <a class="ultimo-mapa" href="pedais/{p['_slug']}/" aria-label="Ver o pedal {titulo}">{mapa_html(p, "pedais/mapas/")}</a>
+      <div class="ultimo-texto">
+        <h3><a href="pedais/{p['_slug']}/">{titulo}</a></h3>
+        <p class="data">{data_longa(p["start_date_local"])}</p>
+        <dl>
+          <div><dt>Distância</dt><dd>{num(km, 1)} km</dd></div>
+          <div><dt>Subida</dt><dd>{num(p["total_elevation_gain"])} m</dd></div>
+          <div><dt>Tempo</dt><dd>{duracao(p["moving_time"])}</dd></div>
+          <div><dt>Média</dt><dd>{num(media, 1)} km/h</dd></div>
+        </dl>
+        <p class="links">{assistir}<a class="botao borda" href="pedais/">Ver todos os pedais</a></p>
+      </div>
+    </div>"""
+
+
+def injetar_na_home(caminho, bloco):
+    if not (caminho and os.path.exists(caminho)):
+        return False
+    s = open(caminho, encoding="utf-8").read()
+    novo = re.sub(r"(<!--ULTIMO_PEDAL-->).*?(<!--/ULTIMO_PEDAL-->)", lambda m: m.group(1) + "\n" + bloco + "\n    " + m.group(2), s, flags=re.S)
+    if novo == s:
+        return False
+    with open(caminho, "w", encoding="utf-8", newline="\n") as f:
+        f.write(novo)
+    return True
+
+
+def escrever_sitemap(caminho, pedais):
+    hoje = datetime.now().strftime("%Y-%m-%d")
+    urls = [("https://brotenatrilha.com.br/", hoje), ("https://brotenatrilha.com.br/pedais/", hoje)] + ESTATICAS
+    urls += [(f"https://brotenatrilha.com.br/pedais/{p['_slug']}/", p["start_date_local"][:10]) for p in pedais]
+    corpo = "".join(f"  <url><loc>{u}</loc><lastmod>{d}</lastmod></url>\n" for u, d in urls)
+    with open(caminho, "w", encoding="utf-8", newline="\n") as f:
+        f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + corpo + "</urlset>\n")
 
 
 def main():
@@ -410,6 +564,9 @@ def main():
     ap.add_argument("--teste", help="arquivo JSON com atividades no formato da API do Strava (em vez de buscar)")
     ap.add_argument("--saida", default="pedais/index.html")
     ap.add_argument("--modelo", default=os.path.join(os.path.dirname(__file__), "modelo_pedais.tpl"))
+    ap.add_argument("--modelo-pedal", default=os.path.join(os.path.dirname(__file__), "modelo_pedal.tpl"))
+    ap.add_argument("--home", default="", help="index.html da página inicial, para atualizar o bloco 'Último pedal'")
+    ap.add_argument("--sitemap", default="", help="sitemap.xml a reescrever com as páginas dos pedais")
     args = ap.parse_args()
 
     atividades = json.load(open(args.teste, encoding="utf-8")) if args.teste else atividades_do_strava()
@@ -428,9 +585,16 @@ def main():
               and a["start_date_local"][:10] >= desde and str(a["id"]) not in ocultar]
     pedais.sort(key=lambda a: a["start_date_local"], reverse=True)
     casar_videos(pedais, videos, {k: v for k, v in ajustes.items() if not k.startswith("_")})
+    usados = set()
     for p in pedais:
         p["_komoot"] = link_komoot(p["_video"])
-    pasta_mapas = os.path.join(os.path.dirname(os.path.abspath(args.saida)), "mapas")
+        p["_slug"] = slug_do_pedal(p)
+        if p["_slug"] in usados:
+            p["_slug"] += f"-{p['id']}"
+        usados.add(p["_slug"])
+
+    base = os.path.dirname(os.path.abspath(args.saida))
+    pasta_mapas = os.path.join(base, "mapas")
     pasta_cache = os.path.join(os.environ.get("TMPDIR", os.environ.get("TEMP", "/tmp")), "tiles_pedais")
     for p in pedais:
         p["_mapa"] = None
@@ -451,10 +615,28 @@ def main():
     for p in pedais:
         if not p["_video"]:
             print("  sem vídeo:", p["start_date_local"][:10], p["name"])
+
     modelo = open(args.modelo, encoding="utf-8").read()
-    os.makedirs(os.path.dirname(os.path.abspath(args.saida)), exist_ok=True)
+    modelo_pedal = open(args.modelo_pedal, encoding="utf-8").read()
+    os.makedirs(base, exist_ok=True)
     with open(args.saida, "w", encoding="utf-8", newline="\n") as f:
         f.write(montar_pagina(pedais, modelo))
+    for i, p in enumerate(pedais):                      # uma página para cada pedal
+        pasta = os.path.join(base, p["_slug"])
+        os.makedirs(pasta, exist_ok=True)
+        mais_novo = pedais[i - 1] if i > 0 else None
+        mais_velho = pedais[i + 1] if i + 1 < len(pedais) else None
+        with open(os.path.join(pasta, "index.html"), "w", encoding="utf-8", newline="\n") as f:
+            f.write(montar_pagina_pedal(p, mais_novo, mais_velho, modelo_pedal))
+    slugs = {p["_slug"] for p in pedais}                # apaga as páginas de pedais que saíram
+    for nome in os.listdir(base):
+        if nome != "mapas" and os.path.isdir(os.path.join(base, nome)) and nome not in slugs:
+            shutil.rmtree(os.path.join(base, nome))
+            print("  página removida:", nome)
+    if pedais and injetar_na_home(args.home, bloco_ultimo(pedais[0])):
+        print("  home: último pedal atualizado ->", titulo_do_pedal(pedais[0]["name"]))
+    if args.sitemap and pedais:
+        escrever_sitemap(args.sitemap, pedais)
     return 0
 
 

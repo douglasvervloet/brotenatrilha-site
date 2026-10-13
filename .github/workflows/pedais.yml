@@ -1,4 +1,5 @@
-# Atualiza a página /pedais/ todos os dias: busca os pedais no Strava, casa com os vídeos do canal e grava pedais/index.html.
+# Atualiza as páginas de pedais todos os dias: busca os pedais no Strava, casa com os vídeos do canal e grava pedais/index.html,
+# uma página por pedal, o bloco 'Último pedal' do index.html e o sitemap.xml.
 # Segredos usados: STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN (criados por ferramentas/strava_autorizar.ps1)
 # e YOUTUBE_API_KEY. Opcional: GH_PAT_SEGREDOS, um token do GitHub só com permissão de escrever segredos deste repositório,
 # para guardar o refresh token novo caso o Strava o troque (sem ele, o robô avisa e o token precisa ser refeito).
@@ -32,7 +33,7 @@ jobs:
           STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           NOVO_REFRESH_ARQUIVO: ${{ runner.temp }}/novo_refresh.txt
-        run: python ferramentas/gerar_pedais.py
+        run: python ferramentas/gerar_pedais.py --home index.html --sitemap sitemap.xml
 
       - name: Guardar o refresh token novo do Strava (se mudou)
         env:
@@ -53,5 +54,5 @@ jobs:
           [ -f pedais/index.html ] || { echo "Sem pedais/index.html: nada a gravar."; exit 0; }
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add pedais
+          git add -A pedais index.html sitemap.xml
           git diff --cached --quiet || (git commit -m "Atualiza a página de pedais e os mapas" && git pull --rebase origin main && git push)

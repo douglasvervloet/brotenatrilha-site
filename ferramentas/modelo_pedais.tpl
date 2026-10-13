@@ -18,8 +18,8 @@
 <link rel="icon" type="image/png" sizes="48x48" href="../favicon.png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <style>
-  :root { --verde: #2d7046; --verde-escuro: #1e5434; --verde-fundo: #163d27; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; --mapa: #1b4a30; }
-  @media (prefers-color-scheme: dark) { :root { --fundo: #0f1a13; --cartao: #172a1e; --texto: #e9f0ea; --suave: #a9bbae; --linha: #284534; --mapa: #12331f; } }
+  :root { --verde: #2d7046; --verde-escuro: #1e5434; --verde-fundo: #163d27; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; --mapa: #1b4a30; --barra: #2d7046; }
+  @media (prefers-color-scheme: dark) { :root { --fundo: #0f1a13; --cartao: #172a1e; --texto: #e9f0ea; --suave: #a9bbae; --linha: #284534; --mapa: #12331f; --barra: #4fa56f; } }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body { margin: 0; background: var(--fundo); color: var(--texto); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
@@ -35,19 +35,43 @@
   main { padding: 10px 0 56px; }
   .ano { margin: 38px 0 14px; font-size: 1.6rem; }
   .ano::after { content: ""; display: block; width: 52px; height: 4px; border-radius: 2px; background: var(--ambar); margin-top: 8px; }
+
+  /* resumo por ano: quilômetros por mês */
+  .resumos { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+  .resumo-ano { margin: 0; background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 16px 18px 10px; }
+  .resumo-ano figcaption { font-size: .95rem; color: var(--suave); }
+  .resumo-ano figcaption strong { color: var(--texto); font-size: 1.1rem; }
+  .resumo-ano svg { display: block; width: 100%; height: auto; margin-top: 6px; }
+  .resumo-ano rect { fill: var(--barra); }
+  .resumo-ano text { fill: var(--suave); font-size: 9.5px; text-anchor: middle; font-family: inherit; }
+  .resumo-ano .v { fill: var(--texto); font-size: 8.5px; font-weight: 700; }
+
+  /* busca e filtros */
+  .filtros { margin: 34px 0 0; display: grid; gap: 12px; }
+  .filtros input { width: 100%; font: inherit; padding: 12px 18px; border-radius: 999px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); }
+  .filtros input:focus { border-color: var(--verde); outline: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font: inherit; font-weight: 600; font-size: .9rem; cursor: pointer; padding: 7px 15px; border-radius: 999px; background: var(--cartao); color: var(--texto); border: 2px solid var(--linha); }
+  .chip:hover { border-color: var(--verde); }
+  .chip[aria-pressed="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
+  #contagem { margin: 0; color: var(--suave); font-size: .9rem; }
+
   .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 18px; }
+  .pedal[hidden], .bloco-ano[hidden] { display: none; }
   .pedal { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
+  .mapa-link { display: block; text-decoration: none; }
   .mapa { display: block; width: 100%; aspect-ratio: 400 / 240; background: var(--mapa); }
-  .mapa path { fill: none; stroke: var(--ambar); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .mapa path { fill: none; stroke: #d6004f; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
   .mapa.com-fundo { position: relative; aspect-ratio: 5 / 3; background: #cfe0c4; overflow: hidden; }
   .mapa.com-fundo img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .mapa.com-fundo svg { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; background: none; }
-  .mapa.com-fundo path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
   .mapa.com-fundo .halo { stroke: #ffffff; stroke-width: 8; opacity: .9; }
   .mapa.com-fundo .linha { stroke: #d6004f; stroke-width: 4.5; }
   .mapa.vazio { display: grid; place-items: center; color: #7fa68d; font-size: .9rem; }
   .corpo { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
   h3 { margin: 0; font-size: 1.12rem; line-height: 1.3; }
+  h3 a { text-decoration: none; }
+  h3 a:hover { text-decoration: underline; }
   .data { margin: 0; color: var(--suave); font-size: .9rem; }
   dl { margin: 10px 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
   dl div { text-align: center; }
@@ -76,6 +100,23 @@
 </header>
 
 <main class="miolo">
+  <h2 class="ano">Resumo por ano</h2>
+  <div class="resumos">
+{{GRAFICOS}}
+  </div>
+
+  <div class="filtros" id="filtros" hidden>
+    <input type="search" id="busca" placeholder="Buscar pelo nome do pedal" aria-label="Buscar pelo nome do pedal" autocomplete="off">
+    <div class="chips" role="group" aria-label="Filtrar por ano">{{CHIPS_ANO}}</div>
+    <div class="chips" role="group" aria-label="Filtrar por distância">
+      <button type="button" class="chip" data-filtro="dist" data-valor="todas" aria-pressed="true">Todas as distâncias</button>
+      <button type="button" class="chip" data-filtro="dist" data-valor="ate50" aria-pressed="false">Até 50 km</button>
+      <button type="button" class="chip" data-filtro="dist" data-valor="50a100" aria-pressed="false">50 a 100 km</button>
+      <button type="button" class="chip" data-filtro="dist" data-valor="mais100" aria-pressed="false">Mais de 100 km</button>
+    </div>
+    <p id="contagem" role="status" aria-live="polite"></p>
+  </div>
+
 {{CONTEUDO}}
   <p class="nota">Os traçados não mostram o começo nem o fim dos percursos. Dados do Strava, atualizados todos os dias. Mapas: © OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA). Última atualização: {{ATUALIZADO}}.</p>
 </main>
@@ -86,7 +127,46 @@
     <span><a href="../privacidade/">Política de privacidade</a> · <a href="../">Voltar ao site</a></span>
   </div>
 </footer>
-<script>document.getElementById("ano").textContent = new Date().getFullYear();</script>
+<script>
+  document.getElementById("ano").textContent = new Date().getFullYear();
+
+  // Busca e filtros (sem JavaScript a lista aparece inteira)
+  (function () {
+    var filtros = document.getElementById("filtros"), busca = document.getElementById("busca");
+    if (!filtros || !busca) return;
+    filtros.hidden = false;
+    var cartoes = [].slice.call(document.querySelectorAll(".pedal"));
+    var estado = { ano: "todos", dist: "todas", texto: "" };
+    function norm(s) { return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
+    function aplicar() {
+      var visiveis = 0;
+      cartoes.forEach(function (c) {
+        var km = parseFloat(c.dataset.km);
+        var okAno = estado.ano === "todos" || c.dataset.ano === estado.ano;
+        var okDist = estado.dist === "todas" || (estado.dist === "ate50" && km < 50) ||
+          (estado.dist === "50a100" && km >= 50 && km <= 100) || (estado.dist === "mais100" && km > 100);
+        var okTexto = !estado.texto || c.dataset.nome.indexOf(estado.texto) !== -1;
+        var ok = okAno && okDist && okTexto;
+        c.hidden = !ok;
+        if (ok) visiveis++;
+      });
+      [].forEach.call(document.querySelectorAll(".bloco-ano"), function (b) { b.hidden = !b.querySelector(".pedal:not([hidden])"); });
+      document.getElementById("contagem").textContent = visiveis + " de " + cartoes.length + " pedais";
+    }
+    busca.addEventListener("input", function () { estado.texto = norm(busca.value.trim()); aplicar(); });
+    [].forEach.call(document.querySelectorAll(".chip"), function (chip) {
+      chip.addEventListener("click", function () {
+        var grupo = chip.dataset.filtro;
+        estado[grupo] = chip.dataset.valor;
+        [].forEach.call(document.querySelectorAll('.chip[data-filtro="' + grupo + '"]'), function (c) {
+          c.setAttribute("aria-pressed", String(c === chip));
+        });
+        aplicar();
+      });
+    });
+    aplicar();
+  })();
+</script>
 <script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>
