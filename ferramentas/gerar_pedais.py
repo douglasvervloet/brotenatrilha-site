@@ -1102,7 +1102,7 @@ def main():
             f.write(montar_pagina_pedal(p, mais_novo, mais_velho, modelo_pedal))
     slugs = {p["_slug"] for p in pedais}                # apaga as páginas de pedais que saíram
     for nome in os.listdir(base):
-        if nome != "mapas" and os.path.isdir(os.path.join(base, nome)) and nome not in slugs:
+        if nome not in ("mapas", "gpx") and os.path.isdir(os.path.join(base, nome)) and nome not in slugs:
             shutil.rmtree(os.path.join(base, nome))
             print("  página removida:", nome)
     if pedais and injetar_na_home(args.home, bloco_ultimo(pedais[0])):
