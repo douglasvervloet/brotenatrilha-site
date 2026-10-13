@@ -731,18 +731,6 @@ def bloco_clima(p):
             'Dados do tempo: Open-Meteo.com (CC BY 4.0).</p></section>')
 
 
-def linha_clima(p):
-    c = p.get("_clima")
-    if not c:
-        return ""
-    a, b = c["inicio"], c["fim"]
-    ceu_a, ceu_b = descricao_ceu(a).lower(), descricao_ceu(b).lower()
-    ceu = ceu_a if ceu_a == ceu_b else f"{ceu_a} → {ceu_b}"
-    chuva = f" · choveu {num(c['chuva_mm'], 1)} mm" if c.get("chuva_mm", 0) >= 0.2 else ""
-    return (f'<p class="cidades">{num(a["temp"])} → {num(b["temp"])} °C (sensação {num(a["sens"])} → {num(b["sens"])} °C) · '
-            f'vento {num(a["vento"])} → {num(b["vento"])} km/h</p>\n          <p class="cidades">{ceu}{chuva}</p>')
-
-
 def slug_do_pedal(p):
     t = re.sub(r"[^a-z0-9]+", "-", sem_acento(titulo_do_pedal(p["name"]).lower())).strip("-")
     if len(t) > 60:
@@ -803,7 +791,6 @@ def cartao(p):
           <h3><a href="{p['_slug']}/">{titulo}</a></h3>
           <p class="data">{data_longa(p["start_date_local"])}</p>
           {linha_cidades(p)}
-          {linha_clima(p)}
           <dl>
             <div><dt>Distância</dt><dd>{num(km, 1)} km</dd></div>
             <div><dt>Subida</dt><dd>{num(p["total_elevation_gain"])} m</dd></div>
