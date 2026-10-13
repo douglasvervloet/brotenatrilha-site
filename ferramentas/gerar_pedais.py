@@ -43,7 +43,7 @@ MAX_PONTOS = 260
 CORRECOES = {"estradrões": "estradões"}              # erros de digitação nos nomes do Strava
 MAPA_L, MAPA_A = 800, 480                           # tamanho da imagem do mapa (5:3)
 URL_TILE = "https://tile.opentopomap.org/{z}/{x}/{y}.png"   # o mesmo estilo da tela de resumo do BNT Editor
-AGENTE = "brotenatrilha.com.br (brotenatrilha@gmail.com)"
+AGENTE = "brotenatrilha.com.br (contato@brotenatrilha.com.br)"
 MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro",
          "novembro", "dezembro"]
 
@@ -665,7 +665,7 @@ def lugar_do_ponto(lat, lon, orcamento):
     if orcamento["consultas"] <= 0 or orcamento["falhas"] >= 5:
         return None
     url = (f"https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&addressdetails=1&accept-language=pt-BR"
-           f"&lat={lat:.5f}&lon={lon:.5f}&email=brotenatrilha@gmail.com")
+           f"&lat={lat:.5f}&lon={lon:.5f}&email=contato@brotenatrilha.com.br")
     orcamento["consultas"] -= 1
     try:
         req = urllib.request.Request(url, headers={"User-Agent": AGENTE})
