@@ -563,7 +563,7 @@ def horas_do_dia(lat, lon, dia):
     chave = f"{lat},{lon},{dia}"
     if chave in _horas:
         return _horas[chave]
-    campos = "temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m"
+    campos = "temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,wind_gusts_10m"
     urls = [f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={dia}&end_date={dia}&hourly={campos}&timezone=America%2FSao_Paulo",
             f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly={campos}&past_days=14&forecast_days=1&timezone=America%2FSao_Paulo"]
     for url in urls:                                  # o arquivo histórico atrasa uns dias: nos dias recentes vale a previsão com "dias passados"
@@ -572,7 +572,7 @@ def horas_do_dia(lat, lon, dia):
             saida = {}
             for i, t in enumerate(h["time"]):
                 if t.startswith(dia) and h["temperature_2m"][i] is not None:
-                    saida[int(t[11:13])] = {"temp": h["temperature_2m"][i], "vento": h["wind_speed_10m"][i],
+                    saida[int(t[11:13])] = {"temp": h["temperature_2m"][i], "sens": h["apparent_temperature"][i], "vento": h["wind_speed_10m"][i],
                                            "dir": h["wind_direction_10m"][i], "rajada": h["wind_gusts_10m"][i]}
             if saida:
                 _horas[chave] = saida
@@ -586,7 +586,7 @@ def horas_do_dia(lat, lon, dia):
 def clima_do_pedal(p, pontos, cache):
     """Temperatura e vento na hora mais próxima do começo e do fim do pedal (None se ainda não deu para obter)."""
     chave = str(p["id"])
-    if cache.get(chave, {}).get("ok"):
+    if cache.get(chave, {}).get("ok") and "sens" in cache[chave].get("inicio", {}):
         return cache[chave]
     if len(pontos) < 2:
         return None
@@ -623,7 +623,7 @@ def bloco_clima(p):
         return ""
 
     def coluna(rotulo, d):
-        return f'<div><small>{rotulo} · {d["hora"]}</small><strong>{num(d["temp"])} °C</strong><span>{descricao_vento(d)}</span></div>'
+        return f'<div><small>{rotulo} · {d["hora"]}</small><strong>{num(d["temp"])} °C</strong><span>sensação de {num(d["sens"])} °C · {descricao_vento(d)}</span></div>'
     return ('<section class="clima"><h2>Clima</h2><div class="clima-grade">' + coluna("No início", c["inicio"]) + coluna("No fim", c["fim"]) +
             '</div><p class="nota-clima">Valores estimados por modelo para a região (grade de uns 10 km), na hora mais próxima do começo e do fim. '
             'Dados do tempo: Open-Meteo.com (CC BY 4.0).</p></section>')
@@ -634,7 +634,8 @@ def linha_clima(p):
     if not c:
         return ""
     a, b = c["inicio"], c["fim"]
-    return f'<p class="cidades">{num(a["temp"])} → {num(b["temp"])} °C · vento {num(a["vento"])} → {num(b["vento"])} km/h</p>'
+    return (f'<p class="cidades">{num(a["temp"])} → {num(b["temp"])} °C (sensação {num(a["sens"])} → {num(b["sens"])} °C) · '
+            f'vento {num(a["vento"])} → {num(b["vento"])} km/h</p>')
 
 
 def slug_do_pedal(p):
