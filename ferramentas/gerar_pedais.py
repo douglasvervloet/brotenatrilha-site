@@ -563,7 +563,7 @@ def horas_do_dia(lat, lon, dia):
     chave = f"{lat},{lon},{dia}"
     if chave in _horas:
         return _horas[chave]
-    campos = "temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,wind_gusts_10m"
+    campos = "temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,wind_gusts_10m,weather_code,precipitation,cloud_cover"
     urls = [f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={dia}&end_date={dia}&hourly={campos}&timezone=America%2FSao_Paulo",
             f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly={campos}&past_days=14&forecast_days=1&timezone=America%2FSao_Paulo"]
     for url in urls:                                  # o arquivo histórico atrasa uns dias: nos dias recentes vale a previsão com "dias passados"
@@ -573,7 +573,9 @@ def horas_do_dia(lat, lon, dia):
             for i, t in enumerate(h["time"]):
                 if t.startswith(dia) and h["temperature_2m"][i] is not None:
                     saida[int(t[11:13])] = {"temp": h["temperature_2m"][i], "sens": h["apparent_temperature"][i], "vento": h["wind_speed_10m"][i],
-                                           "dir": h["wind_direction_10m"][i], "rajada": h["wind_gusts_10m"][i]}
+                                           "dir": h["wind_direction_10m"][i], "rajada": h["wind_gusts_10m"][i],
+                                           "codigo": h["weather_code"][i], "chuva": h["precipitation"][i] or 0,
+                                           "nuvens": h["cloud_cover"][i]}
             if saida:
                 _horas[chave] = saida
                 time.sleep(0.3)
@@ -586,22 +588,41 @@ def horas_do_dia(lat, lon, dia):
 def clima_do_pedal(p, pontos, cache):
     """Temperatura e vento na hora mais próxima do começo e do fim do pedal (None se ainda não deu para obter)."""
     chave = str(p["id"])
-    if cache.get(chave, {}).get("ok") and "sens" in cache[chave].get("inicio", {}):
+    if cache.get(chave, {}).get("ok") and "serie" in cache[chave] and all("dir" in r for r in cache[chave]["serie"]):
         return cache[chave]
     if len(pontos) < 2:
         return None
     inicio = datetime.strptime(p["start_date_local"][:19], "%Y-%m-%dT%H:%M:%S")
     fim = inicio + timedelta(seconds=p.get("elapsed_time") or p["moving_time"])
-    res = {"ok": False}
+    mesmo_dia = fim.date() == inicio.date()
+    ultima = fim.hour if mesmo_dia else 23
+    res = {"ok": False, "chuva_mm": 0.0}
     for rotulo, instante, ponto in (("inicio", inicio, pontos[0]), ("fim", fim, pontos[-1])):
         horas = horas_do_dia(ponto[0], ponto[1], instante.strftime("%Y-%m-%d"))
         hora = min(int(round(instante.hour + instante.minute / 60)), 23)
         if not horas or hora not in horas:
             return None
         res[rotulo] = {"hora": instante.strftime("%H:%M"), **horas[hora]}
+        if rotulo == "inicio":                         # chuva somada das horas em que o pedal esteve na estrada (no dia da saída)
+            res["chuva_mm"] = round(sum((horas.get(h2) or {}).get("chuva", 0) for h2 in range(inicio.hour, ultima + 1)), 1)
+            # série hora a hora, de uma hora antes da saída a uma hora depois da chegada, para o gráfico
+            res["serie"] = [{"h": h2, **{k: (horas[h2].get(k) or 0) for k in ("temp", "sens", "vento", "dir", "rajada", "chuva")}}
+                            for h2 in range(max(0, inicio.hour - 1), min(23, ultima + 1) + 1) if h2 in horas]
+            res["janela"] = [round(inicio.hour + inicio.minute / 60, 2),
+                             round(fim.hour + fim.minute / 60, 2) if mesmo_dia else 24.0]
     res["ok"] = True
     cache[chave] = res
     return res
+
+
+CEU = {0: "Céu limpo", 1: "Céu quase limpo", 2: "Parcialmente nublado", 3: "Nublado", 45: "Neblina", 48: "Neblina",
+       51: "Garoa fraca", 53: "Garoa", 55: "Garoa forte", 56: "Garoa", 57: "Garoa", 61: "Chuva fraca", 63: "Chuva", 65: "Chuva forte",
+       66: "Chuva", 67: "Chuva", 80: "Pancadas de chuva fracas", 81: "Pancadas de chuva", 82: "Pancadas de chuva fortes",
+       95: "Trovoada", 96: "Trovoada com granizo", 99: "Trovoada com granizo"}
+
+
+def descricao_ceu(d):
+    return CEU.get(int(d.get("codigo") or 0), "Nublado" if (d.get("nuvens") or 0) > 60 else "Céu parcialmente nublado")
 
 
 def rosa(graus):
@@ -617,15 +638,96 @@ def descricao_vento(d):
     return t
 
 
+def grafico_clima(c):
+    """Temperatura, sensação, vento e chuva hora a hora em torno do pedal (SVG); a faixa destacada é a duração do pedal."""
+    serie = c.get("serie") or []
+    if len(serie) < 2:
+        return ""
+    W, E, D = 600, 46, 14                                  # largura, margem esquerda e direita
+    x0, x1 = serie[0]["h"], serie[-1]["h"]
+
+    def X(h):                                              # 14 de folga em cada ponta para as barras não saírem do quadro
+        return E + 14 + (h - x0) / (x1 - x0) * (W - E - D - 28)
+
+    def escala(vmin, vmax, topo, base):
+        return lambda v: base - (v - vmin) / ((vmax - vmin) or 1) * (base - topo)
+
+    paineis = {"temp": (14, 116), "vento": (160, 244), "chuva": (318, 382)}
+    banda = (f'<rect class="banda" x="{X(max(c["janela"][0], x0)):.1f}" y="6" width="{max(X(min(c["janela"][1], x1)) - X(max(c["janela"][0], x0)), 2):.1f}" '
+             f'height="{paineis["chuva"][1] - 0}" rx="4"/>')
+    partes = [banda]
+
+    def grade(titulo, topo, base, vmin, vmax, y):
+        ticks = {vmin, vmax, round((vmin + vmax) / 2, 1)}
+        out = [f'<text class="titulo-painel" x="{E}" y="{topo - 3}">{titulo}</text>']
+        for t in sorted(ticks):
+            out.append(f'<line class="grade" x1="{E}" x2="{W - D}" y1="{y(t):.1f}" y2="{y(t):.1f}"/>'
+                       f'<text class="eixo" x="{E - 6}" y="{y(t) + 4:.1f}" text-anchor="end">{num(t)}</text>')
+        return out
+
+    # painel 1: temperatura e sensação
+    topo, base = paineis["temp"]
+    todos = [v for r in serie for v in (r["temp"], r["sens"])]
+    vmin, vmax = math.floor(min(todos)) - 1, math.ceil(max(todos)) + 1
+    y = escala(vmin, vmax, topo, base)
+    partes += grade("Temperatura (°C)", topo, base, vmin, vmax, y)
+    for chave in ("sens", "temp"):
+        pts = " ".join(f"{X(r['h']):.1f},{y(r[chave]):.1f}" for r in serie)
+        partes.append(f'<polyline class="serie {chave}" points="{pts}"/>')
+        for r in serie:
+            partes.append(f'<circle class="ponto {chave}" cx="{X(r["h"]):.1f}" cy="{y(r[chave]):.1f}" r="3"><title>{r["h"]:02d}h: {num(r[chave])} °C '
+                          f'({"temperatura" if chave == "temp" else "sensação"})</title></circle>')
+    for r in serie:
+        partes.append(f'<text class="valor" x="{X(r["h"]):.1f}" y="{y(r["temp"]) - 7:.1f}" text-anchor="middle">{num(r["temp"])}</text>')
+
+    # painel 2: vento (barras) e rajadas (traço)
+    topo, base = paineis["vento"]
+    vmax = max(10, math.ceil(max(r["rajada"] for r in serie) / 10) * 10)
+    y = escala(0, vmax, topo, base)
+    partes += grade("Vento (km/h)", topo, base, 0, vmax, y)
+    partes.append(f'<text class="eixo" x="{E - 6}" y="266" text-anchor="end">vem de</text>')
+    larg = (W - E - D - 28) / max(1, (x1 - x0)) * 0.46
+    for r in serie:
+        x = X(r["h"])
+        partes.append(f'<rect class="barra vento" x="{x - larg / 2:.1f}" y="{y(r["vento"]):.1f}" width="{larg:.1f}" height="{base - y(r["vento"]):.1f}" rx="2">'
+                      f'<title>{r["h"]:02d}h: vento {num(r["vento"])} km/h, rajadas de {num(r["rajada"])} km/h</title></rect>')
+        partes.append(f'<line class="rajada" x1="{x - larg / 2:.1f}" x2="{x + larg / 2:.1f}" y1="{y(r["rajada"]):.1f}" y2="{y(r["rajada"]):.1f}"/>')
+        partes.append(f'<text class="valor" x="{x:.1f}" y="{y(max(r["vento"], r["rajada"])) - 5:.1f}" text-anchor="middle">{num(r["vento"])}</text>')
+        # seta aponta para onde o vento sopra (a direção do modelo diz de onde ele vem), com a letra de onde vem embaixo
+        partes.append(f'<g class="seta vento" transform="translate({x:.1f} 262) rotate({r["dir"] % 360:.0f})"><path d="M0,-8 V7 M-4,2 L0,7 L4,2"/>'
+                      f'<title>{r["h"]:02d}h: vento de {rosa(r["dir"])}</title></g>')
+        partes.append(f'<text class="eixo" x="{x:.1f}" y="288" text-anchor="middle">{rosa(r["dir"])}</text>')
+
+    # painel 3: chuva
+    topo, base = paineis["chuva"]
+    vmax = max(2, math.ceil(max(r["chuva"] for r in serie)))
+    y = escala(0, vmax, topo, base)
+    partes += grade("Chuva (mm por hora)", topo, base, 0, vmax, y)
+    for r in serie:
+        if r["chuva"] > 0:
+            partes.append(f'<rect class="barra chuva" x="{X(r["h"]) - larg / 2:.1f}" y="{y(r["chuva"]):.1f}" width="{larg:.1f}" height="{base - y(r["chuva"]):.1f}" rx="2">'
+                          f'<title>{r["h"]:02d}h: {num(r["chuva"], 1)} mm</title></rect>')
+    for r in serie:
+        partes.append(f'<text class="eixo" x="{X(r["h"]):.1f}" y="402" text-anchor="middle">{r["h"]:02d}h</text>')
+
+    resumo = (f'Gráfico do tempo hora a hora: temperatura entre {num(min(r["temp"] for r in serie))} e {num(max(r["temp"] for r in serie))} °C, '
+              f'vento de até {num(max(r["vento"] for r in serie))} km/h e {"chuva" if c.get("chuva_mm", 0) >= 0.2 else "sem chuva"} durante o pedal.')
+    legenda = ('<p class="legenda"><span class="l temp">Temperatura</span><span class="l sens">Sensação</span><span class="l vento">Vento</span>'
+               '<span class="l rajada">Rajada</span><span class="l seta">Seta: para onde o vento sopra</span><span class="l chuva">Chuva</span><span class="l banda">Duração do pedal</span></p>')
+    return (f'<div class="grafico-rolagem"><svg class="grafico-clima" viewBox="0 0 {W} 410" role="img" aria-label="{html.escape(resumo)}">'
+            + "".join(partes) + "</svg></div>" + legenda)
+
+
 def bloco_clima(p):
     c = p.get("_clima")
     if not c:
         return ""
 
     def coluna(rotulo, d):
-        return f'<div><small>{rotulo} · {d["hora"]}</small><strong>{num(d["temp"])} °C</strong><span>sensação de {num(d["sens"])} °C · {descricao_vento(d)}</span></div>'
+        return f'<div><small>{rotulo} · {d["hora"]}</small><strong>{num(d["temp"])} °C</strong><span class="ceu">{descricao_ceu(d)}</span><span>sensação de {num(d["sens"])} °C · {descricao_vento(d)}</span></div>'
     return ('<section class="clima"><h2>Clima</h2><div class="clima-grade">' + coluna("No início", c["inicio"]) + coluna("No fim", c["fim"]) +
-            '</div><p class="nota-clima">Valores estimados por modelo para a região (grade de uns 10 km), na hora mais próxima do começo e do fim. '
+            '</div>' + grafico_clima(c) + '<p class="chuva-pedal">' + ("Sem chuva durante o pedal." if c.get("chuva_mm", 0) < 0.2 else f"Choveu cerca de {num(c['chuva_mm'], 1)} mm durante o pedal.") +
+            '</p><p class="nota-clima">Valores estimados por modelo para a região (grade de uns 10 km), na hora mais próxima do começo e do fim. '
             'Dados do tempo: Open-Meteo.com (CC BY 4.0).</p></section>')
 
 
@@ -634,8 +736,11 @@ def linha_clima(p):
     if not c:
         return ""
     a, b = c["inicio"], c["fim"]
+    ceu_a, ceu_b = descricao_ceu(a).lower(), descricao_ceu(b).lower()
+    ceu = ceu_a if ceu_a == ceu_b else f"{ceu_a} → {ceu_b}"
+    chuva = f" · choveu {num(c['chuva_mm'], 1)} mm" if c.get("chuva_mm", 0) >= 0.2 else ""
     return (f'<p class="cidades">{num(a["temp"])} → {num(b["temp"])} °C (sensação {num(a["sens"])} → {num(b["sens"])} °C) · '
-            f'vento {num(a["vento"])} → {num(b["vento"])} km/h</p>')
+            f'vento {num(a["vento"])} → {num(b["vento"])} km/h</p>\n          <p class="cidades">{ceu}{chuva}</p>')
 
 
 def slug_do_pedal(p):

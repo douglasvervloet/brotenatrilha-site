@@ -53,7 +53,31 @@
   .clima-grade div { background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; padding: 14px 16px; }
   .clima-grade small { display: block; color: var(--suave); font-size: .8rem; }
   .clima-grade strong { display: block; margin: 2px 0; font-size: 1.7rem; font-variant-numeric: tabular-nums; }
-  .clima-grade span { color: var(--suave); font-size: .92rem; }
+  .clima-grade span { display: block; color: var(--suave); font-size: .92rem; }
+  .clima-grade .ceu { color: var(--texto); font-weight: 600; margin-bottom: 2px; }
+  .grafico-rolagem { margin-top: 14px; overflow-x: auto; background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; padding: 10px 6px 4px; }
+  .grafico-clima { display: block; width: 100%; min-width: 520px; height: auto; }
+  .grafico-clima text { fill: var(--suave); font-family: inherit; font-size: 12px; }
+  .grafico-clima .titulo-painel { fill: var(--texto); font-weight: 700; font-size: 12.5px; }
+  .grafico-clima .valor { font-size: 11px; fill: var(--texto); }
+  .grafico-clima .grade { stroke: var(--linha); stroke-width: 1; }
+  .grafico-clima .banda { fill: #e8a33d; opacity: .14; }
+  .grafico-clima .serie { fill: none; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .grafico-clima polyline.serie.temp { fill: none; stroke: #e8a33d; }
+  .grafico-clima polyline.serie.sens { fill: none; stroke: #d6004f; stroke-dasharray: 6 5; }
+  .grafico-clima circle.ponto.temp { fill: #e8a33d; stroke: none; }
+  .grafico-clima circle.ponto.sens { fill: #d6004f; stroke: none; }
+  .grafico-clima .barra.vento { fill: #4fa56f; }
+  .grafico-clima .seta path { fill: none; stroke: #4fa56f; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .grafico-clima .rajada { stroke: var(--texto); stroke-width: 2; }
+  .grafico-clima .barra.chuva { fill: #3b82c4; }
+  .legenda { margin: 8px 0 0; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .8rem; color: var(--suave); }
+  .legenda .l::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: currentColor; }
+  .legenda .temp::before { background: #e8a33d; } .legenda .sens::before { background: #d6004f; } .legenda .vento::before { background: #4fa56f; }
+  .legenda .rajada::before { background: var(--texto); height: 3px; vertical-align: 3px; } .legenda .chuva::before { background: #3b82c4; }
+  .legenda .seta::before { background: #4fa56f; width: 3px; height: 12px; border-radius: 2px; margin-right: 8px; }
+  .legenda .banda::before { background: #e8a33d; opacity: .35; }
+  .chuva-pedal { margin: 10px 0 0; color: var(--texto); font-weight: 600; }
   .nota-clima { margin: 10px 0 0; font-size: .8rem; color: var(--suave); }
   .lugares { margin-top: 28px; }
   .lugares h2 { margin: 0 0 8px; font-size: 1.2rem; }
@@ -96,13 +120,13 @@
 </header>
 
 <main class="miolo">
+  {{VIDEO}}
+  {{TEXTO}}
   {{MAPA}}
   <p class="credito">O traçado não mostra o começo nem o fim do percurso. Mapa: © OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA).</p>
   <dl>{{NUMEROS}}</dl>
-  {{CLIMA}}
   {{LUGARES}}
-  {{VIDEO}}
-  {{TEXTO}}
+  {{CLIMA}}
   <p class="links">{{LINKS}}</p>
   <nav class="navegacao" aria-label="Outros pedais">{{NAV}}</nav>
   <p class="todos"><a href="/pedais/">Ver todos os pedais</a></p>
