@@ -56,5 +56,5 @@ jobs:
           [ -f pedais/index.html ] || { echo "Sem pedais/index.html: nada a gravar."; exit 0; }
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A pedais index.html sitemap.xml ferramentas/cache_lugares.json
+          git add -A pedais index.html sitemap.xml ferramentas/cache_lugares.json ferramentas/cache_clima.json
           git diff --cached --quiet || (git commit -m "Atualiza a página de pedais e os mapas" && git pull --rebase origin main && git push)

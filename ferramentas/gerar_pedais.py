@@ -532,6 +532,111 @@ def bloco_lugares(p):
             '<p class="nota-lugares">Bairros e localidades segundo o OpenStreetMap, na ordem do percurso e sem o começo e o fim do pedal.</p></section>')
 
 
+# ----------------------------------------------------------------------------- clima no início e no fim (Open-Meteo)
+PONTOS_CARDEAIS = ["N", "NNE", "NE", "ENE", "L", "ESE", "SE", "SSE", "S", "SSO", "SO", "OSO", "O", "ONO", "NO", "NNO"]
+_cache_clima = None
+_horas = {}
+
+
+def caminho_cache_clima():
+    return os.environ.get("CACHE_CLIMA_ARQUIVO") or os.path.join(os.path.dirname(__file__), "cache_clima.json")
+
+
+def carregar_cache_clima():
+    global _cache_clima
+    if _cache_clima is None:
+        caminho = caminho_cache_clima()
+        _cache_clima = json.load(open(caminho, encoding="utf-8")) if os.path.exists(caminho) else {}
+    return _cache_clima
+
+
+def salvar_cache_clima():
+    if _cache_clima is not None:
+        with open(caminho_cache_clima(), "w", encoding="utf-8", newline="\n") as f:
+            json.dump(_cache_clima, f, ensure_ascii=False, sort_keys=True, indent=0)
+
+
+def horas_do_dia(lat, lon, dia):
+    """{hora: {temp, vento, dir, rajada}} do dia, para um ponto arredondado a ~11 km (o modelo não é mais fino que isso, e
+    assim a coordenada exata de onde o pedal sai nunca vai para fora)."""
+    lat, lon = round(lat, 1), round(lon, 1)
+    chave = f"{lat},{lon},{dia}"
+    if chave in _horas:
+        return _horas[chave]
+    campos = "temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m"
+    urls = [f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={dia}&end_date={dia}&hourly={campos}&timezone=America%2FSao_Paulo",
+            f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly={campos}&past_days=14&forecast_days=1&timezone=America%2FSao_Paulo"]
+    for url in urls:                                  # o arquivo histórico atrasa uns dias: nos dias recentes vale a previsão com "dias passados"
+        try:
+            h = http_json(url, None, {"User-Agent": AGENTE})["hourly"]
+            saida = {}
+            for i, t in enumerate(h["time"]):
+                if t.startswith(dia) and h["temperature_2m"][i] is not None:
+                    saida[int(t[11:13])] = {"temp": h["temperature_2m"][i], "vento": h["wind_speed_10m"][i],
+                                           "dir": h["wind_direction_10m"][i], "rajada": h["wind_gusts_10m"][i]}
+            if saida:
+                _horas[chave] = saida
+                time.sleep(0.3)
+                return saida
+        except Exception:
+            continue
+    return None
+
+
+def clima_do_pedal(p, pontos, cache):
+    """Temperatura e vento na hora mais próxima do começo e do fim do pedal (None se ainda não deu para obter)."""
+    chave = str(p["id"])
+    if cache.get(chave, {}).get("ok"):
+        return cache[chave]
+    if len(pontos) < 2:
+        return None
+    inicio = datetime.strptime(p["start_date_local"][:19], "%Y-%m-%dT%H:%M:%S")
+    fim = inicio + timedelta(seconds=p.get("elapsed_time") or p["moving_time"])
+    res = {"ok": False}
+    for rotulo, instante, ponto in (("inicio", inicio, pontos[0]), ("fim", fim, pontos[-1])):
+        horas = horas_do_dia(ponto[0], ponto[1], instante.strftime("%Y-%m-%d"))
+        hora = min(int(round(instante.hour + instante.minute / 60)), 23)
+        if not horas or hora not in horas:
+            return None
+        res[rotulo] = {"hora": instante.strftime("%H:%M"), **horas[hora]}
+    res["ok"] = True
+    cache[chave] = res
+    return res
+
+
+def rosa(graus):
+    return PONTOS_CARDEAIS[int((graus % 360) / 22.5 + 0.5) % 16]
+
+
+def descricao_vento(d):
+    if d["vento"] < 2:
+        return "vento calmo"
+    t = f"vento de {rosa(d['dir'])}, {num(d['vento'])} km/h"
+    if d["rajada"] >= 15 and d["rajada"] - d["vento"] >= 10:
+        t += f" (rajadas de {num(d['rajada'])} km/h)"
+    return t
+
+
+def bloco_clima(p):
+    c = p.get("_clima")
+    if not c:
+        return ""
+
+    def coluna(rotulo, d):
+        return f'<div><small>{rotulo} · {d["hora"]}</small><strong>{num(d["temp"])} °C</strong><span>{descricao_vento(d)}</span></div>'
+    return ('<section class="clima"><h2>Clima</h2><div class="clima-grade">' + coluna("No início", c["inicio"]) + coluna("No fim", c["fim"]) +
+            '</div><p class="nota-clima">Valores estimados por modelo para a região (grade de uns 10 km), na hora mais próxima do começo e do fim. '
+            'Dados do tempo: Open-Meteo.com (CC BY 4.0).</p></section>')
+
+
+def linha_clima(p):
+    c = p.get("_clima")
+    if not c:
+        return ""
+    a, b = c["inicio"], c["fim"]
+    return f'<p class="cidades">{num(a["temp"])} → {num(b["temp"])} °C · vento {num(a["vento"])} → {num(b["vento"])} km/h</p>'
+
+
 def slug_do_pedal(p):
     t = re.sub(r"[^a-z0-9]+", "-", sem_acento(titulo_do_pedal(p["name"]).lower())).strip("-")
     if len(t) > 60:
@@ -592,6 +697,7 @@ def cartao(p):
           <h3><a href="{p['_slug']}/">{titulo}</a></h3>
           <p class="data">{data_longa(p["start_date_local"])}</p>
           {linha_cidades(p)}
+          {linha_clima(p)}
           <dl>
             <div><dt>Distância</dt><dd>{num(km, 1)} km</dd></div>
             <div><dt>Subida</dt><dd>{num(p["total_elevation_gain"])} m</dd></div>
@@ -662,7 +768,7 @@ def montar_pagina_pedal(p, mais_novo, mais_velho, modelo):
     troca = {"{{TITULO}}": html.escape(titulo), "{{DESCRICAO_META}}": html.escape(descricao_meta), "{{URL}}": url,
              "{{OG_IMAGE}}": og, "{{DATA_LONGA}}": data_longa(p["start_date_local"]), "{{MAPA}}": mapa_html(p, "/pedais/mapas/", "eager"),
              "{{NUMEROS}}": nums, "{{VIDEO}}": video, "{{TEXTO}}": f"<p class=\"texto\">{html.escape(texto)}</p>" if texto else "",
-             "{{LUGARES}}": bloco_lugares(p), "{{LINKS}}": botoes(p), "{{CIDADES}}": linha_cidades(p, 99), "{{NAV}}": "".join(nav),
+             "{{CLIMA}}": bloco_clima(p), "{{LUGARES}}": bloco_lugares(p), "{{LINKS}}": botoes(p), "{{CIDADES}}": linha_cidades(p, 99), "{{NAV}}": "".join(nav),
              "{{JSONLD}}": "".join('<script type="application/ld+json">' + json.dumps(x, ensure_ascii=False) + "</script>\n" for x in ld)}
     saida = modelo
     for k, val in troca.items():
@@ -768,6 +874,11 @@ def main():
     salvar_cache_lugares()
     print(f"  lugares: {sum(1 for p in pedais if p['_lugares'])} pedais com lista; consultas feitas nesta rodada: "
           f"{int(os.environ.get('ORCAMENTO_LUGARES', '450')) - orcamento['consultas']}; falhas seguidas: {orcamento['falhas']}")
+    cache_clima = carregar_cache_clima()
+    for p in pedais:                                    # temperatura e vento no começo e no fim
+        p["_clima"] = clima_do_pedal(p, decodificar((p.get("map") or {}).get("summary_polyline") or ""), cache_clima)
+    salvar_cache_clima()
+    print(f"  clima: {sum(1 for p in pedais if p['_clima'])} de {len(pedais)} pedais com temperatura e vento")
     if os.path.isdir(pasta_mapas):                      # tira os mapas de pedais que saíram da página
         atuais = {f"{p['id']}.webp" for p in pedais}
         for nome in os.listdir(pasta_mapas):

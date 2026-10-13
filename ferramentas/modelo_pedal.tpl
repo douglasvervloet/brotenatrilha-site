@@ -47,6 +47,14 @@
   dl div { background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; padding: 14px 8px; text-align: center; }
   dt { font-size: .72rem; letter-spacing: .6px; text-transform: uppercase; color: var(--suave); }
   dd { margin: 4px 0 0; font-weight: 800; font-size: clamp(1.05rem, 3.4vw, 1.4rem); font-variant-numeric: tabular-nums; }
+  .clima { margin-top: 28px; }
+  .clima h2 { margin: 0 0 10px; font-size: 1.2rem; }
+  .clima-grade { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .clima-grade div { background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; padding: 14px 16px; }
+  .clima-grade small { display: block; color: var(--suave); font-size: .8rem; }
+  .clima-grade strong { display: block; margin: 2px 0; font-size: 1.7rem; font-variant-numeric: tabular-nums; }
+  .clima-grade span { color: var(--suave); font-size: .92rem; }
+  .nota-clima { margin: 10px 0 0; font-size: .8rem; color: var(--suave); }
   .lugares { margin-top: 28px; }
   .lugares h2 { margin: 0 0 8px; font-size: 1.2rem; }
   .lugares ul { margin: 0; padding-left: 1.15em; }
@@ -73,7 +81,7 @@
   footer { background: var(--verde-fundo); color: #cfe0d3; padding: 26px 0; font-size: .92rem; }
   footer .miolo { display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: space-between; }
   footer a { color: #fff; }
-  @media (max-width: 560px) { dl { grid-template-columns: repeat(2, 1fr); } .navegacao { grid-template-columns: 1fr; } .navegacao .proximo, .navegacao .anterior { grid-column: auto; text-align: left; } }
+  @media (max-width: 560px) { .clima-grade { grid-template-columns: 1fr; } dl { grid-template-columns: repeat(2, 1fr); } .navegacao { grid-template-columns: 1fr; } .navegacao .proximo, .navegacao .anterior { grid-column: auto; text-align: left; } }
   @media (prefers-reduced-motion: reduce) { .botao { transition: none; } }
 </style>
 </head>
@@ -91,6 +99,7 @@
   {{MAPA}}
   <p class="credito">O traçado não mostra o começo nem o fim do percurso. Mapa: © OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA).</p>
   <dl>{{NUMEROS}}</dl>
+  {{CLIMA}}
   {{LUGARES}}
   {{VIDEO}}
   {{TEXTO}}
