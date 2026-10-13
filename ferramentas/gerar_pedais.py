@@ -444,6 +444,94 @@ def linha_cidades(p, limite=4):
     return f'<p class="cidades">{" · ".join(partes)}</p>' if partes else ""
 
 
+# ----------------------------------------------------------------------------- bairros e localidades (OpenStreetMap)
+NAO_E_BAIRRO = re.compile(r"^(terminal|posto|rodovi|br-|es-|aeroporto|rodovi[aá]ria)", re.I)   # pontos de referência que o OSM marca como lugar
+CHAVES_LUGAR = ["suburb", "neighbourhood", "quarter", "city_district", "village", "hamlet"]
+CORTE_LUGARES_M = 2500        # não lista os primeiros e os últimos 2,5 km (de onde o pedal sai)
+PASSO_LUGARES_M = 3000        # um ponto a cada 3 km de percurso
+_cache_lugares = None
+
+
+def caminho_cache_lugares():
+    return os.environ.get("CACHE_LUGARES_ARQUIVO") or os.path.join(os.path.dirname(__file__), "cache_lugares.json")
+
+
+def carregar_cache_lugares():
+    global _cache_lugares
+    if _cache_lugares is None:
+        caminho = caminho_cache_lugares()
+        _cache_lugares = json.load(open(caminho, encoding="utf-8")) if os.path.exists(caminho) else {}
+    return _cache_lugares
+
+
+def salvar_cache_lugares():
+    if _cache_lugares is not None:
+        with open(caminho_cache_lugares(), "w", encoding="utf-8", newline="\n") as f:
+            json.dump(_cache_lugares, f, ensure_ascii=False, sort_keys=True, indent=0)
+
+
+def lugar_do_ponto(lat, lon, orcamento):
+    """Bairro ou localidade do ponto (texto; "" se o OpenStreetMap não tem nenhum). None = ainda não deu para consultar."""
+    cache = carregar_cache_lugares()
+    chave = f"{lat:.3f},{lon:.3f}"
+    if chave in cache:
+        return cache[chave]
+    if orcamento["consultas"] <= 0 or orcamento["falhas"] >= 5:
+        return None
+    url = (f"https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&addressdetails=1&accept-language=pt-BR"
+           f"&lat={lat:.5f}&lon={lon:.5f}&email=brotenatrilha@gmail.com")
+    orcamento["consultas"] -= 1
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": AGENTE})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            endereco = json.load(r).get("address", {})
+        lugar = next((endereco[k] for k in CHAVES_LUGAR if endereco.get(k)), "")
+        cache[chave] = lugar
+        orcamento["falhas"] = 0
+        time.sleep(1.1)                              # a regra do Nominatim: no máximo uma consulta por segundo
+        return lugar
+    except Exception:
+        orcamento["falhas"] += 1
+        time.sleep(5)
+        return None
+
+
+def amostras_do_percurso(pontos):
+    miolo = cortar_pontas(pontos, CORTE_LUGARES_M)
+    if len(miolo) < 2:
+        return []
+    saida, acum = [miolo[0]], 0.0
+    for a, b in zip(miolo, miolo[1:]):
+        acum += metros(a, b)
+        if acum >= PASSO_LUGARES_M:
+            saida.append(b)
+            acum = 0.0
+    return saida
+
+
+def lugares_do_percurso(pontos, orcamento):
+    """[(cidade, [bairros e localidades na ordem do percurso])]; só entra o que o OpenStreetMap conhece."""
+    grupos = {}
+    for lat, lon in amostras_do_percurso(pontos):
+        cidade = municipio_do_ponto(lat, lon)
+        lugar = lugar_do_ponto(lat, lon, orcamento)
+        if not cidade or not lugar or lugar == cidade or NAO_E_BAIRRO.match(lugar):
+            continue
+        lista = grupos.setdefault(cidade, [])
+        if lugar not in lista:
+            lista.append(lugar)
+    return [(c, ls) for c, ls in grupos.items()]
+
+
+def bloco_lugares(p):
+    grupos = p.get("_lugares") or []
+    if not grupos:
+        return ""
+    itens = "".join(f"<li><strong>{html.escape(c)}</strong>: {html.escape(', '.join(ls))}</li>" for c, ls in grupos)
+    return ('<section class="lugares"><h2>Por onde passa</h2><ul>' + itens + '</ul>'
+            '<p class="nota-lugares">Bairros e localidades segundo o OpenStreetMap, na ordem do percurso e sem o começo e o fim do pedal.</p></section>')
+
+
 def slug_do_pedal(p):
     t = re.sub(r"[^a-z0-9]+", "-", sem_acento(titulo_do_pedal(p["name"]).lower())).strip("-")
     if len(t) > 60:
@@ -574,7 +662,7 @@ def montar_pagina_pedal(p, mais_novo, mais_velho, modelo):
     troca = {"{{TITULO}}": html.escape(titulo), "{{DESCRICAO_META}}": html.escape(descricao_meta), "{{URL}}": url,
              "{{OG_IMAGE}}": og, "{{DATA_LONGA}}": data_longa(p["start_date_local"]), "{{MAPA}}": mapa_html(p, "/pedais/mapas/", "eager"),
              "{{NUMEROS}}": nums, "{{VIDEO}}": video, "{{TEXTO}}": f"<p class=\"texto\">{html.escape(texto)}</p>" if texto else "",
-             "{{LINKS}}": botoes(p), "{{CIDADES}}": linha_cidades(p, 99), "{{NAV}}": "".join(nav),
+             "{{LUGARES}}": bloco_lugares(p), "{{LINKS}}": botoes(p), "{{CIDADES}}": linha_cidades(p, 99), "{{NAV}}": "".join(nav),
              "{{JSONLD}}": "".join('<script type="application/ld+json">' + json.dumps(x, ensure_ascii=False) + "</script>\n" for x in ld)}
     saida = modelo
     for k, val in troca.items():
@@ -674,6 +762,12 @@ def main():
         p["_sai"], p["_chega"], p["_passa"] = cidades_do_percurso(decodificar((p.get("map") or {}).get("summary_polyline") or ""))
     print(f"  cidades: {sum(1 for p in pedais if p['_sai'])} pedais com cidade de saída; "
           f"{len({c for p in pedais for c in p['_passa']})} cidades no total")
+    orcamento = {"consultas": int(os.environ.get("ORCAMENTO_LUGARES", "450")), "falhas": 0}
+    for p in pedais:                                    # bairros e localidades (a cada rodada vai completando o que falta)
+        p["_lugares"] = lugares_do_percurso(decodificar((p.get("map") or {}).get("summary_polyline") or ""), orcamento)
+    salvar_cache_lugares()
+    print(f"  lugares: {sum(1 for p in pedais if p['_lugares'])} pedais com lista; consultas feitas nesta rodada: "
+          f"{int(os.environ.get('ORCAMENTO_LUGARES', '450')) - orcamento['consultas']}; falhas seguidas: {orcamento['falhas']}")
     if os.path.isdir(pasta_mapas):                      # tira os mapas de pedais que saíram da página
         atuais = {f"{p['id']}.webp" for p in pedais}
         for nome in os.listdir(pasta_mapas):

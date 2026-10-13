@@ -47,6 +47,12 @@
   dl div { background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; padding: 14px 8px; text-align: center; }
   dt { font-size: .72rem; letter-spacing: .6px; text-transform: uppercase; color: var(--suave); }
   dd { margin: 4px 0 0; font-weight: 800; font-size: clamp(1.05rem, 3.4vw, 1.4rem); font-variant-numeric: tabular-nums; }
+  .lugares { margin-top: 28px; }
+  .lugares h2 { margin: 0 0 8px; font-size: 1.2rem; }
+  .lugares ul { margin: 0; padding-left: 1.15em; }
+  .lugares li { margin: 5px 0; color: var(--suave); }
+  .lugares strong { color: var(--texto); }
+  .nota-lugares { margin: 10px 0 0; font-size: .8rem; color: var(--suave); }
   .video { margin-top: 26px; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 14px 36px rgba(20, 50, 30, .22); }
   .video iframe { width: 100%; height: 100%; border: 0; display: block; }
   .texto { margin: 22px 0 0; color: var(--suave); font-size: 1.05rem; }
@@ -85,6 +91,7 @@
   {{MAPA}}
   <p class="credito">O traçado não mostra o começo nem o fim do percurso. Mapa: © OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA).</p>
   <dl>{{NUMEROS}}</dl>
+  {{LUGARES}}
   {{VIDEO}}
   {{TEXTO}}
   <p class="links">{{LINKS}}</p>
