@@ -1,5 +1,7 @@
 # Atualiza as páginas de pedais todos os dias: busca os pedais no Strava, casa com os vídeos do canal e grava pedais/index.html,
 # uma página por pedal, o bloco 'Último pedal' do index.html e o sitemap.xml.
+# Por padrão lê no Strava só as atividades novas (e as dos últimos 7 dias): o resto vem de ferramentas/cache_pedais.json, que
+# não guarda traçado bruto nem coordenadas. Aos domingos, ou rodando na mão com "completo" marcado, lê tudo de novo.
 # Segredos usados: CASA_COORD (coordenada de casa, fora do repositório público), STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN (criados por ferramentas/strava_autorizar.ps1)
 # e YOUTUBE_API_KEY. Opcional: GH_PAT_SEGREDOS, um token do GitHub só com permissão de escrever segredos deste repositório,
 # para guardar o refresh token novo caso o Strava o troque (sem ele, o robô avisa e o token precisa ser refeito).
@@ -9,6 +11,11 @@ on:
   schedule:
     - cron: "40 9 * * *"    # todo dia às 09:40 UTC (06:40 em Brasília)
   workflow_dispatch:
+    inputs:
+      completo:
+        description: "Ler todas as atividades do Strava de novo (em vez de só as novas)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -36,7 +43,10 @@ jobs:
           CASA_COORD: ${{ secrets.CASA_COORD }}   # "lat,lon" de casa; só pedais que saem/chegam a 500 m dela têm começo e fim cortados
           NOVO_REFRESH_ARQUIVO: ${{ runner.temp }}/novo_refresh.txt
           ORCAMENTO_LUGARES: "2500"   # consultas ao OpenStreetMap por rodada (1 por segundo); pedal novo gasta uns 75
-        run: python ferramentas/gerar_pedais.py --home index.html --sitemap sitemap.xml
+        run: |
+          # aos domingos (e quando pedido na mão) lê tudo de novo: pega atividades apagadas, editadas ou enviadas muito depois
+          if [ "$(date -u +%u)" = "7" ] || [ "${{ github.event.inputs.completo }}" = "true" ]; then export COMPLETO=1; fi
+          python ferramentas/gerar_pedais.py --home index.html --sitemap sitemap.xml
 
       - name: Guardar o refresh token novo do Strava (se mudou)
         env:
@@ -57,5 +67,5 @@ jobs:
           [ -f pedais/index.html ] || { echo "Sem pedais/index.html: nada a gravar."; exit 0; }
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A pedais index.html sitemap.xml ferramentas/cache_lugares.json ferramentas/cache_clima.json
+          git add -A pedais index.html sitemap.xml ferramentas/cache_lugares.json ferramentas/cache_clima.json ferramentas/cache_pedais.json
           git diff --cached --quiet || (git commit -m "Atualiza a página de pedais e os mapas" && git pull --rebase origin main && git push)

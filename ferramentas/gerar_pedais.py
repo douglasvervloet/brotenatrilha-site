@@ -29,7 +29,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 try:
     from PIL import Image
@@ -59,10 +59,11 @@ def http_json(url, dados=None, cabecalhos=None):
 _token_strava = None                                 # preenchido ao buscar as atividades (usado para baixar o traçado detalhado)
 
 
-def atividades_do_strava():
+def entrar_no_strava():
+    """Troca o refresh token por um token de acesso (guardado em _token_strava). False sem as credenciais (STRAVA_*)."""
     cid, segredo, refresh = (os.environ.get(k, "") for k in ("STRAVA_CLIENT_ID", "STRAVA_CLIENT_SECRET", "STRAVA_REFRESH_TOKEN"))
     if not (cid and segredo and refresh):
-        return None
+        return False
     tk = http_json("https://www.strava.com/oauth/token", {"client_id": cid, "client_secret": segredo,
                                                         "grant_type": "refresh_token", "refresh_token": refresh})
     if tk.get("refresh_token") and tk["refresh_token"] != refresh:
@@ -71,15 +72,80 @@ def atividades_do_strava():
             f.write(tk["refresh_token"])
     global _token_strava
     _token_strava = tk["access_token"]
+    return True
+
+
+def listar_atividades(depois=None):
+    """As atividades do Strava, da mais nova para a mais antiga; com "depois" (época em segundos), só as que começaram depois."""
     cab = {"Authorization": "Bearer " + _token_strava}
+    filtro = f"&after={int(depois)}" if depois else ""
     todas, pagina = [], 1
     while True:
-        lote = http_json(f"https://www.strava.com/api/v3/athlete/activities?per_page=200&page={pagina}", None, cab)
+        lote = http_json(f"https://www.strava.com/api/v3/athlete/activities?per_page=200&page={pagina}{filtro}", None, cab)
         if not lote:
             break
         todas += lote
         pagina += 1
     return todas
+
+
+def atividade_por_numero(numero):
+    return http_json(f"https://www.strava.com/api/v3/activities/{numero}", None, {"Authorization": "Bearer " + _token_strava})
+
+
+# ----------------------------------------------------------------------------- o que já foi lido nas rodadas anteriores
+# Cada rodada só lê no Strava as atividades novas (e as dos últimos dias, para pegar o que foi enviado ou editado depois). O
+# resto vem de ferramentas/cache_pedais.json, que guarda por pedal só o que o site já mostra: os dados da atividade, o
+# traçado SEM o começo e o fim (já cortado), as cidades e os bairros. NUNCA o traçado bruto nem coordenadas (o repositório é público).
+VERSAO_CACHE = 1
+MARGEM_DIAS = 7                                      # relê os últimos dias a cada rodada (envios atrasados, nomes editados)
+CAMPOS_DA_ATIVIDADE = ("id", "name", "sport_type", "type", "start_date", "start_date_local", "distance", "moving_time",
+                       "elapsed_time", "total_elevation_gain")
+CAMPOS_DERIVADOS = ("_cortado", "_mapa", "_svg", "_sai", "_chega", "_passa", "_lugares")
+
+
+def caminho_cache_pedais():
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache_pedais.json")
+
+
+def carregar_cache_pedais():
+    try:
+        dados = json.load(open(caminho_cache_pedais(), encoding="utf-8"))
+        return dados if dados.get("versao") == VERSAO_CACHE and dados.get("pedais") else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def epoca(iso_utc):
+    """Época em segundos de um horário "2026-10-12T09:00:00Z" do Strava (0 se não der para ler)."""
+    try:
+        return int(datetime.strptime(iso_utc, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp())
+    except (TypeError, ValueError):
+        return 0
+
+
+def registro_do_pedal(p):
+    """O que guardar do pedal para a próxima rodada. 'pendente' = falta lugares ou clima: a atividade é lida de novo."""
+    return {"a": {k: p[k] for k in CAMPOS_DA_ATIVIDADE if k in p},
+            "d": {k: p.get(k) for k in CAMPOS_DERIVADOS},
+            "lugares_incompletos": bool(p.get("_incompleto")),
+            "pendente": bool(p.get("_incompleto") or not p.get("_clima"))}
+
+
+def pedal_do_registro(registro):
+    p = dict(registro["a"])
+    p.update(registro["d"])
+    p["_incompleto"] = registro.get("lugares_incompletos", False)
+    return p
+
+
+def guardar_cache_pedais(pedais, lidas, ultima_antes):
+    """Grava cache_pedais.json: um registro por pedal e a época da atividade mais nova já vista."""
+    ultima = max([ultima_antes] + [epoca(a.get("start_date")) for a in lidas])
+    dados = {"versao": VERSAO_CACHE, "ultima": ultima, "pedais": {str(p["id"]): registro_do_pedal(p) for p in pedais}}
+    with open(caminho_cache_pedais(), "w", encoding="utf-8", newline="\n") as f:
+        json.dump(dados, f, ensure_ascii=False, indent=1, sort_keys=True)
+        f.write("\n")
 
 
 def videos_do_canal():
@@ -635,6 +701,8 @@ def lugares_do_percurso(pontos, orcamento):
     for lat, lon in amostras_do_percurso(pontos):
         cidade = municipio_do_ponto(lat, lon)
         lugar = lugar_do_ponto(lat, lon, orcamento)
+        if lugar is None:
+            orcamento["incompleto"] = True               # ainda não deu para consultar: a lista deste pedal fica para a próxima rodada
         if not cidade or not lugar or lugar == cidade or NAO_E_BAIRRO.match(lugar):
             continue
         lista = grupos.setdefault(cidade, [])
@@ -891,7 +959,7 @@ def mapa_html(p, prefixo_mapas, carregar="lazy"):
     if p.get("_mapa"):
         return (f'<div class="mapa com-fundo"><img src="{prefixo_mapas}{p["id"]}.webp" width="{MAPA_L}" height="{MAPA_A}" '
                 f'loading="{carregar}" decoding="async" alt="">{p["_mapa"]}</div>')
-    return svg_do_tracado((p.get("map") or {}).get("summary_polyline") or "") or '<div class="mapa vazio">Sem traçado</div>'
+    return p.get("_svg") or '<div class="mapa vazio">Sem traçado</div>'
 
 
 def botoes(p, claro_assistir=False, extra="", komoot=True):
@@ -1044,12 +1112,38 @@ def main():
     ap.add_argument("--modelo-pedal", default=os.path.join(os.path.dirname(__file__), "modelo_pedal.tpl"))
     ap.add_argument("--home", default="", help="index.html da página inicial, para atualizar o bloco 'Último pedal'")
     ap.add_argument("--sitemap", default="", help="sitemap.xml a reescrever com as páginas dos pedais")
+    ap.add_argument("--completo", action="store_true",
+                    help="lê todas as atividades do Strava e refaz tudo (por padrão só as novas; também vale COMPLETO=1)")
     args = ap.parse_args()
 
-    atividades = json.load(open(args.teste, encoding="utf-8")) if args.teste else atividades_do_strava()
-    if atividades is None:
+    base = os.path.dirname(os.path.abspath(args.saida))
+    pasta_mapas = os.path.join(base, "mapas")
+    pasta_cache = os.path.join(os.environ.get("TMPDIR", os.environ.get("TEMP", "/tmp")), "tiles_pedais")
+    completo = args.completo or bool(args.teste) or os.environ.get("COMPLETO") == "1"
+    cache = {} if completo else carregar_cache_pedais()
+    guardados = cache.get("pedais", {})
+    if guardados and any(not os.path.exists(os.path.join(pasta_mapas, f"{n}.webp")) for n in guardados):
+        print("  falta algum mapa de pedal: lendo todas as atividades de novo")   # sem o traçado não dá para refazê-lo
+        guardados = {}
+    if args.teste:
+        atividades = json.load(open(args.teste, encoding="utf-8"))
+    elif not entrar_no_strava():
         print("Sem as credenciais do Strava (STRAVA_*): nada a fazer.")
         return 0
+    elif guardados:
+        atividades = listar_atividades(max(0, cache.get("ultima", 0) - MARGEM_DIAS * 86400))
+        lidas = {str(a["id"]) for a in atividades}
+        for numero, registro in guardados.items():
+            if registro.get("pendente") and numero not in lidas:   # lugares ou clima incompletos: lê só essa atividade de novo
+                try:
+                    atividades.append(atividade_por_numero(numero))
+                except Exception as erro:
+                    print("  não consegui reler a atividade", numero, "-", erro)
+        print(f"  strava: {len(atividades)} atividades lidas (só as novas e as pendentes); {len(guardados)} pedais vêm do cache")
+    else:
+        atividades = listar_atividades()
+        print(f"  strava: {len(atividades)} atividades lidas (todas)")
+    antigos = [r for n, r in guardados.items() if n not in {str(a["id"]) for a in atividades}]   # os que não foram relidos
     caminho_ajustes = os.path.join(os.path.dirname(__file__), "ajustes_pedais.json")
     ajustes = json.load(open(caminho_ajustes, encoding="utf-8")) if os.path.exists(caminho_ajustes) else {}
     desde = ajustes.get("_desde", "")                  # pedais antes desta data (AAAA-MM-DD) não aparecem
@@ -1060,36 +1154,42 @@ def main():
               if (PREFIXO.match(a.get("name", "")) or str(a["id"]) in com_video)
               and a.get("sport_type", a.get("type")) in ("Ride", "GravelRide", "MountainBikeRide", "EBikeRide")
               and a["start_date_local"][:10] >= desde and str(a["id"]) not in ocultar]
-    pedais.sort(key=lambda a: a["start_date_local"], reverse=True)
-    casar_videos(pedais, videos, {k: v for k, v in ajustes.items() if not k.startswith("_")})
-    usados = set()
-    for p in pedais:
-        p["_komoot"] = link_komoot(p["_video"])
-        p["_cortado"] = perto_de_casa(decodificar((p.get("map") or {}).get("summary_polyline") or ""))   # só esses têm começo e fim cortados
-        p["_slug"] = slug_do_pedal(p)
-        if p["_slug"] in usados:
-            p["_slug"] += f"-{p['id']}"
-        usados.add(p["_slug"])
 
-    base = os.path.dirname(os.path.abspath(args.saida))
-    pasta_mapas = os.path.join(base, "mapas")
-    pasta_cache = os.path.join(os.environ.get("TMPDIR", os.environ.get("TEMP", "/tmp")), "tiles_pedais")
+    # O que depende do traçado (mapa, cidades, bairros) só se calcula para os pedais lidos agora; os outros vêm do cache
+    orcamento = {"consultas": int(os.environ.get("ORCAMENTO_LUGARES", "450")), "falhas": 0}
+    trajetos = {}                                       # o traçado completo de cada pedal lido agora (só na memória, para o clima)
     for p in pedais:
+        poli = (p.get("map") or {}).get("summary_polyline") or ""
+        trajetos[p["id"]] = decodificar(poli)
+        p["_cortado"] = perto_de_casa(trajetos[p["id"]])   # só esses têm começo e fim cortados
+        p["_svg"] = svg_do_tracado(poli)
         p["_mapa"] = None
-        pontos = cortar_pontas(decodificar((p.get("map") or {}).get("summary_polyline") or ""))
+        pontos = cortar_pontas(trajetos[p["id"]])
         if Image is not None and len(pontos) >= 5:
             try:
                 p["_mapa"] = gerar_mapa(p["id"], pontos, pasta_mapas, pasta_cache)
             except Exception as erro:               # sem mapa de fundo, o cartão mostra só o traçado
                 print("  sem mapa de fundo:", p["name"], "-", erro)
-    for p in pedais:                                    # cidades: saída e por onde passa (traçado completo, só para isso)
-        p["_sai"], p["_chega"], p["_passa"] = cidades_do_percurso(decodificar((p.get("map") or {}).get("summary_polyline") or ""))
+        p["_sai"], p["_chega"], p["_passa"] = cidades_do_percurso(trajetos[p["id"]])   # traçado completo, só para isso
+        orcamento["incompleto"] = False
+        p["_lugares"] = lugares_do_percurso(trajetos[p["id"]], orcamento)   # bairros e localidades (a cada rodada vai completando o que falta)
+        p["_incompleto"] = orcamento["incompleto"]
+    salvar_cache_lugares()
+    for registro in antigos:
+        p = pedal_do_registro(registro)
+        if p["start_date_local"][:10] >= desde and str(p["id"]) not in ocultar:
+            pedais.append(p)
+    pedais.sort(key=lambda a: a["start_date_local"], reverse=True)
+    casar_videos(pedais, videos, {k: v for k, v in ajustes.items() if not k.startswith("_")})
+    usados = set()
+    for p in pedais:
+        p["_komoot"] = link_komoot(p["_video"])
+        p["_slug"] = slug_do_pedal(p)
+        if p["_slug"] in usados:
+            p["_slug"] += f"-{p['id']}"
+        usados.add(p["_slug"])
     print(f"  cidades: {sum(1 for p in pedais if p['_sai'])} pedais com cidade de saída; "
           f"{len({c for p in pedais for c in p['_passa']})} cidades no total")
-    orcamento = {"consultas": int(os.environ.get("ORCAMENTO_LUGARES", "450")), "falhas": 0}
-    for p in pedais:                                    # bairros e localidades (a cada rodada vai completando o que falta)
-        p["_lugares"] = lugares_do_percurso(decodificar((p.get("map") or {}).get("summary_polyline") or ""), orcamento)
-    salvar_cache_lugares()
     print(f"  lugares: {sum(1 for p in pedais if p['_lugares'])} pedais com lista; consultas feitas nesta rodada: "
           f"{int(os.environ.get('ORCAMENTO_LUGARES', '450')) - orcamento['consultas']}; falhas seguidas: {orcamento['falhas']}")
     pasta_gpx = os.path.join(base, "gpx")
@@ -1104,7 +1204,7 @@ def main():
     print(f"  gpx: {sum(1 for p in pedais if p['_gpx'])} de {len(pedais)} pedais com GPX para baixar")
     cache_clima = carregar_cache_clima()
     for p in pedais:                                    # temperatura e vento no começo e no fim
-        p["_clima"] = clima_do_pedal(p, decodificar((p.get("map") or {}).get("summary_polyline") or ""), cache_clima)
+        p["_clima"] = clima_do_pedal(p, trajetos.get(p["id"], []), cache_clima)   # dos pedais do cache, o clima já está no cache do clima
     salvar_cache_clima()
     print(f"  clima: {sum(1 for p in pedais if p['_clima'])} de {len(pedais)} pedais com temperatura e vento")
     if os.path.isdir(pasta_mapas):                      # tira os mapas de pedais que saíram da página
@@ -1115,11 +1215,13 @@ def main():
                 print("  mapa removido:", nome)
     print(f"  começo e fim cortados em {sum(1 for p in pedais if p['_cortado'])} de {len(pedais)} pedais (os que saem ou chegam perto de casa)")
     print(f"{len(pedais)} pedais; {sum(1 for p in pedais if p['_video'])} com vídeo; {sum(1 for p in pedais if p['_komoot'])} com Komoot; "
-          f"{sum(1 for p in pedais if p['_mapa'] or svg_do_tracado((p.get('map') or {}).get('summary_polyline') or ''))} com mapa")
+          f"{sum(1 for p in pedais if p['_mapa'] or p['_svg'])} com mapa")
     for p in pedais:
         if not p["_video"]:
             print("  sem vídeo:", p["start_date_local"][:10], p["name"])
 
+    if not args.teste:
+        guardar_cache_pedais(pedais, atividades, cache.get("ultima", 0))
     modelo = open(args.modelo, encoding="utf-8").read()
     modelo_pedal = open(args.modelo_pedal, encoding="utf-8").read()
     os.makedirs(base, exist_ok=True)
