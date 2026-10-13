@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BNT Editor</title>
-<meta name="description" content="BNT Editor: aplicativo de Windows para editar vídeos de ciclismo. Do material bruto da câmera ao vídeo pronto no YouTube, com cortes, painel de GPS, legendas automáticas, capa e envio.">
+<meta name="description" content="BNT Editor: aplicativo de Windows para editar vídeos de ciclismo. Do material bruto da câmera ao vídeo pronto no YouTube, com cortes, painel de GPS, legendas automáticas, capa, envio ao YouTube e GPX direto do Strava.">
 <meta name="robots" content="noindex">
 <link rel="canonical" href="https://brotenatrilha.com.br/bnteditor/">
 <meta name="theme-color" content="#161616">
@@ -158,6 +158,7 @@
     html { scroll-behavior: auto; }
     .botao { transition: none; }
   }
+  footer img.strava{display:block;height:auto;max-width:180px;margin:8px 0}
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "BNT Editor", "url": "https://brotenatrilha.com.br/bnteditor/", "applicationCategory": "MultimediaApplication", "operatingSystem": "Windows 10, Windows 11", "inLanguage": "pt-BR", "description": "Aplicativo de Windows para editar vídeos de ciclismo: do material bruto da câmera ao vídeo pronto no YouTube, com cortes, painel de GPS, legendas automáticas, capa e envio.", "image": "https://brotenatrilha.com.br/bnteditor/icone.png", "author": {"@type": "Organization", "name": "Brote na Trilha", "url": "https://brotenatrilha.com.br/"}}</script>
 </head>
@@ -298,6 +299,15 @@
           </ul>
         </div>
         <div class="grupo">
+          <h3><span aria-hidden="true">&#128279;</span> Integrações</h3>
+          <ul>
+            <li><strong>YouTube</strong>: conecte a conta do seu canal uma vez e envie o vídeo, a capa, as legendas e a playlist direto do app.</li>
+            <li><strong>Strava</strong>: baixe o percurso do passeio direto da sua conta, como GPX com o horário de cada ponto, para o painel de GPS e o resumo do passeio.</li>
+            <li>A lista do Strava começa pelas atividades dos dias dos seus vídeos. O nome da atividade vira o nome do GPX e do projeto, e o link dela entra no campo do Strava.</li>
+            <li>As duas contas se conectam na mesma aba, em <strong>Configurações → Integrações</strong>, e o acesso fica só no seu computador.</li>
+          </ul>
+        </div>
+        <div class="grupo">
           <h3><span aria-hidden="true">&#128269;</span> Conferência</h3>
           <ul>
             <li><strong>Analisar</strong>: avisos e erros antes de renderizar.</li>
@@ -326,6 +336,8 @@
       O envio ao YouTube usa os Serviços de API do YouTube. Ao usá-lo, você concorda com os
       <a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener">Termos de Serviço do YouTube</a>
       e com a <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Política de Privacidade do Google</a>.
+      A conexão com o Strava usa a API do Strava e os dados ficam só no seu computador.
+      <img class="strava" src="strava_powered_by.png" width="180" alt="Powered by Strava" loading="lazy" decoding="async">
       As visitas a esta página são contadas sem cookies e sem identificar ninguém.
     </span>
   </div>
