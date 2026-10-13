@@ -84,6 +84,7 @@
   .lugares ul { margin: 0; padding-left: 1.15em; }
   .lugares li { margin: 5px 0; color: var(--suave); }
   .lugares strong { color: var(--texto); }
+  .nota-gpx { margin: 10px 0 0; font-size: .8rem; color: var(--suave); }
   .nota-lugares { margin: 10px 0 0; font-size: .8rem; color: var(--suave); }
   .video { margin-top: 26px; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 14px 36px rgba(20, 50, 30, .22); }
   .video iframe { width: 100%; height: 100%; border: 0; display: block; }
@@ -128,6 +129,7 @@
   {{LUGARES}}
   {{CLIMA}}
   <p class="links">{{LINKS}}</p>
+  {{NOTA_GPX}}
   <nav class="navegacao" aria-label="Outros pedais">{{NAV}}</nav>
   <p class="todos"><a href="/pedais/">Ver todos os pedais</a></p>
 </main>

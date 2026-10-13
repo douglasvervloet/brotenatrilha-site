@@ -56,6 +56,9 @@ def http_json(url, dados=None, cabecalhos=None):
         return json.load(r)
 
 
+_token_strava = None                                 # preenchido ao buscar as atividades (usado para baixar o traçado detalhado)
+
+
 def atividades_do_strava():
     cid, segredo, refresh = (os.environ.get(k, "") for k in ("STRAVA_CLIENT_ID", "STRAVA_CLIENT_SECRET", "STRAVA_REFRESH_TOKEN"))
     if not (cid and segredo and refresh):
@@ -66,7 +69,9 @@ def atividades_do_strava():
         # o Strava pode trocar o refresh token a cada renovação: o robô grava o novo (ver pedais.yml)
         with open(os.environ.get("NOVO_REFRESH_ARQUIVO", "novo_refresh.txt"), "w") as f:
             f.write(tk["refresh_token"])
-    cab = {"Authorization": "Bearer " + tk["access_token"]}
+    global _token_strava
+    _token_strava = tk["access_token"]
+    cab = {"Authorization": "Bearer " + _token_strava}
     todas, pagina = [], 1
     while True:
         lote = http_json(f"https://www.strava.com/api/v3/athlete/activities?per_page=200&page={pagina}", None, cab)
@@ -442,6 +447,95 @@ def linha_cidades(p, limite=4):
         resto = len(passa) - len(mostra)
         partes.append("passa por " + ", ".join(html.escape(c) for c in mostra) + (f" e mais {resto}" if resto > 0 else ""))
     return f'<p class="cidades">{" · ".join(partes)}</p>' if partes else ""
+
+
+# ----------------------------------------------------------------------------- GPX para baixar (sem o começo e o fim)
+PASSO_GPX_M = 15                                     # um ponto a cada 15 m: arquivo leve e traçado fiel
+_strava_limitou = False                              # depois de um 429 (limite de consultas) o robô para de pedir; amanhã continua
+
+
+def caminho_gpx(pasta_gpx, pedal_id):
+    return os.path.join(pasta_gpx, f"{pedal_id}.gpx")
+
+
+def montar_gpx(titulo, pontos, altitudes):
+    """GPX só com o miolo do percurso (sem horários, para não dizer a que horas alguém saiu/chegou)."""
+    trk = []
+    for (lat, lon), alt in zip(pontos, altitudes):
+        ele = f"<ele>{alt:.1f}</ele>" if alt is not None else ""
+        trk.append(f'      <trkpt lat="{lat:.5f}" lon="{lon:.5f}">{ele}</trkpt>')
+    nome = html.escape(titulo)
+    cabecalho = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<gpx version="1.1" creator="Brote na Trilha (brotenatrilha.com.br)" xmlns="http://www.topografix.com/GPX/1/1">',
+        f'  <metadata><name>{nome}</name><desc>Percurso sem os primeiros e os últimos {CORTE_METROS} m. brotenatrilha.com.br</desc></metadata>',
+        '  <trk>',
+        f'    <name>{nome}</name>',
+        '    <trkseg>',
+    ]
+    return "\n".join(cabecalho + trk + ['    </trkseg>', '  </trk>', '</gpx>', ''])
+
+
+def gerar_gpx(p, pasta_gpx):
+    """Baixa o traçado detalhado do Strava, corta o começo e o fim, afina os pontos e grava pedais/gpx/ID.gpx.
+    Devolve True se o arquivo existe (já estava lá ou foi criado agora)."""
+    global _strava_limitou
+    destino = caminho_gpx(pasta_gpx, p["id"])
+    if os.path.exists(destino):
+        return True
+    if not _token_strava or _strava_limitou:
+        return False
+    try:
+        fluxos = http_json(f"https://www.strava.com/api/v3/activities/{p['id']}/streams?keys=latlng,altitude&key_by_type=true",
+                           None, {"Authorization": "Bearer " + _token_strava})
+    except urllib.error.HTTPError as erro:
+        if erro.code == 429:
+            _strava_limitou = True
+        print("  sem GPX:", p["name"], "- HTTP", erro.code)
+        return False
+    except Exception as erro:
+        print("  sem GPX:", p["name"], "-", erro)
+        return False
+    if isinstance(fluxos, list):                       # key_by_type=false devolve lista; garante o formato de dicionário
+        fluxos = {f["type"]: f for f in fluxos}
+    brutos = [tuple(x) for x in (fluxos.get("latlng") or {}).get("data", [])]
+    alts = (fluxos.get("altitude") or {}).get("data", [])
+    if len(alts) != len(brutos):
+        alts = [None] * len(brutos)
+    if len(brutos) < 4:
+        return False
+    acum = [0.0]
+    for a, b in zip(brutos, brutos[1:]):
+        acum.append(acum[-1] + metros(a, b))
+    total = acum[-1]
+    if total < 4 * CORTE_METROS:
+        return False
+    pontos, altitudes, ultimo = [], [], None
+    for ponto, alt, d in zip(brutos, alts, acum):
+        if d < CORTE_METROS or d > total - CORTE_METROS:
+            continue
+        if ultimo is None or metros(ultimo, ponto) >= PASSO_GPX_M:
+            pontos.append(ponto)
+            altitudes.append(alt)
+            ultimo = ponto
+    if len(pontos) < 5:
+        return False
+    os.makedirs(pasta_gpx, exist_ok=True)
+    with open(destino, "w", encoding="utf-8", newline="\n") as f:
+        f.write(montar_gpx(titulo_do_pedal(p["name"]), pontos, altitudes))
+    time.sleep(0.5)
+    return True
+
+
+NOTA_GPX = '<p class="nota-gpx">O GPX traz o percurso sem os primeiros e os últimos 800 m, para não mostrar de onde o pedal sai.</p>'
+
+
+def bloco_gpx(p):
+    """Botão de download do GPX no fim da página do pedal (só se o arquivo existe)."""
+    if not p.get("_gpx"):
+        return ""
+    nome = f'{p["_slug"]}.gpx'
+    return (f'<a class="botao claro" href="/pedais/gpx/{p["id"]}.gpx" download="{html.escape(nome)}">Baixar GPX</a>')
 
 
 # ----------------------------------------------------------------------------- bairros e localidades (OpenStreetMap)
@@ -861,7 +955,7 @@ def montar_pagina_pedal(p, mais_novo, mais_velho, modelo):
     troca = {"{{TITULO}}": html.escape(titulo), "{{DESCRICAO_META}}": html.escape(descricao_meta), "{{URL}}": url,
              "{{OG_IMAGE}}": og, "{{DATA_LONGA}}": data_longa(p["start_date_local"]), "{{MAPA}}": mapa_html(p, "/pedais/mapas/", "eager"),
              "{{NUMEROS}}": nums, "{{VIDEO}}": video, "{{TEXTO}}": f"<p class=\"texto\">{html.escape(texto)}</p>" if texto else "",
-             "{{CLIMA}}": bloco_clima(p), "{{LUGARES}}": bloco_lugares(p), "{{LINKS}}": botoes(p), "{{CIDADES}}": linha_cidades(p, 99), "{{NAV}}": "".join(nav),
+             "{{CLIMA}}": bloco_clima(p), "{{LUGARES}}": bloco_lugares(p), "{{LINKS}}": botoes(p, extra=" " + bloco_gpx(p)) if p.get("_gpx") else botoes(p), "{{NOTA_GPX}}": NOTA_GPX if p.get("_gpx") else "", "{{CIDADES}}": linha_cidades(p, 99), "{{NAV}}": "".join(nav),
              "{{JSONLD}}": "".join('<script type="application/ld+json">' + json.dumps(x, ensure_ascii=False) + "</script>\n" for x in ld)}
     saida = modelo
     for k, val in troca.items():
@@ -967,6 +1061,16 @@ def main():
     salvar_cache_lugares()
     print(f"  lugares: {sum(1 for p in pedais if p['_lugares'])} pedais com lista; consultas feitas nesta rodada: "
           f"{int(os.environ.get('ORCAMENTO_LUGARES', '450')) - orcamento['consultas']}; falhas seguidas: {orcamento['falhas']}")
+    pasta_gpx = os.path.join(base, "gpx")
+    for p in pedais:                                    # arquivo GPX para baixar (só busca no Strava o que ainda não existe)
+        p["_gpx"] = gerar_gpx(p, pasta_gpx)
+    if os.path.isdir(pasta_gpx):
+        atuais_gpx = {f"{p['id']}.gpx" for p in pedais}
+        for nome in os.listdir(pasta_gpx):
+            if nome.endswith(".gpx") and nome not in atuais_gpx:
+                os.remove(os.path.join(pasta_gpx, nome))
+                print("  GPX removido:", nome)
+    print(f"  gpx: {sum(1 for p in pedais if p['_gpx'])} de {len(pedais)} pedais com GPX para baixar")
     cache_clima = carregar_cache_clima()
     for p in pedais:                                    # temperatura e vento no começo e no fim
         p["_clima"] = clima_do_pedal(p, decodificar((p.get("map") or {}).get("summary_polyline") or ""), cache_clima)
