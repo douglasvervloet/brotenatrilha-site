@@ -46,6 +46,13 @@
   .chip[aria-pressed="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
   #contagem { margin: 0; color: var(--suave); font-size: .9rem; }
 
+  .seletores { display: flex; flex-wrap: wrap; gap: 10px 18px; }
+  .seletores label { display: flex; align-items: center; gap: 8px; font-size: .9rem; color: var(--suave); }
+  .seletores select { font: inherit; padding: 8px 14px; border-radius: 999px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); max-width: 70vw; }
+  .seletores select:focus { border-color: var(--verde); outline: none; }
+  .cidades { margin: 2px 0 0; color: var(--suave); font-size: .85rem; line-height: 1.4; }
+  .cidades b { color: var(--texto); }
+
   .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 18px; }
   .pedal[hidden], .bloco-ano[hidden] { display: none; }
   .pedal { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
@@ -99,6 +106,11 @@
       <button type="button" class="chip" data-filtro="dist" data-valor="50a100" aria-pressed="false">50 a 100 km</button>
       <button type="button" class="chip" data-filtro="dist" data-valor="mais100" aria-pressed="false">Mais de 100 km</button>
     </div>
+    <div class="seletores">
+      <label>Passa por <select id="passa"><option value="">Qualquer cidade</option>{{OPCOES_PASSA}}</select></label>
+      <label>Sai de <select id="sai"><option value="">Qualquer cidade</option>{{OPCOES_SAI}}</select></label>
+      <label>Chega em <select id="chega"><option value="">Qualquer cidade</option>{{OPCOES_CHEGA}}</select></label>
+    </div>
     <p id="contagem" role="status" aria-live="polite"></p>
   </div>
 
@@ -121,7 +133,7 @@
     if (!filtros || !busca) return;
     filtros.hidden = false;
     var cartoes = [].slice.call(document.querySelectorAll(".pedal"));
-    var estado = { ano: "todos", dist: "todas", texto: "" };
+    var estado = { ano: "todos", dist: "todas", texto: "", passa: "", sai: "", chega: "" };
     function norm(s) { return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
     function aplicar() {
       var visiveis = 0;
@@ -131,7 +143,10 @@
         var okDist = estado.dist === "todas" || (estado.dist === "ate50" && km < 50) ||
           (estado.dist === "50a100" && km >= 50 && km <= 100) || (estado.dist === "mais100" && km > 100);
         var okTexto = !estado.texto || c.dataset.nome.indexOf(estado.texto) !== -1;
-        var ok = okAno && okDist && okTexto;
+        var okPassa = !estado.passa || c.dataset.passa.indexOf("|" + estado.passa + "|") !== -1;
+        var okSai = !estado.sai || c.dataset.sai === estado.sai;
+        var okChega = !estado.chega || c.dataset.chega === estado.chega;
+        var ok = okAno && okDist && okTexto && okPassa && okSai && okChega;
         c.hidden = !ok;
         if (ok) visiveis++;
       });
@@ -139,6 +154,9 @@
       document.getElementById("contagem").textContent = visiveis + " de " + cartoes.length + " pedais";
     }
     busca.addEventListener("input", function () { estado.texto = norm(busca.value.trim()); aplicar(); });
+    ["passa", "sai", "chega"].forEach(function (id) {
+      document.getElementById(id).addEventListener("change", function (e) { estado[id] = e.target.value; aplicar(); });
+    });
     [].forEach.call(document.querySelectorAll(".chip"), function (chip) {
       chip.addEventListener("click", function () {
         var grupo = chip.dataset.filtro;

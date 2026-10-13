@@ -367,6 +367,83 @@ def gerar_mapa(pedal_id, pontos, pasta_mapas, pasta_cache):
 ESTATICAS = [("https://brotenatrilha.com.br/bnteditor/", "2026-10-12"), ("https://brotenatrilha.com.br/privacidade/", "2026-10-12")]
 
 
+# ----------------------------------------------------------------------------- cidades por onde o pedal passa
+_municipios = None
+
+
+def carregar_municipios():
+    """Limites dos municípios do Espírito Santo (IBGE), em ferramentas/municipios_es.json."""
+    global _municipios
+    if _municipios is None:
+        caminho = os.path.join(os.path.dirname(__file__), "municipios_es.json")
+        bruto = json.load(open(caminho, encoding="utf-8")) if os.path.exists(caminho) else {}
+        _municipios = []
+        for nome, poligonos in bruto.items():
+            lons = [pt[0] for pol in poligonos for anel in pol for pt in anel]
+            lats = [pt[1] for pol in poligonos for anel in pol for pt in anel]
+            _municipios.append((nome, (min(lons), min(lats), max(lons), max(lats)), poligonos))
+    return _municipios
+
+
+def dentro_do_anel(lon, lat, anel):
+    dentro, j = False, len(anel) - 1
+    for i in range(len(anel)):
+        xi, yi = anel[i]
+        xj, yj = anel[j]
+        if (yi > lat) != (yj > lat) and lon < (xj - xi) * (lat - yi) / (yj - yi) + xi:
+            dentro = not dentro
+        j = i
+    return dentro
+
+
+def municipio_do_ponto(lat, lon):
+    for nome, (x0, y0, x1, y1), poligonos in carregar_municipios():
+        if not (x0 <= lon <= x1 and y0 <= lat <= y1):
+            continue
+        for pol in poligonos:
+            if dentro_do_anel(lon, lat, pol[0]) and not any(dentro_do_anel(lon, lat, buraco) for buraco in pol[1:]):
+                return nome
+    return None
+
+
+def cidades_do_percurso(pontos, minimo_m=500):
+    """(cidade de saída, cidade de chegada, [cidades por onde passa, na ordem]) a partir do traçado completo; passar de
+    raspão (menos de 500 m dentro do município) não conta."""
+    if len(pontos) < 2 or not carregar_municipios():
+        return None, None, []
+    nomes = [municipio_do_ponto(la, lo) for la, lo in pontos]
+    sai = next((n for n in nomes if n), None)
+    chega = next((n for n in reversed(nomes) if n), None)
+    dist, ordem = {}, []
+    for (a, b), n in zip(zip(pontos, pontos[1:]), nomes):
+        if not n:
+            continue
+        if n not in dist:
+            dist[n] = 0.0
+            ordem.append(n)
+        dist[n] += metros(a, b)
+    return sai, chega, [n for n in ordem if dist[n] >= minimo_m or n in (sai, chega)]
+
+
+def slug_texto(t):
+    return re.sub(r"[^a-z0-9]+", "-", sem_acento(t.lower())).strip("-")
+
+
+def linha_cidades(p, limite=4):
+    sai, chega = p.get("_sai"), p.get("_chega")
+    passa = [c for c in p.get("_passa", []) if c not in (sai, chega)]
+    partes = []
+    if sai:
+        partes.append(f"Sai de <b>{html.escape(sai)}</b>")
+    if chega and chega != sai:
+        partes.append(f"chega em <b>{html.escape(chega)}</b>")
+    if passa:
+        mostra = passa[:limite]
+        resto = len(passa) - len(mostra)
+        partes.append("passa por " + ", ".join(html.escape(c) for c in mostra) + (f" e mais {resto}" if resto > 0 else ""))
+    return f'<p class="cidades">{" · ".join(partes)}</p>' if partes else ""
+
+
 def slug_do_pedal(p):
     t = re.sub(r"[^a-z0-9]+", "-", sem_acento(titulo_do_pedal(p["name"]).lower())).strip("-")
     if len(t) > 60:
@@ -421,11 +498,12 @@ def cartao(p):
     km, media = numeros(p)
     titulo = html.escape(titulo_do_pedal(p["name"]))
     mapa = mapa_html(p, "mapas/")
-    return f"""      <article class="pedal" data-ano="{p["start_date_local"][:4]}" data-km="{km:.1f}" data-nome="{html.escape(normalizar(p["name"]))}">
+    return f"""      <article class="pedal" data-ano="{p["start_date_local"][:4]}" data-km="{km:.1f}" data-nome="{html.escape(normalizar(p["name"] + " " + " ".join(p.get("_passa", []))))}" data-sai="{slug_texto(p.get("_sai") or "")}" data-chega="{slug_texto(p.get("_chega") or "")}" data-passa="|{"|".join(slug_texto(c) for c in p.get("_passa", []))}|">
         <a class="mapa-link" href="{p['_slug']}/" aria-label="Ver o pedal {titulo}">{mapa}</a>
         <div class="corpo">
           <h3><a href="{p['_slug']}/">{titulo}</a></h3>
           <p class="data">{data_longa(p["start_date_local"])}</p>
+          {linha_cidades(p)}
           <dl>
             <div><dt>Distância</dt><dd>{num(km, 1)} km</dd></div>
             <div><dt>Subida</dt><dd>{num(p["total_elevation_gain"])} m</dd></div>
@@ -444,12 +522,24 @@ def montar_pagina(pedais, modelo):
     anos = sorted(por_ano, reverse=True)
     blocos = [f'    <div class="bloco-ano">\n    <h2 class="ano">{ano}</h2>\n    <div class="grade">\n'
               + "\n".join(cartao(p) for p in por_ano[ano]) + "\n    </div>\n    </div>" for ano in anos]
+    cont_passa, cont_sai, cont_chega = {}, {}, {}
+    for p in pedais:
+        for c in set(p.get("_passa", [])):
+            cont_passa[c] = cont_passa.get(c, 0) + 1
+        if p.get("_sai"):
+            cont_sai[p["_sai"]] = cont_sai.get(p["_sai"], 0) + 1
+        if p.get("_chega"):
+            cont_chega[p["_chega"]] = cont_chega.get(p["_chega"], 0) + 1
+
+    def opcoes(cont):
+        return "".join(f'<option value="{slug_texto(c)}">{html.escape(c)} ({n})</option>'
+                       for c, n in sorted(cont.items(), key=lambda x: (-x[1], sem_acento(x[0]))))
     chips_ano = '<button type="button" class="chip" data-filtro="ano" data-valor="todos" aria-pressed="true">Todos os anos</button>' + "".join(
         f'<button type="button" class="chip" data-filtro="ano" data-valor="{a}" aria-pressed="false">{a}</button>' for a in anos)
     km = sum(p["distance"] for p in pedais) / 1000
     subida = sum(p["total_elevation_gain"] for p in pedais)
     resumo = f'{len(pedais)} pedais · {num(km)} km · {num(subida)} m de subida'
-    return (modelo.replace("{{RESUMO}}", resumo).replace("{{CHIPS_ANO}}", chips_ano)
+    return (modelo.replace("{{RESUMO}}", resumo).replace("{{CHIPS_ANO}}", chips_ano).replace("{{OPCOES_PASSA}}", opcoes(cont_passa)).replace("{{OPCOES_SAI}}", opcoes(cont_sai)).replace("{{OPCOES_CHEGA}}", opcoes(cont_chega))
             .replace("{{CONTEUDO}}", "\n".join(blocos))
             .replace("{{ATUALIZADO}}", data_longa(datetime.now().strftime("%Y-%m-%d"))))
 
@@ -484,7 +574,7 @@ def montar_pagina_pedal(p, mais_novo, mais_velho, modelo):
     troca = {"{{TITULO}}": html.escape(titulo), "{{DESCRICAO_META}}": html.escape(descricao_meta), "{{URL}}": url,
              "{{OG_IMAGE}}": og, "{{DATA_LONGA}}": data_longa(p["start_date_local"]), "{{MAPA}}": mapa_html(p, "/pedais/mapas/", "eager"),
              "{{NUMEROS}}": nums, "{{VIDEO}}": video, "{{TEXTO}}": f"<p class=\"texto\">{html.escape(texto)}</p>" if texto else "",
-             "{{LINKS}}": botoes(p), "{{NAV}}": "".join(nav),
+             "{{LINKS}}": botoes(p), "{{CIDADES}}": linha_cidades(p, 99), "{{NAV}}": "".join(nav),
              "{{JSONLD}}": "".join('<script type="application/ld+json">' + json.dumps(x, ensure_ascii=False) + "</script>\n" for x in ld)}
     saida = modelo
     for k, val in troca.items():
@@ -580,6 +670,10 @@ def main():
                 p["_mapa"] = gerar_mapa(p["id"], pontos, pasta_mapas, pasta_cache)
             except Exception as erro:               # sem mapa de fundo, o cartão mostra só o traçado
                 print("  sem mapa de fundo:", p["name"], "-", erro)
+    for p in pedais:                                    # cidades: saída e por onde passa (traçado completo, só para isso)
+        p["_sai"], p["_chega"], p["_passa"] = cidades_do_percurso(decodificar((p.get("map") or {}).get("summary_polyline") or ""))
+    print(f"  cidades: {sum(1 for p in pedais if p['_sai'])} pedais com cidade de saída; "
+          f"{len({c for p in pedais for c in p['_passa']})} cidades no total")
     if os.path.isdir(pasta_mapas):                      # tira os mapas de pedais que saíram da página
         atuais = {f"{p['id']}.webp" for p in pedais}
         for nome in os.listdir(pasta_mapas):
