@@ -364,7 +364,6 @@ def gerar_mapa(pedal_id, pontos, pasta_mapas, pasta_cache):
 
 
 # ----------------------------------------------------------------------------- página
-ABREV = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
 ESTATICAS = [("https://brotenatrilha.com.br/bnteditor/", "2026-10-12"), ("https://brotenatrilha.com.br/privacidade/", "2026-10-12")]
 
 
@@ -438,34 +437,11 @@ def cartao(p):
       </article>"""
 
 
-def grafico_do_ano(ano, lista, maximo):
-    meses = [0.0] * 12
-    for p in lista:
-        meses[int(p["start_date_local"][5:7]) - 1] += p["distance"] / 1000
-    base, altura_max = 140, 104
-    barras = []
-    for i, km in enumerate(meses):
-        x = 8 + i * 31
-        h = (km / maximo) * altura_max if maximo else 0
-        rotulo = f'<text class="v" x="{x + 12}" y="{base - h - 5:.1f}">{num(km)}</text>' if km > 0 else ""
-        barras.append(f'<g><title>{ABREV[i]}/{ano}: {num(km, 1)} km</title>'
-                      f'<rect x="{x}" y="{base - h:.1f}" width="24" height="{max(h, 0):.1f}" rx="3"/>{rotulo}'
-                      f'<text class="m" x="{x + 12}" y="{base + 16}">{ABREV[i]}</text></g>')
-    km_ano = sum(meses)
-    sub = sum(p["total_elevation_gain"] for p in lista)
-    resumo_txt = f"{ano}: {len(lista)} pedais, {num(km_ano)} km e {num(sub)} m de subida"
-    return (f'<figure class="resumo-ano"><figcaption><strong>{ano}</strong> · {len(lista)} pedais · {num(km_ano)} km · {num(sub)} m de subida</figcaption>'
-            f'<svg viewBox="0 0 384 164" role="img" aria-label="Quilômetros pedalados por mês. {resumo_txt}">{"".join(barras)}</svg></figure>')
-
-
 def montar_pagina(pedais, modelo):
     por_ano = {}
     for p in pedais:
         por_ano.setdefault(p["start_date_local"][:4], []).append(p)
     anos = sorted(por_ano, reverse=True)
-    maximo = max((sum(p["distance"] for p in por_ano[a] if p["start_date_local"][5:7] == f"{m:02d}") / 1000
-                  for a in anos for m in range(1, 13)), default=1) or 1
-    graficos = "\n".join("    " + grafico_do_ano(a, por_ano[a], maximo) for a in anos)
     blocos = [f'    <div class="bloco-ano">\n    <h2 class="ano">{ano}</h2>\n    <div class="grade">\n'
               + "\n".join(cartao(p) for p in por_ano[ano]) + "\n    </div>\n    </div>" for ano in anos]
     chips_ano = '<button type="button" class="chip" data-filtro="ano" data-valor="todos" aria-pressed="true">Todos os anos</button>' + "".join(
@@ -473,7 +449,7 @@ def montar_pagina(pedais, modelo):
     km = sum(p["distance"] for p in pedais) / 1000
     subida = sum(p["total_elevation_gain"] for p in pedais)
     resumo = f'{len(pedais)} pedais · {num(km)} km · {num(subida)} m de subida'
-    return (modelo.replace("{{RESUMO}}", resumo).replace("{{GRAFICOS}}", graficos).replace("{{CHIPS_ANO}}", chips_ano)
+    return (modelo.replace("{{RESUMO}}", resumo).replace("{{CHIPS_ANO}}", chips_ano)
             .replace("{{CONTEUDO}}", "\n".join(blocos))
             .replace("{{ATUALIZADO}}", data_longa(datetime.now().strftime("%Y-%m-%d"))))
 

@@ -36,16 +36,6 @@
   .ano { margin: 38px 0 14px; font-size: 1.6rem; }
   .ano::after { content: ""; display: block; width: 52px; height: 4px; border-radius: 2px; background: var(--ambar); margin-top: 8px; }
 
-  /* resumo por ano: quilômetros por mês */
-  .resumos { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
-  .resumo-ano { margin: 0; background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 16px 18px 10px; }
-  .resumo-ano figcaption { font-size: .95rem; color: var(--suave); }
-  .resumo-ano figcaption strong { color: var(--texto); font-size: 1.1rem; }
-  .resumo-ano svg { display: block; width: 100%; height: auto; margin-top: 6px; }
-  .resumo-ano rect { fill: var(--barra); }
-  .resumo-ano text { fill: var(--suave); font-size: 9.5px; text-anchor: middle; font-family: inherit; }
-  .resumo-ano .v { fill: var(--texto); font-size: 8.5px; font-weight: 700; }
-
   /* busca e filtros */
   .filtros { margin: 34px 0 0; display: grid; gap: 12px; }
   .filtros input { width: 100%; font: inherit; padding: 12px 18px; border-radius: 999px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); }
@@ -100,11 +90,6 @@
 </header>
 
 <main class="miolo">
-  <h2 class="ano">Resumo por ano</h2>
-  <div class="resumos">
-{{GRAFICOS}}
-  </div>
-
   <div class="filtros" id="filtros" hidden>
     <input type="search" id="busca" placeholder="Buscar pelo nome do pedal" aria-label="Buscar pelo nome do pedal" autocomplete="off">
     <div class="chips" role="group" aria-label="Filtrar por ano">{{CHIPS_ANO}}</div>
