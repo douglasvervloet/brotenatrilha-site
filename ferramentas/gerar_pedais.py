@@ -448,7 +448,7 @@ def linha_cidades(p, limite=4):
 NAO_E_BAIRRO = re.compile(r"^(terminal|posto|rodovi|br-|es-|aeroporto|rodovi[aá]ria)", re.I)   # pontos de referência que o OSM marca como lugar
 CHAVES_LUGAR = ["suburb", "neighbourhood", "quarter", "city_district", "village", "hamlet"]
 CORTE_LUGARES_M = 2500        # não lista os primeiros e os últimos 2,5 km (de onde o pedal sai)
-PASSO_LUGARES_M = 3000        # um ponto a cada 3 km de percurso
+PASSO_LUGARES_M = 1000        # um ponto a cada 1 km de percurso (a cada 3 km, bairros pequenos passavam batido)
 _cache_lugares = None
 
 

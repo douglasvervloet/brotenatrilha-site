@@ -16,6 +16,7 @@ permissions:
 jobs:
   gerar:
     runs-on: ubuntu-latest
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
 
@@ -33,6 +34,7 @@ jobs:
           STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           NOVO_REFRESH_ARQUIVO: ${{ runner.temp }}/novo_refresh.txt
+          ORCAMENTO_LUGARES: "2500"   # consultas ao OpenStreetMap por rodada (1 por segundo); pedal novo gasta uns 75
         run: python ferramentas/gerar_pedais.py --home index.html --sitemap sitemap.xml
 
       - name: Guardar o refresh token novo do Strava (se mudou)
