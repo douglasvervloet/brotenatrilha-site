@@ -364,7 +364,7 @@ def gerar_mapa(pedal_id, pontos, pasta_mapas, pasta_cache):
 
 
 # ----------------------------------------------------------------------------- página
-ESTATICAS = [("https://brotenatrilha.com.br/bnteditor/", "2026-10-12"), ("https://brotenatrilha.com.br/privacidade/", "2026-10-12")]
+ESTATICAS = [("https://brotenatrilha.com.br/privacidade/", "2026-10-12")]
 
 
 # ----------------------------------------------------------------------------- cidades por onde o pedal passa
