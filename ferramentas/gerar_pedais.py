@@ -262,7 +262,30 @@ def metros(a, b):
     return math.hypot(dx, dy)
 
 
-def cortar_pontas(pontos, corte=CORTE_METROS):
+RAIO_CASA_M = 500                                    # "perto de casa": saída ou chegada a até 500 m do ponto de CASA_COORD
+
+
+def coordenada_de_casa():
+    """(lat, lon) lida do segredo CASA_COORD ("lat,lon"). A coordenada NÃO fica no repositório (que é público)."""
+    try:
+        lat, lon = (float(x) for x in os.environ.get("CASA_COORD", "").split(","))
+        return lat, lon
+    except ValueError:
+        return None
+
+
+def perto_de_casa(pontos):
+    """True se o pedal sai ou chega perto de casa. Sem CASA_COORD, vale True: na dúvida, corta (mais seguro)."""
+    casa = coordenada_de_casa()
+    if casa is None or not pontos:
+        return True
+    return metros(casa, pontos[0]) <= RAIO_CASA_M or metros(casa, pontos[-1]) <= RAIO_CASA_M
+
+
+def cortar_pontas(pontos, corte=None):
+    """Tira o começo e o fim do traçado (CORTE_METROS), mas só nos pedais que saem de perto de casa."""
+    if corte is None:
+        corte = CORTE_METROS if perto_de_casa(pontos) else 0
     if len(pontos) < 4:
         return []
     acum = [0.0]
@@ -458,17 +481,18 @@ def caminho_gpx(pasta_gpx, pedal_id):
     return os.path.join(pasta_gpx, f"{pedal_id}.gpx")
 
 
-def montar_gpx(titulo, pontos, altitudes):
+def montar_gpx(titulo, pontos, altitudes, cortado):
     """GPX só com o miolo do percurso (sem horários, para não dizer a que horas alguém saiu/chegou)."""
     trk = []
     for (lat, lon), alt in zip(pontos, altitudes):
         ele = f"<ele>{alt:.1f}</ele>" if alt is not None else ""
         trk.append(f'      <trkpt lat="{lat:.5f}" lon="{lon:.5f}">{ele}</trkpt>')
     nome = html.escape(titulo)
+    aviso = f"Percurso sem os primeiros e os últimos {CORTE_METROS} m. " if cortado else ""
     cabecalho = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<gpx version="1.1" creator="Brote na Trilha (brotenatrilha.com.br)" xmlns="http://www.topografix.com/GPX/1/1">',
-        f'  <metadata><name>{nome}</name><desc>Percurso sem os primeiros e os últimos {CORTE_METROS} m. brotenatrilha.com.br</desc></metadata>',
+        f'  <metadata><name>{nome}</name><desc>{aviso}brotenatrilha.com.br</desc></metadata>',
         '  <trk>',
         f'    <name>{nome}</name>',
         '    <trkseg>',
@@ -508,11 +532,13 @@ def gerar_gpx(p, pasta_gpx):
     for a, b in zip(brutos, brutos[1:]):
         acum.append(acum[-1] + metros(a, b))
     total = acum[-1]
-    if total < 4 * CORTE_METROS:
+    cortado = perto_de_casa(brutos)
+    corte = CORTE_METROS if cortado else 0
+    if total < 4 * corte:
         return False
     pontos, altitudes, ultimo = [], [], None
     for ponto, alt, d in zip(brutos, alts, acum):
-        if d < CORTE_METROS or d > total - CORTE_METROS:
+        if d < corte or d > total - corte:
             continue
         if ultimo is None or metros(ultimo, ponto) >= PASSO_GPX_M:
             pontos.append(ponto)
@@ -522,7 +548,7 @@ def gerar_gpx(p, pasta_gpx):
         return False
     os.makedirs(pasta_gpx, exist_ok=True)
     with open(destino, "w", encoding="utf-8", newline="\n") as f:
-        f.write(montar_gpx(titulo_do_pedal(p["name"]), pontos, altitudes))
+        f.write(montar_gpx(titulo_do_pedal(p["name"]), pontos, altitudes, cortado))
     time.sleep(0.5)
     return True
 
@@ -958,7 +984,8 @@ def montar_pagina_pedal(p, mais_novo, mais_velho, modelo):
     troca = {"{{TITULO}}": html.escape(titulo), "{{DESCRICAO_META}}": html.escape(descricao_meta), "{{URL}}": url,
              "{{OG_IMAGE}}": og, "{{DATA_LONGA}}": data_longa(p["start_date_local"]), "{{MAPA}}": mapa_html(p, "/pedais/mapas/", "eager"),
              "{{NUMEROS}}": nums, "{{VIDEO}}": video, "{{TEXTO}}": f"<p class=\"texto\">{html.escape(texto)}</p>" if texto else "",
-             "{{CLIMA}}": bloco_clima(p), "{{LUGARES}}": bloco_lugares(p), "{{LINKS}}": botoes(p, extra=" " + bloco_gpx(p)) if p.get("_gpx") else botoes(p), "{{NOTA_GPX}}": NOTA_GPX if p.get("_gpx") else "", "{{CIDADES}}": linha_cidades(p, 99), "{{NAV}}": "".join(nav),
+             "{{CLIMA}}": bloco_clima(p), "{{LUGARES}}": bloco_lugares(p), "{{LINKS}}": botoes(p, extra=" " + bloco_gpx(p)) if p.get("_gpx") else botoes(p), "{{NOTA_GPX}}": NOTA_GPX if p.get("_gpx") and p.get("_cortado") else "",
+             "{{NOTA_CORTE}}": "O traçado não mostra o começo nem o fim do percurso. " if p.get("_cortado") else "", "{{CIDADES}}": linha_cidades(p, 99), "{{NAV}}": "".join(nav),
              "{{JSONLD}}": "".join('<script type="application/ld+json">' + json.dumps(x, ensure_ascii=False) + "</script>\n" for x in ld)}
     saida = modelo
     for k, val in troca.items():
@@ -1038,6 +1065,7 @@ def main():
     usados = set()
     for p in pedais:
         p["_komoot"] = link_komoot(p["_video"])
+        p["_cortado"] = perto_de_casa(decodificar((p.get("map") or {}).get("summary_polyline") or ""))   # só esses têm começo e fim cortados
         p["_slug"] = slug_do_pedal(p)
         if p["_slug"] in usados:
             p["_slug"] += f"-{p['id']}"
@@ -1085,6 +1113,7 @@ def main():
             if nome.endswith(".webp") and nome not in atuais:
                 os.remove(os.path.join(pasta_mapas, nome))
                 print("  mapa removido:", nome)
+    print(f"  começo e fim cortados em {sum(1 for p in pedais if p['_cortado'])} de {len(pedais)} pedais (os que saem ou chegam perto de casa)")
     print(f"{len(pedais)} pedais; {sum(1 for p in pedais if p['_video'])} com vídeo; {sum(1 for p in pedais if p['_komoot'])} com Komoot; "
           f"{sum(1 for p in pedais if p['_mapa'] or svg_do_tracado((p.get('map') or {}).get('summary_polyline') or ''))} com mapa")
     for p in pedais:

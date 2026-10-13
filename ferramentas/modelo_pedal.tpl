@@ -124,7 +124,7 @@
   {{VIDEO}}
   {{TEXTO}}
   {{MAPA}}
-  <p class="credito">O traçado não mostra o começo nem o fim do percurso. Mapa: © OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA).</p>
+  <p class="credito">{{NOTA_CORTE}}Mapa: © OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA).</p>
   <dl>{{NUMEROS}}</dl>
   {{LUGARES}}
   {{CLIMA}}

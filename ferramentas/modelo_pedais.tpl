@@ -115,7 +115,7 @@
   </div>
 
 {{CONTEUDO}}
-  <p class="nota">Os traçados não mostram o começo nem o fim dos percursos. Dados do Strava, atualizados todos os dias. Mapas: © OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA). Última atualização: {{ATUALIZADO}}.</p>
+  <p class="nota">Nos pedais que saem de perto de casa, o traçado não mostra o começo nem o fim. Dados do Strava, atualizados todos os dias. Mapas: © OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA). Última atualização: {{ATUALIZADO}}.</p>
 </main>
 
 <footer>
