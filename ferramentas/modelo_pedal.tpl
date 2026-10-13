@@ -33,7 +33,7 @@
   header .cidades { margin: 8px 0 0; color: #dcebe0; font-size: .98rem; }
   header .cidades b { color: #fff; }
   main { padding: 28px 0 40px; }
-  .mapa { display: block; width: 100%; aspect-ratio: 5 / 3; background: var(--mapa); border-radius: 16px; overflow: hidden; }
+  .mapa { display: block; margin-top: 28px; width: 100%; aspect-ratio: 5 / 3; background: var(--mapa); border-radius: 16px; overflow: hidden; }
   .mapa.com-fundo { position: relative; background: #cfe0c4; box-shadow: 0 14px 36px rgba(20, 50, 30, .22); }
   .mapa.com-fundo img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .mapa.com-fundo svg { position: absolute; inset: 0; width: 100%; height: 100%; }
