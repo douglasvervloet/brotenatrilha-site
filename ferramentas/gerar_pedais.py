@@ -732,6 +732,9 @@ def descricao_vento(d):
     return t
 
 
+MOSTRAR_GRAFICO_CLIMA = False                         # desligado a pedido: a página mostra só as colunas de início e fim
+
+
 def grafico_clima(c):
     """Temperatura, sensação, vento e chuva hora a hora em torno do pedal (SVG); a faixa destacada é a duração do pedal."""
     serie = c.get("serie") or []
@@ -820,7 +823,7 @@ def bloco_clima(p):
     def coluna(rotulo, d):
         return f'<div><small>{rotulo} · {d["hora"]}</small><strong>{num(d["temp"])} °C</strong><span class="ceu">{descricao_ceu(d)}</span><span>sensação de {num(d["sens"])} °C · {descricao_vento(d)}</span></div>'
     return ('<section class="clima"><h2>Clima</h2><div class="clima-grade">' + coluna("No início", c["inicio"]) + coluna("No fim", c["fim"]) +
-            '</div>' + grafico_clima(c) + '<p class="chuva-pedal">' + ("Sem chuva durante o pedal." if c.get("chuva_mm", 0) < 0.2 else f"Choveu cerca de {num(c['chuva_mm'], 1)} mm durante o pedal.") +
+            '</div>' + (grafico_clima(c) if MOSTRAR_GRAFICO_CLIMA else "") + '<p class="chuva-pedal">' + ("Sem chuva durante o pedal." if c.get("chuva_mm", 0) < 0.2 else f"Choveu cerca de {num(c['chuva_mm'], 1)} mm durante o pedal.") +
             '</p><p class="nota-clima">Valores estimados por modelo para a região (grade de uns 10 km), na hora mais próxima do começo e do fim. '
             'Dados do tempo: Open-Meteo.com (CC BY 4.0).</p></section>')
 
