@@ -567,7 +567,7 @@ def bloco_gpx(p):
 # ----------------------------------------------------------------------------- bairros e localidades (OpenStreetMap)
 NAO_E_BAIRRO = re.compile(r"^(terminal|posto|rodovi|br-|es-|aeroporto|rodovi[aá]ria)", re.I)   # pontos de referência que o OSM marca como lugar
 CHAVES_LUGAR = ["suburb", "neighbourhood", "quarter", "city_district", "village", "hamlet"]
-CORTE_LUGARES_M = 2500        # não lista os primeiros e os últimos 2,5 km (de onde o pedal sai)
+CORTE_LUGARES_M = 2500        # não lista os primeiros e os últimos 2,5 km, nos pedais que saem/chegam perto de casa
 PASSO_LUGARES_M = 1000        # um ponto a cada 1 km de percurso (a cada 3 km, bairros pequenos passavam batido)
 _cache_lugares = None
 
@@ -617,7 +617,7 @@ def lugar_do_ponto(lat, lon, orcamento):
 
 
 def amostras_do_percurso(pontos):
-    miolo = cortar_pontas(pontos, CORTE_LUGARES_M)
+    miolo = cortar_pontas(pontos, CORTE_LUGARES_M if perto_de_casa(pontos) else 0)   # mesma regra do mapa: só corta quem sai de perto de casa
     if len(miolo) < 2:
         return []
     saida, acum = [miolo[0]], 0.0
@@ -649,7 +649,7 @@ def bloco_lugares(p):
         return ""
     itens = "".join(f"<li><strong>{html.escape(c)}</strong>: {html.escape(', '.join(ls))}</li>" for c, ls in grupos)
     return ('<section class="lugares"><h2>Por onde passa</h2><ul>' + itens + '</ul>'
-            '<p class="nota-lugares">Bairros e localidades segundo o OpenStreetMap, na ordem do percurso e sem o começo e o fim do pedal.</p></section>')
+            '<p class="nota-lugares">Bairros e localidades segundo o OpenStreetMap, na ordem do percurso' + (' e sem o começo e o fim do pedal' if p.get('_cortado') else '') + '.</p></section>')
 
 
 # ----------------------------------------------------------------------------- clima no início e no fim (Open-Meteo)
