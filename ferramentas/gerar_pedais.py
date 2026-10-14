@@ -634,6 +634,7 @@ def bloco_gpx(p):
 NAO_E_BAIRRO = re.compile(r"^(terminal|posto|rodovi|br-|es-|aeroporto|rodovi[aá]ria)", re.I)   # pontos de referência que o OSM marca como lugar
 CHAVES_LUGAR = ["suburb", "neighbourhood", "quarter", "city_district", "village", "hamlet"]
 CORTE_LUGARES_M = 2500        # não lista os primeiros e os últimos 2,5 km, nos pedais que saem/chegam perto de casa
+JUNTAR_LUGARES_KM = 4           # mesmo bairro em dois municípios com até 4 km de distância (e nada no meio) = um bairro só, cortado pela divisa
 PASSO_LUGARES_M = 1000        # um ponto a cada 1 km de percurso (a cada 3 km, bairros pequenos passavam batido)
 _cache_lugares = None
 
@@ -725,8 +726,15 @@ def bloco_lugares(p):
     linhas = p.get("_lugares") or []
     if not linhas or len(linhas[0]) != 3:                # formato antigo (cidade + lista): a rodada completa refaz
         return ""
-    corpo = "".join(f"<tr><td class=\"km\">{num(km, 1)}</td><td>{html.escape(lugar)}</td><td>{html.escape(cidade)}</td></tr>"
-                    for km, lugar, cidade in linhas)
+    juntas = []                                          # bairro cortado pela divisa: o mesmo nome em dois municípios, um logo após o outro, vira uma linha só
+    for km, lugar, cidade in linhas:
+        if juntas and juntas[-1][1] == lugar and km - juntas[-1][0] <= JUNTAR_LUGARES_KM:
+            if cidade not in juntas[-1][2]:
+                juntas[-1][2].append(cidade)
+        else:
+            juntas.append([km, lugar, [cidade]])
+    corpo = "".join(f"<tr><td class=\"km\">{num(km, 1)}</td><td>{html.escape(lugar)}</td><td>{html.escape(' / '.join(cidades))}</td></tr>"
+                    for km, lugar, cidades in juntas)
     return ('<section class="lugares"><h2>Por onde passa</h2><table><thead><tr><th>Km</th><th>Bairro ou localidade</th><th>Município</th></tr></thead>'
             '<tbody>' + corpo + '</tbody></table>'
             '<p class="nota-lugares">O km é onde o percurso entra no lugar (conferido a cada 1 km). Bairros e localidades segundo o OpenStreetMap'
