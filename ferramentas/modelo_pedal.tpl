@@ -86,6 +86,8 @@
   .lugares td { padding: 6px 10px 6px 0; border-bottom: 1px solid var(--linha); color: var(--suave); }
   .lugares td:nth-child(2) { color: var(--texto); font-weight: 600; }
   .lugares .km { white-space: nowrap; font-variant-numeric: tabular-nums; width: 1%; }
+  .lugares.recolhido tr.extra { display: none; }
+  .mais-lugares { margin-top: 12px; font: inherit; font-weight: 700; font-size: .9rem; cursor: pointer; }
   .nota-gpx { margin: 10px 0 0; font-size: .8rem; color: var(--suave); }
   .nota-lugares { margin: 10px 0 0; font-size: .8rem; color: var(--suave); }
   .video { margin-top: 26px; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 14px 36px rgba(20, 50, 30, .22); }
@@ -145,6 +147,7 @@
     <a class="strava" href="https://www.strava.com" target="_blank" rel="noopener"><img src="/strava_powered_by.png" width="197" height="20" alt="Powered by Strava" loading="lazy" decoding="async"></a>
   </div>
 </footer>
+<script>document.querySelectorAll(".mais-lugares").forEach(function (b) {var s = b.closest(".lugares"), n = b.dataset.total; s.classList.add("recolhido"); b.hidden = false;b.addEventListener("click", function () {var fechado = s.classList.toggle("recolhido"); b.setAttribute("aria-expanded", fechado ? "false" : "true");b.textContent = fechado ? "Mostrar todos os " + n : "Mostrar menos";});});</script>
 <script>document.getElementById("ano").textContent = new Date().getFullYear();</script>
 <script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>

@@ -634,6 +634,7 @@ def bloco_gpx(p):
 NAO_E_BAIRRO = re.compile(r"^(terminal|posto|rodovi|br-|es-|aeroporto|rodovi[aá]ria)", re.I)   # pontos de referência que o OSM marca como lugar
 CHAVES_LUGAR = ["suburb", "neighbourhood", "quarter", "city_district", "village", "hamlet"]
 CORTE_LUGARES_M = 2500        # não lista os primeiros e os últimos 2,5 km, nos pedais que saem/chegam perto de casa
+LUGARES_VISIVEIS = 10           # a tabela de lugares mostra só os 10 primeiros; o botão abre o resto
 JUNTAR_LUGARES_KM = 4           # mesmo bairro em dois municípios com até 4 km de distância (e nada no meio) = um bairro só, cortado pela divisa
 PASSO_LUGARES_M = 1000        # um ponto a cada 1 km de percurso (a cada 3 km, bairros pequenos passavam batido)
 _cache_lugares = None
@@ -733,10 +734,12 @@ def bloco_lugares(p):
                 juntas[-1][2].append(cidade)
         else:
             juntas.append([km, lugar, [cidade]])
-    corpo = "".join(f"<tr><td class=\"km\">{num(km, 1)}</td><td>{html.escape(lugar)}</td><td>{html.escape(' / '.join(cidades))}</td></tr>"
-                    for km, lugar, cidades in juntas)
+    corpo = "".join(f"<tr{' class=\"extra\"' if i >= LUGARES_VISIVEIS else ''}><td class=\"km\">{num(km, 1)}</td><td>{html.escape(lugar)}</td>"
+                    f"<td>{html.escape(' / '.join(cidades))}</td></tr>" for i, (km, lugar, cidades) in enumerate(juntas))
+    botao = (f'<button type="button" class="botao claro mais-lugares" data-total="{len(juntas)}" aria-expanded="false" hidden>Mostrar todos os {len(juntas)}</button>'
+             if len(juntas) > LUGARES_VISIVEIS else "")   # sem JavaScript o botão fica escondido e a lista aparece inteira
     return ('<section class="lugares"><h2>Por onde passa</h2><table><thead><tr><th>Km</th><th>Bairro ou localidade</th><th>Município</th></tr></thead>'
-            '<tbody>' + corpo + '</tbody></table>'
+            '<tbody>' + corpo + '</tbody></table>' + botao +
             '<p class="nota-lugares">O km é onde o percurso entra no lugar (conferido a cada 1 km). Bairros e localidades segundo o OpenStreetMap'
             + (' e sem o começo e o fim do pedal' if p.get('_cortado') else '') + '.</p></section>')
 
