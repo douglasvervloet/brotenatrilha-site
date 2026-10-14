@@ -168,7 +168,7 @@ def videos_do_canal():
         for v in r.get("items", []):
             s = v["snippet"]
             videos.append({"id": v["id"], "titulo": s["title"], "descricao": s.get("description", ""),
-                           "data": s["publishedAt"][:10]})
+                           "data": s["publishedAt"][:10], "publicado": s["publishedAt"]})
     return videos
 
 
@@ -1037,7 +1037,7 @@ def montar_pagina_pedal(p, mais_novo, mais_velho, modelo):
         {"@type": "ListItem", "position": 3, "name": titulo, "item": url}]}]
     if v:
         ld.append({"@context": "https://schema.org", "@type": "VideoObject", "name": v["titulo"],
-                   "description": texto or descricao_meta, "thumbnailUrl": [og], "uploadDate": v["data"],
+                   "description": texto or descricao_meta, "thumbnailUrl": [og], "uploadDate": v.get("publicado") or v["data"] + "T00:00:00-03:00",
                    "embedUrl": f"https://www.youtube.com/embed/{v['id']}", "contentUrl": f"https://www.youtube.com/watch?v={v['id']}"})
     video = (f'<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/{v["id"]}" title="{html.escape(v["titulo"])}" loading="lazy" '
              'allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" '
