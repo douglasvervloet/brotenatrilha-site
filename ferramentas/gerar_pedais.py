@@ -962,11 +962,12 @@ def mapa_html(p, prefixo_mapas, carregar="lazy"):
     return p.get("_svg") or '<div class="mapa vazio">Sem traçado</div>'
 
 
-def botoes(p, claro_assistir=False, extra="", komoot=True):
+def botoes(p, claro_assistir=False, extra="", komoot=True, strava=True):
     links = []
     if p.get("_video"):
         links.append(f'<a class="botao" href="https://www.youtube.com/watch?v={p["_video"]["id"]}" target="_blank" rel="noopener">Assistir</a>')
-    links.append(f'<a class="botao claro" href="https://www.strava.com/activities/{p["id"]}" target="_blank" rel="noopener">View on Strava</a>')
+    if strava:
+        links.append(f'<a class="botao claro" href="https://www.strava.com/activities/{p["id"]}" target="_blank" rel="noopener">View on Strava</a>')
     if komoot and p.get("_komoot"):
         links.append(f'<a class="botao claro" href="{html.escape(p["_komoot"])}" target="_blank" rel="noopener">Komoot</a>')
     return " ".join(links) + extra
@@ -988,7 +989,7 @@ def cartao(p):
             <div><dt>Tempo</dt><dd>{duracao(p["moving_time"])}</dd></div>
             <div><dt>Média</dt><dd>{num(media, 1)} km/h</dd></div>
           </dl>
-          <p class="links">{botoes(p, extra=" " + bloco_gpx(p) if p.get("_gpx") else "", komoot=False)}</p>
+          <p class="links">{botoes(p, extra=" " + bloco_gpx(p) if p.get("_gpx") else "", komoot=False, strava=False)}</p>
         </div>
       </article>"""
 
