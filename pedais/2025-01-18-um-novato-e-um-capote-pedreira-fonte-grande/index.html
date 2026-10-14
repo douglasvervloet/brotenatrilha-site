@@ -108,6 +108,8 @@
   footer { background: var(--verde-fundo); color: #cfe0d3; padding: 26px 0; font-size: .92rem; }
   footer .miolo { display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: space-between; }
   footer a { color: #fff; }
+  footer .strava { display: inline-block; background: #fff; border-radius: 6px; padding: 6px 10px; line-height: 0; }
+  footer .strava img { height: 20px; width: auto; display: block; }
   @media (max-width: 560px) { .clima-grade { grid-template-columns: 1fr; } dl { grid-template-columns: repeat(2, 1fr); } .navegacao { grid-template-columns: 1fr; } .navegacao .proximo, .navegacao .anterior { grid-column: auto; text-align: left; } }
   @media (prefers-reduced-motion: reduce) { .botao { transition: none; } }
 </style>
@@ -140,6 +142,7 @@
   <div class="miolo">
     <span>© <span id="ano">2026</span> Brote na Trilha</span>
     <span><a href="/privacidade/">Política de privacidade</a> · <a href="/">Voltar ao site</a></span>
+    <a class="strava" href="https://www.strava.com" target="_blank" rel="noopener"><img src="/strava_powered_by.png" width="197" height="20" alt="Powered by Strava" loading="lazy" decoding="async"></a>
   </div>
 </footer>
 <script>document.getElementById("ano").textContent = new Date().getFullYear();</script>
