@@ -989,7 +989,6 @@ def cartao(p):
             <div><dt>Tempo</dt><dd>{duracao(p["moving_time"])}</dd></div>
             <div><dt>Média</dt><dd>{num(media, 1)} km/h</dd></div>
           </dl>
-          <p class="links">{botoes(p, extra=" " + bloco_gpx(p) if p.get("_gpx") else "", komoot=False, strava=False)}</p>
         </div>
       </article>"""
 
