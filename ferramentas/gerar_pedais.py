@@ -634,7 +634,7 @@ def bloco_gpx(p):
 NAO_E_BAIRRO = re.compile(r"^(terminal|posto|rodovi|br-|es-|aeroporto|rodovi[aá]ria)", re.I)   # pontos de referência que o OSM marca como lugar
 CHAVES_LUGAR = ["suburb", "neighbourhood", "quarter", "city_district", "village", "hamlet"]
 CORTE_LUGARES_M = 2500        # não lista os primeiros e os últimos 2,5 km, nos pedais que saem/chegam perto de casa
-LUGARES_VISIVEIS = 10           # a tabela de lugares mostra só os 10 primeiros; o botão abre o resto
+LUGARES_VISIVEIS = 6           # a tabela de lugares mostra só os 6 primeiros; o botão abre o resto
 JUNTAR_LUGARES_KM = 4           # mesmo bairro em dois municípios com até 4 km de distância (e nada no meio) = um bairro só, cortado pela divisa
 PASSO_LUGARES_M = 1000        # um ponto a cada 1 km de percurso (a cada 3 km, bairros pequenos passavam batido)
 _cache_lugares = None
