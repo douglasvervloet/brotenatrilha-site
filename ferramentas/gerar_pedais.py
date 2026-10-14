@@ -966,7 +966,7 @@ def botoes(p, claro_assistir=False, extra="", komoot=True):
     links = []
     if p.get("_video"):
         links.append(f'<a class="botao" href="https://www.youtube.com/watch?v={p["_video"]["id"]}" target="_blank" rel="noopener">Assistir</a>')
-    links.append(f'<a class="botao claro" href="https://www.strava.com/activities/{p["id"]}" target="_blank" rel="noopener">Strava</a>')
+    links.append(f'<a class="botao claro" href="https://www.strava.com/activities/{p["id"]}" target="_blank" rel="noopener">View on Strava</a>')
     if komoot and p.get("_komoot"):
         links.append(f'<a class="botao claro" href="{html.escape(p["_komoot"])}" target="_blank" rel="noopener">Komoot</a>')
     return " ".join(links) + extra
