@@ -682,42 +682,55 @@ def lugar_do_ponto(lat, lon, orcamento):
         return None
 
 
-def amostras_do_percurso(pontos):
-    miolo = cortar_pontas(pontos, CORTE_LUGARES_M if perto_de_casa(pontos) else 0)   # mesma regra do mapa: só corta quem sai de perto de casa
+def amostras_do_percurso(pontos, distancia_m=None):
+    """[(lat, lon, km)]: um ponto a cada 1 km. O km conta desde a largada de verdade (a distância do Strava ajusta o traçado simplificado)."""
+    if len(pontos) < 4:
+        return []
+    acum = [0.0]
+    for a, b in zip(pontos, pontos[1:]):
+        acum.append(acum[-1] + metros(a, b))
+    total = acum[-1]
+    corte = CORTE_LUGARES_M if perto_de_casa(pontos) else 0   # mesma regra do mapa: só corta quem sai de perto de casa
+    if total < 4 * corte:
+        return []
+    miolo = [(p, d) for p, d in zip(pontos, acum) if corte <= d <= total - corte]
     if len(miolo) < 2:
         return []
-    saida, acum = [miolo[0]], 0.0
-    for a, b in zip(miolo, miolo[1:]):
-        acum += metros(a, b)
-        if acum >= PASSO_LUGARES_M:
-            saida.append(b)
-            acum = 0.0
-    return saida
+    escala = distancia_m / total if distancia_m and total else 1.0
+    saida, ultimo = [miolo[0]], miolo[0][1]
+    for ponto, d in miolo[1:]:
+        if d - ultimo >= PASSO_LUGARES_M:
+            saida.append((ponto, d))
+            ultimo = d
+    return [(p[0], p[1], d * escala / 1000) for p, d in saida]
 
 
-def lugares_do_percurso(pontos, orcamento):
-    """[(cidade, [bairros e localidades na ordem do percurso])]; só entra o que o OpenStreetMap conhece."""
-    grupos = {}
-    for lat, lon in amostras_do_percurso(pontos):
+def lugares_do_percurso(pontos, orcamento, distancia_m=None):
+    """[[km, bairro ou localidade, município]] na ordem do percurso; km = onde o percurso entra no lugar. Só entra o que o OpenStreetMap conhece."""
+    vistos, linhas = set(), []
+    for lat, lon, km in amostras_do_percurso(pontos, distancia_m):
         cidade = municipio_do_ponto(lat, lon)
         lugar = lugar_do_ponto(lat, lon, orcamento)
         if lugar is None:
             orcamento["incompleto"] = True               # ainda não deu para consultar: a lista deste pedal fica para a próxima rodada
         if not cidade or not lugar or lugar == cidade or NAO_E_BAIRRO.match(lugar):
             continue
-        lista = grupos.setdefault(cidade, [])
-        if lugar not in lista:
-            lista.append(lugar)
-    return [(c, ls) for c, ls in grupos.items()]
+        if (cidade, lugar) not in vistos:
+            vistos.add((cidade, lugar))
+            linhas.append([round(km, 1), lugar, cidade])
+    return linhas
 
 
 def bloco_lugares(p):
-    grupos = p.get("_lugares") or []
-    if not grupos:
+    linhas = p.get("_lugares") or []
+    if not linhas or len(linhas[0]) != 3:                # formato antigo (cidade + lista): a rodada completa refaz
         return ""
-    itens = "".join(f"<li><strong>{html.escape(c)}</strong>: {html.escape(', '.join(ls))}</li>" for c, ls in grupos)
-    return ('<section class="lugares"><h2>Por onde passa</h2><ul>' + itens + '</ul>'
-            '<p class="nota-lugares">Bairros e localidades segundo o OpenStreetMap, na ordem do percurso' + (' e sem o começo e o fim do pedal' if p.get('_cortado') else '') + '.</p></section>')
+    corpo = "".join(f"<tr><td class=\"km\">{num(km, 1)}</td><td>{html.escape(lugar)}</td><td>{html.escape(cidade)}</td></tr>"
+                    for km, lugar, cidade in linhas)
+    return ('<section class="lugares"><h2>Por onde passa</h2><table><thead><tr><th>Km</th><th>Bairro ou localidade</th><th>Município</th></tr></thead>'
+            '<tbody>' + corpo + '</tbody></table>'
+            '<p class="nota-lugares">O km é onde o percurso entra no lugar (conferido a cada 1 km). Bairros e localidades segundo o OpenStreetMap'
+            + (' e sem o começo e o fim do pedal' if p.get('_cortado') else '') + '.</p></section>')
 
 
 # ----------------------------------------------------------------------------- clima no início e no fim (Open-Meteo)
@@ -1172,7 +1185,7 @@ def main():
                 print("  sem mapa de fundo:", p["name"], "-", erro)
         p["_sai"], p["_chega"], p["_passa"] = cidades_do_percurso(trajetos[p["id"]])   # traçado completo, só para isso
         orcamento["incompleto"] = False
-        p["_lugares"] = lugares_do_percurso(trajetos[p["id"]], orcamento)   # bairros e localidades (a cada rodada vai completando o que falta)
+        p["_lugares"] = lugares_do_percurso(trajetos[p["id"]], orcamento, p.get("distance"))   # bairros e localidades (a cada rodada vai completando o que falta)
         p["_incompleto"] = orcamento["incompleto"]
     salvar_cache_lugares()
     for registro in antigos:

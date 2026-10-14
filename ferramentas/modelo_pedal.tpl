@@ -81,9 +81,11 @@
   .nota-clima { margin: 10px 0 0; font-size: .8rem; color: var(--suave); }
   .lugares { margin-top: 28px; }
   .lugares h2 { margin: 0 0 8px; font-size: 1.2rem; }
-  .lugares ul { margin: 0; padding-left: 1.15em; }
-  .lugares li { margin: 5px 0; color: var(--suave); }
-  .lugares strong { color: var(--texto); }
+  .lugares table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+  .lugares th { text-align: left; font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--suave); padding: 4px 10px 6px 0; border-bottom: 2px solid var(--linha); }
+  .lugares td { padding: 6px 10px 6px 0; border-bottom: 1px solid var(--linha); color: var(--suave); }
+  .lugares td:nth-child(2) { color: var(--texto); font-weight: 600; }
+  .lugares .km { white-space: nowrap; font-variant-numeric: tabular-nums; width: 1%; }
   .nota-gpx { margin: 10px 0 0; font-size: .8rem; color: var(--suave); }
   .nota-lugares { margin: 10px 0 0; font-size: .8rem; color: var(--suave); }
   .video { margin-top: 26px; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 14px 36px rgba(20, 50, 30, .22); }
