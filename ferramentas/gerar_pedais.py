@@ -191,6 +191,14 @@ def titulo_do_pedal(nome):
     return t[:1].upper() + t[1:] if t else nome
 
 
+def titulo_exibido(p):
+    """O título do pedal na lista, na página e no endereço: o do vídeo do canal, quando há um ligado; sem vídeo, o nome da atividade do Strava."""
+    video = p.get("_video")
+    if video and video.get("titulo", "").strip():
+        return video["titulo"].strip()
+    return titulo_do_pedal(p["name"])
+
+
 def atividade_do_link(url, cache):
     """Número da atividade do Strava a partir de um link da descrição (strava.com/activities/N ou strava.app.link/xxxx)."""
     m = re.search(r"strava\.com/activities/(\d+)", url)
@@ -946,11 +954,29 @@ def bloco_clima(p):
             'Dados do tempo: Open-Meteo.com (CC BY 4.0).</p></section>')
 
 
-def slug_do_pedal(p):
-    t = re.sub(r"[^a-z0-9]+", "-", sem_acento(titulo_do_pedal(p["name"]).lower())).strip("-")
+def slug_do_titulo(p, titulo):
+    t = re.sub(r"[^a-z0-9]+", "-", sem_acento(titulo.lower())).strip("-")
     if len(t) > 60:
         t = t[:60].rsplit("-", 1)[0]
     return f'{p["start_date_local"][:10]}-{t}'
+
+
+def slug_do_pedal(p):
+    return slug_do_titulo(p, titulo_exibido(p))
+
+
+def slug_antigo(p):
+    """O endereço de antes (do nome da atividade do Strava): a página antiga vira um redirecionamento para o endereço novo, para os links e o Google não quebrarem."""
+    return slug_do_titulo(p, titulo_do_pedal(p["name"]))
+
+
+def pagina_de_redirecionamento(p):
+    destino = f"/pedais/{p['_slug']}/"
+    titulo = html.escape(titulo_exibido(p))
+    return (f'<!doctype html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n<title>{titulo} | Brote na Trilha</title>\n'
+            f'<meta name="robots" content="noindex">\n<link rel="canonical" href="https://brotenatrilha.com.br{destino}">\n'
+            f'<meta http-equiv="refresh" content="0; url={destino}">\n</head>\n<body>\n'
+            f'<p>Esta página mudou: <a href="{destino}">{titulo}</a>.</p>\n</body>\n</html>\n')
 
 
 def numeros(p):
@@ -999,9 +1025,9 @@ def botoes(p, claro_assistir=False, extra="", komoot=True, strava=True):
 
 def cartao(p):
     km, media = numeros(p)
-    titulo = html.escape(titulo_do_pedal(p["name"]))
+    titulo = html.escape(titulo_exibido(p))
     mapa = mapa_html(p, "mapas/")
-    return f"""      <article class="pedal" data-ano="{p["start_date_local"][:4]}" data-km="{km:.1f}" data-nome="{html.escape(normalizar(p["name"] + " " + " ".join(p.get("_passa", []))))}" data-sai="{slug_texto(p.get("_sai") or "")}" data-chega="{slug_texto(p.get("_chega") or "")}" data-passa="|{"|".join(slug_texto(c) for c in p.get("_passa", []))}|">
+    return f"""      <article class="pedal" data-ano="{p["start_date_local"][:4]}" data-km="{km:.1f}" data-nome="{html.escape(normalizar(p["name"] + " " + titulo_exibido(p) + " " + " ".join(p.get("_passa", []))))}" data-sai="{slug_texto(p.get("_sai") or "")}" data-chega="{slug_texto(p.get("_chega") or "")}" data-passa="|{"|".join(slug_texto(c) for c in p.get("_passa", []))}|">
         <a class="mapa-link" href="{p['_slug']}/" aria-label="Ver o pedal {titulo}">{mapa}</a>
         <div class="corpo">
           <h3><a href="{p['_slug']}/">{titulo}</a></h3>
@@ -1048,7 +1074,7 @@ def montar_pagina(pedais, modelo):
 
 def montar_pagina_pedal(p, mais_novo, mais_velho, modelo):
     km, media = numeros(p)
-    titulo = titulo_do_pedal(p["name"])
+    titulo = titulo_exibido(p)
     v = p.get("_video")
     texto = trecho_descricao(v)
     descricao_meta = (f"{titulo}: {num(km, 1)} km, {num(p['total_elevation_gain'])} m de subida e {duracao(p['moving_time'])} de pedal "
@@ -1068,9 +1094,9 @@ def montar_pagina_pedal(p, mais_novo, mais_velho, modelo):
              'referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>') if v else ""
     nav = []
     if mais_velho:
-        nav.append(f'<a class="anterior" href="/pedais/{mais_velho["_slug"]}/"><small>← Pedal anterior</small>{html.escape(titulo_do_pedal(mais_velho["name"]))}</a>')
+        nav.append(f'<a class="anterior" href="/pedais/{mais_velho["_slug"]}/"><small>← Pedal anterior</small>{html.escape(titulo_exibido(mais_velho))}</a>')
     if mais_novo:
-        nav.append(f'<a class="proximo" href="/pedais/{mais_novo["_slug"]}/"><small>Próximo pedal →</small>{html.escape(titulo_do_pedal(mais_novo["name"]))}</a>')
+        nav.append(f'<a class="proximo" href="/pedais/{mais_novo["_slug"]}/"><small>Próximo pedal →</small>{html.escape(titulo_exibido(mais_novo))}</a>')
     nums = (f'<div><dt>Distância</dt><dd>{num(km, 1)} km</dd></div><div><dt>Subida</dt><dd>{num(p["total_elevation_gain"])} m</dd></div>'
             f'<div><dt>Tempo</dt><dd>{duracao(p["moving_time"])}</dd></div><div><dt>Média</dt><dd>{num(media, 1)} km/h</dd></div>')
     troca = {"{{TITULO}}": html.escape(titulo), "{{DESCRICAO_META}}": html.escape(descricao_meta), "{{URL}}": url,
@@ -1088,7 +1114,7 @@ def montar_pagina_pedal(p, mais_novo, mais_velho, modelo):
 def bloco_ultimo(p):
     """O 'Último pedal' da página inicial (fica entre os marcadores <!--ULTIMO_PEDAL--> do index.html)."""
     km, media = numeros(p)
-    titulo = html.escape(titulo_do_pedal(p["name"]))
+    titulo = html.escape(titulo_exibido(p))
     assistir = (f'<a class="botao verde" href="https://www.youtube.com/watch?v={p["_video"]["id"]}" target="_blank" rel="noopener">Assistir no YouTube</a> '
                 if p.get("_video") else "")
     return f"""    <div class="ultimo">
@@ -1259,12 +1285,20 @@ def main():
         with open(os.path.join(pasta, "index.html"), "w", encoding="utf-8", newline="\n") as f:
             f.write(montar_pagina_pedal(p, mais_novo, mais_velho, modelo_pedal))
     slugs = {p["_slug"] for p in pedais}                # apaga as páginas de pedais que saíram
+    for p in pedais:                                    # o endereço de antes (nome do Strava) vira um redirecionamento para o de agora
+        antigo = slug_antigo(p)
+        if antigo != p["_slug"] and antigo not in slugs:
+            pasta = os.path.join(base, antigo)
+            os.makedirs(pasta, exist_ok=True)
+            with open(os.path.join(pasta, "index.html"), "w", encoding="utf-8", newline="\n") as f:
+                f.write(pagina_de_redirecionamento(p))
+            slugs.add(antigo)
     for nome in os.listdir(base):
         if nome not in ("mapas", "gpx") and os.path.isdir(os.path.join(base, nome)) and nome not in slugs:
             shutil.rmtree(os.path.join(base, nome))
             print("  página removida:", nome)
     if pedais and injetar_na_home(args.home, bloco_ultimo(pedais[0])):
-        print("  home: último pedal atualizado ->", titulo_do_pedal(pedais[0]["name"]))
+        print("  home: último pedal atualizado ->", titulo_exibido(pedais[0]))
     if args.sitemap and pedais:
         escrever_sitemap(args.sitemap, pedais)
     return 0
