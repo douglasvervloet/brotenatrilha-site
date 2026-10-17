@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BNT Editor</title>
-<meta name="description" content="BNT Editor: aplicativo de Windows para editar vídeos de ciclismo. Do material bruto da câmera ao vídeo pronto no YouTube, com cortes, painel de GPS, legendas automáticas, capa, envio ao YouTube e GPX direto do Strava.">
+<meta name="description" content="BNT Editor: aplicativo de Windows para editar vídeos de ciclismo. Do material bruto da câmera ao vídeo pronto no YouTube, com cortes, painel de GPS, legendas automáticas, capa, envio ao YouTube, GPX direto do Strava e importação da GoPro e do celular.">
 <meta name="robots" content="noindex">
 <link rel="canonical" href="https://brotenatrilha.com.br/bnteditor/">
 <meta name="theme-color" content="#161616">
@@ -244,6 +244,9 @@
             <li><strong>Forma de onda</strong> do som e trechos de <strong>fala</strong> marcados na barra de tempo.</li>
             <li>Marcar início e fim, dividir, duplicar, reordenar arrastando e ajustar quadro a quadro.</li>
             <li>Conferir a emenda entre cortes e tocar a sequência inteira.</li>
+            <li><strong>Importar os brutos</strong> da pasta, <strong>da GoPro ou do celular por cabo USB</strong>, com filtro por data e a escolha de fotos e/ou vídeos: o app copia com andamento, confere o tamanho e nunca sobrescreve um original. Ao conectar o aparelho, a importação abre sozinha.</li>
+            <li>Gravações da GoPro em vários arquivos (capítulos) tratadas como <strong>um só bruto</strong>.</li>
+            <li>O corte selecionado <strong>se atualiza sozinho</strong> quando você mexe nas marcas de início e fim.</li>
             <li>As marcas (textos, localizações, GPS, música) <strong>acompanham os cortes</strong> quando você move ou apaga trechos.</li>
           </ul>
         </div>
@@ -252,10 +255,12 @@
           <ul>
             <li><strong>Informações</strong> na tela, com sugestões prontas pelo GPX: ponto mais alto, velocidade máxima e subida mais forte.</li>
             <li><strong>Localização</strong> com o nome do lugar preenchido pelo GPS, e detecção dos lugares ao longo do trajeto.</li>
-            <li><strong>Painel de GPS</strong> com velocímetro, inclinação, altitude, força G e minimapa, a partir do GPX e da telemetria da GoPro.</li>
+            <li><strong>Painel de GPS</strong> com velocímetro, inclinação, altitude, força G e minimapa, a partir do GPX e da telemetria da GoPro. Com um GPX de sensores (como o do Strava), mostra também <strong>cadência, batimentos e temperatura</strong>, e uma linha com a distância e a subida acumulada.</li>
             <li>Botão de <strong>Curtir e Inscrever</strong>, manual ou automático a cada N minutos.</li>
             <li><strong>Música</strong> de fundo que abaixa sozinha quando há fala.</li>
-            <li><strong>Resumo do passeio</strong>: tela final com mapa, traçado, perfil de altitude e números do percurso.</li>
+            <li><strong>Resumo do passeio</strong>: tela final com mapa, traçado, perfil de altitude e números do percurso, com <strong>seis estilos de mapa</strong> à escolha: relevo, ruas, ciclismo, satélite, escuro e claro.</li>
+            <li>Botões em grupos nos dois lados do player; cada item e cada efeito abre numa <strong>janela própria</strong>, e a lista do que já foi aplicado fica à direita, com lápis e lixeira.</li>
+            <li><strong>Onda do som e marcas de fala</strong> no fundo da timeline da Edição, com um botão para ligar e desligar, e medidores de nível do áudio no player.</li>
           </ul>
         </div>
         <div class="grupo">
@@ -264,8 +269,9 @@
             <li><strong>Câmera lenta, acelerado e hyperlapse</strong>, com rampa suave de entrada e saída.</li>
             <li><strong>Desfoque de movimento</strong> para dar sensação de velocidade.</li>
             <li><strong>Zoom</strong> de até 3x, com retângulos de começo e fim desenhados no player.</li>
-            <li><strong>Transições</strong> em cada emenda: escurecer, corte seco ou fusão.</li>
-            <li><strong>Ajuste de brilho</strong> por clipe, para gravações que escurecem no fim do dia ou clareiam no amanhecer.</li>
+            <li><strong>Transições</strong> em cada emenda: escurecer, corte seco, fusão, cortina, círculo ou persiana.</li>
+            <li><strong>Ajuste de brilho</strong> por clipe, para gravações que escurecem no fim do dia ou clareiam no amanhecer, com nitidez, vinheta e <strong>LUT de cor</strong> (.cube).</li>
+            <li>No som de cada clipe: <strong>redução de vento</strong>, <strong>voz uniforme</strong> e <strong>ganho de volume</strong> em dB.</li>
           </ul>
         </div>
         <div class="grupo">
@@ -276,6 +282,7 @@
             <li>Cada clipe vira uma peça: ao mudar um detalhe, <strong>só refaz o que mudou</strong>.</li>
             <li>Som <strong>normalizado para o YouTube</strong> (−14 LUFS).</li>
             <li>Estimativa de tempo e de espaço em disco, e retomada se o render for interrompido.</li>
+            <li>Uma faixa na timeline mostra quais peças já estão prontas e quais serão refeitas.</li>
             <li>Pode <strong>deixar tudo rodando sozinho</strong>: render, legendas, envio e desligar o computador.</li>
           </ul>
         </div>
@@ -302,8 +309,8 @@
           <h3><span aria-hidden="true">&#128279;</span> Integrações</h3>
           <ul>
             <li><strong>YouTube</strong>: conecte a conta do seu canal uma vez e envie o vídeo, a capa, as legendas e a playlist direto do app.</li>
-            <li><strong>Strava</strong>: baixe o percurso do passeio direto da sua conta, como GPX com o horário de cada ponto, para o painel de GPS e o resumo do passeio.</li>
-            <li>A lista do Strava começa pelas atividades dos dias dos seus vídeos. O nome da atividade vira o nome do GPX e do projeto, e o link dela entra no campo do Strava.</li>
+            <li><strong>Strava</strong>: escolha a atividade do passeio na lista da sua conta e o percurso é baixado sozinho quando você cria o projeto, como GPX com o horário de cada ponto (e batimentos, cadência e temperatura, quando a atividade tem), para o painel de GPS e o resumo do passeio.</li>
+            <li>O nome da atividade vira o nome do GPX e do projeto, e o link dela entra no campo do Strava.</li>
             <li>As duas contas se conectam na mesma aba, em <strong>Configurações → Integrações</strong>, e o acesso fica só no seu computador.</li>
           </ul>
         </div>
@@ -313,7 +320,9 @@
             <li><strong>Analisar</strong>: avisos e erros antes de renderizar.</li>
             <li><strong>Revisão rápida</strong>: um quadro de cada item numa galeria.</li>
             <li><strong>Prévia de um clipe</strong>, com textos e painel, antes do render completo.</li>
-            <li><strong>Desfazer e refazer</strong> com histórico das edições.</li>
+            <li><strong>Desfazer e refazer</strong> com histórico das edições, e a volta a uma versão anterior do projeto.</li>
+            <li><strong>Paleta de comandos</strong> (Ctrl+K): ache qualquer ação, clipe ou efeito aplicado digitando.</li>
+            <li>Se algo der errado na tela, o app <strong>guarda uma cópia do projeto</strong>, avisa e segue aberto.</li>
           </ul>
         </div>
       </div>
