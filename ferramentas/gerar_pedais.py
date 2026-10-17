@@ -139,10 +139,14 @@ def pedal_do_registro(registro):
     return p
 
 
-def guardar_cache_pedais(pedais, lidas, ultima_antes):
-    """Grava cache_pedais.json: um registro por pedal e a época da atividade mais nova já vista."""
+def guardar_cache_pedais(pedais, lidas, ultima_antes, sem_video=()):
+    """Grava cache_pedais.json: um registro por pedal e a época da atividade mais nova já vista.
+    Os pedais sem vídeo (fora do site) ficam no cache, marcados, para a atividade ser lida de novo até o vídeo sair."""
     ultima = max([ultima_antes] + [epoca(a.get("start_date")) for a in lidas])
-    dados = {"versao": VERSAO_CACHE, "ultima": ultima, "pedais": {str(p["id"]): registro_do_pedal(p) for p in pedais}}
+    registros = {str(p["id"]): registro_do_pedal(p) for p in pedais}
+    for p in sem_video:
+        registros[str(p["id"])] = dict(registro_do_pedal(p), sem_video=True, pendente=True)
+    dados = {"versao": VERSAO_CACHE, "ultima": ultima, "pedais": registros}
     with open(caminho_cache_pedais(), "w", encoding="utf-8", newline="\n") as f:
         json.dump(dados, f, ensure_ascii=False, indent=1, sort_keys=True)
         f.write("\n")
@@ -1172,7 +1176,7 @@ def main():
     completo = args.completo or bool(args.teste) or os.environ.get("COMPLETO") == "1"
     cache = {} if completo else carregar_cache_pedais()
     guardados = cache.get("pedais", {})
-    if guardados and any(not os.path.exists(os.path.join(pasta_mapas, f"{n}.webp")) for n in guardados):
+    if guardados and any(not os.path.exists(os.path.join(pasta_mapas, f"{n}.webp")) for n, r in guardados.items() if not r.get("sem_video")):
         print("  falta algum mapa de pedal: lendo todas as atividades de novo")   # sem o traçado não dá para refazê-lo
         guardados = {}
     if args.teste:
@@ -1231,6 +1235,10 @@ def main():
             pedais.append(p)
     pedais.sort(key=lambda a: a["start_date_local"], reverse=True)
     casar_videos(pedais, videos, {k: v for k, v in ajustes.items() if not k.startswith("_")})
+    sem_video = [p for p in pedais if not p["_video"]]     # só vão para o site os pedais que têm vídeo no canal
+    pedais = [p for p in pedais if p["_video"]]
+    for p in sem_video:
+        print("  fora do site (sem vídeo):", p["start_date_local"][:10], p["name"])
     usados = set()
     for p in pedais:
         p["_komoot"] = link_komoot(p["_video"])
@@ -1266,12 +1274,9 @@ def main():
     print(f"  começo e fim cortados em {sum(1 for p in pedais if p['_cortado'])} de {len(pedais)} pedais (os que saem ou chegam perto de casa)")
     print(f"{len(pedais)} pedais; {sum(1 for p in pedais if p['_video'])} com vídeo; {sum(1 for p in pedais if p['_komoot'])} com Komoot; "
           f"{sum(1 for p in pedais if p['_mapa'] or p['_svg'])} com mapa")
-    for p in pedais:
-        if not p["_video"]:
-            print("  sem vídeo:", p["start_date_local"][:10], p["name"])
 
     if not args.teste:
-        guardar_cache_pedais(pedais, atividades, cache.get("ultima", 0))
+        guardar_cache_pedais(pedais, atividades, cache.get("ultima", 0), sem_video)
     modelo = open(args.modelo, encoding="utf-8").read()
     modelo_pedal = open(args.modelo_pedal, encoding="utf-8").read()
     os.makedirs(base, exist_ok=True)
