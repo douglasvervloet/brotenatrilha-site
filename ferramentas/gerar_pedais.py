@@ -1067,8 +1067,11 @@ def limpar_paginas_antigas(base, slugs):
 
 def mapa_html(p, prefixo_mapas, carregar="lazy"):
     if p.get("_mapa"):
+        # slice: se a caixa do mapa não tiver a proporção da imagem (no cartão da lista ela é 16:9, como a capa), o traçado acompanha o
+        # recorte do fundo (object-fit: cover); com a proporção da imagem (a página do pedal) não muda nada
+        tracado = p["_mapa"].replace("<svg ", '<svg preserveAspectRatio="xMidYMid slice" ', 1) if 'preserveAspectRatio' not in p["_mapa"] else p["_mapa"]
         return (f'<div class="mapa com-fundo"><img src="{prefixo_mapas}{p["id"]}.webp" width="{MAPA_L}" height="{MAPA_A}" '
-                f'loading="{carregar}" decoding="async" alt="">{p["_mapa"]}</div>')
+                f'loading="{carregar}" decoding="async" alt="">{tracado}</div>')
     return p.get("_svg") or '<div class="mapa vazio">Sem traçado</div>'
 
 

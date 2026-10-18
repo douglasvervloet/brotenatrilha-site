@@ -59,9 +59,9 @@
   .mapa-link { display: block; text-decoration: none; }
   /* a imagem do cartão: a capa do vídeo (padrão) ou o mapa, trocados pelo botão de cada cartão */
   .imagem { position: relative; }
-  .capa { display: block; aspect-ratio: 5 / 3; background: #1d2a22; overflow: hidden; }
+  .capa { display: block; aspect-ratio: 16 / 9; background: #1d2a22; overflow: hidden; }   /* a proporção da capa do YouTube: não corta as laterais */
   .capa img { display: block; width: 100%; height: 100%; object-fit: cover; }
-  .pedal:not(.sem-capa) .mapa-link .mapa { display: none; }
+  .pedal:not(.sem-capa) .mapa-link .mapa { display: none; aspect-ratio: 16 / 9; }   /* o mapa ocupa a mesma caixa da capa: o cartão não muda de altura ao trocar */
   .pedal.ver-mapa .capa { display: none; }
   .pedal.ver-mapa .mapa-link .mapa { display: block; }
   .pedal.ver-mapa .mapa-link .mapa.vazio { display: grid; }
