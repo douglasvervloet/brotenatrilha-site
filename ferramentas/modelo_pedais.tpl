@@ -65,7 +65,7 @@
   .pedal.ver-mapa .capa { display: none; }
   .pedal.ver-mapa .mapa-link .mapa { display: block; }
   .pedal.ver-mapa .mapa-link .mapa.vazio { display: grid; }
-  .alterna { position: absolute; right: 10px; bottom: 10px; font: inherit; font-weight: 600; font-size: .78rem; cursor: pointer; padding: 5px 12px; border-radius: 999px;
+  .alterna { position: absolute; right: 10px; top: 50%; transform: translateY(-50%);   /* no meio, à direita: o texto das capas costuma ficar em cima e embaixo */ font: inherit; font-weight: 600; font-size: .78rem; cursor: pointer; padding: 5px 12px; border-radius: 999px;
     background: rgba(12, 22, 16, .78); color: #fff; border: 1px solid rgba(255, 255, 255, .35); backdrop-filter: blur(4px); }
   .alterna:hover { background: rgba(12, 22, 16, .92); border-color: #fff; }
   .alterna:focus-visible { outline: 2px solid var(--ambar, #e8a33d); outline-offset: 2px; }
