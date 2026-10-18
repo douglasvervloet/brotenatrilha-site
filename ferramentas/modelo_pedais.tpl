@@ -57,6 +57,13 @@
   .pedal[hidden], .bloco-ano[hidden] { display: none; }
   .pedal { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
   .mapa-link { display: block; text-decoration: none; }
+  /* a imagem do cartão: a capa do vídeo (padrão) ou o mapa, conforme o seletor "Imagem dos cartões" */
+  .capa { display: block; aspect-ratio: 5 / 3; background: #1d2a22; overflow: hidden; }
+  .capa img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .pedal:not(.sem-capa) .mapa-link .mapa { display: none; }
+  body[data-vista="mapa"] .pedal:not(.sem-capa) .capa { display: none; }
+  body[data-vista="mapa"] .pedal:not(.sem-capa) .mapa-link .mapa { display: block; }
+  body[data-vista="mapa"] .pedal:not(.sem-capa) .mapa-link .mapa.vazio { display: grid; }
   .mapa { display: block; width: 100%; aspect-ratio: 400 / 240; background: var(--mapa); }
   .mapa path { fill: none; stroke: #d6004f; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
   .mapa.com-fundo { position: relative; aspect-ratio: 5 / 3; background: #cfe0c4; overflow: hidden; }
@@ -107,6 +114,10 @@
       <button type="button" class="chip" data-filtro="dist" data-valor="ate50" aria-pressed="false">Até 50 km</button>
       <button type="button" class="chip" data-filtro="dist" data-valor="50a100" aria-pressed="false">50 a 100 km</button>
       <button type="button" class="chip" data-filtro="dist" data-valor="mais100" aria-pressed="false">Mais de 100 km</button>
+    </div>
+    <div class="chips" role="group" aria-label="Imagem dos cartões">
+      <button type="button" class="chip" data-vista="capa" aria-pressed="true">Capa do vídeo</button>
+      <button type="button" class="chip" data-vista="mapa" aria-pressed="false">Mapa</button>
     </div>
     <div class="seletores">
       <label>Passa por <select id="passa"><option value="">Qualquer cidade</option>{{OPCOES_PASSA}}</select></label>
@@ -160,7 +171,16 @@
     ["passa", "sai", "chega"].forEach(function (id) {
       document.getElementById(id).addEventListener("change", function (e) { estado[id] = e.target.value; aplicar(); });
     });
-    [].forEach.call(document.querySelectorAll(".chip"), function (chip) {
+    // Imagem dos cartões: a capa do vídeo (padrão) ou o mapa
+    [].forEach.call(document.querySelectorAll(".chip[data-vista]"), function (chip) {
+      chip.addEventListener("click", function () {
+        document.body.dataset.vista = chip.dataset.vista;
+        [].forEach.call(document.querySelectorAll(".chip[data-vista]"), function (c) {
+          c.setAttribute("aria-pressed", String(c === chip));
+        });
+      });
+    });
+    [].forEach.call(document.querySelectorAll(".chip[data-filtro]"), function (chip) {
       chip.addEventListener("click", function () {
         var grupo = chip.dataset.filtro;
         estado[grupo] = chip.dataset.valor;

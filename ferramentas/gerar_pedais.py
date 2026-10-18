@@ -18,6 +18,7 @@ Uso:  python ferramentas/gerar_pedais.py            (usa as variáveis de ambien
 import argparse
 import difflib
 import html
+import io
 import json
 import math
 import os
@@ -171,8 +172,10 @@ def videos_do_canal():
         r = http_json("https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" + ids + "&key=" + chave)
         for v in r.get("items", []):
             s = v["snippet"]
+            miniaturas = s.get("thumbnails", {})
+            capa = next((miniaturas[k]["url"] for k in ("maxres", "standard", "high", "medium", "default") if k in miniaturas), "")
             videos.append({"id": v["id"], "titulo": s["title"], "descricao": s.get("description", ""),
-                           "data": s["publishedAt"][:10], "publicado": s["publishedAt"]})
+                           "data": s["publishedAt"][:10], "publicado": s["publishedAt"], "capa": capa})
     return videos
 
 
@@ -1009,6 +1012,47 @@ def trecho_descricao(video):
     return (t[:480].rsplit(" ", 1)[0] + "…") if len(t) > 480 else t
 
 
+CAPA_L = 640                    # largura da capa guardada (WebP 16:9); o cartão mostra uns 400 px
+DIAS_PARA_REFAZER_CAPA = 14     # a capa de um vídeo recente é baixada de novo a cada rodada (o canal costuma trocá-la nos primeiros dias)
+
+
+def baixar_capa(video, pasta_capas, refazer):
+    """Guarda a capa do vídeo em capas/ID.webp (16:9, 640 px). Devolve se o arquivo existe depois (sem Pillow, sem internet ou sem capa, fica sem)."""
+    arquivo = os.path.join(pasta_capas, f"{video['id']}.webp")
+    if os.path.exists(arquivo) and not refazer:
+        return True
+    url = video.get("capa")
+    if Image is None or not url:
+        return os.path.exists(arquivo)
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": AGENTE})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            dados = r.read()
+        imagem = Image.open(io.BytesIO(dados)).convert("RGB")
+    except Exception as erro:
+        print("  sem capa:", video["titulo"], "-", erro)
+        return os.path.exists(arquivo)
+    largura, altura = imagem.size
+    if largura / altura < 1.7:   # capa em 4:3 com tarjas pretas em cima e embaixo: corta o meio, em 16:9
+        nova = round(largura * 9 / 16)
+        topo = (altura - nova) // 2
+        imagem = imagem.crop((0, topo, largura, topo + nova))
+    if imagem.width > CAPA_L:
+        imagem = imagem.resize((CAPA_L, round(CAPA_L * imagem.height / imagem.width)), Image.LANCZOS)
+    os.makedirs(pasta_capas, exist_ok=True)
+    imagem.save(arquivo, "WEBP", quality=80, method=6)
+    return True
+
+
+def capa_recente(video):
+    """O vídeo saiu há pouco (a capa pode mudar nos primeiros dias)."""
+    try:
+        publicado = datetime.fromisoformat(video["publicado"].replace("Z", "+00:00"))
+    except (KeyError, ValueError):
+        return False
+    return datetime.now(timezone.utc) - publicado < timedelta(days=DIAS_PARA_REFAZER_CAPA)
+
+
 def mapa_html(p, prefixo_mapas, carregar="lazy"):
     if p.get("_mapa"):
         return (f'<div class="mapa com-fundo"><img src="{prefixo_mapas}{p["id"]}.webp" width="{MAPA_L}" height="{MAPA_A}" '
@@ -1031,8 +1075,10 @@ def cartao(p):
     km, media = numeros(p)
     titulo = html.escape(titulo_exibido(p))
     mapa = mapa_html(p, "mapas/")
-    return f"""      <article class="pedal" data-ano="{p["start_date_local"][:4]}" data-km="{km:.1f}" data-nome="{html.escape(normalizar(p["name"] + " " + titulo_exibido(p) + " " + " ".join(p.get("_passa", []))))}" data-sai="{slug_texto(p.get("_sai") or "")}" data-chega="{slug_texto(p.get("_chega") or "")}" data-passa="|{"|".join(slug_texto(c) for c in p.get("_passa", []))}|">
-        <a class="mapa-link" href="{p['_slug']}/" aria-label="Ver o pedal {titulo}">{mapa}</a>
+    capa = (f'<div class="capa"><img src="capas/{p["_video"]["id"]}.webp" width="{CAPA_L}" height="{CAPA_L * 9 // 16}" '
+            f'loading="lazy" decoding="async" alt="Capa do vídeo {titulo}"></div>') if p.get("_capa") else ""
+    return f"""      <article class="pedal{"" if capa else " sem-capa"}" data-ano="{p["start_date_local"][:4]}" data-km="{km:.1f}" data-nome="{html.escape(normalizar(p["name"] + " " + titulo_exibido(p) + " " + " ".join(p.get("_passa", []))))}" data-sai="{slug_texto(p.get("_sai") or "")}" data-chega="{slug_texto(p.get("_chega") or "")}" data-passa="|{"|".join(slug_texto(c) for c in p.get("_passa", []))}|">
+        <a class="mapa-link" href="{p['_slug']}/" aria-label="Ver o pedal {titulo}">{capa}{mapa}</a>
         <div class="corpo">
           <h3><a href="{p['_slug']}/">{titulo}</a></h3>
           <p class="data">{data_longa(p["start_date_local"])}</p>
@@ -1250,6 +1296,16 @@ def main():
           f"{len({c for p in pedais for c in p['_passa']})} cidades no total")
     print(f"  lugares: {sum(1 for p in pedais if p['_lugares'])} pedais com lista; consultas feitas nesta rodada: "
           f"{int(os.environ.get('ORCAMENTO_LUGARES', '450')) - orcamento['consultas']}; falhas seguidas: {orcamento['falhas']}")
+    pasta_capas = os.path.join(base, "capas")
+    for p in pedais:                                    # a capa do vídeo (a imagem dos cartões da lista)
+        p["_capa"] = baixar_capa(p["_video"], pasta_capas, completo or capa_recente(p["_video"]))
+    if os.path.isdir(pasta_capas):
+        atuais_capas = {f"{p['_video']['id']}.webp" for p in pedais}
+        for nome in os.listdir(pasta_capas):
+            if nome.endswith(".webp") and nome not in atuais_capas:
+                os.remove(os.path.join(pasta_capas, nome))
+                print("  capa removida:", nome)
+    print(f"  capas: {sum(1 for p in pedais if p['_capa'])} de {len(pedais)} pedais com a capa do vídeo")
     pasta_gpx = os.path.join(base, "gpx")
     for p in pedais:                                    # arquivo GPX para baixar (só busca no Strava o que ainda não existe)
         p["_gpx"] = gerar_gpx(p, pasta_gpx)
