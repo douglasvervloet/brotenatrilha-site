@@ -1053,6 +1053,18 @@ def capa_recente(video):
     return datetime.now(timezone.utc) - publicado < timedelta(days=DIAS_PARA_REFAZER_CAPA)
 
 
+# As pastas de pedais/ que guardam arquivos e não páginas de pedais: a limpeza das páginas antigas não pode apagá-las
+PASTAS_DE_ARQUIVOS = ("mapas", "gpx", "capas")
+
+
+def limpar_paginas_antigas(base, slugs):
+    """Apaga as pastas de pedais que saíram da página (as de arquivos, como mapas, gpx e capas, ficam)."""
+    for nome in os.listdir(base):
+        if nome not in PASTAS_DE_ARQUIVOS and os.path.isdir(os.path.join(base, nome)) and nome not in slugs:
+            shutil.rmtree(os.path.join(base, nome))
+            print("  página removida:", nome)
+
+
 def mapa_html(p, prefixo_mapas, carregar="lazy"):
     if p.get("_mapa"):
         return (f'<div class="mapa com-fundo"><img src="{prefixo_mapas}{p["id"]}.webp" width="{MAPA_L}" height="{MAPA_A}" '
@@ -1360,10 +1372,7 @@ def main():
             with open(os.path.join(pasta, "index.html"), "w", encoding="utf-8", newline="\n") as f:
                 f.write(pagina_de_redirecionamento(p))
             slugs.add(antigo)
-    for nome in os.listdir(base):
-        if nome not in ("mapas", "gpx") and os.path.isdir(os.path.join(base, nome)) and nome not in slugs:
-            shutil.rmtree(os.path.join(base, nome))
-            print("  página removida:", nome)
+    limpar_paginas_antigas(base, slugs)
     if pedais and injetar_na_home(args.home, bloco_ultimo(pedais[0])):
         print("  home: último pedal atualizado ->", titulo_exibido(pedais[0]))
     if args.sitemap and pedais:
