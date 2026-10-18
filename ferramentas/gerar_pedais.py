@@ -1077,8 +1077,14 @@ def cartao(p):
     mapa = mapa_html(p, "mapas/")
     capa = (f'<div class="capa"><img src="capas/{p["_video"]["id"]}.webp" width="{CAPA_L}" height="{CAPA_L * 9 // 16}" '
             f'loading="lazy" decoding="async" alt="Capa do vídeo {titulo}"></div>') if p.get("_capa") else ""
+    # O botão de trocar a imagem só deste cartão (aparece com JavaScript; sem ele fica a capa); fora do link, que não pode ter botão dentro
+    alterna = ('<button type="button" class="alterna" hidden aria-pressed="false" aria-label="Ver o mapa deste pedal">Ver mapa</button>'
+               if capa else "")
     return f"""      <article class="pedal{"" if capa else " sem-capa"}" data-ano="{p["start_date_local"][:4]}" data-km="{km:.1f}" data-nome="{html.escape(normalizar(p["name"] + " " + titulo_exibido(p) + " " + " ".join(p.get("_passa", []))))}" data-sai="{slug_texto(p.get("_sai") or "")}" data-chega="{slug_texto(p.get("_chega") or "")}" data-passa="|{"|".join(slug_texto(c) for c in p.get("_passa", []))}|">
-        <a class="mapa-link" href="{p['_slug']}/" aria-label="Ver o pedal {titulo}">{capa}{mapa}</a>
+        <div class="imagem">
+          <a class="mapa-link" href="{p['_slug']}/" aria-label="Ver o pedal {titulo}">{capa}{mapa}</a>
+          {alterna}
+        </div>
         <div class="corpo">
           <h3><a href="{p['_slug']}/">{titulo}</a></h3>
           <p class="data">{data_longa(p["start_date_local"])}</p>

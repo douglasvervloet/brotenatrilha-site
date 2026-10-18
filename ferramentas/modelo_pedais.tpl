@@ -57,13 +57,19 @@
   .pedal[hidden], .bloco-ano[hidden] { display: none; }
   .pedal { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
   .mapa-link { display: block; text-decoration: none; }
-  /* a imagem do cartão: a capa do vídeo (padrão) ou o mapa, conforme o seletor "Imagem dos cartões" */
+  /* a imagem do cartão: a capa do vídeo (padrão) ou o mapa, trocados pelo botão de cada cartão */
+  .imagem { position: relative; }
   .capa { display: block; aspect-ratio: 5 / 3; background: #1d2a22; overflow: hidden; }
   .capa img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .pedal:not(.sem-capa) .mapa-link .mapa { display: none; }
-  body[data-vista="mapa"] .pedal:not(.sem-capa) .capa { display: none; }
-  body[data-vista="mapa"] .pedal:not(.sem-capa) .mapa-link .mapa { display: block; }
-  body[data-vista="mapa"] .pedal:not(.sem-capa) .mapa-link .mapa.vazio { display: grid; }
+  .pedal.ver-mapa .capa { display: none; }
+  .pedal.ver-mapa .mapa-link .mapa { display: block; }
+  .pedal.ver-mapa .mapa-link .mapa.vazio { display: grid; }
+  .alterna { position: absolute; right: 10px; bottom: 10px; font: inherit; font-weight: 600; font-size: .78rem; cursor: pointer; padding: 5px 12px; border-radius: 999px;
+    background: rgba(12, 22, 16, .78); color: #fff; border: 1px solid rgba(255, 255, 255, .35); backdrop-filter: blur(4px); }
+  .alterna:hover { background: rgba(12, 22, 16, .92); border-color: #fff; }
+  .alterna:focus-visible { outline: 2px solid var(--ambar, #e8a33d); outline-offset: 2px; }
+  .alterna[hidden] { display: none; }
   .mapa { display: block; width: 100%; aspect-ratio: 400 / 240; background: var(--mapa); }
   .mapa path { fill: none; stroke: #d6004f; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
   .mapa.com-fundo { position: relative; aspect-ratio: 5 / 3; background: #cfe0c4; overflow: hidden; }
@@ -115,10 +121,6 @@
       <button type="button" class="chip" data-filtro="dist" data-valor="50a100" aria-pressed="false">50 a 100 km</button>
       <button type="button" class="chip" data-filtro="dist" data-valor="mais100" aria-pressed="false">Mais de 100 km</button>
     </div>
-    <div class="chips" role="group" aria-label="Imagem dos cartões">
-      <button type="button" class="chip" data-vista="capa" aria-pressed="true">Capa do vídeo</button>
-      <button type="button" class="chip" data-vista="mapa" aria-pressed="false">Mapa</button>
-    </div>
     <div class="seletores">
       <label>Passa por <select id="passa"><option value="">Qualquer cidade</option>{{OPCOES_PASSA}}</select></label>
       <label>Sai de <select id="sai"><option value="">Qualquer cidade</option>{{OPCOES_SAI}}</select></label>
@@ -140,6 +142,18 @@
 </footer>
 <script>
   document.getElementById("ano").textContent = new Date().getFullYear();
+
+  // Cada cartão mostra a capa do vídeo e tem o seu botão para ver o mapa (sem JavaScript fica a capa)
+  [].forEach.call(document.querySelectorAll(".pedal .alterna"), function (botao) {
+    botao.hidden = false;
+    botao.addEventListener("click", function () {
+      var cartao = botao.closest(".pedal");
+      var mapa = cartao.classList.toggle("ver-mapa");
+      botao.textContent = mapa ? "Ver capa" : "Ver mapa";
+      botao.setAttribute("aria-pressed", String(mapa));
+      botao.setAttribute("aria-label", mapa ? "Ver a capa do vídeo deste pedal" : "Ver o mapa deste pedal");
+    });
+  });
 
   // Busca e filtros (sem JavaScript a lista aparece inteira)
   (function () {
@@ -171,16 +185,7 @@
     ["passa", "sai", "chega"].forEach(function (id) {
       document.getElementById(id).addEventListener("change", function (e) { estado[id] = e.target.value; aplicar(); });
     });
-    // Imagem dos cartões: a capa do vídeo (padrão) ou o mapa
-    [].forEach.call(document.querySelectorAll(".chip[data-vista]"), function (chip) {
-      chip.addEventListener("click", function () {
-        document.body.dataset.vista = chip.dataset.vista;
-        [].forEach.call(document.querySelectorAll(".chip[data-vista]"), function (c) {
-          c.setAttribute("aria-pressed", String(c === chip));
-        });
-      });
-    });
-    [].forEach.call(document.querySelectorAll(".chip[data-filtro]"), function (chip) {
+    [].forEach.call(document.querySelectorAll(".chip"), function (chip) {
       chip.addEventListener("click", function () {
         var grupo = chip.dataset.filtro;
         estado[grupo] = chip.dataset.valor;
