@@ -215,7 +215,7 @@
         </figure>
         <figure>
           <picture><source srcset="edicao-localizacao.webp" type="image/webp"><img decoding="async" src="edicao-localizacao.jpg" width="1600" height="987" loading="lazy" alt="Edição com o nome do lugar sobre o vídeo e o painel de GPS com velocímetro, inclinação, altitude e minimapa"></picture>
-          <figcaption><strong>Localização e painel de GPS.</strong> O nome do lugar vem do GPS, e o painel mostra velocidade, cadência, batimentos, inclinação, altitude, força G e o mapa do percurso, com distância, subida e temperatura.</figcaption>
+          <figcaption><strong>Localização e painel de GPS.</strong> O nome do lugar vem do GPS, e o painel mostra velocidade, cadência, batimentos, inclinação, altitude, força G e o mapa do percurso, com distância, subida e temperatura. Nas versões novas entram também potência, calorias, vento, rumo e o gráfico de altitude.</figcaption>
         </figure>
         <figure>
           <picture><source srcset="edicao-informacao.webp" type="image/webp"><img decoding="async" src="edicao-informacao.jpg" width="1600" height="987" loading="lazy" alt="Edição com um texto de informação no terço inferior do vídeo e a timeline com as marcas coloridas"></picture>
@@ -244,6 +244,7 @@
             <li><strong>Forma de onda</strong> do som e trechos de <strong>fala</strong> marcados na barra de tempo.</li>
             <li>Marcar início e fim, dividir, duplicar, reordenar arrastando e ajustar quadro a quadro.</li>
             <li>Conferir a emenda entre cortes e tocar a sequência inteira.</li>
+            <li><strong>Copiar ou mover</strong> um corte (ou vários) entre o teaser, o principal e o encerramento, com os efeitos dele.</li>
             <li><strong>Importar os brutos</strong> da pasta, <strong>da GoPro ou do celular por cabo USB</strong>, com filtro por data e a escolha de fotos e/ou vídeos: o app copia com andamento, confere o tamanho e nunca sobrescreve um original. Ao conectar o aparelho, a importação abre sozinha.</li>
             <li>Gravações da GoPro em vários arquivos (capítulos) tratadas como <strong>um só bruto</strong>.</li>
             <li>O corte selecionado <strong>se atualiza sozinho</strong> quando você mexe nas marcas de início e fim.</li>
@@ -255,9 +256,14 @@
           <ul>
             <li><strong>Informações</strong> na tela, com sugestões prontas pelo GPX: ponto mais alto, velocidade máxima e subida mais forte.</li>
             <li><strong>Localização</strong> com o nome do lugar preenchido pelo GPS, e detecção dos lugares ao longo do trajeto.</li>
-            <li><strong>Painel de GPS</strong> com velocímetro, inclinação, altitude, força G e minimapa, a partir do GPX e da telemetria da GoPro. Com um GPX de sensores (como o do Strava), mostra também <strong>cadência, batimentos e temperatura</strong>, e uma linha com a distância e a subida acumulada.</li>
+            <li><strong>Painel de GPS</strong> com velocímetro, inclinação, altitude, força G e minimapa, a partir do GPX e da telemetria da GoPro. Com um GPX de sensores (como o do Strava), mostra também <strong>cadência, batimentos, temperatura e calorias</strong>, além de distância, subida acumulada, <strong>rumo (bússola)</strong> e <strong>vento</strong> (direção e velocidade em relação ao sentido da bike).</li>
+            <li><strong>Potência</strong> ao vivo: a do medidor, quando a atividade tem, ou <strong>calculada</strong> (marcada como estimada) com o peso do ciclista e da bike, o vento do dia, o <strong>tipo de piso</strong> (asfalto, terra, cascalho, lido de um mapa aberto) e o <strong>tipo de pneu</strong>, em quatro categorias.</li>
+            <li><strong>Ordem dos medidores</strong> automática, por assunto (esforço, ambiente e percurso), ou <strong>manual</strong>, numa lista com setas; <strong>faixa única</strong> opcional, com todos os medidores num fundo só; tamanho do painel de 80 a 130% e escolha dos mostradores por projeto.</li>
+            <li><strong>Gráfico de altitude</strong> do passeio num card no canto superior esquerdo, com o trecho já pedalado em destaque e a posição atual.</li>
+            <li><strong>Logo do canal</strong> em uma de nove posições (e também no player da Edição), e Informações, Locais e Curtir que <strong>desviam dos medidores</strong> para não cobri-los.</li>
+            <li><strong>Pontos de interesse</strong>: cadastre um lugar que não é bairro (uma igreja, uma queijaria) e o app cria a localização no momento em que o percurso passa por ele.</li>
             <li>Botão de <strong>Curtir e Inscrever</strong>, manual ou automático a cada N minutos.</li>
-            <li><strong>Música</strong> de fundo que abaixa sozinha quando há fala.</li>
+            <li><strong>Música</strong> de fundo que abaixa sozinha quando há fala, escolhida numa <strong>biblioteca de áudio</strong> com a duração de cada faixa e um play para ouvir antes; os créditos das músicas entram sozinhos na descrição.</li>
             <li><strong>Resumo do passeio</strong>: tela final com mapa, traçado, perfil de altitude e números do percurso, com <strong>seis estilos de mapa</strong> à escolha: relevo, ruas, ciclismo, satélite, escuro e claro.</li>
             <li>Botões em grupos nos dois lados do player; cada item e cada efeito abre numa <strong>janela própria</strong>, e a lista do que já foi aplicado fica à direita, com lápis e lixeira.</li>
             <li><strong>Onda do som e marcas de fala</strong> no fundo da timeline da Edição, com um botão para ligar e desligar, e medidores de nível do áudio no player.</li>
@@ -270,7 +276,7 @@
             <li><strong>Desfoque de movimento</strong> para dar sensação de velocidade.</li>
             <li><strong>Zoom</strong> de até 3x, com retângulos de começo e fim desenhados no player.</li>
             <li><strong>Transições</strong> em cada emenda: escurecer, corte seco, fusão, cortina, círculo ou persiana.</li>
-            <li><strong>Ajuste de brilho</strong> por clipe, para gravações que escurecem no fim do dia ou clareiam no amanhecer, com nitidez, vinheta e <strong>LUT de cor</strong> (.cube).</li>
+            <li><strong>Ajuste de brilho</strong> por clipe, para gravações que escurecem no fim do dia ou clareiam no amanhecer, com nitidez, vinheta e <strong>LUT de cor</strong> (.cube), e o botão <strong>Igualar ao anterior</strong>, que leva o brilho do clipe ao do clipe de antes.</li>
             <li>No som de cada clipe: <strong>redução de vento</strong>, <strong>voz uniforme</strong> e <strong>ganho de volume</strong> em dB.</li>
           </ul>
         </div>
@@ -323,6 +329,8 @@
             <li><strong>Desfazer e refazer</strong> com histórico das edições, e a volta a uma versão anterior do projeto.</li>
             <li><strong>Paleta de comandos</strong> (Ctrl+K): ache qualquer ação, clipe ou efeito aplicado digitando.</li>
             <li>Se algo der errado na tela, o app <strong>guarda uma cópia do projeto</strong>, avisa e segue aberto.</li>
+            <li>Tudo que demora (análise, leitura de telemetria, mapa, render, legendas, envio) aparece na <strong>barra de status</strong> do alto, com o andamento.</li>
+            <li><strong>Novo projeto a partir de outro</strong>: herda o que se repete a cada passeio, sem os cortes.</li>
           </ul>
         </div>
       </div>
