@@ -712,7 +712,7 @@ def perfil_svg(caminho):
             + "".join(grade) + f'<polygon class="area" points="{area}"/><polyline class="altitude" points="{linha}"/>'
             f'<line class="cursor" y1="{m["topo"]}" y2="{base_y:.1f}" hidden/><circle class="ponto-perfil" r="5" hidden/></svg></div>'
             '<div class="dica" hidden></div>'
-            '<figcaption>Altimetria do trecho mostrado no mapa. Passe o mouse (ou toque) no gráfico para ver o ponto no mapa.</figcaption></figure>')
+            '<figcaption>Altimetria do trecho mostrado no mapa. Passe o mouse (ou toque) no gráfico ou no traçado do mapa para ligar os dois.</figcaption></figure>')
 
 
 NOTA_GPX = '<p class="nota-gpx">O GPX traz o percurso sem os primeiros e os últimos 800 m, para não mostrar de onde o pedal sai.</p>'

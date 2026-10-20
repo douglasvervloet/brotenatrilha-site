@@ -166,21 +166,23 @@
 </footer>
 <script>document.querySelectorAll(".mais-lugares").forEach(function (b) {var s = b.closest(".lugares"), n = b.dataset.total; s.classList.add("recolhido"); b.hidden = false;b.addEventListener("click", function () {var fechado = s.classList.toggle("recolhido"); b.setAttribute("aria-expanded", fechado ? "false" : "true");b.textContent = fechado ? "Mostrar todos os " + n : "Mostrar menos";});});</script>
 <script>
-/* Perfil de altimetria: o mouse (ou o toque) no gráfico mostra o ponto correspondente no mapa. A posição no mapa vem da fração da distância
-   percorrida aplicada ao comprimento do traçado desenhado (getPointAtLength). */
+/* Perfil de altimetria ligado ao mapa. Passar o mouse (ou tocar) no gráfico mostra o ponto no mapa; passar no traçado do mapa mostra o ponto no
+   gráfico. A posição no mapa vem da fração da distância percorrida aplicada ao comprimento do traçado desenhado (getPointAtLength). */
 (function () {
   var svg = document.querySelector(".perfil svg"), linha = document.querySelector(".mapa path.linha") || document.querySelector(".mapa path");
   if (!svg || !linha) return;
-  var NS = "http://www.w3.org/2000/svg", d = svg.dataset, dica = svg.closest(".perfil").querySelector(".dica");
+  var NS = "http://www.w3.org/2000/svg", d = svg.dataset, dica = svg.closest(".perfil").querySelector(".dica"), mapa = linha.ownerSVGElement;
   var km = d.km.split(",").map(Number), alt = d.alt.split(",").map(Number);
   var x0 = +d.x0, largura = +d.largura, y0 = +d.y0, altura = +d.altura, ymin = +d.ymin, ymax = +d.ymax, total = km[km.length - 1];
   var cursor = svg.querySelector(".cursor"), ponto = svg.querySelector(".ponto-perfil"), comprimento = linha.getTotalLength();
+  var AMOSTRAS = 600, LIMITE_NO_MAPA = 30;          // pontos do traçado para achar o mais perto do mouse; distância máxima (unidades do mapa)
+  var amostras = [];
+  for (var k = 0; k <= AMOSTRAS; k++) amostras.push(linha.getPointAtLength(k / AMOSTRAS * comprimento));
   var marcador = document.createElementNS(NS, "circle");
   marcador.setAttribute("class", "marcador"); marcador.setAttribute("r", "8"); marcador.setAttribute("visibility", "hidden");
-  linha.ownerSVGElement.appendChild(marcador);
-  function mostrar(evento) {
-    var caixa = svg.getBoundingClientRect(), x = (evento.clientX - caixa.left) / caixa.width * svg.viewBox.baseVal.width;
-    var f = Math.min(1, Math.max(0, (x - x0) / largura)), alvo = f * total, i = 1;
+  mapa.appendChild(marcador);
+  function posicionar(f) {                           // f: fração (0 a 1) do percurso
+    var alvo = f * total, i = 1;
     while (i < km.length - 1 && km[i] < alvo) i++;
     var t = km[i] === km[i - 1] ? 0 : (alvo - km[i - 1]) / (km[i] - km[i - 1]), a = alt[i - 1] + t * (alt[i] - alt[i - 1]);
     var px = x0 + f * largura, py = y0 + (1 - (a - ymin) / (ymax - ymin)) * altura;
@@ -190,15 +192,32 @@
     var subida = (alt[i] - alt[i - 1]) / ((km[i] - km[i - 1]) * 1000 || 1) * 100;
     dica.textContent = alvo.toFixed(1).replace(".", ",") + " km · " + Math.round(a) + " m · " + subida.toFixed(0).replace("-", "−") + "%";
     dica.hidden = false;
-    var pai = dica.parentNode.getBoundingClientRect(), esq = evento.clientX - pai.left;
+    var caixa = svg.getBoundingClientRect(), pai = dica.parentNode.getBoundingClientRect();
+    var esq = caixa.left + px / svg.viewBox.baseVal.width * caixa.width - pai.left;
     dica.style.left = Math.max(4, Math.min(esq - dica.offsetWidth / 2, pai.width - dica.offsetWidth - 4)) + "px";
     [cursor, ponto].forEach(function (e) { e.removeAttribute("hidden"); }); marcador.setAttribute("visibility", "visible");
   }
   function esconder() {
     [cursor, ponto].forEach(function (e) { e.setAttribute("hidden", ""); }); marcador.setAttribute("visibility", "hidden"); dica.hidden = true;
   }
-  svg.addEventListener("pointermove", mostrar); svg.addEventListener("pointerdown", mostrar);
-  svg.addEventListener("pointerleave", esconder); svg.addEventListener("pointercancel", esconder);
+  function doGrafico(evento) {
+    var caixa = svg.getBoundingClientRect(), x = (evento.clientX - caixa.left) / caixa.width * svg.viewBox.baseVal.width;
+    posicionar(Math.min(1, Math.max(0, (x - x0) / largura)));
+  }
+  function doMapa(evento) {                          // ponto do traçado mais perto do mouse; longe do traçado, não mostra nada
+    var p = mapa.createSVGPoint(); p.x = evento.clientX; p.y = evento.clientY;
+    var m = mapa.getScreenCTM(); if (!m) return;
+    p = p.matrixTransform(m.inverse());
+    var melhor = -1, menor = Infinity;
+    for (var k = 0; k < amostras.length; k++) {
+      var dx = amostras[k].x - p.x, dy = amostras[k].y - p.y, dist = dx * dx + dy * dy;
+      if (dist < menor) { menor = dist; melhor = k; }
+    }
+    if (Math.sqrt(menor) > LIMITE_NO_MAPA) esconder(); else posicionar(melhor / AMOSTRAS);
+  }
+  svg.addEventListener("pointermove", doGrafico); svg.addEventListener("pointerdown", doGrafico);
+  mapa.addEventListener("pointermove", doMapa); mapa.addEventListener("pointerdown", doMapa);
+  [svg, mapa].forEach(function (e) { e.addEventListener("pointerleave", esconder); e.addEventListener("pointercancel", esconder); });
 })();
 </script>
 <script>document.getElementById("ano").textContent = new Date().getFullYear();</script>
