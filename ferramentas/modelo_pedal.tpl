@@ -50,6 +50,13 @@
   .perfil .area { fill: var(--verde); opacity: .22; }
   .perfil .altitude { fill: none; stroke: var(--verde); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
   @media (prefers-color-scheme: dark) { .perfil .area { fill: #7fcf9d; opacity: .25; } .perfil .altitude { stroke: #7fcf9d; } }
+  .perfil { position: relative; }
+  .perfil svg { cursor: crosshair; }
+  .perfil svg [hidden] { display: none; }
+  .perfil .cursor { stroke: var(--suave); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .perfil .ponto-perfil { fill: #e8a33d; stroke: #fff; stroke-width: 2; }
+  .perfil .dica { position: absolute; top: 4px; padding: 3px 9px; border-radius: 8px; background: var(--texto); color: var(--fundo); font-size: .78rem; font-weight: 700; white-space: nowrap; pointer-events: none; font-variant-numeric: tabular-nums; }
+  .mapa .marcador { fill: #e8a33d; stroke: #fff; stroke-width: 3; pointer-events: none; }
   .perfil figcaption { margin: 2px 6px 4px; font-size: .78rem; color: var(--suave); }
   .credito { margin: 8px 0 0; font-size: .78rem; color: var(--suave); }
   dl { margin: 22px 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
@@ -158,6 +165,42 @@
   </div>
 </footer>
 <script>document.querySelectorAll(".mais-lugares").forEach(function (b) {var s = b.closest(".lugares"), n = b.dataset.total; s.classList.add("recolhido"); b.hidden = false;b.addEventListener("click", function () {var fechado = s.classList.toggle("recolhido"); b.setAttribute("aria-expanded", fechado ? "false" : "true");b.textContent = fechado ? "Mostrar todos os " + n : "Mostrar menos";});});</script>
+<script>
+/* Perfil de altimetria: o mouse (ou o toque) no gráfico mostra o ponto correspondente no mapa. A posição no mapa vem da fração da distância
+   percorrida aplicada ao comprimento do traçado desenhado (getPointAtLength). */
+(function () {
+  var svg = document.querySelector(".perfil svg"), linha = document.querySelector(".mapa path.linha") || document.querySelector(".mapa path");
+  if (!svg || !linha) return;
+  var NS = "http://www.w3.org/2000/svg", d = svg.dataset, dica = svg.closest(".perfil").querySelector(".dica");
+  var km = d.km.split(",").map(Number), alt = d.alt.split(",").map(Number);
+  var x0 = +d.x0, largura = +d.largura, y0 = +d.y0, altura = +d.altura, ymin = +d.ymin, ymax = +d.ymax, total = km[km.length - 1];
+  var cursor = svg.querySelector(".cursor"), ponto = svg.querySelector(".ponto-perfil"), comprimento = linha.getTotalLength();
+  var marcador = document.createElementNS(NS, "circle");
+  marcador.setAttribute("class", "marcador"); marcador.setAttribute("r", "8"); marcador.setAttribute("visibility", "hidden");
+  linha.ownerSVGElement.appendChild(marcador);
+  function mostrar(evento) {
+    var caixa = svg.getBoundingClientRect(), x = (evento.clientX - caixa.left) / caixa.width * svg.viewBox.baseVal.width;
+    var f = Math.min(1, Math.max(0, (x - x0) / largura)), alvo = f * total, i = 1;
+    while (i < km.length - 1 && km[i] < alvo) i++;
+    var t = km[i] === km[i - 1] ? 0 : (alvo - km[i - 1]) / (km[i] - km[i - 1]), a = alt[i - 1] + t * (alt[i] - alt[i - 1]);
+    var px = x0 + f * largura, py = y0 + (1 - (a - ymin) / (ymax - ymin)) * altura;
+    cursor.setAttribute("x1", px); cursor.setAttribute("x2", px); ponto.setAttribute("cx", px); ponto.setAttribute("cy", py);
+    var pm = linha.getPointAtLength(f * comprimento);
+    marcador.setAttribute("cx", pm.x); marcador.setAttribute("cy", pm.y);
+    var subida = (alt[i] - alt[i - 1]) / ((km[i] - km[i - 1]) * 1000 || 1) * 100;
+    dica.textContent = alvo.toFixed(1).replace(".", ",") + " km · " + Math.round(a) + " m · " + subida.toFixed(0).replace("-", "−") + "%";
+    dica.hidden = false;
+    var pai = dica.parentNode.getBoundingClientRect(), esq = evento.clientX - pai.left;
+    dica.style.left = Math.max(4, Math.min(esq - dica.offsetWidth / 2, pai.width - dica.offsetWidth - 4)) + "px";
+    [cursor, ponto].forEach(function (e) { e.removeAttribute("hidden"); }); marcador.setAttribute("visibility", "visible");
+  }
+  function esconder() {
+    [cursor, ponto].forEach(function (e) { e.setAttribute("hidden", ""); }); marcador.setAttribute("visibility", "hidden"); dica.hidden = true;
+  }
+  svg.addEventListener("pointermove", mostrar); svg.addEventListener("pointerdown", mostrar);
+  svg.addEventListener("pointerleave", esconder); svg.addEventListener("pointercancel", esconder);
+})();
+</script>
 <script>document.getElementById("ano").textContent = new Date().getFullYear();</script>
 <script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>

@@ -704,10 +704,15 @@ def perfil_svg(caminho):
     while km <= km_total + 1e-6:
         grade.append(f'<text class="eixo" x="{x(km):.1f}" y="{PERFIL_A - 8}" text-anchor="middle">{num(km)} km</text>')
         km += degrau_x
-    return (f'<figure class="perfil"><div class="rolagem"><svg viewBox="0 0 {PERFIL_L} {PERFIL_A}" role="img" '
+    # Os dados vão no próprio SVG: o script da página (modelo_pedal.tpl) os lê para mostrar a posição no mapa quando o mouse passa no gráfico
+    dados = (f'data-km="{",".join(f"{k:.2f}" for k in kms)}" data-alt="{",".join(f"{v:.1f}" for v in valores)}" '
+             f'data-x0="{m["esq"]}" data-largura="{largura}" data-y0="{m["topo"]}" data-altura="{altura}" data-ymin="{y_min}" data-ymax="{y_max}"')
+    return (f'<figure class="perfil"><div class="rolagem"><svg viewBox="0 0 {PERFIL_L} {PERFIL_A}" role="img" {dados} '
             f'aria-label="Perfil de altimetria do percurso: altitude de {num(min(valores))} a {num(max(valores))} m em {num(km_total, 1)} km">'
-            + "".join(grade) + f'<polygon class="area" points="{area}"/><polyline class="altitude" points="{linha}"/></svg></div>'
-            '<figcaption>Altimetria do trecho mostrado no mapa.</figcaption></figure>')
+            + "".join(grade) + f'<polygon class="area" points="{area}"/><polyline class="altitude" points="{linha}"/>'
+            f'<line class="cursor" y1="{m["topo"]}" y2="{base_y:.1f}" hidden/><circle class="ponto-perfil" r="5" hidden/></svg></div>'
+            '<div class="dica" hidden></div>'
+            '<figcaption>Altimetria do trecho mostrado no mapa. Passe o mouse (ou toque) no gráfico para ver o ponto no mapa.</figcaption></figure>')
 
 
 NOTA_GPX = '<p class="nota-gpx">O GPX traz o percurso sem os primeiros e os últimos 800 m, para não mostrar de onde o pedal sai.</p>'
