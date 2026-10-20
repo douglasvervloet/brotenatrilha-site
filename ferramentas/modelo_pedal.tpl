@@ -42,6 +42,15 @@
   .mapa.com-fundo .halo { stroke: #ffffff; stroke-width: 8; opacity: .9; }
   .mapa.com-fundo .linha { stroke: #d6004f; stroke-width: 4.5; }
   .mapa.vazio { display: grid; place-items: center; color: #7fa68d; }
+  .perfil { margin: 14px 0 0; background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; padding: 10px 8px 6px; }
+  .perfil .rolagem { overflow-x: auto; }
+  .perfil svg { display: block; width: 100%; min-width: 560px; height: auto; }
+  .perfil .grade { stroke: var(--linha); stroke-width: 1; }
+  .perfil .eixo { fill: var(--suave); font-family: inherit; font-size: 14px; }
+  .perfil .area { fill: var(--verde); opacity: .22; }
+  .perfil .altitude { fill: none; stroke: var(--verde); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  @media (prefers-color-scheme: dark) { .perfil .area { fill: #7fcf9d; opacity: .25; } .perfil .altitude { stroke: #7fcf9d; } }
+  .perfil figcaption { margin: 2px 6px 4px; font-size: .78rem; color: var(--suave); }
   .credito { margin: 8px 0 0; font-size: .78rem; color: var(--suave); }
   dl { margin: 22px 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
   dl div { background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; padding: 14px 8px; text-align: center; }
@@ -130,6 +139,7 @@
   {{VIDEO}}
   {{TEXTO}}
   {{MAPA}}
+  {{PERFIL}}
   <p class="credito">{{NOTA_CORTE}}Mapa: © OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA).</p>
   <dl>{{NUMEROS}}</dl>
   {{LUGARES}}

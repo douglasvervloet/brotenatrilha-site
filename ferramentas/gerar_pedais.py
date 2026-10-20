@@ -634,6 +634,82 @@ def gerar_gpx(p, pasta_gpx):
     return True
 
 
+# ----------------------------------------------------------------------------- perfil de altimetria (abaixo do mapa)
+PERFIL_L, PERFIL_A = 800, 220                        # tamanho do gráfico (o SVG se ajusta à largura da página)
+PERFIL_MARGEM = {"esq": 46, "dir": 14, "topo": 14, "base": 28}
+PERFIL_MAX_PONTOS = 300                              # basta para o gráfico; mais pontos só engordam a página
+PERFIL_SUAVIZAR = 3                                  # média móvel de ±3 pontos (~45 m): tira o serrilhado da altitude do GPS
+
+
+def ler_perfil_do_gpx(caminho):
+    """[(km, altitude)] do GPX do pedal (já sem o começo e o fim); [] se o arquivo não tem altitude."""
+    pontos = re.findall(r'<trkpt lat="([-\d.]+)" lon="([-\d.]+)"><ele>([-\d.]+)</ele>', open(caminho, encoding="utf-8").read())
+    perfil, acumulado, anterior = [], 0.0, None
+    for lat, lon, ele in pontos:
+        atual = (float(lat), float(lon))
+        if anterior is not None:
+            acumulado += metros(anterior, atual)
+        perfil.append((acumulado / 1000, float(ele)))
+        anterior = atual
+    return perfil
+
+
+def passo_bonito(intervalo, alvo):
+    """Passo redondo (1, 2, 5, 10...) que dá perto de `alvo` marcas no intervalo."""
+    bruto = intervalo / alvo
+    base = 10 ** math.floor(math.log10(bruto))
+    return min((m * base for m in (1, 2, 5, 10)), key=lambda x: abs(x - bruto))
+
+
+def perfil_svg(caminho):
+    """Gráfico de altimetria em SVG (distância x altitude); '' se não há altitude suficiente."""
+    perfil = ler_perfil_do_gpx(caminho)
+    if len(perfil) < 10 or perfil[-1][0] < 1:
+        return ""
+    alts = [a for _, a in perfil]
+    n = len(alts)
+    suave = [sum(alts[max(0, i - PERFIL_SUAVIZAR):i + PERFIL_SUAVIZAR + 1]) / len(alts[max(0, i - PERFIL_SUAVIZAR):i + PERFIL_SUAVIZAR + 1])
+             for i in range(n)]
+    passo = max(1, math.ceil(n / PERFIL_MAX_PONTOS))
+    indices = list(range(0, n, passo))
+    if indices[-1] != n - 1:
+        indices.append(n - 1)
+    kms = [perfil[i][0] for i in indices]
+    valores = [suave[i] for i in indices]
+
+    m = PERFIL_MARGEM
+    largura, altura = PERFIL_L - m["esq"] - m["dir"], PERFIL_A - m["topo"] - m["base"]
+    degrau_y = passo_bonito(max(max(valores) - min(valores), 20), 4)
+    y_min = math.floor(min(valores) / degrau_y) * degrau_y
+    y_max = max(math.ceil(max(valores) / degrau_y) * degrau_y, y_min + degrau_y)
+    km_total = kms[-1]
+
+    def x(km):
+        return m["esq"] + km / km_total * largura
+
+    def y(alt):
+        return m["topo"] + (1 - (alt - y_min) / (y_max - y_min)) * altura
+
+    linha = " ".join(f"{x(k):.1f},{y(v):.1f}" for k, v in zip(kms, valores))
+    base_y = m["topo"] + altura
+    area = f"{m['esq']:.1f},{base_y:.1f} {linha} {x(km_total):.1f},{base_y:.1f}"
+    grade = []
+    alt = y_min
+    while alt <= y_max + 1e-6:
+        grade.append(f'<line class="grade" x1="{m["esq"]}" x2="{PERFIL_L - m["dir"]}" y1="{y(alt):.1f}" y2="{y(alt):.1f}"/>'
+                     f'<text class="eixo" x="{m["esq"] - 6}" y="{y(alt) + 4:.1f}" text-anchor="end">{num(alt)} m</text>')
+        alt += degrau_y
+    degrau_x = passo_bonito(km_total, 6)
+    km = 0.0
+    while km <= km_total + 1e-6:
+        grade.append(f'<text class="eixo" x="{x(km):.1f}" y="{PERFIL_A - 8}" text-anchor="middle">{num(km)} km</text>')
+        km += degrau_x
+    return (f'<figure class="perfil"><div class="rolagem"><svg viewBox="0 0 {PERFIL_L} {PERFIL_A}" role="img" '
+            f'aria-label="Perfil de altimetria do percurso: altitude de {num(min(valores))} a {num(max(valores))} m em {num(km_total, 1)} km">'
+            + "".join(grade) + f'<polygon class="area" points="{area}"/><polyline class="altitude" points="{linha}"/></svg></div>'
+            '<figcaption>Altimetria do trecho mostrado no mapa.</figcaption></figure>')
+
+
 NOTA_GPX = '<p class="nota-gpx">O GPX traz o percurso sem os primeiros e os últimos 800 m, para não mostrar de onde o pedal sai.</p>'
 
 
@@ -1171,7 +1247,7 @@ def montar_pagina_pedal(p, mais_novo, mais_velho, modelo):
     nums = (f'<div><dt>Distância</dt><dd>{num(km, 1)} km</dd></div><div><dt>Subida</dt><dd>{num(p["total_elevation_gain"])} m</dd></div>'
             f'<div><dt>Tempo</dt><dd>{duracao(p["moving_time"])}</dd></div><div><dt>Média</dt><dd>{num(media, 1)} km/h</dd></div>')
     troca = {"{{TITULO}}": html.escape(titulo), "{{DESCRICAO_META}}": html.escape(descricao_meta), "{{URL}}": url,
-             "{{OG_IMAGE}}": og, "{{DATA_LONGA}}": data_longa(p["start_date_local"]), "{{MAPA}}": mapa_html(p, "/pedais/mapas/", "eager"),
+             "{{OG_IMAGE}}": og, "{{DATA_LONGA}}": data_longa(p["start_date_local"]), "{{MAPA}}": mapa_html(p, "/pedais/mapas/", "eager"), "{{PERFIL}}": p.get("_perfil", ""),
              "{{NUMEROS}}": nums, "{{VIDEO}}": video, "{{TEXTO}}": f"<p class=\"texto\">{html.escape(texto)}</p>" if texto else "",
              "{{CLIMA}}": bloco_clima(p), "{{LUGARES}}": bloco_lugares(p), "{{LINKS}}": botoes(p, extra=" " + bloco_gpx(p)) if p.get("_gpx") else botoes(p), "{{NOTA_GPX}}": NOTA_GPX if p.get("_gpx") and p.get("_cortado") else "",
              "{{NOTA_CORTE}}": "O traçado não mostra o começo nem o fim do percurso. " if p.get("_cortado") else "", "{{CIDADES}}": linha_cidades(p, 99), "{{NAV}}": "".join(nav),
@@ -1337,6 +1413,9 @@ def main():
                 os.remove(os.path.join(pasta_gpx, nome))
                 print("  GPX removido:", nome)
     print(f"  gpx: {sum(1 for p in pedais if p['_gpx'])} de {len(pedais)} pedais com GPX para baixar")
+    for p in pedais:                                    # perfil de altimetria, lido do GPX (que já está sem o começo e o fim)
+        p["_perfil"] = perfil_svg(caminho_gpx(pasta_gpx, p["id"])) if p["_gpx"] else ""
+    print(f"  perfil: {sum(1 for p in pedais if p['_perfil'])} de {len(pedais)} pedais com o gráfico de altimetria")
     cache_clima = carregar_cache_clima()
     for p in pedais:                                    # temperatura e vento no começo e no fim
         p["_clima"] = clima_do_pedal(p, trajetos.get(p["id"], []), cache_clima)   # dos pedais do cache, o clima já está no cache do clima
