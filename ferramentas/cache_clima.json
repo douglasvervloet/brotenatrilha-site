@@ -4985,5 +4985,136 @@
 "vento": 20.6
 }
 ]
+},
+"20715867428": {
+"chuva_mm": 2.0,
+"fim": {
+"chuva": 0.1,
+"codigo": 51,
+"dir": 13,
+"hora": "13:49",
+"nuvens": 90,
+"rajada": 40.0,
+"sens": 36.7,
+"temp": 31.7,
+"vento": 12.7
+},
+"inicio": {
+"chuva": 0,
+"codigo": 3,
+"dir": 350,
+"hora": "05:27",
+"nuvens": 84,
+"rajada": 22.7,
+"sens": 25.8,
+"temp": 22.9,
+"vento": 13.0
+},
+"janela": [
+5.45,
+13.82
+],
+"ok": true,
+"serie": [
+{
+"chuva": 0,
+"dir": 350,
+"h": 4,
+"rajada": 25.9,
+"sens": 26.1,
+"temp": 23.0,
+"vento": 12.1
+},
+{
+"chuva": 0,
+"dir": 350,
+"h": 5,
+"rajada": 22.7,
+"sens": 25.8,
+"temp": 22.9,
+"vento": 13.0
+},
+{
+"chuva": 0,
+"dir": 342,
+"h": 6,
+"rajada": 24.5,
+"sens": 26.6,
+"temp": 23.6,
+"vento": 13.1
+},
+{
+"chuva": 0,
+"dir": 346,
+"h": 7,
+"rajada": 28.4,
+"sens": 29.2,
+"temp": 25.3,
+"vento": 9.5
+},
+{
+"chuva": 0,
+"dir": 358,
+"h": 8,
+"rajada": 22.7,
+"sens": 31.3,
+"temp": 27.2,
+"vento": 9.2
+},
+{
+"chuva": 0.1,
+"dir": 359,
+"h": 9,
+"rajada": 25.6,
+"sens": 31.4,
+"temp": 26.4,
+"vento": 13.5
+},
+{
+"chuva": 0.3,
+"dir": 19,
+"h": 10,
+"rajada": 32.0,
+"sens": 31.1,
+"temp": 27.3,
+"vento": 13.9
+},
+{
+"chuva": 1.1,
+"dir": 35,
+"h": 11,
+"rajada": 33.8,
+"sens": 35.3,
+"temp": 30.1,
+"vento": 14.5
+},
+{
+"chuva": 0,
+"dir": 25,
+"h": 12,
+"rajada": 39.2,
+"sens": 37.7,
+"temp": 32.3,
+"vento": 14.7
+},
+{
+"chuva": 0.5,
+"dir": 347,
+"h": 13,
+"rajada": 43.6,
+"sens": 34.3,
+"temp": 30.6,
+"vento": 19.0
+},
+{
+"chuva": 0.1,
+"dir": 13,
+"h": 14,
+"rajada": 40.0,
+"sens": 36.7,
+"temp": 31.7,
+"vento": 12.7
+}
+]
 }
 }
