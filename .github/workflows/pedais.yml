@@ -9,7 +9,8 @@ name: Atualizar página de pedais
 
 on:
   schedule:
-    - cron: "0 15 * * *"    # todo dia às 15:00 UTC (meio-dia em Brasília; o vídeo sai às 9h e dá tempo de o YouTube processar)
+    - cron: "0 15 * * 1-6"  # segunda a sábado às 15:00 UTC (meio-dia em Brasília)
+    - cron: "30 11 * * 0"   # domingo às 11:30 UTC (8:30 em Brasília: o vídeo sai às 8h); aos domingos a leitura é completa
   workflow_dispatch:
     inputs:
       completo:
