@@ -428,6 +428,11 @@ def baixar_tile(z, x, y, pasta_cache):
                 img = Image.open(arq).convert("RGB")
                 time.sleep(0.3)                      # sem pressa: o servidor de mapas é comunitário
                 break
+            except urllib.error.HTTPError as erro:
+                if erro.code == 404:                 # o servidor não tem esse quadro: fica o fundo liso no lugar dele
+                    img = Image.new("RGB", (256, 256), (242, 239, 233))
+                    break
+                time.sleep(1.5 * (tentativa + 1))
             except Exception:
                 time.sleep(1.5 * (tentativa + 1))
         else:
