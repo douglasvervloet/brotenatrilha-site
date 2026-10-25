@@ -42,8 +42,9 @@ PREFIXO = re.compile(r"^\s*brote\s+na\s+trilha\s*[-–—:]*\s*", re.I)
 CORTE_METROS = 800                                   # tirado do começo e do fim do traçado
 MAX_PONTOS = 260
 CORRECOES = {"estradrões": "estradões"}              # erros de digitação nos nomes do Strava
+MAPA_PREENCHE = 0.92                               # quanto da imagem o traçado ocupa (o resto é margem)
 MAPA_L, MAPA_A = 800, 480                           # tamanho da imagem do mapa (5:3)
-URL_TILE = "https://a.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png"   # estilo CyclOSM: ciclovias e rotas de bicicleta em destaque
+URL_TILE = "https://tile.opentopomap.org/{z}/{x}/{y}.png"   # o mesmo estilo da tela de resumo do BNT Editor
 AGENTE = "brotenatrilha.com.br (contato@brotenatrilha.com.br)"
 MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro",
          "novembro", "dezembro"]
@@ -445,24 +446,27 @@ def gerar_mapa(pedal_id, pontos, pasta_mapas, pasta_cache):
     """Monta o mapa de fundo (WebP) deste pedal, se ainda não existir, e devolve o SVG do traçado por cima dele."""
     lats = [p[0] for p in pontos]
     lons = [p[1] for p in pontos]
-    z = 8
-    for zz in range(14, 7, -1):
-        x0, y1 = pixel_global(min(lats), min(lons), zz)
-        x1, y0 = pixel_global(max(lats), max(lons), zz)
-        if (x1 - x0) <= MAPA_L * 0.86 and (y1 - y0) <= MAPA_A * 0.86:
-            z = zz
-            break
+    # zoom fracionário em que o traçado ocupa MAPA_PREENCHE da imagem; os quadros vêm no zoom inteiro logo acima e são reduzidos
+    x0, y1 = pixel_global(min(lats), min(lons), 14)
+    x1, y0 = pixel_global(max(lats), max(lons), 14)
+    largura, altura = max(x1 - x0, 1.0), max(y1 - y0, 1.0)
+    zf = 14 + math.log2(min(MAPA_L * MAPA_PREENCHE / largura, MAPA_A * MAPA_PREENCHE / altura))
+    zf = max(8.0, min(16.0, zf))
+    z = min(17, math.ceil(zf))
+    escala = 2 ** (zf - z)                           # 0,5 a 1: quanto o mapa do zoom z é reduzido na imagem final
+    larg_z, alt_z = MAPA_L / escala, MAPA_A / escala  # tamanho da imagem final em pixels do zoom z
     x0, y1 = pixel_global(min(lats), min(lons), z)
     x1, y0 = pixel_global(max(lats), max(lons), z)
-    ox = int((x0 + x1) / 2 - MAPA_L / 2)             # canto do recorte, em pixels globais
-    oy = int((y0 + y1) / 2 - MAPA_A / 2)
+    ox = int((x0 + x1) / 2 - larg_z / 2)             # canto do recorte, em pixels globais do zoom z
+    oy = int((y0 + y1) / 2 - alt_z / 2)
     arquivo = os.path.join(pasta_mapas, f"{pedal_id}.webp")
     if not os.path.exists(arquivo):
-        tela = Image.new("RGB", (MAPA_L, MAPA_A), (207, 224, 196))
-        for tx in range(ox // 256, (ox + MAPA_L - 1) // 256 + 1):
-            for ty in range(oy // 256, (oy + MAPA_A - 1) // 256 + 1):
+        tela = Image.new("RGB", (int(larg_z) + 1, int(alt_z) + 1), (207, 224, 196))
+        for tx in range(ox // 256, (ox + int(larg_z)) // 256 + 1):
+            for ty in range(oy // 256, (oy + int(alt_z)) // 256 + 1):
                 if 0 <= tx < 2 ** z and 0 <= ty < 2 ** z:
                     tela.paste(baixar_tile(z, tx, ty, pasta_cache), (tx * 256 - ox, ty * 256 - oy))
+        tela = tela.crop((0, 0, int(larg_z), int(alt_z))).resize((MAPA_L, MAPA_A), Image.LANCZOS)
         os.makedirs(pasta_mapas, exist_ok=True)
         tela.save(arquivo, "WEBP", quality=80, method=6)
     if len(pontos) > MAX_PONTOS:
@@ -471,7 +475,7 @@ def gerar_mapa(pedal_id, pontos, pasta_mapas, pasta_cache):
     coords = []
     for lat, lon in pontos:
         x, y = pixel_global(lat, lon, z)
-        coords.append(f"{x - ox:.1f} {y - oy:.1f}")
+        coords.append(f"{(x - ox) * escala:.1f} {(y - oy) * escala:.1f}")
     d = "M" + " L".join(coords)
     return (f'<svg viewBox="0 0 {MAPA_L} {MAPA_A}" role="img" aria-label="Traçado do percurso sobre o mapa, sem o começo e o fim">'
             f'<path class="halo" d="{d}"/><path class="linha" d="{d}"/></svg>')
