@@ -43,7 +43,7 @@ CORTE_METROS = 800                                   # tirado do começo e do fi
 MAX_PONTOS = 260
 CORRECOES = {"estradrões": "estradões"}              # erros de digitação nos nomes do Strava
 MAPA_L, MAPA_A = 800, 480                           # tamanho da imagem do mapa (5:3)
-URL_TILE = "https://tile.opentopomap.org/{z}/{x}/{y}.png"   # o mesmo estilo da tela de resumo do BNT Editor
+URL_TILE = "https://a.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png"   # estilo CyclOSM: ciclovias e rotas de bicicleta em destaque
 AGENTE = "brotenatrilha.com.br (contato@brotenatrilha.com.br)"
 MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro",
          "novembro", "dezembro"]

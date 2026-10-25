@@ -147,7 +147,7 @@
   {{TEXTO}}
   {{MAPA}}
   {{PERFIL}}
-  <p class="credito">{{NOTA_CORTE}}Mapa: © OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA).</p>
+  <p class="credito">{{NOTA_CORTE}}Mapa: © OpenStreetMap contributors | estilo © CyclOSM (CC-BY-SA).</p>
   <dl>{{NUMEROS}}</dl>
   {{LUGARES}}
   {{CLIMA}}
