@@ -10,7 +10,7 @@ revogar um sem afetar o outro) e grava no GitHub: YOUTUBE_CLIENT_ID, YOUTUBE_CLI
 Nada é salvo em arquivo nem mostrado na tela. Precisa do GitHub CLI (gh) já logado.
 Para revogar: https://myaccount.google.com/permissions
 #>
-param([string]$Repo = "douglasvervloet/brotenatrilha-site")
+param([string]$Repo = "douglasvervloet/brotenatrilha-site", [string]$Conta = "")   # -Conta: e-mail da conta do canal (o Google já abre nela)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Security
 try { Add-Type -AssemblyName System.Web } catch { }
@@ -40,10 +40,13 @@ $desafio = [Convert]::ToBase64String([Security.Cryptography.SHA256]::Create().Co
 
 $porta = Get-Random -Minimum 49200 -Maximum 49900
 $retorno = "http://127.0.0.1:$porta/"
-$url = $cred.auth_uri + '?' + (@{
+$parametros = [ordered]@{
     client_id = $cred.client_id; redirect_uri = $retorno; response_type = 'code'; scope = $escopo
     code_challenge = $desafio; code_challenge_method = 'S256'; state = $estado; access_type = 'offline'; prompt = 'consent'
-}.GetEnumerator() | ForEach-Object { "$($_.Key)=$([uri]::EscapeDataString($_.Value))" }) -join '&'
+}
+if ($Conta) { $parametros['login_hint'] = $Conta }
+$consulta_da_url = ($parametros.GetEnumerator() | ForEach-Object { "$($_.Key)=$([uri]::EscapeDataString($_.Value))" }) -join '&'
+$url = $cred.auth_uri + '?' + $consulta_da_url
 
 $ouvinte = [Net.HttpListener]::new()
 $ouvinte.Prefixes.Add($retorno)

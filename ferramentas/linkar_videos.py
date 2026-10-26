@@ -20,6 +20,7 @@ from datetime import datetime, timezone
 from xml.etree import ElementTree
 
 SITE = "https://brotenatrilha.com.br"
+ID_DO_CANAL = "UC2uS9f0ACz0LZC7HwZWVBPQ"      # o script só grava se o token for deste canal
 MARCA = "brotenatrilha.com.br/pedais/"      # se a descrição já tem isto, o vídeo já está com o link
 LIMITE_POR_RODADA = 10                       # trava de segurança: um erro de lógica não mexe em dezenas de vídeos
 ESPERA_DO_SITE_S = 480                       # tempo máximo esperando o GitHub Pages publicar uma página nova
@@ -116,6 +117,11 @@ def main():
         return
     pedais = pedais_do_sitemap()
     token = token_de_acesso()
+    canal = api(token, "GET", "https://www.googleapis.com/youtube/v3/channels?part=id&mine=true").get("items", [])
+    if [c["id"] for c in canal] != [ID_DO_CANAL]:
+        print(f"::error::O token não é do canal Brote na Trilha (é de {[c['id'] for c in canal] or 'nenhum canal'}). "
+              "Rode ferramentas/youtube_autorizar.ps1 de novo e escolha o canal certo.")
+        sys.exit(1)
     ids = list(pedais)
     atuais = {}
     for i in range(0, len(ids), 50):
