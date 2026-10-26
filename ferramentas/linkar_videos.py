@@ -130,6 +130,9 @@ def main():
 
     faltam = [i for i in ids if i in atuais and MARCA not in atuais[i].get("description", "")]
     print(f"{len(pedais)} pedais com vídeo; {len(faltam)} sem o link na descrição.")
+    for i in faltam:
+        d = atuais[i].get("description", "")
+        print(f"[diagnostico] {i}: {len(d)} caracteres; fim: {d[-160:]!r}")
     prontos = esperar_no_ar([pedais[i] for i in faltam]) if faltam else set()
 
     log, gravados = ler_log(), 0
