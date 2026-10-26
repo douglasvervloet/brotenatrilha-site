@@ -1,0 +1,46 @@
+# Depois que o robô dos pedais publica uma página nova, acrescenta o link dela na descrição do vídeo no YouTube.
+# Só lê e edita a DESCRIÇÃO (videos.list e videos.update, em ferramentas/linkar_videos.py); o texto antigo fica em
+# ferramentas/log_links_youtube.json. Segredos: YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET e YOUTUBE_REFRESH_TOKEN
+# (criados por ferramentas/youtube_autorizar.ps1). Na mão, "aplicar" desmarcado só simula.
+name: Links dos pedais no YouTube
+
+on:
+  workflow_run:
+    workflows: ["Atualizar página de pedais"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      aplicar:
+        description: "Gravar no YouTube (desmarcado: só simula)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  linkar:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Acrescentar os links nas descrições
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          APLICAR: ${{ github.event_name == 'workflow_run' && '1' || (github.event.inputs.aplicar == 'true' && '1' || '0') }}
+        run: python ferramentas/linkar_videos.py
+
+      - name: Gravar o registro se mudou
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ferramentas/log_links_youtube.json
+          git diff --cached --quiet || (git commit -m "Registra os links acrescentados nas descrições do YouTube" && git pull --rebase origin main && git push)
