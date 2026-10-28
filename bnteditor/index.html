@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BNT Editor</title>
-<meta name="description" content="BNT Editor: aplicativo de Windows para editar vídeos de ciclismo. Do material bruto da câmera ao vídeo pronto no YouTube, com cortes, painel de GPS, legendas automáticas, capa, envio ao YouTube, GPX direto do Strava e importação da GoPro e do celular.">
+<meta name="description" content="BNT Editor 2.0: aplicativo de Windows e Linux para editar vídeos de ciclismo. Do material bruto da câmera ao vídeo pronto no YouTube, com cortes, painel de GPS, legendas automáticas, capa, envio ao YouTube, GPX direto do Strava e importação da GoPro e do celular.">
 <meta name="robots" content="noindex">
 <link rel="canonical" href="https://brotenatrilha.com.br/bnteditor/">
 <meta name="theme-color" content="#161616">
@@ -13,7 +13,7 @@
 <meta property="og:locale" content="pt_BR">
 <meta property="og:site_name" content="Brote na Trilha">
 <meta property="og:title" content="BNT Editor">
-<meta property="og:description" content="Editor de vídeos de ciclismo para Windows: do material bruto da câmera ao vídeo pronto no YouTube.">
+<meta property="og:description" content="Editor de vídeos de ciclismo para Windows e Linux: do material bruto da câmera ao vídeo pronto no YouTube.">
 <meta property="og:url" content="https://brotenatrilha.com.br/bnteditor/">
 <meta property="og:image" content="https://brotenatrilha.com.br/bnteditor/compartilhar.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -87,7 +87,8 @@
   .capa .icone { width: clamp(110px, 18vw, 150px); margin: 0 auto 16px; border-radius: 26%; box-shadow: 0 16px 36px rgba(0,0,0,.5); }
   .capa h1 { margin: 0; font-size: clamp(2.2rem, 7vw, 3.6rem); line-height: 1.05; letter-spacing: -.5px; }
   .capa .subtitulo { margin: 14px auto 0; max-width: 40ch; font-size: clamp(1.05rem, 2.6vw, 1.3rem); color: #e2e2e2; }
-  .acoes { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 28px 0 40px; }
+  .acoes { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 28px 0 56px; }
+  .capa .selo { display: inline-block; margin: 14px 0 0; padding: 4px 14px; border-radius: 999px; border: 1px solid rgba(254, 114, 1, .6); color: var(--laranja-claro); font-weight: 700; font-size: .95rem; }
 
   .botao {
     display: inline-flex; align-items: center; gap: 10px;
@@ -160,7 +161,7 @@
   }
   footer img.strava{display:block;height:20px;width:auto;background:#fff;border-radius:6px;padding:6px 10px;box-sizing:content-box;margin:8px 0}
 </style>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "BNT Editor", "url": "https://brotenatrilha.com.br/bnteditor/", "applicationCategory": "MultimediaApplication", "operatingSystem": "Windows 10, Windows 11", "inLanguage": "pt-BR", "description": "Aplicativo de Windows para editar vídeos de ciclismo: do material bruto da câmera ao vídeo pronto no YouTube, com cortes, painel de GPS, legendas automáticas, capa e envio.", "image": "https://brotenatrilha.com.br/bnteditor/icone.png", "author": {"@type": "Organization", "name": "Brote na Trilha", "url": "https://brotenatrilha.com.br/"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "BNT Editor", "url": "https://brotenatrilha.com.br/bnteditor/", "applicationCategory": "MultimediaApplication", "operatingSystem": "Windows 10, Windows 11, Linux", "softwareVersion": "2.0", "inLanguage": "pt-BR", "description": "Aplicativo de Windows e Linux para editar vídeos de ciclismo: do material bruto da câmera ao vídeo pronto no YouTube, com cortes, painel de GPS, legendas automáticas, capa e envio.", "image": "https://brotenatrilha.com.br/bnteditor/icone.png", "author": {"@type": "Organization", "name": "Brote na Trilha", "url": "https://brotenatrilha.com.br/"}}</script>
 </head>
 <body>
 <a class="pular" href="#recursos">Pular para as funcionalidades</a>
@@ -170,7 +171,7 @@
     <a class="voltar" href="../">&larr; Brote na Trilha</a>
     <nav class="menu" aria-label="Principal">
       <a href="#como-funciona">Como funciona</a>
-      <a href="#telas">Telas</a>
+      <a href="#novidades">Novidades da 2.0</a>
       <a href="#recursos">Funcionalidades</a>
     </nav>
   </div>
@@ -181,13 +182,11 @@
     <div class="miolo">
       <picture><source srcset="icone.webp" type="image/webp"><img decoding="async" fetchpriority="high" class="icone" src="icone.png" width="150" height="150" alt="Ícone do BNT Editor: um ciclista de mountain bike com as letras bnt"></picture>
       <h1>BNT Editor</h1>
-      <p class="subtitulo">Editor de vídeos de ciclismo para Windows: do material bruto da câmera ao vídeo pronto no YouTube.</p>
+      <p class="selo">Versão 2.0 · Windows e Linux</p>
+      <p class="subtitulo">Editor de vídeos de ciclismo para Windows e Linux: do material bruto da câmera ao vídeo pronto no YouTube.</p>
       <div class="acoes">
         <a class="botao principal" href="#recursos">Ver as funcionalidades</a>
       </div>
-    </div>
-    <div class="janela">
-      <picture><source srcset="edicao-localizacao.webp" type="image/webp"><img decoding="async" src="edicao-localizacao.jpg" width="1600" height="987" alt="Aba Edição do BNT Editor: o player mostra uma estrada de terra com o nome do lugar e o painel de GPS sobre a imagem, com velocímetro, batimentos, potência, cadência, calorias, temperatura, vento, rumo, distância, subida, altitude e inclinação, o minimapa e o gráfico de altitude nos cantos; à esquerda ficam os botões de itens e efeitos, à direita a lista do que já foi aplicado, e a timeline do vídeo aparece embaixo"></picture>
     </div>
   </div>
 
@@ -204,35 +203,40 @@
     </div>
   </section>
 
-  <section id="telas" class="fundo-claro">
+  <section id="novidades" class="fundo-claro">
     <div class="miolo">
-      <h2 class="titulo">Veja o editor por dentro</h2>
-      <p class="lead">O app tem três abas, na ordem em que se trabalha: Cortes, Edição e Entrega. Na Edição, os textos e o painel de GPS aparecem na tela em tempo real, enquanto você assiste. No fim, o app ainda gera sozinho um resumo do passeio.</p>
-      <div class="telas">
-        <figure class="larga">
-          <picture><source srcset="cortes.webp" type="image/webp"><img decoding="async" src="cortes.jpg" width="1600" height="987" loading="lazy" alt="Aba Cortes do BNT Editor: o player toca o arquivo bruto, com a forma de onda do som e o trecho do corte em laranja, e a lista de cortes mostra arquivo, entrada, saída e duração de cada um"></picture>
-          <figcaption><strong>Cortes.</strong> O player toca direto o arquivo bruto, com a forma de onda do som e o trecho do corte em laranja. À direita, a lista de cortes com arquivo, entrada, saída e duração, e a faixa no alto mostra todos os cortes da parte lado a lado. O botão <strong>Importar brutos</strong> traz os arquivos da pasta, da GoPro ou do celular.</figcaption>
-        </figure>
-        <figure>
-          <picture><source srcset="edicao-localizacao.webp" type="image/webp"><img decoding="async" src="edicao-localizacao.jpg" width="1600" height="987" loading="lazy" alt="Edição com o nome do lugar sobre o vídeo e o painel de GPS com velocímetro, batimentos, potência, cadência, calorias, temperatura, vento, rumo, distância, subida, altitude e inclinação, o minimapa e o gráfico de altitude"></picture>
-          <figcaption><strong>Localização e painel de GPS.</strong> O nome do lugar vem do GPS, e o painel mostra velocidade, batimentos, potência estimada, cadência, calorias, temperatura, vento, rumo, distância, subida, altitude, inclinação e força G, com o mapa do percurso e o gráfico de altitude nos cantos de cima.</figcaption>
-        </figure>
-        <figure>
-          <picture><source srcset="edicao-informacao.webp" type="image/webp"><img decoding="async" src="edicao-informacao.jpg" width="1600" height="987" loading="lazy" alt="Edição com um texto de informação no terço inferior do vídeo e a timeline com as marcas coloridas"></picture>
-          <figcaption><strong>Informações na tela.</strong> Textos de uma a três linhas no momento certo. Os botões em grupos (Interface, Áudio, Vídeo e Transições) acrescentam cada item ou efeito no ponto onde o player está, e a lista da direita mostra tudo o que foi aplicado.</figcaption>
-        </figure>
-        <figure>
-          <picture><source srcset="entrega.webp" type="image/webp"><img decoding="async" src="entrega.jpg" width="1600" height="987" loading="lazy" alt="Aba Entrega do BNT Editor: opções de saída do render em 4K, lista das partes do vídeo com o progresso de cada etapa e, ao lado, título, descrição, playlist, visibilidade, tags e capa do vídeo"></picture>
-          <figcaption><strong>Entrega.</strong> Render em 4K com a estimativa de tempo, as partes do vídeo e, no mesmo cartão, os dados do YouTube, a capa, as legendas e o envio.</figcaption>
-        </figure>
-        <figure>
-          <picture><source srcset="resumo.webp" type="image/webp"><img decoding="async" src="resumo.jpg" width="1600" height="900" loading="lazy" alt="Tela de resumo do passeio gerada pelo app: mapa com o percurso desenhado em laranja, painel com distância, subida acumulada, tempo, velocidades e altitude, e o perfil de altitude embaixo"></picture>
-          <figcaption><strong>Resumo do passeio.</strong> A última parte do vídeo, gerada sozinha a partir do GPX: mapa com o traçado desenhado aos poucos, perfil de altitude e os números do percurso.</figcaption>
-        </figure>
+      <h2 class="titulo">Novidades da versão 2.0</h2>
+      <p class="lead">A versão 2.0 é o BNT Editor reescrito para rodar também no Linux, com o mesmo caminho do bruto ao YouTube e um visual escuro, no estilo dos editores de vídeo. O app antigo continua funcionando ao lado dele, com os dados separados.</p>
+      <div class="recursos">
+        <div class="grupo">
+          <h3><span aria-hidden="true">&#128187;</span> Windows e Linux</h3>
+          <ul>
+            <li>O mesmo app nos dois sistemas: no Linux ele vem como <strong>AppImage</strong> ou pacote <strong>tar.gz</strong>.</li>
+            <li>Visual <strong>escuro</strong>, com fontes e espaçamentos menores para caber mais na tela.</li>
+            <li>Se falta algum componente (o player VLC ou o ffmpeg), o app <strong>diz o que instalar</strong>.</li>
+            <li>Painel de <strong>aceleração</strong> (ffmpeg, placa de vídeo e player) e um relatório de problema que leva essas informações.</li>
+          </ul>
+        </div>
+        <div class="grupo">
+          <h3><span aria-hidden="true">&#9889;</span> Novos efeitos</h3>
+          <ul>
+            <li><strong>Desfocar uma região</strong> (placa de carro, rosto): um retângulo que anda em linha reta do começo ao fim, em três forças, vários ao mesmo tempo.</li>
+            <li><strong>Parar o quadro</strong>: a imagem freia em 1 s, fica parada o tempo que você escolher e retoma em 1 s. O som fica mudo, com <strong>música de fundo</strong> opcional, e o painel de GPS para junto com a imagem.</li>
+            <li><strong>Zona dos batimentos</strong> (Z1 a Z5) escrita no título do medidor de FC, com os limites de cada zona editáveis.</li>
+          </ul>
+        </div>
+        <div class="grupo">
+          <h3><span aria-hidden="true">&#9654;</span> No dia a dia</h3>
+          <ul>
+            <li><strong>Proxies de 720p</strong> para o player tocar leve os brutos 4K, com o espaço que ocupam na tela de Espaço em disco.</li>
+            <li>Salvamento automático, medidor de nível do som e <strong>primeiro uso guiado</strong>.</li>
+            <li>Antes do render, o app <strong>avisa</strong> se o ffmpeg não tem algo de que o vídeo precisa.</li>
+            <li>O botão do <strong>Curtir e Inscrever</strong> com altura ajustável.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </section>
-
   <section id="recursos">
     <div class="miolo">
       <h2 class="titulo">Funcionalidades</h2>
@@ -259,6 +263,7 @@
             <li><strong>Painel de GPS</strong> com velocímetro, inclinação, altitude, força G e minimapa, a partir do GPX e da telemetria da GoPro. Com um GPX de sensores (como o do Strava), mostra também <strong>cadência, batimentos, temperatura e calorias</strong>, além de distância, subida acumulada, <strong>rumo (bússola)</strong> e <strong>vento</strong> (direção e velocidade em relação ao sentido da bike).</li>
             <li><strong>Potência</strong> ao vivo: a do medidor, quando a atividade tem, ou <strong>calculada</strong> (marcada como estimada) com o peso do ciclista e da bike, o vento do dia, o <strong>tipo de piso</strong> (asfalto, terra, cascalho, lido de um mapa aberto) e o <strong>tipo de pneu</strong>, em quatro categorias.</li>
             <li><strong>Ordem dos medidores</strong> automática, por assunto (esforço, ambiente e percurso), ou <strong>manual</strong>, numa lista com setas; <strong>faixa única</strong> opcional, com todos os medidores num fundo só; tamanho do painel de 80 a 130% e escolha dos mostradores por projeto.</li>
+            <li><strong>Zona dos batimentos</strong> (Z1 a Z5) no título do FC, com os limites editáveis.</li>
             <li><strong>Gráfico de altitude</strong> do passeio num card no canto superior esquerdo, com o trecho já pedalado em destaque e a posição atual.</li>
             <li><strong>Logo do canal</strong> em uma de nove posições (e também no player da Edição), e Informações, Locais e Curtir que <strong>desviam dos medidores</strong> para não cobri-los.</li>
             <li><strong>Pontos de interesse</strong>: cadastre um lugar que não é bairro (uma igreja, uma queijaria) e o app cria a localização no momento em que o percurso passa por ele.</li>
@@ -274,6 +279,8 @@
           <ul>
             <li><strong>Câmera lenta, acelerado e hyperlapse</strong>, com rampa suave de entrada e saída.</li>
             <li><strong>Desfoque de movimento</strong> para dar sensação de velocidade.</li>
+            <li><strong>Desfocar uma região</strong> (placas, rostos) com um retângulo que anda do começo ao fim.</li>
+            <li><strong>Parar o quadro</strong> com freada e retomada de 1 s, som mudo e música opcional.</li>
             <li><strong>Zoom</strong> de até 3x, com retângulos de começo e fim desenhados no player.</li>
             <li><strong>Transições</strong> em cada emenda: escurecer, corte seco, fusão, cortina, círculo ou persiana.</li>
             <li><strong>Ajuste de brilho</strong> por clipe, para gravações que escurecem no fim do dia ou clareiam no amanhecer, com nitidez, vinheta e <strong>LUT de cor</strong> (.cube), e o botão <strong>Igualar ao anterior</strong>, que leva o brilho do clipe ao do clipe de antes.</li>
