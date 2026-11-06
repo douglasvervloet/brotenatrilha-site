@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BNT Editor</title>
-<meta name="description" content="BNT Editor 2.0: aplicativo de Windows e Linux para editar vídeos de ciclismo. Do material bruto da câmera ao vídeo pronto no YouTube, com cortes, painel de GPS, legendas automáticas, capa, envio ao YouTube, GPX direto do Strava e importação da GoPro e do celular.">
+<meta name="description" content="BNT Editor: editor de vídeos de ciclismo para Windows e Linux, do material bruto da câmera ao vídeo publicado no YouTube.">
 <meta name="robots" content="noindex">
 <link rel="canonical" href="https://brotenatrilha.com.br/bnteditor/">
 <meta name="theme-color" content="#161616">
@@ -143,6 +143,18 @@
     .grupo:last-child:nth-child(3n + 1) li { break-inside: avoid; }
   }
 
+  .tela { margin: 28px 0 0; }
+  .tela img { width: 100%; border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.28); border: 1px solid var(--linha); }
+  .lista { list-style: none; margin: 24px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px 32px; }
+  .lista li { color: var(--texto-suave); padding-left: 16px; border-left: 3px solid var(--laranja); }
+  .lista strong { color: var(--texto); font-weight: 650; }
+
+  .cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; margin-top: 28px; }
+  .cartao { background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--raio); overflow: hidden; }
+  .cartao img { width: 100%; aspect-ratio: 16 / 9; object-fit: contain; background: #232323; }
+  .cartao h3 { margin: 14px 16px 4px; font-size: 1.05rem; }
+  .cartao p { margin: 0 16px 16px; color: var(--texto-suave); font-size: .95rem; }
+
   /* ---------- Rodapé ---------- */
   footer { background: var(--fundo-topo); color: #c8c8c8; padding: 34px 0; font-size: .92rem; }
   footer .miolo { display: flex; flex-wrap: wrap; gap: 10px 26px; align-items: center; justify-content: space-between; }
@@ -160,20 +172,66 @@
     .botao { transition: none; }
   }
   footer img.strava{display:block;height:20px;width:auto;background:#fff;border-radius:6px;padding:6px 10px;box-sizing:content-box;margin:8px 0}
+
+  html { scroll-padding-top: 64px; }
+  .topo { position: sticky; top: 0; z-index: 5; background: rgba(22,22,22,.86); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,.08); }
+  .topo .miolo { padding: 8px 0; }
+  .marca { display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 700; text-decoration: none; }
+  .marca img { width: 30px; height: 30px; border-radius: 26%; }
+  .menu a.atual { color: #fff; border-bottom-color: var(--laranja); }
+  .capa { text-align: center; padding-top: 56px; }
+  .capa h1 { font-size: clamp(2.4rem, 6vw, 3.8rem); }
+  .capa .subtitulo { max-width: 46ch; }
+  .capa .selo { margin-top: 18px; font-size: .85rem; }
+  .capa .janela { margin-top: 40px; max-height: 520px; }
+  .etapas { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--cartao); border-bottom: 1px solid var(--linha); }
+  .etapas a { padding: 22px 26px; text-decoration: none; border-left: 1px solid var(--linha); }
+  .etapas a:first-child { border-left: 0; }
+  .etapas a:hover { background: color-mix(in srgb, var(--laranja) 8%, var(--cartao)); }
+  .etapas strong { display: block; font-size: 1.05rem; }
+  .etapas strong span { color: var(--laranja); margin-right: 8px; }
+  .etapas small { color: var(--texto-suave); font-size: .9rem; }
+  section { padding: 56px 0; }
+  .ampliavel { cursor: zoom-in; }
+  .destaques { display: grid; gap: 36px; margin-top: 36px; }
+  .destaque { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: center; }
+  .destaque:nth-child(even) { grid-template-columns: 1fr 1fr; }
+  .destaque:nth-child(even) .foto { order: 2; }
+  .destaque.largo, .destaque.largo:nth-child(even) { grid-template-columns: 1fr; gap: 18px; }
+  .destaque.largo .foto { order: 2; }
+  .destaque.largo p { max-width: 62ch; }
+  .destaque img { width: 100%; border-radius: 12px; border: 1px solid var(--linha); box-shadow: 0 12px 32px rgba(0,0,0,.28); }
+  .destaque h3 { margin: 0 0 8px; font-size: 1.45rem; line-height: 1.25; }
+  .destaque p { margin: 0; color: var(--texto-suave); font-size: 1.05rem; }
+  .cartoes { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; margin-top: 36px; }
+  .cartao { border-radius: 12px; }
+  .cartao img { aspect-ratio: 16 / 10; }
+  .cartao h3 { margin: 10px 12px 2px; font-size: .98rem; }
+  .cartao p { margin: 0 12px 12px; font-size: .86rem; line-height: 1.45; }
+  dialog { padding: 0; border: 0; background: transparent; max-width: 94vw; max-height: 94vh; }
+  dialog::backdrop { background: rgba(0,0,0,.85); }
+  dialog img { max-width: 94vw; max-height: 94vh; width: auto; border-radius: 8px; cursor: zoom-out; }
+  @media (max-width: 760px) {
+    .etapas { grid-template-columns: 1fr; }
+    .etapas a { border-left: 0; border-top: 1px solid var(--linha); }
+    .destaque, .destaque:nth-child(even) { grid-template-columns: 1fr; gap: 14px; }
+    .destaque:nth-child(even) .foto { order: 0; }
+    .cartoes { grid-template-columns: repeat(2, 1fr); }
+  }
 </style>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "BNT Editor", "url": "https://brotenatrilha.com.br/bnteditor/", "applicationCategory": "MultimediaApplication", "operatingSystem": "Windows 10, Windows 11, Linux", "softwareVersion": "2.0", "inLanguage": "pt-BR", "description": "Aplicativo de Windows e Linux para editar vídeos de ciclismo: do material bruto da câmera ao vídeo pronto no YouTube, com cortes, painel de GPS, legendas automáticas, capa e envio.", "image": "https://brotenatrilha.com.br/bnteditor/icone.png", "author": {"@type": "Organization", "name": "Brote na Trilha", "url": "https://brotenatrilha.com.br/"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "BNT Editor", "url": "https://brotenatrilha.com.br/bnteditor/", "applicationCategory": "MultimediaApplication", "operatingSystem": "Windows 10, Windows 11, Linux", "inLanguage": "pt-BR", "description": "Aplicativo de Windows e Linux para editar vídeos de ciclismo: do material bruto da câmera ao vídeo pronto no YouTube, com cortes, painel de GPS, legendas automáticas, capa e envio.", "image": "https://brotenatrilha.com.br/bnteditor/icone.png", "author": {"@type": "Organization", "name": "Brote na Trilha", "url": "https://brotenatrilha.com.br/"}}</script>
 </head>
 <body>
-<a class="pular" href="#recursos">Pular para as funcionalidades</a>
+<a class="pular" href="#cortes">Pular para as telas</a>
 
 <header class="topo">
   <div class="miolo">
-    <a class="voltar" href="../">&larr; Brote na Trilha</a>
+    <a class="marca" href="#"><img src="icone.png" alt=""> BNT Editor</a>
     <nav class="menu" aria-label="Principal">
-      <a href="#como-funciona">Como funciona</a>
-      <a href="#novidades">Novidades da 2.0</a>
-      <a href="#telas">Telas</a>
-      <a href="#recursos">Funcionalidades</a>
+      <a href="#cortes">Corte</a>
+      <a href="#edicao">Edição</a>
+      <a href="#entrega">Entrega</a>
+      <a href="#geral">Geral</a>
     </nav>
   </div>
 </header>
@@ -181,187 +239,197 @@
 <main>
   <div class="capa">
     <div class="miolo">
-      <picture><source srcset="icone.webp" type="image/webp"><img decoding="async" fetchpriority="high" class="icone" src="icone.png" width="150" height="150" alt="Ícone do BNT Editor: um ciclista de mountain bike com as letras bnt"></picture>
       <h1>BNT Editor</h1>
-      <p class="selo">Versão 2.0 · Windows e Linux</p>
-      <p class="subtitulo">Editor de vídeos de ciclismo para Windows e Linux: do material bruto da câmera ao vídeo pronto no YouTube.</p>
-      <div class="acoes">
-        <a class="botao principal" href="#recursos">Ver as funcionalidades</a>
-      </div>
+      <p class="subtitulo">Editor de vídeos de ciclismo: do material bruto da câmera ao vídeo publicado no YouTube.</p>
     </div>
+    <div class="janela"><picture><source srcset="tela-edicao.webp" type="image/webp"><img src="tela-edicao.jpg" width="1858" height="1078" alt="Aba Edição do BNT Editor"></picture></div>
   </div>
 
-  <section id="como-funciona">
-    <div class="miolo">
-      <h2 class="titulo">Do bruto ao YouTube, num só programa</h2>
-      <p class="lead">O BNT Editor foi feito para quem grava pedais com GoPro e celular. Ele cuida de todo o caminho, sem passar por outro editor.</p>
-      <div class="passos">
-        <div class="passo"><h3>Corta</h3><p>Monte os cortes de cada parte do vídeo direto nos arquivos brutos: teaser, principal e encerramento.</p></div>
-        <div class="passo"><h3>Acrescenta</h3><p>Textos, nomes de lugares, painel de GPS, música, câmera lenta, zoom, transições e ajuste de brilho.</p></div>
-        <div class="passo"><h3>Renderiza</h3><p>Gera o vídeo final em 4K, com a placa de vídeo, e o som no volume certo para o YouTube.</p></div>
-        <div class="passo"><h3>Entrega</h3><p>Capa, legendas automáticas, capítulos, dados do vídeo e envio ao YouTube, tudo na mesma tela.</p></div>
-      </div>
-    </div>
-  </section>
+  <div class="etapas">
+    <a href="#cortes"><strong><span>1</span>Corte</strong><small>Importe os vídeos e escolha os trechos.</small></a>
+    <a href="#edicao"><strong><span>2</span>Edição</strong><small>Textos, GPS, música e efeitos na timeline.</small></a>
+    <a href="#entrega"><strong><span>3</span>Entrega</strong><small>Renderize e envie ao YouTube.</small></a>
+  </div>
 
-  <section id="novidades" class="fundo-claro">
+  <section id="cortes">
     <div class="miolo">
-      <h2 class="titulo">Novidades da versão 2.0</h2>
-      <p class="lead">A versão 2.0 é o BNT Editor reescrito para rodar também no Linux, com o mesmo caminho do bruto ao YouTube e um visual escuro, no estilo dos editores de vídeo. O app antigo continua funcionando ao lado dele, com os dados separados.</p>
-      <div class="recursos">
-        <div class="grupo">
-          <h3><span aria-hidden="true">&#128187;</span> Windows e Linux</h3>
-          <ul>
-            <li>O mesmo app nos dois sistemas: no Linux ele vem como <strong>AppImage</strong> ou pacote <strong>tar.gz</strong>.</li>
-            <li>Visual <strong>escuro</strong>, com fontes e espaçamentos menores para caber mais na tela.</li>
-            <li>Se falta algum componente (o player VLC ou o ffmpeg), o app <strong>diz o que instalar</strong>.</li>
-            <li>Painel de <strong>aceleração</strong> (ffmpeg, placa de vídeo e player) e um relatório de problema que leva essas informações.</li>
-          </ul>
-        </div>
-        <div class="grupo">
-          <h3><span aria-hidden="true">&#9889;</span> Novos efeitos</h3>
-          <ul>
-            <li><strong>Desfocar uma região</strong> (placa de carro, rosto): um retângulo que anda em linha reta do começo ao fim, em três forças, vários ao mesmo tempo.</li>
-            <li><strong>Parar o quadro</strong>: a imagem freia em 1 s, fica parada o tempo que você escolher e retoma em 1 s. O som fica mudo, com <strong>música de fundo</strong> opcional, e o painel de GPS para junto com a imagem.</li>
-            <li><strong>Zona dos batimentos</strong> (Z1 a Z5) escrita no título do medidor de FC, com os limites de cada zona editáveis.</li>
-          </ul>
-        </div>
-        <div class="grupo">
-          <h3><span aria-hidden="true">&#9654;</span> No dia a dia</h3>
-          <ul>
-            <li><strong>Proxies de 720p</strong> para o player tocar leve os brutos 4K, com o espaço que ocupam na tela de Espaço em disco.</li>
-            <li>Salvamento automático, medidor de nível do som e <strong>primeiro uso guiado</strong>.</li>
-            <li>Antes do render, o app <strong>avisa</strong> se o ffmpeg não tem algo de que o vídeo precisa.</li>
-            <li>O botão do <strong>Curtir e Inscrever</strong> com altura ajustável.</li>
-          </ul>
-        </div>
-      </div>
+      <h2 class="titulo">Corte</h2>
+      <p class="lead">Monte o vídeo direto nos arquivos brutos, sem converter nada antes.</p>
+      <figure class="tela">
+        <picture><source srcset="tela-cortes.webp" type="image/webp"><img decoding="async" loading="lazy" src="tela-cortes.jpg" width="1858" height="1078" alt="Aba Corte do BNT Editor, com o player, o gráfico do som e a lista de cortes"></picture>
+      </figure>
+<div class="destaques"><div class="destaque"><div class="foto"><picture><source srcset="item-corte.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-corte.jpg" width="690" height="388" alt="Corte preciso no BNT Editor"></picture></div><div><h3>Corte preciso</h3><p>Entrada e saída no quadro exato, com o gráfico do som e a fala marcada.</p></div></div>
+<div class="destaque"><div class="foto"><picture><source srcset="item-teaser.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-teaser.jpg" width="655" height="315" alt="Teaser automático no BNT Editor"></picture></div><div><h3>Teaser automático</h3><p>Os melhores trechos do Principal escolhidos pela imagem e pela velocidade, sem cortar falas.</p></div></div>
+</div>
+<div class="cartoes">
+        <article class="cartao">
+          <picture><source srcset="item-importacao.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-importacao.jpg" width="310" height="160" alt="Importação no BNT Editor"></picture>
+          <h3>Importação</h3>
+          <p>Da pasta, da GoPro ou do celular, com o aparelho detectado ao conectar.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-partes.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-partes.jpg" width="690" height="388" alt="Partes do vídeo no BNT Editor"></picture>
+          <h3>Partes do vídeo</h3>
+          <p>Teaser, principal e encerramento, com a duração final sempre à vista.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-proxy.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-proxy.jpg" width="400" height="225" alt="Reprodução fluida no BNT Editor"></picture>
+          <h3>Reprodução fluida</h3>
+          <p>Cópias leves geradas em segundo plano para tocar vídeos em 4K.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-capitulos.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-capitulos.jpg" width="655" height="368" alt="Capítulos da GoPro no BNT Editor"></picture>
+          <h3>Capítulos da GoPro</h3>
+          <p>Arquivos divididos pela câmera tocam como um vídeo só.</p>
+        </article>
+</div>
     </div>
   </section>
-  <section id="telas">
+  <section id="edicao" class="fundo-claro">
     <div class="miolo">
-      <h2 class="titulo">A aba Edição da 2.0</h2>
-      <p class="lead">Os efeitos ficam em grupos nos dois lados do player, e a lista do que já foi aplicado fica à direita. Aqui, um passeio de 45 minutos com 42 cortes, 21 itens aplicados e o painel de GPS sobre o vídeo.</p>
-      <div class="telas">
-        <figure class="larga">
-          <picture><source srcset="edicao-2-efeitos.webp" type="image/webp"><img decoding="async" src="edicao-2-efeitos.jpg" width="1505" height="911" loading="lazy" alt="Aba Edição do BNT Editor 2.0 em tema escuro: o player mostra uma ciclovia à beira-mar com o painel de GPS sobre a imagem; à esquerda os grupos Interface, Áudio e Vídeo abertos, à direita a lista dos itens aplicados e embaixo a timeline do passeio"></picture>
-          <figcaption><strong>Interface, Áudio e Vídeo.</strong> Infos, locais, GPS e Curtir; música, vento, voz e ganho; câmera lenta, acelerado, hyperlapse, desfoque de movimento, zoom, desfocar uma região, parar o quadro e brilho. Cada botão mostra quantos itens já foram aplicados.</figcaption>
-        </figure>
-        <figure class="larga">
-          <picture><source srcset="edicao-2-transicoes.webp" type="image/webp"><img decoding="async" src="edicao-2-transicoes.jpg" width="1505" height="911" loading="lazy" alt="A mesma aba Edição com o trilho da esquerda rolado até o grupo Transições, que lista escurecer, fusão, cortina, círculo, persiana e corte seco"></picture>
-          <figcaption><strong>Transições.</strong> Escurecer, fusão, cortina, círculo, persiana e corte seco, cada uma no ponto do player.</figcaption>
-        </figure>
-      </div>
+      <h2 class="titulo">Edição</h2>
+      <p class="lead">Tudo o que entra no vídeo, na timeline e no player, como vai sair no final.</p>
+      <div class="destaques"><div class="destaque"><div class="foto"><picture><source srcset="item-gps.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-gps.jpg" width="1255" height="706" alt="Painel de GPS no BNT Editor"></picture></div><div><h3>Painel de GPS</h3><p>Velocidade, altimetria, percurso, frequência cardíaca, potência e clima sobre o vídeo.</p></div></div>
+<div class="destaque"><div class="foto"><picture><source srcset="item-pessoas.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-pessoas.jpg" width="1255" height="706" alt="Pessoas no BNT Editor"></picture></div><div><h3>Pessoas</h3><p>Nomes que acompanham cada ciclista, com reconhecimento e procura em todo o vídeo.</p></div></div>
+<div class="destaque largo"><div class="foto"><picture><source srcset="item-pontos.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-pontos.jpg" width="1575" height="485" alt="Pontos de interesse no BNT Editor"></picture></div><div><h3>Pontos de interesse</h3><p>Lugares próprios marcados no mapa, com o raio de cada um. Mapa © OpenStreetMap contributors.</p></div></div>
+<div class="destaque"><div class="foto"><picture><source srcset="item-brilho.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-brilho.jpg" width="1858" height="1048" alt="Editor de brilho no BNT Editor"></picture></div><div><h3>Editor de brilho</h3><p>Curva, saturação, temperatura e ajuste automático, com o antes e depois.</p></div></div>
+</div>
+<div class="cartoes">
+        <article class="cartao">
+          <picture><source srcset="item-textos.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-textos.jpg" width="1255" height="706" alt="Textos e locais no BNT Editor"></picture>
+          <h3>Textos e locais</h3>
+          <p>Informações e nomes de lugares na base do vídeo, no momento certo.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-localizacao.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-localizacao.jpg" width="582" height="298" alt="Localização automática no BNT Editor"></picture>
+          <h3>Localização automática</h3>
+          <p>Os lugares do passeio detectados pelo GPS, com bairro e cidade.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-curtir.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-curtir.jpg" width="560" height="221" alt="Curtir e Inscrever no BNT Editor"></picture>
+          <h3>Curtir e Inscrever</h3>
+          <p>Lembrete animado sobre o vídeo, posto à mão ou automático.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-efeitos.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-efeitos.jpg" width="248" height="240" alt="Efeitos de vídeo no BNT Editor"></picture>
+          <h3>Efeitos de vídeo</h3>
+          <p>Câmera lenta, hyperlapse, desfoque de região e quadro parado.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-zoom.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-zoom.jpg" width="1255" height="706" alt="Zoom no BNT Editor"></picture>
+          <h3>Zoom</h3>
+          <p>Aproximação com o retângulo do começo e do fim desenhados direto no player.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-cor.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-cor.jpg" width="440" height="155" alt="Correção de cor no BNT Editor"></picture>
+          <h3>Correção de cor</h3>
+          <p>Cor do celular igualada à da GoPro, com saturação e temperatura por clipe.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-biblioteca.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-biblioteca.jpg" width="785" height="160" alt="Biblioteca de música no BNT Editor"></picture>
+          <h3>Biblioteca de música</h3>
+          <p>Músicas cadastradas uma vez, para ouvir, filtrar e usar em qualquer projeto.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-som.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-som.jpg" width="248" height="240" alt="Som no BNT Editor"></picture>
+          <h3>Som</h3>
+          <p>Música, redução de vento por IA, ajuste de voz, ganho e igualar o volume dos clipes.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-timeline.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-timeline.jpg" width="410" height="230" alt="Timeline organizada no BNT Editor"></picture>
+          <h3>Timeline organizada</h3>
+          <p>Só as faixas em uso, foco no grupo aberto, prévia ao passar o mouse e visão geral com zoom.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-transicoes.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-transicoes.jpg" width="248" height="240" alt="Transições no BNT Editor"></picture>
+          <h3>Transições</h3>
+          <p>Fusão, corte seco e outras, por emenda ou em vários cortes de uma vez.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-aplicados.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-aplicados.jpg" width="338" height="190" alt="Aplicados no BNT Editor"></picture>
+          <h3>Aplicados</h3>
+          <p>Lista com busca de tudo o que foi aplicado, para ligar, desligar e editar sem apagar.</p>
+        </article>
+</div>
     </div>
   </section>
-  <section id="recursos">
+  <section id="entrega">
     <div class="miolo">
-      <h2 class="titulo">Funcionalidades</h2>
-      <div class="recursos">
-        <div class="grupo">
-          <h3><span aria-hidden="true">&#9986;</span> Cortes</h3>
-          <ul>
-            <li>Player direto nos <strong>arquivos brutos</strong>, com a taxa de quadros de cada um (GoPro e celular).</li>
-            <li><strong>Forma de onda</strong> do som e trechos de <strong>fala</strong> marcados na barra de tempo.</li>
-            <li>Marcar início e fim, dividir, duplicar, reordenar arrastando e ajustar quadro a quadro.</li>
-            <li>Conferir a emenda entre cortes e tocar a sequência inteira.</li>
-            <li><strong>Copiar ou mover</strong> um corte (ou vários) entre o teaser, o principal e o encerramento, com os efeitos dele.</li>
-            <li><strong>Importar os brutos</strong> da pasta, <strong>da GoPro ou do celular por cabo USB</strong>, com filtro por data e a escolha de fotos e/ou vídeos: o app copia com andamento, confere o tamanho e nunca sobrescreve um original. Ao conectar o aparelho, a importação abre sozinha.</li>
-            <li>Gravações da GoPro em vários arquivos (capítulos) tratadas como <strong>um só bruto</strong>.</li>
-            <li>O corte selecionado <strong>se atualiza sozinho</strong> quando você mexe nas marcas de início e fim.</li>
-            <li>As marcas (textos, localizações, GPS, música) <strong>acompanham os cortes</strong> quando você move ou apaga trechos.</li>
-          </ul>
-        </div>
-        <div class="grupo">
-          <h3><span aria-hidden="true">&#9998;</span> Textos e painel</h3>
-          <ul>
-            <li><strong>Informações</strong> na tela, com sugestões prontas pelo GPX: ponto mais alto, velocidade máxima e subida mais forte.</li>
-            <li><strong>Localização</strong> com o nome do lugar preenchido pelo GPS, e detecção dos lugares ao longo do trajeto.</li>
-            <li><strong>Painel de GPS</strong> com velocímetro, inclinação, altitude, força G e minimapa, a partir do GPX e da telemetria da GoPro. Com um GPX de sensores (como o do Strava), mostra também <strong>cadência, batimentos, temperatura e calorias</strong>, além de distância, subida acumulada, <strong>rumo (bússola)</strong> e <strong>vento</strong> (direção e velocidade em relação ao sentido da bike).</li>
-            <li><strong>Potência</strong> ao vivo: a do medidor, quando a atividade tem, ou <strong>calculada</strong> (marcada como estimada) com o peso do ciclista e da bike, o vento do dia, o <strong>tipo de piso</strong> (asfalto, terra, cascalho, lido de um mapa aberto) e o <strong>tipo de pneu</strong>, em quatro categorias.</li>
-            <li><strong>Ordem dos medidores</strong> automática, por assunto (esforço, ambiente e percurso), ou <strong>manual</strong>, numa lista com setas; <strong>faixa única</strong> opcional, com todos os medidores num fundo só; tamanho do painel de 80 a 130% e escolha dos mostradores por projeto.</li>
-            <li><strong>Zona dos batimentos</strong> (Z1 a Z5) no título do FC, com os limites editáveis.</li>
-            <li><strong>Gráfico de altitude</strong> do passeio num card no canto superior esquerdo, com o trecho já pedalado em destaque e a posição atual.</li>
-            <li><strong>Logo do canal</strong> em uma de nove posições (e também no player da Edição), e Informações, Locais e Curtir que <strong>desviam dos medidores</strong> para não cobri-los.</li>
-            <li><strong>Pontos de interesse</strong>: cadastre um lugar que não é bairro (uma igreja, uma queijaria) e o app cria a localização no momento em que o percurso passa por ele.</li>
-            <li>Botão de <strong>Curtir e Inscrever</strong>, manual ou automático a cada N minutos.</li>
-            <li><strong>Música</strong> de fundo que abaixa sozinha quando há fala, escolhida numa <strong>biblioteca de áudio</strong> com a duração de cada faixa e um play para ouvir antes; os créditos das músicas entram sozinhos na descrição.</li>
-            <li><strong>Resumo do passeio</strong>: tela final com mapa, traçado, perfil de altitude e números do percurso, com <strong>seis estilos de mapa</strong> à escolha: relevo, ruas, ciclismo, satélite, escuro e claro.</li>
-            <li>Botões em grupos nos dois lados do player; cada item e cada efeito abre numa <strong>janela própria</strong>, e a lista do que já foi aplicado fica à direita, com lápis e lixeira.</li>
-            <li><strong>Onda do som e marcas de fala</strong> no fundo da timeline da Edição, com um botão para ligar e desligar, e medidores de nível do áudio no player.</li>
-          </ul>
-        </div>
-        <div class="grupo">
-          <h3><span aria-hidden="true">&#9889;</span> Efeitos</h3>
-          <ul>
-            <li><strong>Câmera lenta, acelerado e hyperlapse</strong>, com rampa suave de entrada e saída.</li>
-            <li><strong>Desfoque de movimento</strong> para dar sensação de velocidade.</li>
-            <li><strong>Desfocar uma região</strong> (placas, rostos) com um retângulo que anda do começo ao fim.</li>
-            <li><strong>Parar o quadro</strong> com freada e retomada de 1 s, som mudo e música opcional.</li>
-            <li><strong>Zoom</strong> de até 3x, com retângulos de começo e fim desenhados no player.</li>
-            <li><strong>Transições</strong> em cada emenda: escurecer, corte seco, fusão, cortina, círculo ou persiana.</li>
-            <li><strong>Ajuste de brilho</strong> por clipe, para gravações que escurecem no fim do dia ou clareiam no amanhecer, com nitidez, vinheta e <strong>LUT de cor</strong> (.cube), e o botão <strong>Igualar ao anterior</strong>, que leva o brilho do clipe ao do clipe de antes.</li>
-            <li>No som de cada clipe: <strong>redução de vento</strong>, <strong>voz uniforme</strong> e <strong>ganho de volume</strong> em dB.</li>
-          </ul>
-        </div>
-        <div class="grupo">
-          <h3><span aria-hidden="true">&#9654;</span> Renderização</h3>
-          <ul>
-            <li>Saída em <strong>4K, 1080p ou 720p</strong>, a 60 ou 30 quadros, em 10 bits.</li>
-            <li>Usa a <strong>placa de vídeo</strong> para ser rápido; sem ela, usa o processador.</li>
-            <li>Cada clipe vira uma peça: ao mudar um detalhe, <strong>só refaz o que mudou</strong>.</li>
-            <li>Som <strong>normalizado para o YouTube</strong> (−14 LUFS).</li>
-            <li>Estimativa de tempo e de espaço em disco, e retomada se o render for interrompido.</li>
-            <li>Uma faixa na timeline mostra quais peças já estão prontas e quais serão refeitas.</li>
-            <li>Pode <strong>deixar tudo rodando sozinho</strong>: render, legendas, envio e desligar o computador.</li>
-          </ul>
-        </div>
-        <div class="grupo">
-          <h3><span aria-hidden="true">&#128172;</span> Legendas</h3>
-          <ul>
-            <li><strong>Legendas automáticas</strong> geradas no seu computador, sem enviar o áudio a ninguém.</li>
-            <li>Correção da grafia dos <strong>nomes de lugares</strong> do vídeo e do trajeto.</li>
-            <li>Janela de <strong>revisão</strong>: ouvir cada trecho, ajustar tempo e texto, juntar, apagar e trocar uma palavra em todas.</li>
-            <li>Grava um arquivo <strong>.srt</strong> pronto para o YouTube.</li>
-          </ul>
-        </div>
-        <div class="grupo">
-          <h3><span aria-hidden="true">&#9733;</span> Capa e YouTube</h3>
-          <ul>
-            <li><strong>Editor de capa</strong> com textos arrastáveis, modelos salvos e o logo do canal.</li>
-            <li><strong>Capítulos</strong> gerados a partir das marcas do vídeo.</li>
-            <li>Título, descrição, tags, playlist, visibilidade e agendamento preenchidos no app.</li>
-            <li><strong>Envio direto ao YouTube</strong>: vídeo, capa, legendas e playlist, com a visibilidade escolhida.</li>
-            <li><strong>Conferência antes do envio</strong>, para não esquecer nada.</li>
-          </ul>
-        </div>
-        <div class="grupo">
-          <h3><span aria-hidden="true">&#128279;</span> Integrações</h3>
-          <ul>
-            <li><strong>YouTube</strong>: conecte a conta do seu canal uma vez e envie o vídeo, a capa, as legendas e a playlist direto do app.</li>
-            <li><strong>Strava</strong>: escolha a atividade do passeio na lista da sua conta e o percurso é baixado sozinho quando você cria o projeto, como GPX com o horário de cada ponto (e batimentos, cadência e temperatura, quando a atividade tem), para o painel de GPS e o resumo do passeio.</li>
-            <li>O nome da atividade vira o nome do GPX e do projeto, e o link dela entra no campo do Strava.</li>
-            <li>As duas contas se conectam na mesma aba, em <strong>Configurações → Integrações</strong>, e o acesso fica só no seu computador.</li>
-          </ul>
-        </div>
-        <div class="grupo">
-          <h3><span aria-hidden="true">&#128269;</span> Conferência</h3>
-          <ul>
-            <li><strong>Analisar</strong>: avisos e erros antes de renderizar.</li>
-            <li><strong>Revisão rápida</strong>: um quadro de cada item numa galeria.</li>
-            <li><strong>Prévia de um clipe</strong>, com textos e painel, antes do render completo.</li>
-            <li><strong>Desfazer e refazer</strong> com histórico das edições, e a volta a uma versão anterior do projeto.</li>
-            <li><strong>Paleta de comandos</strong> (Ctrl+K): ache qualquer ação, clipe ou efeito aplicado digitando.</li>
-            <li>Se algo der errado na tela, o app <strong>guarda uma cópia do projeto</strong>, avisa e segue aberto.</li>
-            <li>Tudo que demora (análise, leitura de telemetria, mapa, render, legendas, envio) aparece na <strong>barra de status</strong> do alto, com o andamento.</li>
-            <li><strong>Novo projeto a partir de outro</strong>: herda o que se repete a cada passeio, sem os cortes.</li>
-          </ul>
-        </div>
-      </div>
+      <h2 class="titulo">Entrega</h2>
+      <p class="lead">Do render ao vídeo publicado, sem sair do programa.</p>
+      <figure class="tela">
+        <picture><source srcset="tela-entrega.webp" type="image/webp"><img decoding="async" loading="lazy" src="tela-entrega.jpg" width="1858" height="1078" alt="Aba Entrega do BNT Editor, com as partes do render, os dados do YouTube e a capa"></picture>
+      </figure>
+<div class="destaques"><div class="destaque"><div class="foto"><picture><source srcset="item-revisao.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-revisao.jpg" width="1642" height="875" alt="Revisão no BNT Editor"></picture></div><div><h3>Revisão</h3><p>Um quadro de cada item, como sairá no vídeo, numa galeria antes do render.</p></div></div>
+<div class="destaque"><div class="foto"><picture><source srcset="item-youtube.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-youtube.jpg" width="910" height="512" alt="YouTube no BNT Editor"></picture></div><div><h3>YouTube</h3><p>Título, descrição, capítulos, tags, agendamento e envio direto.</p></div></div>
+<div class="destaque largo"><div class="foto"><picture><source srcset="item-legendas.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-legendas.jpg" width="1858" height="490" alt="Legendas no BNT Editor"></picture></div><div><h3>Legendas</h3><p>Geradas automaticamente e revisadas no editor, com tempo e texto de cada linha.</p></div></div>
+</div>
+<div class="cartoes">
+        <article class="cartao">
+          <picture><source srcset="item-render.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-render.jpg" width="935" height="526" alt="Render no BNT Editor"></picture>
+          <h3>Render</h3>
+          <p>Vídeo em até 4K com a placa de vídeo, com pausa e reaproveitamento das partes prontas.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-previa.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-previa.jpg" width="712" height="450" alt="Prévia no BNT Editor"></picture>
+          <h3>Prévia</h3>
+          <p>Um clipe renderizado de verdade, para conferir antes do vídeo inteiro.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="resumo.webp" type="image/webp"><img decoding="async" loading="lazy" src="resumo.jpg" width="1600" height="900" alt="Resumo do passeio no BNT Editor"></picture>
+          <h3>Resumo do passeio</h3>
+          <p>Abertura com mapa e números do pedal, gerada a partir do GPS.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-capa.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-capa.jpg" width="390" height="220" alt="Capa no BNT Editor"></picture>
+          <h3>Capa</h3>
+          <p>Editor de capa e cartão do passeio para feed e stories.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-integracao.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-integracao.jpg" width="910" height="512" alt="Integração no BNT Editor"></picture>
+          <h3>Integração</h3>
+          <p>Atividades do Strava, resumo do pedal e municípios do percurso preenchidos sozinhos.</p>
+        </article>
+</div>
     </div>
   </section>
-
-
+  <section id="geral" class="fundo-claro">
+    <div class="miolo">
+      <h2 class="titulo">Geral</h2>
+<div class="cartoes">
+        <article class="cartao">
+          <picture><source srcset="item-projetos.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-projetos.jpg" width="660" height="230" alt="Projetos no BNT Editor"></picture>
+          <h3>Projetos</h3>
+          <p>Tela inicial com os recentes e abertura com dois cliques no arquivo.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-conferencia.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-conferencia.jpg" width="460" height="259" alt="Conferência no BNT Editor"></picture>
+          <h3>Conferência</h3>
+          <p>Lista do que falta antes de enviar e análise do projeto antes do render.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-atalhos.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-atalhos.jpg" width="825" height="465" alt="Atalhos no BNT Editor"></picture>
+          <h3>Atalhos</h3>
+          <p>Paleta de comandos e teclas de player como nos editores profissionais.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-andamento.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-andamento.jpg" width="915" height="600" alt="Acompanhamento no BNT Editor"></picture>
+          <h3>Acompanhamento</h3>
+          <p>Barra de status com todo trabalho em andamento e registro do que aconteceu.</p>
+        </article>
+        <article class="cartao">
+          <picture><source srcset="item-seguranca.webp" type="image/webp"><img decoding="async" loading="lazy" src="item-seguranca.jpg" width="620" height="194" alt="Segurança do trabalho no BNT Editor"></picture>
+          <h3>Segurança do trabalho</h3>
+          <p>Cópia automática, versões anteriores e recuperação depois de uma queda.</p>
+        </article>
+</div>
+      <ul class="lista">
+        <li><strong>Windows e Linux:</strong> o mesmo programa nos dois sistemas</li>
+        <li><strong>Histórico:</strong> desfazer e refazer em todas as abas, com a lista do que foi feito</li>
+        <li><strong>Espaço em disco:</strong> limpeza de temporários e remoção dos originais depois da entrega</li>
+      </ul>
+    </div>
+  </section>
 </main>
 
 <footer>
@@ -387,6 +455,22 @@
 <script>
   document.getElementById("ano").textContent = new Date().getFullYear();
 </script>
-  <script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<dialog id="ampliar"><img alt=""></dialog>
+<script>
+  // Clicar num print abre ampliado; clicar de novo fecha
+  const janela = document.getElementById("ampliar"), grande = janela.querySelector("img");
+  document.querySelectorAll("main section img").forEach(i => {
+    i.classList.add("ampliavel");
+    i.onclick = () => { grande.src = i.currentSrc || i.src; janela.showModal(); };
+  });
+  janela.onclick = () => janela.close();
+  // O menu marca a seção que está na tela
+  const links = [...document.querySelectorAll(".menu a")];
+  const observador = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) links.forEach(l => l.classList.toggle("atual", l.hash === "#" + e.target.id));
+  }), { rootMargin: "-45% 0px -50% 0px" });
+  document.querySelectorAll("section[id]").forEach(s => observador.observe(s));
+</script>
+<script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>
