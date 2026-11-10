@@ -9,6 +9,8 @@ a partir do Strava e do canal do YouTube.
   link do Komoot da descrição do vídeo (precisa de YOUTUBE_API_KEY; sem a chave, os cartões saem sem vídeo).
 - Desenha o traçado em SVG, SEM o começo e o fim: os primeiros e os últimos 800 m são cortados, para não mostrar de onde
   o pedal sai (a casa de quem pedala).
+- Grava o GPX de cada pedal (pedais/gpx) com a altitude corrigida pelo relevo, pela mesma conta do BNT Editor: o gráfico de
+  altimetria e a subida das páginas saem dele e batem com os do vídeo (sem a correção, vale a subida que o Strava informa).
 - Grava pedais/index.html, pedais/<data-título>/index.html, o bloco 'Último pedal' do index.html e o sitemap.xml
   (páginas estáticas; só a busca e os filtros da lista usam JavaScript).
 
@@ -562,8 +564,142 @@ def linha_cidades(p, limite=4):
     return f'<p class="cidades">{" · ".join(partes)}</p>' if partes else ""
 
 
+# ----------------------------------------------------------------------------- altitude corrigida pelo relevo (a conta do BNT Editor)
+# O barômetro do aparelho erra a altitude da largada e deriva com a pressão do ar ao longo do dia (dezenas de metros num pedal longo).
+# A conta compara a altitude gravada com a do relevo em até 300 pontos do pedal e tira só esse erro lento (uma curva suave no tempo):
+# as subidas e descidas ficam. É a mesma do BNT Editor (AltitudePeloRelevo.cs), para o site mostrar a altitude e a subida do vídeo.
+URL_RELEVO = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"   # metros = R·256 + G + B/256 − 32768
+ZOOM_RELEVO = 13                                     # uns 19 m por pixel aqui
+AMOSTRAS_RELEVO = 300                                # pontos do pedal comparados com o relevo
+MINIMO_DE_AMOSTRAS = 30                              # com menos que isso a correção não é confiável
+INCLINACAO_DO_PLANO = 5                              # terreno até 5% conta como plano (na encosta o pixel mistura a estrada com o morro)...
+MINIMO_DE_PLANOS = 40                                # ...e, havendo 40 pontos planos, só eles entram na conta
+MAIOR_ERRO_M = 200                                   # correção maior que isso é erro de leitura: melhor não corrigir
+LIMIAR_SUBIDA_M = 0.5                                # a subida só conta quando a altitude passa disto (como no BNT Editor)
+
+_relevo = {}
+
+
+def quadrado_do_relevo(x, y, pasta_cache):
+    """O quadrado do relevo (imagem de 256x256), guardado em disco. Levanta erro se não der para baixar."""
+    chave = (x, y)
+    if chave not in _relevo:
+        arq = os.path.join(pasta_cache, f"relevo_{ZOOM_RELEVO}_{x}_{y}.png")
+        if not os.path.exists(arq):
+            req = urllib.request.Request(URL_RELEVO.format(z=ZOOM_RELEVO, x=x, y=y), headers={"User-Agent": AGENTE})
+            with urllib.request.urlopen(req, timeout=30) as r:
+                dados = r.read()
+            os.makedirs(pasta_cache, exist_ok=True)
+            with open(arq, "wb") as f:
+                f.write(dados)
+        _relevo[chave] = Image.open(arq).convert("RGB")
+    return _relevo[chave]
+
+
+def relevo_no_ponto(lat, lon, pasta_cache):
+    """(altitude do relevo em metros, inclinação do terreno em %) no ponto."""
+    x, y = pixel_global(lat, lon, ZOOM_RELEVO)
+    quadrado = quadrado_do_relevo(int(x // 256), int(y // 256), pasta_cache)
+    px, py = int(x % 256), int(y % 256)
+
+    def em(i, j):                                    # na borda do quadrado, o próprio pixel faz de vizinho
+        r, g, b = quadrado.getpixel((min(max(i, 0), 255), min(max(j, 0), 255)))
+        return r * 256 + g + b / 256 - 32768
+
+    metros_por_pixel = 40075016.686 * math.cos(math.radians(lat)) / (256 * 2 ** ZOOM_RELEVO)
+    gx = (em(px + 1, py) - em(px - 1, py)) / (2 * metros_por_pixel)
+    gy = (em(px, py + 1) - em(px, py - 1)) / (2 * metros_por_pixel)
+    return em(px, py), math.hypot(gx, gy) * 100
+
+
+def curva(pontos, grau):
+    """Mínimos quadrados de grau 0, 1 ou 2: os coeficientes [a, b, c] de a + b·h + c·h² que melhor passam pelos (h, diferença)."""
+    n = grau + 1
+    m = [[0.0] * (n + 1) for _ in range(n)]          # as equações normais
+    for h, d in pontos:
+        for i in range(n):
+            for j in range(n):
+                m[i][j] += h ** (i + j)
+            m[i][n] += h ** i * d
+    for col in range(n):                             # eliminação de Gauss com troca de linhas
+        pivo = max(range(col, n), key=lambda linha: abs(m[linha][col]))
+        m[col], m[pivo] = m[pivo], m[col]
+        for linha in range(n):
+            if linha != col and m[col][col] != 0:
+                fator = m[linha][col] / m[col][col]
+                m[linha] = [a - fator * b for a, b in zip(m[linha], m[col])]
+    return [m[i][n] / m[i][i] if i < n and m[i][i] != 0 else 0.0 for i in range(3)]
+
+
+def erro_em(coef, horas):
+    """O erro da altitude gravada, pela curva, tantas horas depois da largada."""
+    return coef[0] + coef[1] * horas + coef[2] * horas * horas
+
+
+def pontos_como_no_app(pontos, altitudes, segundos):
+    """Os pontos do pedal como o BNT Editor os vê: numa parada (mais de 5 s sem ponto, a menos de 100 m) ele repete o ponto 1 s depois,
+    a cada 10 s e 1 s antes do seguinte. Sem isso os pontos comparados com o relevo seriam outros e a correção sairia uns metros diferente da do vídeo."""
+    todos = []
+    for i, ponto in enumerate(zip(pontos, altitudes, segundos)):
+        todos.append(ponto)
+        if i + 1 < len(pontos):
+            buraco = segundos[i + 1] - segundos[i]
+            if buraco > 5 and metros(pontos[i], pontos[i + 1]) <= 100:
+                instantes = [segundos[i] + 1] + [segundos[i] + s for s in range(10, math.ceil(buraco - 1), 10)] + [segundos[i + 1] - 1]
+                todos += [(pontos[i], altitudes[i], s) for s in instantes]
+    return todos
+
+
+def erro_da_altitude(pontos, altitudes, segundos, pasta_cache):
+    """A curva do erro da altitude gravada: [a, b, c] de a + b·h + c·h² (h em horas desde a largada); None se não dá para corrigir."""
+    todos = pontos_como_no_app(pontos, altitudes, segundos)
+    if len(todos) < MINIMO_DE_AMOSTRAS:
+        return None
+    passo = max(1, len(todos) // AMOSTRAS_RELEVO)        # pontos espalhados pelo pedal inteiro
+    comparacoes = []                                     # (horas, altitude gravada − relevo, inclinação do terreno)
+    for (lat, lon), altitude, s in todos[::passo]:
+        relevo, inclinacao = relevo_no_ponto(lat, lon, pasta_cache)
+        comparacoes.append((s / 3600, altitude - relevo, inclinacao))
+    planos = [c for c in comparacoes if c[2] <= INCLINACAO_DO_PLANO]
+    usadas = [(h, d) for h, d, _ in (planos if len(planos) >= MINIMO_DE_PLANOS else comparacoes)]
+    if len(usadas) < MINIMO_DE_AMOSTRAS:
+        return None
+    duracao = max(h for h, _ in usadas) - min(h for h, _ in usadas)
+    grau = 2 if duracao >= 2 else 1 if duracao >= 1 else 0   # pedal curto: só o erro da largada; médio: a reta; longo: a curva
+    coef = curva(usadas, grau)
+    # Uma segunda passada sem os pontos muito fora da curva (ponte, viaduto, túnel, um pixel errado do relevo)
+    restos = [d - erro_em(coef, h) for h, d in usadas]
+    desvio = math.sqrt(sum(r * r for r in restos) / len(restos))
+    dentro = [c for c, r in zip(usadas, restos) if abs(r) <= max(2.5 * desvio, 10)]
+    if len(dentro) >= MINIMO_DE_AMOSTRAS:
+        coef = curva(dentro, grau)
+    fim = max(c[0] for c in comparacoes)
+    if any(abs(erro_em(coef, fim * i / 10)) > MAIOR_ERRO_M for i in range(11)):
+        return None
+    return coef
+
+
+def subida_acumulada(altitudes):
+    """A subida somada com folga: só conta quando a altitude passa da referência em mais de LIMIAR_SUBIDA_M."""
+    subida, referencia = 0.0, altitudes[0]
+    for a in altitudes:
+        if a > referencia + LIMIAR_SUBIDA_M:
+            subida += a - referencia
+            referencia = a
+        elif a < referencia - LIMIAR_SUBIDA_M:
+            referencia = a
+    return subida
+
+
+def subida_do_pedal(p):
+    """A subida mostrada no site: a do pedal com a altitude corrigida pelo relevo (anotada no GPX); sem ela, a do Strava."""
+    subida = p.get("_subida")
+    return subida if subida is not None else p["total_elevation_gain"]
+
+
 # ----------------------------------------------------------------------------- GPX para baixar (sem o começo e o fim)
 PASSO_GPX_M = 15                                     # um ponto a cada 15 m: arquivo leve e traçado fiel
+ANOTACAO_SUBIDA = "Subida do pedal inteiro: "        # no <desc> do GPX: é ela que diz que a altitude já foi conferida com o relevo
 _strava_limitou = False                              # depois de um 429 (limite de consultas) o robô para de pedir; amanhã continua
 
 
@@ -571,7 +707,14 @@ def caminho_gpx(pasta_gpx, pedal_id):
     return os.path.join(pasta_gpx, f"{pedal_id}.gpx")
 
 
-def montar_gpx(titulo, pontos, altitudes, cortado):
+def subida_do_gpx(caminho):
+    """A subida do pedal inteiro anotada no GPX; None num GPX de antes da correção pelo relevo."""
+    with open(caminho, encoding="utf-8") as f:
+        achada = re.search(ANOTACAO_SUBIDA + r"(\d+) m", f.read(2000))
+    return int(achada.group(1)) if achada else None
+
+
+def montar_gpx(titulo, pontos, altitudes, cortado, notas=""):
     """GPX só com o miolo do percurso (sem horários, para não dizer a que horas alguém saiu/chegou)."""
     trk = []
     for (lat, lon), alt in zip(pontos, altitudes):
@@ -582,7 +725,7 @@ def montar_gpx(titulo, pontos, altitudes, cortado):
     cabecalho = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<gpx version="1.1" creator="Brote na Trilha (brotenatrilha.com.br)" xmlns="http://www.topografix.com/GPX/1/1">',
-        f'  <metadata><name>{nome}</name><desc>{aviso}brotenatrilha.com.br</desc></metadata>',
+        f'  <metadata><name>{nome}</name><desc>{aviso}{notas}brotenatrilha.com.br</desc></metadata>',
         '  <trk>',
         f'    <name>{nome}</name>',
         '    <trkseg>',
@@ -590,34 +733,49 @@ def montar_gpx(titulo, pontos, altitudes, cortado):
     return "\n".join(cabecalho + trk + ['    </trkseg>', '  </trk>', '</gpx>', ''])
 
 
-def gerar_gpx(p, pasta_gpx):
-    """Baixa o traçado detalhado do Strava, corta o começo e o fim, afina os pontos e grava pedais/gpx/ID.gpx.
-    Devolve True se o arquivo existe (já estava lá ou foi criado agora)."""
+def gerar_gpx(p, pasta_gpx, pasta_cache):
+    """Baixa o traçado detalhado do Strava, corrige a altitude pelo relevo, corta o começo e o fim, afina os pontos e grava
+    pedais/gpx/ID.gpx. Põe em p["_subida"] a subida do pedal inteiro com a altitude corrigida (None se o GPX não a traz).
+    Devolve True se o arquivo existe (já estava lá ou foi criado agora). O GPX de antes da correção é refeito; se não der, fica o que havia."""
     global _strava_limitou
     destino = caminho_gpx(pasta_gpx, p["id"])
-    if os.path.exists(destino):
-        return True
-    if not _token_strava or _strava_limitou:
-        return False
+    existe = os.path.exists(destino)
+    p["_subida"] = subida_do_gpx(destino) if existe else None
+    if p["_subida"] is not None or not _token_strava or _strava_limitou:
+        return existe
     try:
-        fluxos = http_json(f"https://www.strava.com/api/v3/activities/{p['id']}/streams?keys=latlng,altitude&key_by_type=true",
+        fluxos = http_json(f"https://www.strava.com/api/v3/activities/{p['id']}/streams?keys=latlng,altitude,time&key_by_type=true",
                            None, {"Authorization": "Bearer " + _token_strava})
     except urllib.error.HTTPError as erro:
         if erro.code == 429:
             _strava_limitou = True
         print("  sem GPX:", p["name"], "- HTTP", erro.code)
-        return False
+        return existe
     except Exception as erro:
         print("  sem GPX:", p["name"], "-", erro)
-        return False
+        return existe
     if isinstance(fluxos, list):                       # key_by_type=false devolve lista; garante o formato de dicionário
         fluxos = {f["type"]: f for f in fluxos}
     brutos = [tuple(x) for x in (fluxos.get("latlng") or {}).get("data", [])]
     alts = (fluxos.get("altitude") or {}).get("data", [])
+    segundos = (fluxos.get("time") or {}).get("data", [])   # desde a largada: só para a correção, não vai para o arquivo
+    if len(brutos) < 4:
+        return existe
+    notas = ""
     if len(alts) != len(brutos):
         alts = [None] * len(brutos)
-    if len(brutos) < 4:
-        return False
+    else:
+        try:
+            coef = erro_da_altitude(brutos, alts, segundos, pasta_cache) if len(segundos) == len(brutos) else None
+            if coef:
+                alts = [a - erro_em(coef, s / 3600) for a, s in zip(alts, segundos)]
+                notas = "Altitude corrigida pelo relevo. "
+            p["_subida"] = round(subida_acumulada(alts))
+            notas += f"{ANOTACAO_SUBIDA}{p['_subida']} m. "
+        except Exception as erro:                      # sem o relevo agora: o GPX fica sem a anotação e é refeito na próxima rodada
+            print("  sem o relevo:", p["name"], "-", erro)
+            if existe:
+                return True
     acum = [0.0]
     for a, b in zip(brutos, brutos[1:]):
         acum.append(acum[-1] + metros(a, b))
@@ -625,7 +783,7 @@ def gerar_gpx(p, pasta_gpx):
     cortado = perto_de_casa(brutos)
     corte = CORTE_METROS if cortado else 0
     if total < 4 * corte:
-        return False
+        return existe
     pontos, altitudes, ultimo = [], [], None
     for ponto, alt, d in zip(brutos, alts, acum):
         if d < corte or d > total - corte:
@@ -635,10 +793,10 @@ def gerar_gpx(p, pasta_gpx):
             altitudes.append(alt)
             ultimo = ponto
     if len(pontos) < 5:
-        return False
+        return existe
     os.makedirs(pasta_gpx, exist_ok=True)
     with open(destino, "w", encoding="utf-8", newline="\n") as f:
-        f.write(montar_gpx(titulo_do_pedal(p["name"]), pontos, altitudes, cortado))
+        f.write(montar_gpx(titulo_do_pedal(p["name"]), pontos, altitudes, cortado, notas))
     time.sleep(0.5)
     return True
 
@@ -1196,7 +1354,7 @@ def cartao(p):
           {linha_cidades(p)}
           <dl>
             <div><dt>Distância</dt><dd>{num(km, 1)} km</dd></div>
-            <div><dt>Subida</dt><dd>{num(p["total_elevation_gain"])} m</dd></div>
+            <div><dt>Subida</dt><dd>{num(subida_do_pedal(p))} m</dd></div>
             <div><dt>Tempo</dt><dd>{duracao(p["moving_time"])}</dd></div>
             <div><dt>Média</dt><dd>{num(media, 1)} km/h</dd></div>
           </dl>
@@ -1226,7 +1384,7 @@ def montar_pagina(pedais, modelo):
     chips_ano = '<button type="button" class="chip" data-filtro="ano" data-valor="todos" aria-pressed="true">Todos os anos</button>' + "".join(
         f'<button type="button" class="chip" data-filtro="ano" data-valor="{a}" aria-pressed="false">{a}</button>' for a in anos)
     km = sum(p["distance"] for p in pedais) / 1000
-    subida = sum(p["total_elevation_gain"] for p in pedais)
+    subida = sum(subida_do_pedal(p) for p in pedais)
     resumo = f'{len(pedais)} pedais · {num(km)} km · {num(subida)} m de subida'
     return (modelo.replace("{{RESUMO}}", resumo).replace("{{CHIPS_ANO}}", chips_ano).replace("{{OPCOES_PASSA}}", opcoes(cont_passa)).replace("{{OPCOES_SAI}}", opcoes(cont_sai)).replace("{{OPCOES_CHEGA}}", opcoes(cont_chega))
             .replace("{{CONTEUDO}}", "\n".join(blocos))
@@ -1238,7 +1396,7 @@ def montar_pagina_pedal(p, mais_novo, mais_velho, modelo):
     titulo = titulo_exibido(p)
     v = p.get("_video")
     texto = trecho_descricao(v)
-    descricao_meta = (f"{titulo}: {num(km, 1)} km, {num(p['total_elevation_gain'])} m de subida e {duracao(p['moving_time'])} de pedal "
+    descricao_meta = (f"{titulo}: {num(km, 1)} km, {num(subida_do_pedal(p))} m de subida e {duracao(p['moving_time'])} de pedal "
                       f"em {data_longa(p['start_date_local'])}. Veja o mapa do percurso e o vídeo.")
     url = f"https://brotenatrilha.com.br/pedais/{p['_slug']}/"
     og = f"https://i.ytimg.com/vi/{v['id']}/hqdefault.jpg" if v else "https://brotenatrilha.com.br/compartilhar.jpg"
@@ -1258,7 +1416,7 @@ def montar_pagina_pedal(p, mais_novo, mais_velho, modelo):
         nav.append(f'<a class="anterior" href="/pedais/{mais_velho["_slug"]}/"><small>← Pedal anterior</small>{html.escape(titulo_exibido(mais_velho))}</a>')
     if mais_novo:
         nav.append(f'<a class="proximo" href="/pedais/{mais_novo["_slug"]}/"><small>Próximo pedal →</small>{html.escape(titulo_exibido(mais_novo))}</a>')
-    nums = (f'<div><dt>Distância</dt><dd>{num(km, 1)} km</dd></div><div><dt>Subida</dt><dd>{num(p["total_elevation_gain"])} m</dd></div>'
+    nums = (f'<div><dt>Distância</dt><dd>{num(km, 1)} km</dd></div><div><dt>Subida</dt><dd>{num(subida_do_pedal(p))} m</dd></div>'
             f'<div><dt>Tempo</dt><dd>{duracao(p["moving_time"])}</dd></div><div><dt>Média</dt><dd>{num(media, 1)} km/h</dd></div>')
     troca = {"{{TITULO}}": html.escape(titulo), "{{DESCRICAO_META}}": html.escape(descricao_meta), "{{URL}}": url,
              "{{OG_IMAGE}}": og, "{{DATA_LONGA}}": data_longa(p["start_date_local"]), "{{MAPA}}": mapa_html(p, "/pedais/mapas/", "eager"), "{{PERFIL}}": p.get("_perfil", ""),
@@ -1285,7 +1443,7 @@ def bloco_ultimo(p):
         <p class="data">{data_longa(p["start_date_local"])}</p>
         <dl>
           <div><dt>Distância</dt><dd>{num(km, 1)} km</dd></div>
-          <div><dt>Subida</dt><dd>{num(p["total_elevation_gain"])} m</dd></div>
+          <div><dt>Subida</dt><dd>{num(subida_do_pedal(p))} m</dd></div>
           <div><dt>Tempo</dt><dd>{duracao(p["moving_time"])}</dd></div>
           <div><dt>Média</dt><dd>{num(media, 1)} km/h</dd></div>
         </dl>
@@ -1418,8 +1576,8 @@ def main():
                 print("  capa removida:", nome)
     print(f"  capas: {sum(1 for p in pedais if p['_capa'])} de {len(pedais)} pedais com a capa do vídeo")
     pasta_gpx = os.path.join(base, "gpx")
-    for p in pedais:                                    # arquivo GPX para baixar (só busca no Strava o que ainda não existe)
-        p["_gpx"] = gerar_gpx(p, pasta_gpx)
+    for p in pedais:                                    # arquivo GPX para baixar (só busca no Strava o que falta ou é de antes da correção pelo relevo)
+        p["_gpx"] = gerar_gpx(p, pasta_gpx, pasta_cache)
     if os.path.isdir(pasta_gpx):
         atuais_gpx = {f"{p['id']}.gpx" for p in pedais}
         for nome in os.listdir(pasta_gpx):
