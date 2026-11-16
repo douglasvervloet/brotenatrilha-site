@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ferramentas para ciclistas | Brote na Trilha</title>
+<meta name="description" content="Calculadoras gratuitas para ciclistas: relação de marchas (velocidade por cadência) e categoria de subida.">
+<link rel="canonical" href="https://brotenatrilha.com.br/ferramentas/">
+<meta name="theme-color" content="#2d7046">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Brote na Trilha">
+<meta property="og:title" content="Ferramentas para ciclistas | Brote na Trilha">
+<meta property="og:description" content="Calculadoras gratuitas para ciclistas: relação de marchas (velocidade por cadência) e categoria de subida.">
+<meta property="og:url" content="https://brotenatrilha.com.br/ferramentas/">
+<meta property="og:image" content="https://brotenatrilha.com.br/compartilhar.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="48x48" href="../favicon.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+  :root { --verde: #2d7046; --verde-escuro: #1e5434; --verde-fundo: #163d27; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; }
+  @media (prefers-color-scheme: dark) { :root { --fundo: #0f1a13; --cartao: #172a1e; --texto: #e9f0ea; --suave: #a9bbae; --linha: #284534; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--ambar); outline-offset: 3px; border-radius: 4px; }
+  .miolo { width: min(1080px, 100% - 32px); margin-inline: auto; }
+  header { background: linear-gradient(180deg, var(--verde), var(--verde-fundo)); color: #fff; padding: 18px 0 38px; }
+  header a { color: #fff; text-decoration: none; font-weight: 600; opacity: .9; }
+  header a:hover { opacity: 1; text-decoration: underline; }
+  h1 { margin: 22px 0 0; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; letter-spacing: -.5px; }
+  header p { margin: 10px 0 0; color: #dcebe0; max-width: 62ch; }
+  main { padding: 30px 0 56px; }
+  h2 { font-size: 1.3rem; margin: 34px 0 10px; }
+  .painel { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 20px 22px; }
+  .campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
+  label { display: block; font-weight: 700; font-size: .92rem; margin-bottom: 4px; }
+  input, select { width: 100%; font: inherit; padding: 10px 14px; border-radius: 12px; border: 2px solid var(--linha); background: var(--fundo); color: var(--texto); }
+  input:focus, select:focus { border-color: var(--verde); outline: none; }
+  .dica { color: var(--suave); font-size: .85rem; margin: 4px 0 0; }
+  .resultado { margin-top: 20px; }
+  .tabela-rolavel { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { padding: 8px 12px; border-bottom: 1px solid var(--linha); text-align: right; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { font-size: .85rem; color: var(--suave); }
+  td small { display: block; color: var(--suave); font-size: .78rem; }
+  .leve td, .leve th { }
+  .destaque { background: rgba(232, 163, 61, .16); }
+  .selo { display: inline-block; padding: 6px 18px; border-radius: 999px; font-weight: 800; font-size: 1.1rem; }
+  .numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 14px; }
+  .numeros div { background: var(--fundo); border-radius: 12px; padding: 10px 14px; }
+  .numeros span { display: block; font-size: .8rem; color: var(--suave); }
+  .numeros b { font-size: 1.3rem; }
+  .cartoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+  .cartao { display: block; background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 20px 22px; text-decoration: none; }
+  .cartao:hover { border-color: var(--verde); }
+  .cartao b { font-size: 1.15rem; display: block; margin-bottom: 4px; }
+  .cartao span { color: var(--suave); }
+  .nota { color: var(--suave); font-size: .9rem; margin-top: 22px; }
+  footer { background: var(--verde-fundo); color: #cfe0d3; padding: 28px 0; font-size: .92rem; margin-top: 20px; }
+  footer .miolo { display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: space-between; }
+  footer a { color: #fff; }
+</style>
+</head>
+<body>
+<header>
+  <div class="miolo">
+    <a href="../">&larr; Brote na Trilha</a>
+    <h1>Ferramentas</h1>
+    <p>Calculadoras para ciclistas, feitas pelo canal.</p>
+  </div>
+</header>
+<main class="miolo">
+  <div class="cartoes">
+    <a class="cartao" href="relacao-de-marchas/"><b>Relação de marchas</b><span>A velocidade de cada marcha, pela cadência, a coroa, o cassete e o pneu.</span></a>
+    <a class="cartao" href="categoria-de-subida/"><b>Categoria de subida</b><span>Informe a extensão e o ganho de altitude e veja se a subida é Cat 4, 3, 2, 1 ou HC.</span></a>
+  </div>
+</main>
+<footer>
+  <div class="miolo">
+    <span>© <span id="ano">2026</span> Brote na Trilha</span>
+    <span><a href="../privacidade/">Política de privacidade</a> · <a href="../">Voltar ao site</a></span>
+  </div>
+</footer>
+<script>
+  document.getElementById("ano").textContent = new Date().getFullYear();
+  // Aceita vírgula ou ponto como separador decimal; devolve null se não for um número maior que zero
+  function numero(t) { var v = parseFloat(String(t).replace(",", ".")); return isFinite(v) && v > 0 ? v : null; }
+  function formatar(v, casas) { return v.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas }); }
+</script>
+<script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

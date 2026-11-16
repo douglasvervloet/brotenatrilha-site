@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculadora de relação de marchas | Brote na Trilha</title>
+<meta name="description" content="Calcule a velocidade de cada marcha da sua bike pela cadência, a coroa, o cassete e o pneu. Cassetes SLX e GX Eagle prontos.">
+<link rel="canonical" href="https://brotenatrilha.com.br/ferramentas/relacao-de-marchas/">
+<meta name="theme-color" content="#2d7046">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Brote na Trilha">
+<meta property="og:title" content="Calculadora de relação de marchas | Brote na Trilha">
+<meta property="og:description" content="Calcule a velocidade de cada marcha da sua bike pela cadência, a coroa, o cassete e o pneu. Cassetes SLX e GX Eagle prontos.">
+<meta property="og:url" content="https://brotenatrilha.com.br/ferramentas/relacao-de-marchas/">
+<meta property="og:image" content="https://brotenatrilha.com.br/compartilhar.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="48x48" href="../../favicon.png">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Calculadora de relação de marchas", "url": "https://brotenatrilha.com.br/ferramentas/relacao-de-marchas/", "applicationCategory": "SportsApplication", "operatingSystem": "Qualquer navegador", "inLanguage": "pt-BR", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "BRL"}, "publisher": {"@type": "Organization", "name": "Brote na Trilha", "url": "https://brotenatrilha.com.br/"}}</script>
+<style>
+  :root { --verde: #2d7046; --verde-escuro: #1e5434; --verde-fundo: #163d27; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; }
+  @media (prefers-color-scheme: dark) { :root { --fundo: #0f1a13; --cartao: #172a1e; --texto: #e9f0ea; --suave: #a9bbae; --linha: #284534; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--ambar); outline-offset: 3px; border-radius: 4px; }
+  .miolo { width: min(1080px, 100% - 32px); margin-inline: auto; }
+  header { background: linear-gradient(180deg, var(--verde), var(--verde-fundo)); color: #fff; padding: 18px 0 38px; }
+  header a { color: #fff; text-decoration: none; font-weight: 600; opacity: .9; }
+  header a:hover { opacity: 1; text-decoration: underline; }
+  h1 { margin: 22px 0 0; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; letter-spacing: -.5px; }
+  header p { margin: 10px 0 0; color: #dcebe0; max-width: 62ch; }
+  main { padding: 30px 0 56px; }
+  h2 { font-size: 1.3rem; margin: 34px 0 10px; }
+  .painel { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 20px 22px; }
+  .campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
+  label { display: block; font-weight: 700; font-size: .92rem; margin-bottom: 4px; }
+  input, select { width: 100%; font: inherit; padding: 10px 14px; border-radius: 12px; border: 2px solid var(--linha); background: var(--fundo); color: var(--texto); }
+  input:focus, select:focus { border-color: var(--verde); outline: none; }
+  .dica { color: var(--suave); font-size: .85rem; margin: 4px 0 0; }
+  .resultado { margin-top: 20px; }
+  .tabela-rolavel { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { padding: 8px 12px; border-bottom: 1px solid var(--linha); text-align: right; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { font-size: .85rem; color: var(--suave); }
+  td small { display: block; color: var(--suave); font-size: .78rem; }
+  .leve td, .leve th { }
+  .destaque { background: rgba(232, 163, 61, .16); }
+  .selo { display: inline-block; padding: 6px 18px; border-radius: 999px; font-weight: 800; font-size: 1.1rem; }
+  .numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 14px; }
+  .numeros div { background: var(--fundo); border-radius: 12px; padding: 10px 14px; }
+  .numeros span { display: block; font-size: .8rem; color: var(--suave); }
+  .numeros b { font-size: 1.3rem; }
+  .cartoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+  .cartao { display: block; background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 20px 22px; text-decoration: none; }
+  .cartao:hover { border-color: var(--verde); }
+  .cartao b { font-size: 1.15rem; display: block; margin-bottom: 4px; }
+  .cartao span { color: var(--suave); }
+  .nota { color: var(--suave); font-size: .9rem; margin-top: 22px; }
+  footer { background: var(--verde-fundo); color: #cfe0d3; padding: 28px 0; font-size: .92rem; margin-top: 20px; }
+  footer .miolo { display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: space-between; }
+  footer a { color: #fff; }
+</style>
+</head>
+<body>
+<header>
+  <div class="miolo">
+    <a href="../../">&larr; Brote na Trilha</a>
+    <h1>Relação de marchas</h1>
+    <p>A velocidade de cada marcha, pela cadência, a coroa, o cassete e o pneu da sua bike.</p>
+  </div>
+</header>
+<main class="miolo">
+  <div class="painel">
+    <div class="campos">
+      <div><label for="coroas">Coroas (dentes)</label><input id="coroas" inputmode="decimal" value="34"><p class="dica">Uma ou mais, separadas por vírgula (ex.: 32, 34 ou 26, 36).</p></div>
+      <div><label for="modelo">Cassete</label>
+        <select id="modelo">
+          <option value="10,12,14,16,18,21,24,28,33,39,45,51">Shimano SLX / XT 12v, 10-51</option>
+          <option value="10,12,14,16,18,21,24,28,32,36,42,52">SRAM GX Eagle 12v, 10-52</option>
+          <option value="">Outro (digite ao lado)</option>
+        </select></div>
+      <div><label for="cassete">Dentes do cassete</label><input id="cassete" inputmode="decimal"><p class="dica">Do menor para o maior, separados por vírgula.</p></div>
+      <div><label for="cadencia">Cadência (rpm)</label><input id="cadencia" inputmode="decimal" value="90"></div>
+      <div><label for="aro">Aro</label>
+        <select id="aro"><option value="622">29"</option><option value="584">27,5"</option><option value="559">26"</option></select></div>
+      <div><label for="largura">Largura do pneu (polegadas)</label><input id="largura" inputmode="decimal" value="2,3"></div>
+      <div><label for="medida">Circunferência medida (mm, opcional)</label><input id="medida" inputmode="decimal"><p class="dica">Se você mediu a sua roda, ela vale mais que a estimativa.</p></div>
+    </div>
+    <div class="resultado" aria-live="polite">
+      <p id="resumo"></p>
+      <div class="tabela-rolavel"><table id="tabela"></table></div>
+    </div>
+  </div>
+  <h2>Como é calculado</h2>
+  <p class="nota" style="margin-top:0">Velocidade = cadência × (dentes da coroa ÷ dentes do pinhão) × circunferência da roda. A circunferência estimada é <b>π × (diâmetro do aro + 2 × 95% da largura do pneu)</b>:
+  é uma aproximação, porque o pneu afunda com o peso e o valor real depende da pressão e do modelo. Para um número exato, meça: marque o chão, role a bike carregada uma volta de roda e meça a distância.</p>
+</main>
+<footer>
+  <div class="miolo">
+    <span>© <span id="ano">2026</span> Brote na Trilha</span>
+    <span><a href="../../privacidade/">Política de privacidade</a> · <a href="../../">Voltar ao site</a></span>
+  </div>
+</footer>
+<script>
+  document.getElementById("ano").textContent = new Date().getFullYear();
+  // Aceita vírgula ou ponto como separador decimal; devolve null se não for um número maior que zero
+  function numero(t) { var v = parseFloat(String(t).replace(",", ".")); return isFinite(v) && v > 0 ? v : null; }
+  function formatar(v, casas) { return v.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas }); }
+  var cass = document.getElementById("cassete"), modelo = document.getElementById("modelo");
+  function lista(t) { return String(t).split(/[ ,;]+/).map(numero).filter(Boolean).sort(function (a, b) { return a - b; }); }
+  modelo.addEventListener("change", function () { if (modelo.value) cass.value = modelo.value.replace(/,/g, ", "); calcular(); });
+  cass.value = modelo.value.replace(/,/g, ", ");
+  function calcular() {
+    var coroas = lista(document.getElementById("coroas").value), pinhoes = lista(cass.value);
+    var cadencia = numero(document.getElementById("cadencia").value), tabela = document.getElementById("tabela"), resumo = document.getElementById("resumo");
+    var medida = numero(document.getElementById("medida").value);
+    var circ = medida ? medida : Math.PI * (Number(document.getElementById("aro").value) + 2 * 0.95 * (numero(document.getElementById("largura").value) || 0) * 25.4);
+    if (!coroas.length || !pinhoes.length || !cadencia || !circ) { tabela.innerHTML = ""; resumo.textContent = "Preencha as coroas, o cassete e a cadência."; return; }
+    var kmh = function (c, p) { return cadencia * (c / p) * (circ / 1000) * 60 / 1000; };
+    var leve = kmh(coroas[0], pinhoes[pinhoes.length - 1]), pesada = kmh(coroas[coroas.length - 1], pinhoes[0]);
+    resumo.innerHTML = "Circunferência da roda: <b>" + formatar(circ, 0) + " mm</b>" + (medida ? " (a que você mediu)" : " (estimada)") +
+      ". A marcha mais leve (" + coroas[0] + "×" + pinhoes[pinhoes.length - 1] + ") faz <b>" + formatar(leve, 1) + " km/h</b> a " + formatar(cadencia, 0) +
+      " rpm; a mais pesada (" + coroas[coroas.length - 1] + "×" + pinhoes[0] + "), <b>" + formatar(pesada, 1) + " km/h</b>.";
+    var html = "<tr><th>Pinhão</th>" + coroas.map(function (c) { return "<th>Coroa " + c + "</th>"; }).join("") + "</tr>";
+    for (var i = pinhoes.length - 1; i >= 0; i--) {
+      html += "<tr><td><b>" + pinhoes[i] + "</b></td>" + coroas.map(function (c) {
+        return "<td>" + formatar(kmh(c, pinhoes[i]), 1) + " km/h<small>" + formatar(c / pinhoes[i], 2) + ":1 · " + formatar(c / pinhoes[i] * circ / 1000, 2) + " m</small></td>";
+      }).join("") + "</tr>";
+    }
+    tabela.innerHTML = html;
+  }
+  ["coroas", "cassete", "cadencia", "aro", "largura", "medida"].forEach(function (id) { document.getElementById(id).addEventListener("input", calcular); });
+  calcular();
+</script>
+<script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
