@@ -166,6 +166,15 @@
   .navegacao small { display: block; color: var(--suave); font-weight: 600; margin-bottom: 4px; }
   .navegacao .proximo { grid-column: 2; text-align: right; }
   .navegacao .anterior { grid-column: 1; }
+  .parecidos { margin-top: 36px; }
+  .parecidos h2 { margin: 0 0 12px; font-size: 1.2rem; }
+  .grade-parecidos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 12px; }
+  .grade-parecidos a { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; text-decoration: none; }
+  .grade-parecidos a:hover { border-color: var(--verde); }
+  .grade-parecidos b { line-height: 1.3; }
+  .grade-parecidos span { color: var(--suave); font-size: .88rem; }
+  .grade-parecidos em { font-style: normal; color: var(--verde); font-size: .88rem; font-weight: 600; }
+  @media (prefers-color-scheme: dark) { .grade-parecidos em { color: #7fcf9d; } }
   .todos { margin-top: 18px; text-align: center; }
   .todos a { font-weight: 700; color: var(--verde); }
   @media (prefers-color-scheme: dark) { .todos a { color: #7fcf9d; } }
@@ -200,6 +209,7 @@
   <section class="lugares"><h2>Por onde passa</h2><table><thead><tr><th>Km</th><th>Bairro ou localidade</th><th>Município</th></tr></thead><tbody><tr><td class="km">0,0</td><td>Colina</td><td>Linhares</td></tr><tr><td class="km">1,1</td><td>Centro</td><td>Linhares</td></tr><tr><td class="km">2,3</td><td>Olaria</td><td>Linhares</td></tr><tr><td class="km">10,3</td><td>São Rafael</td><td>Linhares</td></tr><tr><td class="km">55,4</td><td>São Jorge de Tiradentes</td><td>Rio Bananal</td></tr><tr><td class="km">61,7</td><td>Chumbado</td><td>Sooretama</td></tr><tr class="extra"><td class="km">65,0</td><td>Santa Luzia</td><td>Sooretama</td></tr><tr class="extra"><td class="km">77,7</td><td>Farias</td><td>Linhares</td></tr><tr class="extra"><td class="km">95,4</td><td>Vila Maria</td><td>Linhares</td></tr><tr class="extra"><td class="km">96,5</td><td>Vila Izabel</td><td>Linhares</td></tr><tr class="extra"><td class="km">97,6</td><td>Canivete</td><td>Linhares</td></tr><tr class="extra"><td class="km">100,4</td><td>Nova Betânia</td><td>Linhares</td></tr><tr class="extra"><td class="km">104,0</td><td>Três Barras</td><td>Linhares</td></tr><tr class="extra"><td class="km">106,8</td><td>Nossa Senhora da Conceição</td><td>Linhares</td></tr></tbody></table><button type="button" class="botao claro mais-lugares" data-total="14" aria-expanded="false" hidden>Mostrar todos os 14</button><p class="nota-lugares">O km é onde o percurso entra no lugar (conferido a cada 1 km). Bairros e localidades segundo o OpenStreetMap.</p></section>
   <section class="clima"><h2>Clima</h2><div class="clima-grade"><div><small>No início · 06:32</small><strong>21 °C</strong><span class="ceu">Parcialmente nublado</span><span>sensação de 24 °C · vento de SSE, 7 km/h</span></div><div><small>No fim · 12:29</small><strong>24 °C</strong><span class="ceu">Garoa</span><span>sensação de 25 °C · vento de L, 17 km/h (rajadas de 38 km/h)</span></div></div><p class="chuva-pedal">Choveu cerca de 1,5 mm durante o pedal.</p><p class="nota-clima">Valores estimados por modelo para a região (grade de uns 10 km), na hora mais próxima do começo e do fim. Dados do tempo: Open-Meteo.com (CC BY 4.0).</p></section>
   <p class="links"><a class="botao" href="https://www.youtube.com/watch?v=2BU6odoro0E" target="_blank" rel="noopener">Assistir</a> <a class="botao claro" href="https://www.strava.com/activities/19768697183" target="_blank" rel="noopener">View on Strava</a> <a class="botao claro" href="https://www.komoot.com/pt-br/tour/3206405895" target="_blank" rel="noopener">Komoot</a> <a class="botao claro" href="/pedais/gpx/19768697183.gpx" download="2026-08-16-12-volta-da-lagoa-juparana-essa-foi-raiz.gpx">Baixar GPX</a></p>
+  
   
   <nav class="navegacao" aria-label="Outros pedais"><a class="anterior" href="/pedais/2026-08-08-rampa-do-urubu-e-moxuara-subindo-sem-dar-tela-azul/"><small>← Pedal anterior</small>Rampa do Urubu e Moxuara - Subindo sem dar tela azul</a><a class="proximo" href="/pedais/2026-08-29-giro-ate-o-pedagio-da-serra-e-queimados/"><small>Próximo pedal →</small>Giro até o pedágio da Serra e Queimados</a></nav>
   <p class="todos"><a href="/pedais/">Ver todos os pedais</a></p>

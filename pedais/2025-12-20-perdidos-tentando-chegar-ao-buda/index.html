@@ -166,6 +166,15 @@
   .navegacao small { display: block; color: var(--suave); font-weight: 600; margin-bottom: 4px; }
   .navegacao .proximo { grid-column: 2; text-align: right; }
   .navegacao .anterior { grid-column: 1; }
+  .parecidos { margin-top: 36px; }
+  .parecidos h2 { margin: 0 0 12px; font-size: 1.2rem; }
+  .grade-parecidos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 12px; }
+  .grade-parecidos a { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; text-decoration: none; }
+  .grade-parecidos a:hover { border-color: var(--verde); }
+  .grade-parecidos b { line-height: 1.3; }
+  .grade-parecidos span { color: var(--suave); font-size: .88rem; }
+  .grade-parecidos em { font-style: normal; color: var(--verde); font-size: .88rem; font-weight: 600; }
+  @media (prefers-color-scheme: dark) { .grade-parecidos em { color: #7fcf9d; } }
   .todos { margin-top: 18px; text-align: center; }
   .todos a { font-weight: 700; color: var(--verde); }
   @media (prefers-color-scheme: dark) { .todos a { color: #7fcf9d; } }
@@ -201,6 +210,7 @@
   <section class="clima"><h2>Clima</h2><div class="clima-grade"><div><small>No início · 06:08</small><strong>21 °C</strong><span class="ceu">Nublado</span><span>sensação de 25 °C · vento de NO, 5 km/h</span></div><div><small>No fim · 13:33</small><strong>29 °C</strong><span class="ceu">Garoa fraca</span><span>sensação de 33 °C · vento de ENE, 12 km/h (rajadas de 31 km/h)</span></div></div><p class="chuva-pedal">Choveu cerca de 1,9 mm durante o pedal.</p><p class="nota-clima">Valores estimados por modelo para a região (grade de uns 10 km), na hora mais próxima do começo e do fim. Dados do tempo: Open-Meteo.com (CC BY 4.0).</p></section>
   <p class="links"><a class="botao" href="https://www.youtube.com/watch?v=lBBq4IX8f_U" target="_blank" rel="noopener">Assistir</a> <a class="botao claro" href="https://www.strava.com/activities/16795296388" target="_blank" rel="noopener">View on Strava</a> <a class="botao claro" href="https://www.komoot.com/pt-br/tour/2721835473" target="_blank" rel="noopener">Komoot</a> <a class="botao claro" href="/pedais/gpx/16795296388.gpx" download="2025-12-20-perdidos-tentando-chegar-ao-buda.gpx">Baixar GPX</a></p>
   
+  <section class="parecidos"><h2>Pedais parecidos</h2><div class="grade-parecidos"><a href="/pedais/2026-11-07-de-vitoria-ate-barra-do-sahy-em-aracruz/"><b>De Vitória até Barra do Sahy em Aracruz</b><span>7 de novembro de 2026 · 127,2 km · 530 m de subida</span><em>Também passa por Aracruz, Fundão</em></a><a href="/pedais/2026-07-18-ate-timbui-seguindo-o-trem/"><b>Até Timbuí seguindo o trem</b><span>18 de julho de 2026 · 110,5 km · 889 m de subida</span><em>Também passa por Fundão, Serra</em></a><a href="/pedais/2025-02-09-desafio-cara-de-barro-uprise-brasil-2025/"><b>Desafio Cara de Barro - Uprise Brasil 2025</b><span>9 de fevereiro de 2025 · 36,1 km · 543 m de subida</span><em>Também passa por Serra</em></a></div></section>
   <nav class="navegacao" aria-label="Outros pedais"><a class="anterior" href="/pedais/2025-12-14-pedal-do-gato-preto/"><small>← Pedal anterior</small>Pedal do Gato Preto</a><a class="proximo" href="/pedais/2026-01-17-vale-da-lua-capixaba-santa-leopoldina/"><small>Próximo pedal →</small>Vale da Lua Capixaba - Santa Leopoldina</a></nav>
   <p class="todos"><a href="/pedais/">Ver todos os pedais</a></p>
 </main>

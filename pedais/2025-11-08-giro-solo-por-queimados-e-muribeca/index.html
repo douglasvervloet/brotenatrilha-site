@@ -166,6 +166,15 @@
   .navegacao small { display: block; color: var(--suave); font-weight: 600; margin-bottom: 4px; }
   .navegacao .proximo { grid-column: 2; text-align: right; }
   .navegacao .anterior { grid-column: 1; }
+  .parecidos { margin-top: 36px; }
+  .parecidos h2 { margin: 0 0 12px; font-size: 1.2rem; }
+  .grade-parecidos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 12px; }
+  .grade-parecidos a { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; text-decoration: none; }
+  .grade-parecidos a:hover { border-color: var(--verde); }
+  .grade-parecidos b { line-height: 1.3; }
+  .grade-parecidos span { color: var(--suave); font-size: .88rem; }
+  .grade-parecidos em { font-style: normal; color: var(--verde); font-size: .88rem; font-weight: 600; }
+  @media (prefers-color-scheme: dark) { .grade-parecidos em { color: #7fcf9d; } }
   .todos { margin-top: 18px; text-align: center; }
   .todos a { font-weight: 700; color: var(--verde); }
   @media (prefers-color-scheme: dark) { .todos a { color: #7fcf9d; } }
@@ -201,6 +210,7 @@
   <section class="clima"><h2>Clima</h2><div class="clima-grade"><div><small>No início · 05:17</small><strong>21 °C</strong><span class="ceu">Nublado</span><span>sensação de 22 °C · vento de N, 18 km/h (rajadas de 34 km/h)</span></div><div><small>No fim · 10:23</small><strong>26 °C</strong><span class="ceu">Nublado</span><span>sensação de 28 °C · vento de N, 15 km/h (rajadas de 46 km/h)</span></div></div><p class="chuva-pedal">Sem chuva durante o pedal.</p><p class="nota-clima">Valores estimados por modelo para a região (grade de uns 10 km), na hora mais próxima do começo e do fim. Dados do tempo: Open-Meteo.com (CC BY 4.0).</p></section>
   <p class="links"><a class="botao" href="https://www.youtube.com/watch?v=t-21-XWizEQ" target="_blank" rel="noopener">Assistir</a> <a class="botao claro" href="https://www.strava.com/activities/16393631348" target="_blank" rel="noopener">View on Strava</a> <a class="botao claro" href="https://www.komoot.com/pt-br/tour/2675084165" target="_blank" rel="noopener">Komoot</a> <a class="botao claro" href="/pedais/gpx/16393631348.gpx" download="2025-11-08-giro-solo-por-queimados-e-muribeca.gpx">Baixar GPX</a></p>
   <p class="nota-gpx">O GPX traz o percurso sem os primeiros e os últimos 800 m, para não mostrar de onde o pedal sai.</p>
+  <section class="parecidos"><h2>Pedais parecidos</h2><div class="grade-parecidos"><a href="/pedais/2026-08-29-giro-ate-o-pedagio-da-serra-e-queimados/"><b>Giro até o pedágio da Serra e Queimados</b><span>29 de agosto de 2026 · 82,4 km · 653 m de subida</span><em>Também passa por Serra, Vitória</em></a><a href="/pedais/2025-12-14-pedal-do-gato-preto/"><b>Pedal do Gato Preto</b><span>14 de dezembro de 2025 · 76,5 km · 629 m de subida</span><em>Também passa por Serra, Vitória</em></a><a href="/pedais/2026-06-20-pelos-estradoes-da-serra/"><b>Pelos estradões da Serra</b><span>20 de junho de 2026 · 90,3 km · 503 m de subida</span><em>Também passa por Serra, Vitória</em></a></div></section>
   <nav class="navegacao" aria-label="Outros pedais"><a class="anterior" href="/pedais/2025-10-18-em-busca-do-pao-com-linguica-es-080/"><small>← Pedal anterior</small>Em busca do pão com linguiça - ES-080</a><a class="proximo" href="/pedais/2025-11-12-pedal-dos-vaga-lumes-e-do-pneu-murcho/"><small>Próximo pedal →</small>Pedal dos vaga-lumes e do pneu murcho</a></nav>
   <p class="todos"><a href="/pedais/">Ver todos os pedais</a></p>
 </main>

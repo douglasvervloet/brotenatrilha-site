@@ -166,6 +166,15 @@
   .navegacao small { display: block; color: var(--suave); font-weight: 600; margin-bottom: 4px; }
   .navegacao .proximo { grid-column: 2; text-align: right; }
   .navegacao .anterior { grid-column: 1; }
+  .parecidos { margin-top: 36px; }
+  .parecidos h2 { margin: 0 0 12px; font-size: 1.2rem; }
+  .grade-parecidos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 12px; }
+  .grade-parecidos a { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; text-decoration: none; }
+  .grade-parecidos a:hover { border-color: var(--verde); }
+  .grade-parecidos b { line-height: 1.3; }
+  .grade-parecidos span { color: var(--suave); font-size: .88rem; }
+  .grade-parecidos em { font-style: normal; color: var(--verde); font-size: .88rem; font-weight: 600; }
+  @media (prefers-color-scheme: dark) { .grade-parecidos em { color: #7fcf9d; } }
   .todos { margin-top: 18px; text-align: center; }
   .todos a { font-weight: 700; color: var(--verde); }
   @media (prefers-color-scheme: dark) { .todos a { color: #7fcf9d; } }
@@ -201,6 +210,7 @@
   <section class="clima"><h2>Clima</h2><div class="clima-grade"><div><small>No início · 06:52</small><strong>25 °C</strong><span class="ceu">Céu limpo</span><span>sensação de 29 °C · vento de N, 12 km/h (rajadas de 27 km/h)</span></div><div><small>No fim · 11:17</small><strong>29 °C</strong><span class="ceu">Chuva fraca</span><span>sensação de 36 °C · vento de ENE, 8 km/h (rajadas de 35 km/h)</span></div></div><p class="chuva-pedal">Choveu cerca de 2,2 mm durante o pedal.</p><p class="nota-clima">Valores estimados por modelo para a região (grade de uns 10 km), na hora mais próxima do começo e do fim. Dados do tempo: Open-Meteo.com (CC BY 4.0).</p></section>
   <p class="links"><a class="botao" href="https://www.youtube.com/watch?v=IgaiCrOvnf0" target="_blank" rel="noopener">Assistir</a> <a class="botao claro" href="https://www.strava.com/activities/20622515163" target="_blank" rel="noopener">View on Strava</a> <a class="botao claro" href="/pedais/gpx/20622515163.gpx" download="2026-10-17-desenferrujando-as-pernas-queimados-muribeca-e-xco-carapina.gpx">Baixar GPX</a></p>
   <p class="nota-gpx">O GPX traz o percurso sem os primeiros e os últimos 800 m, para não mostrar de onde o pedal sai.</p>
+  <section class="parecidos"><h2>Pedais parecidos</h2><div class="grade-parecidos"><a href="/pedais/2026-03-21-quase-perdendo-a-rosca-do-pedivela-nova-almeida/"><b>Quase perdendo a rosca do pedivela  - Nova Almeida</b><span>21 de março de 2026 · 66,1 km · 347 m de subida</span><em>Também passa por Serra, Vitória</em></a><a href="/pedais/2026-04-13-dia-de-check-up-do-coracao-na-serra/"><b>Dia de check-up do coração na Serra</b><span>13 de abril de 2026 · 66,1 km · 330 m de subida</span><em>Também passa por Serra, Vitória</em></a><a href="/pedais/2026-03-28-secos-e-molhados-praia-grande/"><b>Secos e Molhados - Praia Grande</b><span>28 de março de 2026 · 67,5 km · 386 m de subida</span><em>Também passa por Serra, Vitória</em></a></div></section>
   <nav class="navegacao" aria-label="Outros pedais"><a class="anterior" href="/pedais/2026-09-27-5-cicloturismo-santa-teresa-quer-descer-vai-ter-que-subir/"><small>← Pedal anterior</small>5° Cicloturismo Santa Teresa - Quer descer? Vai ter que subir!</a><a class="proximo" href="/pedais/2026-10-24-subida-de-formate-um-soldado-abatido-e-uma-descida/"><small>Próximo pedal →</small>Subida de Formate, um soldado abatido e uma descida espetacular</a></nav>
   <p class="todos"><a href="/pedais/">Ver todos os pedais</a></p>
 </main>
