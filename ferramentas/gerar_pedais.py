@@ -489,7 +489,8 @@ def gerar_mapa(pedal_id, pontos, pasta_mapas, pasta_cache):
 ESTATICAS = [("https://brotenatrilha.com.br/privacidade/", "2026-10-12"), ("https://brotenatrilha.com.br/analises/", "2026-11-16"),
             ("https://brotenatrilha.com.br/pedais/mapa/", "2026-11-16"), ("https://brotenatrilha.com.br/ferramentas/", "2026-11-16"),
             ("https://brotenatrilha.com.br/ferramentas/relacao-de-marchas/", "2026-11-16"),
-            ("https://brotenatrilha.com.br/ferramentas/categoria-de-subida/", "2026-11-16")]
+            ("https://brotenatrilha.com.br/ferramentas/categoria-de-subida/", "2026-11-16"),
+            ("https://brotenatrilha.com.br/ferramentas/calculadora-de-raios/", "2026-11-16")]
 
 
 # ----------------------------------------------------------------------------- cidades por onde o pedal passa

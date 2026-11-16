@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculadora de raios | Brote na Trilha</title>
+<meta name="description" content="Calcule o comprimento dos raios da roda para cada lado do cubo: ERD do aro, número de raios, cruzamentos e medidas do flange.">
+<link rel="canonical" href="https://brotenatrilha.com.br/ferramentas/calculadora-de-raios/">
+<meta name="theme-color" content="#2d7046">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Brote na Trilha">
+<meta property="og:title" content="Calculadora de raios | Brote na Trilha">
+<meta property="og:description" content="Calcule o comprimento dos raios da roda para cada lado do cubo: ERD do aro, número de raios, cruzamentos e medidas do flange.">
+<meta property="og:url" content="https://brotenatrilha.com.br/ferramentas/calculadora-de-raios/">
+<meta property="og:image" content="https://brotenatrilha.com.br/compartilhar.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="48x48" href="../../favicon.png">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Calculadora de raios", "url": "https://brotenatrilha.com.br/ferramentas/calculadora-de-raios/", "applicationCategory": "SportsApplication", "operatingSystem": "Qualquer navegador", "inLanguage": "pt-BR", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "BRL"}, "publisher": {"@type": "Organization", "name": "Brote na Trilha", "url": "https://brotenatrilha.com.br/"}}</script>
+<style>
+  :root { --verde: #2d7046; --verde-escuro: #1e5434; --verde-fundo: #163d27; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; }
+  @media (prefers-color-scheme: dark) { :root { --fundo: #0f1a13; --cartao: #172a1e; --texto: #e9f0ea; --suave: #a9bbae; --linha: #284534; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.6; }
+  .miolo { width: min(1080px, 100% - 32px); margin-inline: auto; }
+  header { background: linear-gradient(180deg, var(--verde), var(--verde-fundo)); color: #fff; padding: 18px 0 34px; }
+  header a { color: #fff; text-decoration: none; font-weight: 600; opacity: .9; }
+  h1 { margin: 20px 0 0; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; letter-spacing: -.5px; }
+  header p { margin: 10px 0 0; color: #dcebe0; max-width: 62ch; }
+  main { padding: 28px 0 40px; }
+  .grade { display: grid; grid-template-columns: 1.1fr 1fr; gap: 22px; align-items: start; }
+  @media (max-width: 860px) { .grade { grid-template-columns: 1fr; } }
+  .painel { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 20px 22px; }
+  .painel h2 { margin: 0 0 12px; font-size: 1.1rem; }
+  .campos { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .campos .largo { grid-column: 1 / -1; }
+  label { display: block; font-weight: 700; font-size: .9rem; margin-bottom: 4px; }
+  input, select { width: 100%; font: inherit; padding: 9px 13px; border-radius: 12px; border: 2px solid var(--linha); background: var(--fundo); color: var(--texto); }
+  .exemplo { color: var(--ambar); font-size: .8rem; font-weight: 700; margin-left: 6px; }
+  .lado { display: flex; flex-direction: column; gap: 22px; }
+  .resultado { background: linear-gradient(180deg, var(--verde), var(--verde-fundo)); color: #fff; border-radius: 16px; padding: 22px; }
+  .resultado h2 { margin: 0 0 14px; font-size: 1.1rem; color: #dcebe0; }
+  .dois { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .dois div { background: rgba(255, 255, 255, .12); border-radius: 14px; padding: 14px 16px; }
+  .dois span { display: block; font-size: .85rem; color: #dcebe0; }
+  .dois b { font-size: 2.1rem; line-height: 1.1; letter-spacing: -1px; }
+  .dois small { font-size: 1rem; font-weight: 600; margin-left: 3px; }
+  .dois em { display: block; font-style: normal; color: var(--ambar); font-weight: 700; margin-top: 2px; }
+  .resultado p { margin: 14px 0 0; font-size: .9rem; color: #dcebe0; }
+  .diagrama svg { display: block; width: 100%; height: auto; }
+  .diagrama text { font-family: inherit; font-size: 13px; fill: var(--texto); }
+  .diagrama .suave { fill: var(--suave); }
+  details { margin-top: 18px; }
+  summary { cursor: pointer; font-weight: 700; padding: 6px 0; }
+  details ol { margin: 8px 0 0; padding-left: 22px; color: var(--texto); }
+  details li { margin: 6px 0; }
+  .nota { color: var(--suave); font-size: .88rem; margin-top: 16px; }
+  footer { background: var(--verde-fundo); color: #cfe0d3; padding: 24px 0; font-size: .92rem; }
+  footer .miolo { display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: space-between; }
+  footer a { color: #fff; }
+</style>
+</head>
+<body>
+<header>
+  <div class="miolo">
+    <a href="../">&larr; Ferramentas</a>
+    <h1>Calculadora de raios</h1>
+    <p>O comprimento dos raios da roda que você vai montar, para cada lado do cubo.</p>
+  </div>
+</header>
+<main class="miolo">
+  <div class="grade">
+    <div class="lado">
+      <div class="painel">
+        <h2>Aro e raios <span class="exemplo">valores de exemplo</span></h2>
+        <div class="campos">
+          <div><label for="erd">ERD do aro (mm)</label><input id="erd" inputmode="decimal" value="600"></div>
+          <div><label for="furos">Número de raios</label>
+            <select id="furos"><option>24</option><option>28</option><option selected>32</option><option>36</option></select></div>
+          <div class="largo"><label for="cruz">Cruzamentos</label>
+            <select id="cruz"><option value="0">Radial (0)</option><option value="1">1 cruzamento</option><option value="2">2 cruzamentos</option><option value="3" selected>3 cruzamentos</option><option value="4">4 cruzamentos</option></select></div>
+        </div>
+      </div>
+      <div class="painel">
+        <h2>Cubo</h2>
+        <div class="campos">
+          <div><label for="fe">Ø do flange esquerdo (mm)</label><input id="fe" inputmode="decimal" value="58"></div>
+          <div><label for="fd">Ø do flange direito (mm)</label><input id="fd" inputmode="decimal" value="58"></div>
+          <div><label for="de">Distância ao centro, esquerdo (mm)</label><input id="de" inputmode="decimal" value="35"></div>
+          <div><label for="dd">Distância ao centro, direito (mm)</label><input id="dd" inputmode="decimal" value="18"></div>
+          <div class="largo"><label for="furo">Ø do furo do flange (mm)</label><input id="furo" inputmode="decimal" value="2,6"></div>
+        </div>
+      </div>
+    </div>
+    <div class="lado">
+      <div class="resultado" aria-live="polite">
+        <h2>Comprimento do raio</h2>
+        <div class="dois">
+          <div><span>Lado esquerdo</span><b id="re">290,9</b><small>mm</small><em id="ae">use 291 mm</em></div>
+          <div><span>Lado direito</span><b id="rd">289,4</b><small>mm</small><em id="ad">use 289 mm</em></div>
+        </div>
+        <p>Resultado teórico. Raios são vendidos de 1 em 1 mm ou de 2 em 2 mm: escolha o tamanho comercial mais próximo.</p>
+      </div>
+      <div class="painel diagrama">
+        <h2>Onde medir</h2>
+        <svg viewBox="0 0 520 300" role="img" aria-label="Esquema do cubo e do aro com as medidas">
+          <rect x="190" y="26" width="140" height="22" rx="8" fill="none" stroke="currentColor" stroke-width="2" opacity=".7"/>
+          <text x="260" y="20" text-anchor="middle">Aro: ERD (diâmetro efetivo)</text>
+          <line x1="260" y1="48" x2="260" y2="276" stroke="#e8a33d" stroke-width="2" stroke-dasharray="6 5"/>
+          <text x="268" y="68" class="suave">centro da roda</text>
+          <line x1="110" y1="215" x2="410" y2="215" stroke="currentColor" stroke-width="2" opacity=".5"/>
+          <text x="418" y="219" class="suave">eixo</text>
+          <rect x="188" y="186" width="7" height="58" rx="3" fill="#2d7046"/>
+          <rect x="296" y="186" width="7" height="58" rx="3" fill="#2d7046"/>
+          <line x1="191" y1="186" x2="232" y2="48" stroke="#2d7046" stroke-width="1.6" opacity=".75"/>
+          <line x1="299" y1="186" x2="288" y2="48" stroke="#2d7046" stroke-width="1.6" opacity=".75"/>
+          <line x1="170" y1="186" x2="170" y2="244" stroke="currentColor" stroke-width="1.5"/>
+          <text x="100" y="198" class="suave">Ø flange</text>
+          <line x1="191" y1="262" x2="257" y2="262" stroke="currentColor" stroke-width="1.5"/><line x1="191" y1="256" x2="191" y2="268" stroke="currentColor" stroke-width="1.5"/><line x1="257" y1="256" x2="257" y2="268" stroke="currentColor" stroke-width="1.5"/>
+          <text x="224" y="287" text-anchor="middle">esquerdo</text>
+          <line x1="263" y1="262" x2="299" y2="262" stroke="currentColor" stroke-width="1.5"/><line x1="263" y1="256" x2="263" y2="268" stroke="currentColor" stroke-width="1.5"/><line x1="299" y1="256" x2="299" y2="268" stroke="currentColor" stroke-width="1.5"/>
+          <text x="281" y="287" text-anchor="middle">direito</text>
+        </svg>
+        <details>
+          <summary>Como medir cada valor</summary>
+          <ol>
+            <li><b>ERD:</b> o diâmetro efetivo do aro, no ponto em que a ponta do raio se apoia. Está na ficha do fabricante, ou se mede com dois raios curtos e o aro vazio.</li>
+            <li><b>Ø do flange:</b> o diâmetro do círculo que passa pelo centro dos furos do flange, de cada lado.</li>
+            <li><b>Distância ao centro:</b> da face do flange até o meio do eixo (a linha central da roda), de cada lado. No lado do disco ou da catraca o valor é menor.</li>
+            <li><b>Ø do furo:</b> o diâmetro dos furos do flange (em geral 2,4 a 2,6 mm).</li>
+          </ol>
+        </details>
+      </div>
+    </div>
+  </div>
+  <p class="nota">Conta: comprimento = √(R² + r² + d² − 2·R·r·cos α) − Ø do furo ÷ 2, com R = ERD ÷ 2, r = Ø do flange ÷ 2, d = distância ao centro e α = 360° × cruzamentos ÷ (raios ÷ 2). O esticamento do raio na tensão final não está incluído; confira com as medidas de fábrica do seu cubo e do seu aro.</p>
+</main>
+<footer>
+  <div class="miolo">
+    <span>© <span id="ano">2026</span> Brote na Trilha</span>
+    <span><a href="../../privacidade/">Política de privacidade</a> · <a href="../../">Voltar ao site</a></span>
+  </div>
+</footer>
+<script>
+  document.getElementById("ano").textContent = new Date().getFullYear();
+  function num(t) { var v = parseFloat(String(t).replace(",", ".")); return isFinite(v) && v > 0 ? v : null; }
+  function fmt(v, c) { return v.toLocaleString("pt-BR", { minimumFractionDigits: c, maximumFractionDigits: c }); }
+  function lado(erd, flange, dist, furos, cruz, furo) {
+    var R = erd / 2, r = flange / 2, a = 2 * Math.PI * cruz / (furos / 2);
+    return Math.sqrt(R * R + r * r + dist * dist - 2 * R * r * Math.cos(a)) - furo / 2;
+  }
+  function calcular() {
+    var erd = num(document.getElementById("erd").value), furos = Number(document.getElementById("furos").value), cruz = Number(document.getElementById("cruz").value),
+        fe = num(document.getElementById("fe").value), fd = num(document.getElementById("fd").value), de = num(document.getElementById("de").value),
+        dd = num(document.getElementById("dd").value), furo = num(document.getElementById("furo").value);
+    if (!erd || !fe || !fd || !de || !dd || !furo) return;
+    var e = lado(erd, fe, de, furos, cruz, furo), d = lado(erd, fd, dd, furos, cruz, furo);
+    document.getElementById("re").textContent = fmt(e, 1); document.getElementById("rd").textContent = fmt(d, 1);
+    document.getElementById("ae").textContent = "use " + Math.round(e) + " mm"; document.getElementById("ad").textContent = "use " + Math.round(d) + " mm";
+  }
+  document.querySelectorAll("input, select").forEach(function (el) { el.addEventListener("input", calcular); });
+  calcular();
+</script>
+<script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
