@@ -42,6 +42,50 @@
   .mapa.com-fundo .halo { stroke: #ffffff; stroke-width: 8; opacity: .9; }
   .mapa.com-fundo .linha { stroke: #d6004f; stroke-width: 4.5; }
   .mapa.vazio { display: grid; place-items: center; color: #7fa68d; }
+  .mapa.com-piso .linha { stroke: transparent; }
+  .mapa.com-fundo .piso { stroke-width: 4.5; }
+  /* o piso no traçado: mais específico que o ".mapa path" de sempre (o magenta) */
+  .mapa path.piso-asfalto { stroke: #d6004f; }
+  .mapa path.piso-calcamento { stroke: #6b2fa8; }
+  .mapa path.piso-terra { stroke: #141414; }
+  .mapa path.piso-sem-info { stroke: #8f897c; stroke-dasharray: 6 5; }
+  .piso-resumo .piso-asfalto { background: #d6004f; }
+  .piso-resumo .piso-calcamento { background: #6b2fa8; }
+  .piso-resumo .piso-terra { background: #141414; }
+  .piso-resumo .piso-sem-info { background: repeating-linear-gradient(90deg, #8f897c 0 5px, transparent 5px 9px); }
+  @media (prefers-color-scheme: dark) { .piso-resumo .piso-terra { background: #e9f0ea; } }
+  .piso-resumo { margin: 12px 0 0; display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; padding: 10px 14px; }
+  .piso-resumo ul { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 18px; font-variant-numeric: tabular-nums; }
+  .piso-resumo li { display: inline-flex; align-items: center; gap: 8px; }
+  .piso-resumo .amostra { display: inline-block; width: 22px; height: 5px; border-radius: 3px; }
+  .perfil .subida { opacity: .75; }
+  .perfil .numero-subida circle { stroke: #fff; stroke-width: 2; }
+  .perfil .numero-subida text { font-family: inherit; font-size: 12px; font-weight: 800; }
+  .subidas { margin-top: 28px; display: flex; flex-direction: column; gap: 12px; }
+  .titulo-subidas { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; justify-content: space-between; }
+  .titulo-subidas h2 { margin: 0; font-size: 1.2rem; }
+  .titulo-subidas span { color: var(--suave); font-weight: 600; }
+  .subida { background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .topo-subida { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; }
+  .topo-subida > div { flex: 1 1 160px; min-width: 0; }
+  .topo-subida h3 { margin: 0; font-size: 1.05rem; line-height: 1.25; }
+  .topo-subida p { margin: 0; color: var(--suave); font-size: .9rem; }
+  .topo-subida .bola { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+  .topo-subida .categoria { display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px; border-radius: 999px; font-size: .88rem; font-weight: 800; white-space: nowrap; }
+  .grafico-subida { position: relative; height: 90px; background: var(--fundo); border-radius: 10px; padding: 10px 8px 0; box-sizing: border-box; }
+  .grafico-subida .colunas, .grafico-subida svg { position: absolute; left: 8px; right: 8px; top: 10px; bottom: 0; width: calc(100% - 16px); height: calc(100% - 10px); }
+  .grafico-subida .colunas { display: flex; align-items: flex-end; gap: 1px; }
+  .grafico-subida .colunas span { flex: 1 1 0; min-width: 0; }
+  .grafico-subida svg { overflow: visible; }
+  .grafico-subida polyline { fill: none; stroke: var(--texto); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .numeros-subida { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+  .numeros-subida span { display: block; font-size: .72rem; color: var(--suave); }
+  .numeros-subida b { font-variant-numeric: tabular-nums; }
+  @media (max-width: 620px) { .numeros-subida { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .legenda-subidas { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .82rem; color: var(--suave); }
+  .legenda-subidas li { display: inline-flex; align-items: center; gap: 6px; }
+  .legenda-subidas span { width: 14px; height: 14px; border-radius: 4px; }
+  .nota-subidas { margin: 0; font-size: .78rem; color: var(--suave); }
   .perfil { margin: 14px 0 0; background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; padding: 10px 8px 6px; }
   .perfil .rolagem { overflow-x: auto; }
   .perfil svg { display: block; width: 100%; min-width: 560px; height: auto; }
@@ -146,9 +190,11 @@
   {{VIDEO}}
   {{TEXTO}}
   {{MAPA}}
+  {{PISO}}
   {{PERFIL}}
-  <p class="credito">{{NOTA_CORTE}}Mapa: © OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA).</p>
+  <p class="credito">{{NOTA_CORTE}}Mapa: © OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA).{{CREDITO_PISO}}</p>
   <dl>{{NUMEROS}}</dl>
+  {{SUBIDAS}}
   {{LUGARES}}
   {{CLIMA}}
   <p class="links">{{LINKS}}</p>

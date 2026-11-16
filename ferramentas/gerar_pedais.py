@@ -828,8 +828,8 @@ def passo_bonito(intervalo, alvo):
     return min((m * base for m in (1, 2, 5, 10)), key=lambda x: abs(x - bruto))
 
 
-def perfil_svg(caminho):
-    """Gráfico de altimetria em SVG (distância x altitude); '' se não há altitude suficiente."""
+def perfil_svg(caminho, subidas=None):
+    """Gráfico de altimetria em SVG (distância x altitude), com as subidas (área na cor da categoria e o número); '' se não há altitude suficiente."""
     perfil = ler_perfil_do_gpx(caminho)
     if len(perfil) < 10 or perfil[-1][0] < 1:
         return ""
@@ -871,15 +871,301 @@ def perfil_svg(caminho):
     while km <= km_total + 1e-6:
         grade.append(f'<text class="eixo" x="{x(km):.1f}" y="{PERFIL_A - 8}" text-anchor="middle">{num(km)} km</text>')
         km += degrau_x
+    areas_subidas, numeros_subidas = subidas_no_perfil(subidas or [], kms, valores, x, y, base_y, largura)
     # Os dados vão no próprio SVG: o script da página (modelo_pedal.tpl) os lê para mostrar a posição no mapa quando o mouse passa no gráfico
     dados = (f'data-km="{",".join(f"{k:.2f}" for k in kms)}" data-alt="{",".join(f"{v:.1f}" for v in valores)}" '
              f'data-x0="{m["esq"]}" data-largura="{largura}" data-y0="{m["topo"]}" data-altura="{altura}" data-ymin="{y_min}" data-ymax="{y_max}"')
     return (f'<figure class="perfil"><div class="rolagem"><svg viewBox="0 0 {PERFIL_L} {PERFIL_A}" role="img" {dados} '
             f'aria-label="Perfil de altimetria do percurso: altitude de {num(min(valores))} a {num(max(valores))} m em {num(km_total, 1)} km">'
-            + "".join(grade) + f'<polygon class="area" points="{area}"/><polyline class="altitude" points="{linha}"/>'
+            + "".join(grade) + f'<polygon class="area" points="{area}"/>{areas_subidas}<polyline class="altitude" points="{linha}"/>{numeros_subidas}'
             f'<line class="cursor" y1="{m["topo"]}" y2="{base_y:.1f}" hidden/><circle class="ponto-perfil" r="5" hidden/></svg></div>'
             '<div class="dica" hidden></div>'
             '<figcaption>Altimetria do trecho mostrado no mapa. Passe o mouse (ou toque) no gráfico ou no traçado do mapa para ligar os dois.</figcaption></figure>')
+
+
+# ----------------------------------------------------------------------------- subidas (a regra do Garmin ClimbPro e do Strava)
+# Pontuação = comprimento (m) × inclinação média (%). Subida: 500 m ou mais, média de 3% ou mais e pontuação de 3.500 ou mais (as "médias e grandes"
+# do ClimbPro). Categorias: Cat 4 a partir de 8.000, Cat 3 de 16.000, Cat 2 de 32.000, Cat 1 de 64.000 e HC de 80.000.
+SUBIDA_PASSO_M = 20                                  # a altitude reamostrada a cada 20 m, suavizada em ±2 pontos
+SUBIDA_TOLERANCIA_M = 10                             # uma descida de até 10 m no meio não corta a subida
+CATEGORIAS_SUBIDA = [(80000, "HC"), (64000, "Cat 1"), (32000, "Cat 2"), (16000, "Cat 3"), (8000, "Cat 4")]
+CORES_CATEGORIA = {"Sem categoria": ("#7fb07a", "#14301c"), "Cat 4": ("#2d7046", "#ffffff"), "Cat 3": ("#f2c14e", "#3a2a00"),
+                   "Cat 2": ("#e8873a", "#2e1600"), "Cat 1": ("#c8452c", "#ffffff"), "HC": ("#6e1f2a", "#ffffff")}
+FAIXAS_INCLINACAO = [(3, "#cfe3c3", "até 3%"), (6, "#f2c14e", "3 a 6%"), (9, "#e8873a", "6 a 9%"), (12, "#c8452c", "9 a 12%"), (999, "#6e1f2a", "mais de 12%")]
+
+
+def cor_da_inclinacao(p):
+    return next(cor for ate, cor, _ in FAIXAS_INCLINACAO if p < ate)
+
+
+def subidas_do_perfil(perfil):
+    """As subidas do perfil [(km, altitude)] do GPX, na ordem do percurso: início e fim (km), comprimento, ganho, média, máxima,
+    altitudes, pontuação, categoria e a inclinação a cada 100 m."""
+    if len(perfil) < 10:
+        return []
+    total = perfil[-1][0] * 1000
+    alt, j = [], 0
+    for k in range(int(total // SUBIDA_PASSO_M) + 1):
+        x = k * SUBIDA_PASSO_M / 1000
+        while j + 1 < len(perfil) - 1 and perfil[j + 1][0] < x:
+            j += 1
+        (k0, a0), (k1, a1) = perfil[j], perfil[j + 1]
+        f = 0 if k1 == k0 else min(max((x - k0) / (k1 - k0), 0), 1)
+        alt.append(a0 + (a1 - a0) * f)
+    alt = [sum(alt[max(0, i - 2):i + 3]) / len(alt[max(0, i - 2):i + 3]) for i in range(len(alt))]
+    subidas, i = [], 0
+    while i < len(alt) - 1:
+        ini = topo = k = i
+        while k < len(alt) - 1:
+            k += 1
+            if alt[k] > alt[topo]:
+                topo = k
+            if alt[topo] - alt[k] > SUBIDA_TOLERANCIA_M:
+                break
+        comp = (topo - ini) * SUBIDA_PASSO_M
+        ganho = alt[topo] - alt[ini]
+        media = ganho / comp * 100 if comp else 0
+        pontos = comp * media
+        if comp >= 500 and media >= 3 and pontos >= 3500:
+            inclinacoes = []
+            for a in range(ini, topo, 5):                # a cada 100 m
+                b = min(a + 5, topo)
+                inclinacoes.append(round((alt[b] - alt[a]) / ((b - a) * SUBIDA_PASSO_M) * 100, 1))
+            categoria = next((nome for limite, nome in CATEGORIAS_SUBIDA if pontos >= limite), "Sem categoria")
+            subidas.append({"inicio": ini * SUBIDA_PASSO_M / 1000, "fim": topo * SUBIDA_PASSO_M / 1000, "comprimento": comp, "ganho": ganho,
+                            "media": media, "maxima": max(inclinacoes), "base": alt[ini], "topo": alt[topo], "pontos": pontos,
+                            "categoria": categoria, "inclinacoes": inclinacoes, "alts": [alt[q] for q in range(ini, topo + 1, 5)] + [alt[topo]]})
+            i = topo
+        else:
+            i = max(k, i + 1)
+    for n, s in enumerate(subidas, 1):
+        s["numero"] = n
+    return subidas
+
+
+def subidas_no_perfil(subidas, kms, valores, x, y, base_y, largura):
+    """O que o gráfico de altimetria ganha com as subidas: a área de cada uma na cor da categoria (por baixo da linha) e o número dela logo
+    acima da curva, no começo da subida (dois números perto demais: o segundo sobe um degrau)."""
+    areas, numeros = [], []
+    anterior, degrau = -1e9, 0
+    for s in subidas:
+        cor, texto = CORES_CATEGORIA[s["categoria"]]
+        dentro = [(k, v) for k, v in zip(kms, valores) if s["inicio"] <= k <= s["fim"]]
+        if len(dentro) < 2:
+            continue
+        pts = " ".join(f"{x(k):.1f},{y(v):.1f}" for k, v in dentro)
+        areas.append(f'<polygon class="subida" points="{x(dentro[0][0]):.1f},{base_y:.1f} {pts} {x(dentro[-1][0]):.1f},{base_y:.1f}" fill="{cor}"/>')
+        cx = x(dentro[0][0])
+        degrau = degrau + 1 if cx - anterior < 0.06 * largura else 0
+        anterior = cx
+        cy = max(12, y(dentro[0][1]) - 14 - degrau * 22)
+        numeros.append(f'<g class="numero-subida"><circle cx="{cx:.1f}" cy="{cy:.1f}" r="11" fill="{cor}"/>'
+                       f'<text x="{cx:.1f}" y="{cy + 4.5:.1f}" text-anchor="middle" fill="{texto}">{s["numero"]}</text></g>')
+    return "".join(areas), "".join(numeros)
+
+
+def bloco_subidas(subidas):
+    """A seção "Subidas" da página do pedal: um cartão por subida, com a categoria, o perfil (colunas pela inclinação a cada 100 m e a linha da
+    altitude) e os números. '' se o pedal não tem subida."""
+    if not subidas:
+        return ""
+    cats = sum(1 for s in subidas if s["categoria"] != "Sem categoria")
+    resumo = f'{len(subidas)} subida{"s" if len(subidas) > 1 else ""}' + (f' · {cats} com categoria' if cats else "")
+    cartoes = []
+    for s in subidas:
+        cor, texto = CORES_CATEGORIA[s["categoria"]]
+        smin, smax = s["base"], max(s["alts"])
+        faixa = max(1, smax - smin)
+        n = len(s["inclinacoes"])
+
+        def altura(a):
+            return max(4, (a - smin) / faixa * 100)
+
+        colunas = "".join(f'<span style="height:{altura(s["alts"][i + 1]):.1f}%;background:{cor_da_inclinacao(p)}"></span>'
+                          for i, p in enumerate(s["inclinacoes"]))
+        linha = " ".join([f"0,{100 - altura(s['alts'][0]):.1f}"] + [f"{(i + 0.5) / n * 100:.2f},{100 - altura(s['alts'][i + 1]):.1f}" for i in range(n)]
+                         + [f"100,{100 - altura(s['alts'][n]):.1f}"])
+        cartoes.append(
+            f'<article class="subida"><div class="topo-subida"><span class="bola" style="background:{cor};color:{texto}">{s["numero"]}</span>'
+            f'<div><h3>Subida {s["numero"]}</h3><p>do km {num(s["inicio"], 1)} ao km {num(s["fim"], 1)}</p></div>'
+            f'<span class="categoria" style="background:{cor};color:{texto}">{s["categoria"]}</span></div>'
+            f'<div class="grafico-subida" role="img" aria-label="Perfil da subida {s["numero"]}: de {num(s["base"])} a {num(s["topo"])} m em {num(s["comprimento"] / 1000, 1)} km">'
+            f'<div class="colunas">{colunas}</div><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'
+            f'<polyline points="{linha}"/></svg></div>'
+            f'<div class="numeros-subida"><div><span>Distância</span><b>{num(s["comprimento"] / 1000, 1)} km</b></div>'
+            f'<div><span>Ganho</span><b>{num(s["ganho"])} m</b></div><div><span>Média</span><b>{num(s["media"], 1)}%</b></div>'
+            f'<div><span>Máxima</span><b>{num(s["maxima"], 1)}%</b></div><div><span>Altitude</span><b>{num(s["base"])} → {num(s["topo"])} m</b></div>'
+            f'<div><span>Pontuação</span><b>{num(s["pontos"])}</b></div></div></article>')
+    legenda = "".join(f'<li><span style="background:{cor}"></span>{nome}</li>' for _, cor, nome in FAIXAS_INCLINACAO)
+    return (f'<section class="subidas"><div class="titulo-subidas"><h2>Subidas</h2><span>{resumo}</span></div>{"".join(cartoes)}'
+            f'<ul class="legenda-subidas" aria-label="Inclinação a cada 100 m">{legenda}</ul>'
+            '<p class="nota-subidas">Categoria pela pontuação: comprimento (m) × inclinação média (%).</p></section>')
+
+
+# ----------------------------------------------------------------------------- piso do percurso (OpenStreetMap)
+# O piso de cada trecho de 200 m do GPX, pela via mais perto (até 25 m) com a marca de piso no OpenStreetMap (a mesma consulta do BNT Editor). As vias
+# vêm do Overpass em telas fixas de 0,05° (baixadas na pasta temporária, não vão para o repositório); o resultado de cada pedal (só o piso ao longo
+# da distância, sem coordenada) fica em ferramentas/cache_piso.json. Cada rodada baixa no máximo ORCAMENTO_PISO telas e completa o resto depois.
+URL_OVERPASS = "https://overpass-api.de/api/interpreter"
+PISO_TELA = 0.05
+PISO_PASSO_M = 200
+PISO_DISTANCIA_M = 25
+PISOS = ["Asfalto", "Calçamento", "Terra", "Sem informação"]
+CLASSE_PISO = {"Asfalto": "asfalto", "Calçamento": "calcamento", "Terra": "terra", "Sem informação": "sem-info"}
+_cache_piso = None
+
+
+def caminho_cache_piso():
+    return os.path.join(os.path.dirname(__file__), "cache_piso.json")
+
+
+def carregar_cache_piso():
+    global _cache_piso
+    if _cache_piso is None:
+        _cache_piso = json.load(open(caminho_cache_piso(), encoding="utf-8")) if os.path.exists(caminho_cache_piso()) else {}
+    return _cache_piso
+
+
+def salvar_cache_piso():
+    if _cache_piso is not None:
+        with open(caminho_cache_piso(), "w", encoding="utf-8", newline="\n") as f:
+            json.dump(_cache_piso, f, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+
+
+def tipo_do_piso(superficie, via):
+    """O grupo do piso pelas marcas da via (as mesmas do BNT Editor); None se as marcas não dizem."""
+    s = (superficie or "").lower()
+    if s in ("asphalt", "paved", "concrete", "concrete:plates", "concrete:lanes", "chipseal"):
+        return "Asfalto"
+    if s in ("paving_stones", "sett", "bricks", "brick", "unhewn_cobblestone", "cobblestone", "grass_paver"):
+        return "Calçamento"
+    if s in ("compacted", "fine_gravel", "pebblestone", "gravel", "unpaved", "ground", "dirt", "earth", "mud", "clay", "rock", "sand", "grass"):
+        return "Terra"
+    if not s and (via or "").lower() in ("track", "path", "bridleway"):
+        return "Terra"
+    return None
+
+
+def tela_do_piso(linha, coluna, pasta, orcamento):
+    """As vias de uma tela (lista de (lat1, lon1, lat2, lon2, piso)); baixa do Overpass se não está na pasta. None se não deu (sem orçamento ou falhou)."""
+    arquivo = os.path.join(pasta, f"piso_{linha * PISO_TELA:.2f}_{coluna * PISO_TELA:.2f}.json")
+    if not os.path.exists(arquivo):
+        if orcamento["telas"] <= 0:
+            return None
+        area = f"({linha * PISO_TELA:.4f},{coluna * PISO_TELA:.4f},{(linha + 1) * PISO_TELA:.4f},{(coluna + 1) * PISO_TELA:.4f})"
+        consulta = ('[out:json][timeout:60];(way["highway"]["highway"!~"^(footway|steps|pedestrian|corridor)$"]["surface"]' + area +
+                    ';way["highway"~"^(track|path|bridleway)$"][!"surface"]' + area + ';);out tags geom;')
+        orcamento["telas"] -= 1
+        for tentativa in range(3):
+            try:
+                req = urllib.request.Request(URL_OVERPASS, data=urllib.parse.urlencode({"data": consulta}).encode(), headers={"User-Agent": AGENTE})
+                with urllib.request.urlopen(req, timeout=90) as r:
+                    dados = r.read()
+                json.loads(dados)                        # só guarda se a resposta é um JSON inteiro
+                os.makedirs(pasta, exist_ok=True)
+                with open(arquivo, "wb") as f:
+                    f.write(dados)
+                time.sleep(1)                            # sem pressa: o serviço é comunitário
+                break
+            except Exception as erro:
+                print("  piso: tela", linha, coluna, "tentativa", tentativa + 1, "-", erro)
+                time.sleep(10 * (tentativa + 1))
+        else:
+            return None
+    vias = []
+    for el in json.load(open(arquivo, encoding="utf-8-sig")).get("elements", []):
+        g, tags = el.get("geometry"), el.get("tags", {})
+        if g:
+            tipo = tipo_do_piso(tags.get("surface"), tags.get("highway"))
+            vias.extend((a["lat"], a["lon"], b["lat"], b["lon"], tipo) for a, b in zip(g, g[1:]))
+    return vias
+
+
+def distancia_ao_segmento(lat, lon, s):
+    mx = 111320 * math.cos(math.radians(lat))
+    ax, ay, bx, by = (s[1] - lon) * mx, (s[0] - lat) * 111320, (s[3] - lon) * mx, (s[2] - lat) * 111320
+    dx, dy = bx - ax, by - ay
+    t = 0 if dx == dy == 0 else max(0, min(1, -(ax * dx + ay * dy) / (dx * dx + dy * dy)))
+    return math.hypot(ax + t * dx, ay + t * dy)
+
+
+def piso_do_pedal(p, caminho, pasta, orcamento):
+    """O piso a cada 200 m do GPX do pedal (lista de nomes de PISOS), do cache ou calculado agora; None se faltam telas (fica para a próxima)."""
+    cache = carregar_cache_piso()
+    chave = str(p["id"])
+    if chave in cache:
+        return [nome for nome, vezes in cache[chave] for _ in range(vezes)]
+    pontos = [(float(a), float(b)) for a, b in re.findall(r'<trkpt lat="([-\d.]+)" lon="([-\d.]+)">', open(caminho, encoding="utf-8").read())]
+    if len(pontos) < 5:
+        return None
+    amostras, acumulado, alvo = [pontos[0]], 0.0, PISO_PASSO_M
+    for a, b in zip(pontos, pontos[1:]):
+        acumulado += metros(a, b)
+        while acumulado >= alvo:
+            amostras.append(b)
+            alvo += PISO_PASSO_M
+    telas = sorted({(math.floor(la / PISO_TELA), math.floor(lo / PISO_TELA)) for la, lo in amostras})
+    grade = {}
+    for linha, coluna in telas:
+        vias = tela_do_piso(linha, coluna, pasta, orcamento)
+        if vias is None:
+            return None
+        for s in vias:                                   # índice por células de 0,0005° (o ponto olha a dele e as vizinhas)
+            for cx in range(math.floor(min(s[1], s[3]) / 0.0005), math.floor(max(s[1], s[3]) / 0.0005) + 1):
+                for cy in range(math.floor(min(s[0], s[2]) / 0.0005), math.floor(max(s[0], s[2]) / 0.0005) + 1):
+                    grade.setdefault((cx, cy), []).append(s)
+    piso = []
+    for la, lo in amostras:
+        cx, cy = math.floor(lo / 0.0005), math.floor(la / 0.0005)
+        perto = [s for dx in (-1, 0, 1) for dy in (-1, 0, 1) for s in grade.get((cx + dx, cy + dy), [])]
+        melhor = min(perto, key=lambda s: distancia_ao_segmento(la, lo, s), default=None)
+        perto_o_bastante = melhor is not None and distancia_ao_segmento(la, lo, melhor) <= PISO_DISTANCIA_M
+        piso.append((melhor[4] if perto_o_bastante else None) or "Sem informação")
+    corridas = []
+    for nome in piso:
+        if corridas and corridas[-1][0] == nome:
+            corridas[-1][1] += 1
+        else:
+            corridas.append([nome, 1])
+    cache[chave] = corridas
+    return piso
+
+
+def bloco_piso(piso):
+    """O resumo do piso embaixo do mapa: quanto de cada um, em % e km. '' sem piso."""
+    if not piso:
+        return ""
+    itens = []
+    for nome in PISOS:
+        vezes = piso.count(nome)
+        if vezes:
+            itens.append(f'<li><span class="amostra piso-{CLASSE_PISO[nome]}"></span>{round(vezes / len(piso) * 100)}% {nome.lower()} '
+                         f'({num(vezes * PISO_PASSO_M / 1000, 1)} km)</li>')
+    return f'<div class="piso-resumo"><strong>Piso</strong><ul>{"".join(itens)}</ul></div>'
+
+
+def tracado_com_piso(svg, piso):
+    """O traçado do mapa em pedaços na cor do piso: cada pedaço da linha pega o piso da fração da distância em que está (a mesma ligação que o
+    script da página usa entre o perfil e o mapa). O traçado inteiro (path.linha) continua por cima, transparente, para o mouse."""
+    m = re.search(r'<path class="linha" d="M([^"]+)"/>', svg or "")
+    if not piso or not m:
+        return svg
+    pts = [tuple(map(float, par.split())) for par in m.group(1).split(" L")]
+    if len(pts) < 2:
+        return svg
+    trechos = [math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(pts, pts[1:])]
+    total = sum(trechos) or 1
+    pedacos, andado = [], 0.0
+    for i, t in enumerate(trechos):
+        nome = piso[min(len(piso) - 1, int((andado + t / 2) / total * len(piso)))]
+        andado += t
+        a, b = f"{pts[i][0]:.1f} {pts[i][1]:.1f}", f"{pts[i + 1][0]:.1f} {pts[i + 1][1]:.1f}"
+        if pedacos and pedacos[-1][0] == nome:
+            pedacos[-1][1].append(b)
+        else:
+            pedacos.append((nome, [a, b]))
+    caminhos = "".join(f'<path class="piso piso-{CLASSE_PISO[nome]}" d="M{" L".join(ps)}"/>' for nome, ps in pedacos)
+    return svg.replace('<path class="linha"', caminhos + '<path class="linha"', 1)
 
 
 NOTA_GPX = '<p class="nota-gpx">O GPX traz o percurso sem os primeiros e os últimos 800 m, para não mostrar de onde o pedal sai.</p>'
@@ -1323,6 +1609,13 @@ def mapa_html(p, prefixo_mapas, carregar="lazy"):
     return p.get("_svg") or '<div class="mapa vazio">Sem traçado</div>'
 
 
+def mapa_do_pedal(p):
+    """O mapa da página do pedal: o de sempre, com o traçado na cor do piso quando o piso já foi lido (o cartão da lista fica como era)."""
+    if p.get("_mapa") and p.get("_piso"):
+        return mapa_html({**p, "_mapa": tracado_com_piso(p["_mapa"], p["_piso"])}, "/pedais/mapas/", "eager").replace('class="mapa com-fundo"', 'class="mapa com-fundo com-piso"', 1)
+    return mapa_html(p, "/pedais/mapas/", "eager")
+
+
 def botoes(p, claro_assistir=False, extra="", komoot=True, strava=True):
     links = []
     if p.get("_video"):
@@ -1419,7 +1712,8 @@ def montar_pagina_pedal(p, mais_novo, mais_velho, modelo):
     nums = (f'<div><dt>Distância</dt><dd>{num(km, 1)} km</dd></div><div><dt>Subida</dt><dd>{num(subida_do_pedal(p))} m</dd></div>'
             f'<div><dt>Tempo</dt><dd>{duracao(p["moving_time"])}</dd></div><div><dt>Média</dt><dd>{num(media, 1)} km/h</dd></div>')
     troca = {"{{TITULO}}": html.escape(titulo), "{{DESCRICAO_META}}": html.escape(descricao_meta), "{{URL}}": url,
-             "{{OG_IMAGE}}": og, "{{DATA_LONGA}}": data_longa(p["start_date_local"]), "{{MAPA}}": mapa_html(p, "/pedais/mapas/", "eager"), "{{PERFIL}}": p.get("_perfil", ""),
+             "{{OG_IMAGE}}": og, "{{DATA_LONGA}}": data_longa(p["start_date_local"]), "{{MAPA}}": mapa_do_pedal(p), "{{PERFIL}}": p.get("_perfil", ""),
+             "{{PISO}}": bloco_piso(p.get("_piso")), "{{SUBIDAS}}": bloco_subidas(p.get("_subidas")), "{{CREDITO_PISO}}": " Piso: OpenStreetMap." if p.get("_piso") else "",
              "{{NUMEROS}}": nums, "{{VIDEO}}": video, "{{TEXTO}}": f"<p class=\"texto\">{html.escape(texto)}</p>" if texto else "",
              "{{CLIMA}}": bloco_clima(p), "{{LUGARES}}": bloco_lugares(p), "{{LINKS}}": botoes(p, extra=" " + bloco_gpx(p)) if p.get("_gpx") else botoes(p), "{{NOTA_GPX}}": NOTA_GPX if p.get("_gpx") and p.get("_cortado") else "",
              "{{NOTA_CORTE}}": "O traçado não mostra o começo nem o fim do percurso. " if p.get("_cortado") else "", "{{CIDADES}}": linha_cidades(p, 99), "{{NAV}}": "".join(nav),
@@ -1585,8 +1879,17 @@ def main():
                 os.remove(os.path.join(pasta_gpx, nome))
                 print("  GPX removido:", nome)
     print(f"  gpx: {sum(1 for p in pedais if p['_gpx'])} de {len(pedais)} pedais com GPX para baixar")
-    for p in pedais:                                    # perfil de altimetria, lido do GPX (que já está sem o começo e o fim)
-        p["_perfil"] = perfil_svg(caminho_gpx(pasta_gpx, p["id"])) if p["_gpx"] else ""
+    for p in pedais:                                    # subidas e perfil de altimetria, lidos do GPX (que já está sem o começo e o fim)
+        p["_subidas"] = subidas_do_perfil(ler_perfil_do_gpx(caminho_gpx(pasta_gpx, p["id"]))) if p["_gpx"] else []
+        p["_perfil"] = perfil_svg(caminho_gpx(pasta_gpx, p["id"]), p["_subidas"]) if p["_gpx"] else ""
+    print(f"  subidas: {sum(len(p['_subidas']) for p in pedais)} em {sum(1 for p in pedais if p['_subidas'])} pedais")
+    orcamento_piso = {"telas": int(os.environ.get("ORCAMENTO_PISO", "30"))}
+    pasta_piso = os.environ.get("PASTA_PISO") or os.path.join(os.environ.get("TMPDIR", os.environ.get("TEMP", "/tmp")), "piso_pedais")
+    for p in pedais:                                    # o piso a cada 200 m (OpenStreetMap); o que faltar fica para a próxima rodada
+        p["_piso"] = piso_do_pedal(p, caminho_gpx(pasta_gpx, p["id"]), pasta_piso, orcamento_piso) if p["_gpx"] else None
+    salvar_cache_piso()
+    print(f"  piso: {sum(1 for p in pedais if p['_piso'])} de {len(pedais)} pedais; telas baixadas nesta rodada: "
+          f"{int(os.environ.get('ORCAMENTO_PISO', '30')) - orcamento_piso['telas']}")
     print(f"  perfil: {sum(1 for p in pedais if p['_perfil'])} de {len(pedais)} pedais com o gráfico de altimetria")
     cache_clima = carregar_cache_clima()
     for p in pedais:                                    # temperatura e vento no começo e no fim
