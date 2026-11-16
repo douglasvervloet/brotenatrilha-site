@@ -943,6 +943,15 @@ def subidas_do_perfil(perfil):
     return subidas
 
 
+# A ordem das categorias, para o filtro da lista de pedais (0 = sem subida com categoria)
+NIVEL_DA_CATEGORIA = {"Sem categoria": 0, "Cat 4": 1, "Cat 3": 2, "Cat 2": 3, "Cat 1": 4, "HC": 5}
+
+
+def nivel_da_subida(p):
+    """A categoria da subida mais dura do pedal, como número (0 a 5), para o filtro da lista."""
+    return max((NIVEL_DA_CATEGORIA[s["categoria"]] for s in p.get("_subidas") or []), default=0)
+
+
 def subidas_no_perfil(subidas, kms, valores, x, y, base_y, largura):
     """O que o gráfico de altimetria ganha com as subidas: a área de cada uma na cor da categoria (por baixo da linha) e o número dela logo
     acima da curva, no começo da subida (dois números perto demais: o segundo sobe um degrau)."""
@@ -1129,6 +1138,19 @@ def piso_do_pedal(p, caminho, pasta, orcamento):
             corridas.append([nome, 1])
     cache[chave] = corridas
     return piso
+
+
+def terreno_do_pedal(p):
+    """O tipo de terreno do pedal, para o filtro da lista: "asfalto" (80% ou mais no asfalto), "terra" (metade ou mais na terra) ou "misto";
+    "" enquanto o piso não foi lido."""
+    piso = p.get("_piso")
+    if not piso:
+        return ""
+    if piso.count("Asfalto") >= 0.8 * len(piso):
+        return "asfalto"
+    if piso.count("Terra") >= 0.5 * len(piso):
+        return "terra"
+    return "misto"
 
 
 def bloco_piso(piso):
@@ -1636,7 +1658,7 @@ def cartao(p):
     # O botão de trocar a imagem só deste cartão (aparece com JavaScript; sem ele fica a capa); fora do link, que não pode ter botão dentro
     alterna = ('<button type="button" class="alterna" hidden aria-pressed="false" aria-label="Ver o mapa deste pedal">Ver mapa</button>'
                if capa else "")
-    return f"""      <article class="pedal{"" if capa else " sem-capa"}" data-ano="{p["start_date_local"][:4]}" data-km="{km:.1f}" data-nome="{html.escape(normalizar(p["name"] + " " + titulo_exibido(p) + " " + " ".join(p.get("_passa", []))))}" data-sai="{slug_texto(p.get("_sai") or "")}" data-chega="{slug_texto(p.get("_chega") or "")}" data-passa="|{"|".join(slug_texto(c) for c in p.get("_passa", []))}|">
+    return f"""      <article class="pedal{"" if capa else " sem-capa"}" data-ano="{p["start_date_local"][:4]}" data-km="{km:.1f}" data-nome="{html.escape(normalizar(p["name"] + " " + titulo_exibido(p) + " " + " ".join(p.get("_passa", []))))}" data-subida="{nivel_da_subida(p)}" data-terreno="{terreno_do_pedal(p)}" data-sai="{slug_texto(p.get("_sai") or "")}" data-chega="{slug_texto(p.get("_chega") or "")}" data-passa="|{"|".join(slug_texto(c) for c in p.get("_passa", []))}|">
         <div class="imagem">
           <a class="mapa-link" href="{p['_slug']}/" aria-label="Ver o pedal {titulo}">{capa}{mapa}</a>
           {alterna}

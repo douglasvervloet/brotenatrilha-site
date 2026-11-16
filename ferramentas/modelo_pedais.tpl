@@ -125,6 +125,8 @@
       <label>Passa por <select id="passa"><option value="">Qualquer cidade</option>{{OPCOES_PASSA}}</select></label>
       <label>Sai de <select id="sai"><option value="">Qualquer cidade</option>{{OPCOES_SAI}}</select></label>
       <label>Chega em <select id="chega"><option value="">Qualquer cidade</option>{{OPCOES_CHEGA}}</select></label>
+      <label>Subida <select id="subida"><option value="">Qualquer</option><option value="1">Cat 4 ou mais dura</option><option value="2">Cat 3 ou mais dura</option><option value="3">Cat 2 ou mais dura</option><option value="4">Cat 1 ou HC</option></select></label>
+      <label>Terreno <select id="terreno"><option value="">Qualquer</option><option value="asfalto">Asfalto</option><option value="misto">Misto</option><option value="terra">Terra</option></select></label>
     </div>
     <p id="contagem" role="status" aria-live="polite"></p>
   </div>
@@ -161,7 +163,7 @@
     if (!filtros || !busca) return;
     filtros.hidden = false;
     var cartoes = [].slice.call(document.querySelectorAll(".pedal"));
-    var estado = { ano: "todos", dist: "todas", texto: "", passa: "", sai: "", chega: "" };
+    var estado = { ano: "todos", dist: "todas", texto: "", passa: "", sai: "", chega: "", subida: "", terreno: "" };
     function norm(s) { return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
     function aplicar() {
       var visiveis = 0;
@@ -174,7 +176,10 @@
         var okPassa = !estado.passa || c.dataset.passa.indexOf("|" + estado.passa + "|") !== -1;
         var okSai = !estado.sai || c.dataset.sai === estado.sai;
         var okChega = !estado.chega || c.dataset.chega === estado.chega;
-        var ok = okAno && okDist && okTexto && okPassa && okSai && okChega;
+        // a subida mais dura do pedal tem a categoria pedida ou uma mais dura
+        var okSubida = !estado.subida || parseInt(c.dataset.subida || "0", 10) >= parseInt(estado.subida, 10);
+        var okTerreno = !estado.terreno || c.dataset.terreno === estado.terreno;   // o pedal cujo piso ainda não foi lido só aparece em "Qualquer"
+        var ok = okAno && okDist && okTexto && okPassa && okSai && okChega && okSubida && okTerreno;
         c.hidden = !ok;
         if (ok) visiveis++;
       });
@@ -182,7 +187,7 @@
       document.getElementById("contagem").textContent = visiveis + " de " + cartoes.length + " pedais";
     }
     busca.addEventListener("input", function () { estado.texto = norm(busca.value.trim()); aplicar(); });
-    ["passa", "sai", "chega"].forEach(function (id) {
+    ["passa", "sai", "chega", "subida", "terreno"].forEach(function (id) {
       document.getElementById(id).addEventListener("change", function (e) { estado[id] = e.target.value; aplicar(); });
     });
     [].forEach.call(document.querySelectorAll(".chip"), function (chip) {
