@@ -31,10 +31,15 @@ jobs:
           }' > estatisticas.json
           cat estatisticas.json
 
+      - name: Atualizar a página de análises (a playlist "Análises" do canal)
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: python3 ferramentas/gerar_analises.py --saida analises/index.html
+
       - name: Gravar se mudou
         run: |
           [ -f estatisticas.json ] || { echo "Sem estatisticas.json: nada a gravar."; exit 0; }
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add estatisticas.json
+          git add estatisticas.json analises
           git diff --cached --quiet || (git commit -m "Atualiza os números do canal" && git push)
