@@ -1842,17 +1842,15 @@ def escrever_sitemap(caminho, pedais):
         f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + corpo + "</urlset>\n")
 
 
-def escrever_mapa_geral(pedais, base, pasta_gpx):
-    """Grava pedais/mapa/index.html: o mapa com os percursos de todos os pedais juntos (ferramentas/mapa_geral.py)."""
+def escrever_mapa_geral(pedais, base, pasta_gpx, pasta_cache):
+    """Grava pedais/mapa/index.html e os fundos de relevo: o mapa com os percursos de todos os pedais juntos (ferramentas/mapa_geral.py)."""
     percursos = [(titulo_exibido(p), f"/pedais/{p['_slug']}/", mapa_geral.reduzir(mapa_geral.pontos_do_gpx(caminho_gpx(pasta_gpx, p["id"]))))
                  for p in pedais if p["_gpx"]]
     percursos = [x for x in percursos if x[2]]
-    os.makedirs(os.path.join(base, "mapa"), exist_ok=True)
     modelo_mapa = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "modelo_mapa.tpl"), encoding="utf-8").read()
     km_mapa = sum(p["distance"] for p in pedais if p["_gpx"]) / 1000
-    with open(os.path.join(base, "mapa", "index.html"), "w", encoding="utf-8", newline="\n") as f:
-        f.write(mapa_geral.montar_pagina(percursos, modelo_mapa, f"{len(percursos)} percursos · {num(km_mapa)} km"))
-    print(f"  mapa geral: {len(percursos)} percursos")
+    if mapa_geral.escrever(os.path.join(base, "mapa"), percursos, modelo_mapa, f"{len(percursos)} percursos · {num(km_mapa)} km", pasta_cache, baixar_tile):
+        print(f"  mapa geral: {len(percursos)} percursos")
 
 
 def main():
@@ -2019,7 +2017,7 @@ def main():
             slugs.add(antigo)
     limpar_paginas_antigas(base, slugs)
     if pedais:
-        escrever_mapa_geral(pedais, base, pasta_gpx)
+        escrever_mapa_geral(pedais, base, pasta_gpx, pasta_cache)
     if pedais and injetar_na_home(args.home, bloco_ultimo(pedais[0])):
         print("  home: último pedal atualizado ->", titulo_exibido(pedais[0]))
     if args.sitemap and pedais:

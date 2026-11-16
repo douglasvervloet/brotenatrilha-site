@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mapa dos pedais | Brote na Trilha</title>
-<meta name="description" content="Todos os percursos do canal Brote na Trilha num mapa só: por onde o canal mais pedala no Espírito Santo.">
+<meta name="description" content="Todos os percursos do canal Brote na Trilha num mapa de relevo, com zoom: por onde o canal mais pedala no Espírito Santo.">
 <link rel="canonical" href="https://brotenatrilha.com.br/pedais/mapa/">
 <meta name="theme-color" content="#2d7046">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
 <meta property="og:site_name" content="Brote na Trilha">
 <meta property="og:title" content="Mapa dos pedais | Brote na Trilha">
-<meta property="og:description" content="Todos os percursos do canal num mapa só.">
+<meta property="og:description" content="Todos os percursos do canal num mapa de relevo só.">
 <meta property="og:url" content="https://brotenatrilha.com.br/pedais/mapa/">
 <meta property="og:image" content="https://brotenatrilha.com.br/compartilhar.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -32,16 +32,22 @@
   header p { margin: 10px 0 0; color: #dcebe0; max-width: 60ch; }
   .resumo { margin-top: 14px !important; color: var(--ambar) !important; font-weight: 700; font-variant-numeric: tabular-nums; }
   main { padding: 28px 0 56px; }
-  .mapa-geral { background: #0c1711; border: 1px solid var(--linha); border-radius: 18px; overflow: hidden; }
-  .heat { display: block; width: 100%; height: auto; }
-  .heat .brilho use { fill: none; stroke: #e8a33d; stroke-opacity: .16; stroke-width: 22; stroke-linejoin: round; stroke-linecap: round; }
-  .heat .vis { fill: none; stroke: #f2c14e; stroke-opacity: .34; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
-  .heat .alvo { fill: none; stroke: transparent; stroke-width: 26; pointer-events: stroke; }
+  .mapa-geral { position: relative; background: #0c1711; border: 1px solid var(--linha); border-radius: 18px; overflow: hidden; }
+  .heat { display: block; width: 100%; height: min(80vh, 900px); min-height: 420px; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .heat.arrastando { cursor: grabbing; }
+  .heat .brilho use { fill: none; stroke: #e8a33d; stroke-opacity: .16; stroke-width: 12px; stroke-linejoin: round; stroke-linecap: round; }
+  .heat .vis { fill: none; stroke: #f2c14e; stroke-opacity: .55; stroke-width: 2.2px; stroke-linejoin: round; stroke-linecap: round; }
+  .heat .alvo { fill: none; stroke: transparent; stroke-width: 16px; pointer-events: stroke; }
   .heat a { cursor: pointer; }
-  .heat a:hover .vis, .heat a:focus-visible .vis { stroke: #fff; stroke-opacity: 1; stroke-width: 6; }
-  .alternar { margin: 14px 0 0; font: inherit; font-weight: 700; padding: 8px 18px; border-radius: 999px; border: 2px solid var(--linha); background: transparent; color: var(--texto); cursor: pointer; }
-  .alternar:hover { border-color: var(--verde); }
-  .nota { margin-top: 16px; color: var(--suave); font-size: .92rem; }
+  .heat a:hover .vis, .heat a:focus-visible .vis { stroke: #fff; stroke-opacity: 1; stroke-width: 4px; }
+  .controles { position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+  .controles[hidden] { display: none; }
+  .controles .par { display: flex; gap: 8px; }
+  .controles button { font: inherit; font-weight: 700; min-width: 44px; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 2px solid rgba(255, 255, 255, .35);
+                      background: rgba(12, 23, 17, .82); color: #fff; cursor: pointer; backdrop-filter: blur(4px); }
+  .controles button:hover { border-color: var(--ambar); }
+  .controles .mais, .controles .menos { font-size: 1.5rem; line-height: 1; padding: 0; }
+  .credito, .nota { margin-top: 14px; color: var(--suave); font-size: .88rem; }
   .todos { margin-top: 18px; }
   .todos a { font-weight: 700; color: var(--verde); }
   @media (prefers-color-scheme: dark) { .todos a { color: #7fcf9d; } }
@@ -55,15 +61,22 @@
   <div class="miolo">
     <a href="../../">&larr; Brote na Trilha</a>
     <h1>Mapa dos pedais</h1>
-    <p>Todos os percursos num mapa só: onde se repetem, a linha brilha mais.</p>
+    <p>Todos os percursos num mapa de relevo: onde se repetem, a linha brilha mais.</p>
     <p class="resumo">{{RESUMO}}</p>
   </div>
 </header>
 
 <main class="miolo">
-  <div class="mapa-geral">{{SVG}}</div>
-  <button type="button" class="alternar" id="alternar" aria-pressed="false" hidden>Ver todo o Espírito Santo</button>
-  <p class="nota">Passe o mouse (ou toque) numa linha para ver o pedal e abrir a página dele. Os começos e os fins dos percursos ficam de fora.</p>
+  <div class="mapa-geral">
+    {{SVG}}
+    <div class="controles" id="controles" hidden>
+      <div class="par"><button type="button" class="mais" id="mais" aria-label="Aproximar">+</button><button type="button" class="menos" id="menos" aria-label="Afastar">&minus;</button></div>
+      <button type="button" id="regiao">Região principal</button>
+      <button type="button" id="estado">Estado inteiro</button>
+    </div>
+  </div>
+  <p class="nota">Role (ou use os botões) para aproximar e arraste para mover. Passe o mouse (ou toque) numa linha para ver o pedal e abrir a página dele. Os começos e os fins dos percursos ficam de fora.</p>
+  <p class="credito">Mapa: © OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA).</p>
   <p class="todos"><a href="../">Ver a lista de pedais</a></p>
 </main>
 
@@ -75,19 +88,87 @@
 </footer>
 <script>
   document.getElementById("ano").textContent = new Date().getFullYear();
-  // O mapa abre na região principal; o botão mostra o estado inteiro (e volta)
+
+  // Zoom e arrasto do mapa: mexem no viewBox do SVG (rolar, arrastar, pinça, botões)
   (function () {
-    var svg = document.querySelector(".heat"), botao = document.getElementById("alternar");
-    if (!svg || !botao) return;
-    var perto = svg.getAttribute("viewBox"), completo = svg.dataset.completo;
-    if (perto === completo) return;
-    botao.hidden = false;
-    botao.addEventListener("click", function () {
-      var todo = botao.getAttribute("aria-pressed") !== "true";
-      svg.setAttribute("viewBox", todo ? completo : perto);
-      botao.setAttribute("aria-pressed", String(todo));
-      botao.textContent = todo ? "Ver só a região principal" : "Ver todo o Espírito Santo";
+    var svg = document.querySelector(".heat"), controles = document.getElementById("controles");
+    if (!svg || !controles) return;
+    function numeros(t) { return t.split(" ").map(Number); }
+    var completo = numeros(svg.dataset.completo), nucleo = numeros(svg.dataset.nucleo);
+    var vb = numeros(svg.getAttribute("viewBox"));               // [x, y, largura, altura] no desenho
+    var LIMITE_ZOOM = 1;                                          // o mais perto: 1 unidade do desenho por pixel da tela (o fundo em detalhe a 2x)
+
+    function proporcao() { return svg.clientWidth / svg.clientHeight; }
+    function entre(v, a, b) { return Math.min(Math.max(v, a), Math.max(a, b)); }
+    function aplicar(x, y, w) {                                   // mantém a proporção da caixa e fica dentro do mapa
+      var p = proporcao();
+      w = entre(w, svg.clientWidth * LIMITE_ZOOM, Math.max(completo[2], completo[3] * p));   // o mais longe: o mapa inteiro cabe na caixa
+      var h = w / p;
+      x = w >= completo[2] ? (completo[2] - w) / 2 : entre(x, 0, completo[2] - w);          // mapa menor que a caixa: fica centrado
+      y = h >= completo[3] ? (completo[3] - h) / 2 : entre(y, 0, completo[3] - h);
+      vb = [x, y, w, h];
+      svg.setAttribute("viewBox", vb.join(" "));
+    }
+    function enquadrar(caixa) {                                   // mostra a caixa [x, y, w, h] inteira, centrada
+      var p = proporcao(), w = Math.max(caixa[2], caixa[3] * p), h = w / p;
+      aplicar(caixa[0] + caixa[2] / 2 - w / 2, caixa[1] + caixa[3] / 2 - h / 2, w);
+    }
+    function ponto(cx, cy) {                                      // posição da tela -> posição no desenho
+      var r = svg.getBoundingClientRect();
+      return [vb[0] + (cx - r.left) * vb[2] / r.width, vb[1] + (cy - r.top) * vb[3] / r.height];
+    }
+    function aproximar(fator, cx, cy) {                           // fator < 1 aproxima; o ponto sob (cx, cy) fica parado
+      var q = ponto(cx, cy), x0 = vb[0], y0 = vb[1], antes = vb[2];
+      aplicar(x0, y0, antes * fator);                             // aplica o limite de zoom
+      var w = vb[2];                                              // a largura que valeu depois do limite
+      aplicar(q[0] - (q[0] - x0) * w / antes, q[1] - (q[1] - y0) * w / antes, w);
+    }
+    function centro() { var r = svg.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }
+
+    svg.addEventListener("wheel", function (e) {
+      e.preventDefault();
+      aproximar(Math.exp(e.deltaY * 0.0015), e.clientX, e.clientY);
+    }, { passive: false });
+
+    var dedos = {}, moveu = false, inicio = null, distancia = 0;
+    svg.addEventListener("pointerdown", function (e) {
+      dedos[e.pointerId] = [e.clientX, e.clientY];
+      moveu = false;
+      inicio = [e.clientX, e.clientY];
+      var ids = Object.keys(dedos);
+      if (ids.length === 2) distancia = Math.hypot(dedos[ids[0]][0] - dedos[ids[1]][0], dedos[ids[0]][1] - dedos[ids[1]][1]);
     });
+    svg.addEventListener("pointermove", function (e) {
+      if (!dedos[e.pointerId]) return;
+      var ids = Object.keys(dedos), antes = dedos[e.pointerId];
+      dedos[e.pointerId] = [e.clientX, e.clientY];
+      if (!moveu && Math.hypot(e.clientX - inicio[0], e.clientY - inicio[1]) > 5) {
+        moveu = true;
+        svg.classList.add("arrastando");
+        try { svg.setPointerCapture(e.pointerId); } catch (x) { /* sem captura, o arrasto continua dentro do mapa */ }
+      }
+      if (!moveu) return;
+      if (ids.length === 2) {                                     // pinça: aproxima ou afasta em volta do meio dos dois dedos
+        var a = dedos[ids[0]], b = dedos[ids[1]], nova = Math.hypot(a[0] - b[0], a[1] - b[1]);
+        if (distancia > 0 && nova > 0) aproximar(distancia / nova, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
+        distancia = nova;
+      } else {                                                    // um dedo ou o mouse: move o mapa
+        var r = svg.getBoundingClientRect();
+        aplicar(vb[0] - (e.clientX - antes[0]) * vb[2] / r.width, vb[1] - (e.clientY - antes[1]) * vb[3] / r.height, vb[2]);
+      }
+    });
+    function soltar(e) { delete dedos[e.pointerId]; svg.classList.remove("arrastando"); }
+    svg.addEventListener("pointerup", soltar);
+    svg.addEventListener("pointercancel", soltar);
+    svg.addEventListener("click", function (e) { if (moveu) { e.preventDefault(); e.stopPropagation(); moveu = false; } }, true);   // arrastar não abre o pedal
+
+    document.getElementById("mais").addEventListener("click", function () { var c = centro(); aproximar(0.6, c[0], c[1]); });
+    document.getElementById("menos").addEventListener("click", function () { var c = centro(); aproximar(1 / 0.6, c[0], c[1]); });
+    document.getElementById("regiao").addEventListener("click", function () { enquadrar(nucleo); });
+    document.getElementById("estado").addEventListener("click", function () { enquadrar(completo); });
+    window.addEventListener("resize", function () { aplicar(vb[0], vb[1], vb[2]); });
+    controles.hidden = false;
+    enquadrar(nucleo);
   })();
 </script>
 <script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
