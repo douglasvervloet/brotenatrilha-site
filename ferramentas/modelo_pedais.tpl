@@ -108,6 +108,7 @@
     <h1>Pedais</h1>
     <p>Os passeios do canal, com o percurso, os números e o vídeo de cada um.</p>
     <p class="resumo">{{RESUMO}}</p>
+    <p><a href="mapa/">Ver todos os percursos no mapa &rarr;</a></p>
   </div>
 </header>
 

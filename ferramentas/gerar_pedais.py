@@ -34,6 +34,8 @@ import urllib.request
 import time
 from datetime import datetime, timedelta, timezone
 
+import mapa_geral                                    # o mapa com todos os pedais (ferramentas/mapa_geral.py)
+
 try:
     from PIL import Image
 except ImportError:                                  # sem Pillow o robô desenha só o traçado, sem o mapa de fundo
@@ -484,7 +486,8 @@ def gerar_mapa(pedal_id, pontos, pasta_mapas, pasta_cache):
 
 
 # ----------------------------------------------------------------------------- página
-ESTATICAS = [("https://brotenatrilha.com.br/privacidade/", "2026-10-12"), ("https://brotenatrilha.com.br/analises/", "2026-11-16")]
+ESTATICAS = [("https://brotenatrilha.com.br/privacidade/", "2026-10-12"), ("https://brotenatrilha.com.br/analises/", "2026-11-16"),
+            ("https://brotenatrilha.com.br/pedais/mapa/", "2026-11-16")]
 
 
 # ----------------------------------------------------------------------------- cidades por onde o pedal passa
@@ -1617,7 +1620,7 @@ def capa_recente(video):
 
 
 # As pastas de pedais/ que guardam arquivos e não páginas de pedais: a limpeza das páginas antigas não pode apagá-las
-PASTAS_DE_ARQUIVOS = ("mapas", "gpx", "capas")
+PASTAS_DE_ARQUIVOS = ("mapas", "gpx", "capas", "mapa")
 
 
 def limpar_paginas_antigas(base, slugs):
@@ -1707,13 +1710,55 @@ def montar_pagina(pedais, modelo):
         f'<button type="button" class="chip" data-filtro="ano" data-valor="{a}" aria-pressed="false">{a}</button>' for a in anos)
     km = sum(p["distance"] for p in pedais) / 1000
     subida = sum(subida_do_pedal(p) for p in pedais)
-    resumo = f'{len(pedais)} pedais · {num(km)} km · {num(subida)} m de subida'
+    horas = sum(p["moving_time"] for p in pedais) / 3600
+    com_categoria = sum(1 for p in pedais for s in p.get("_subidas") or [] if s["categoria"] != "Sem categoria")
+    resumo = (f'{len(pedais)} pedais · {num(km)} km · {num(subida)} m de subida · {num(horas)} h pedalando'
+              + (f' · {com_categoria} subidas com categoria' if com_categoria else ''))
     return (modelo.replace("{{RESUMO}}", resumo).replace("{{CHIPS_ANO}}", chips_ano).replace("{{OPCOES_PASSA}}", opcoes(cont_passa)).replace("{{OPCOES_SAI}}", opcoes(cont_sai)).replace("{{OPCOES_CHEGA}}", opcoes(cont_chega))
             .replace("{{CONTEUDO}}", "\n".join(blocos))
             .replace("{{ATUALIZADO}}", data_longa(datetime.now().strftime("%Y-%m-%d"))))
 
 
-def montar_pagina_pedal(p, mais_novo, mais_velho, modelo):
+def pedais_parecidos(p, pedais, excluir, limite=3):
+    """Os pedais que mais se parecem com este: cidades em comum, distância, saída e chegada, subida mais dura de mesma categoria.
+    [(pedal, cidades em comum)], sem os de `excluir` (ids) e só com os que chegam a um mínimo de semelhança."""
+    cidades, nivel = set(p.get("_passa", [])), nivel_da_subida(p)
+    pontuados = []
+    for o in pedais:
+        if o is p or o["id"] in excluir:
+            continue
+        outras = set(o.get("_passa", []))
+        comuns = cidades & outras
+        pontos = 3 * len(comuns) / max(len(cidades | outras), 1)
+        pontos += 1.5 * (1 - min(1, abs(o["distance"] - p["distance"]) / max(o["distance"], p["distance"], 1)))
+        pontos += 1 if nivel and nivel_da_subida(o) == nivel else 0
+        pontos += 0.5 if p.get("_sai") and p.get("_sai") == o.get("_sai") else 0
+        pontos += 0.5 if p.get("_chega") and p.get("_chega") == o.get("_chega") else 0
+        if pontos >= 1.8:
+            pontuados.append((pontos, o["start_date_local"], o, sorted(comuns)))
+    pontuados.sort(key=lambda x: (x[0], x[1]), reverse=True)
+    return [(o, comuns) for _, _, o, comuns in pontuados[:limite]]
+
+
+def bloco_parecidos(p, pedais, excluir):
+    """A seção "Pedais parecidos" do fim da página do pedal ('' se nenhum chega ao mínimo)."""
+    cartoes = []
+    for o, comuns in pedais_parecidos(p, pedais, excluir):
+        if comuns:
+            motivo = "Também passa por " + ", ".join(comuns[:2])
+        elif nivel_da_subida(p) and nivel_da_subida(o) == nivel_da_subida(p):
+            motivo = "Subida mais dura da mesma categoria"
+        else:
+            motivo = "Distância parecida"
+        cartoes.append(f'<a href="/pedais/{o["_slug"]}/"><b>{html.escape(titulo_exibido(o))}</b>'
+                       f'<span>{data_longa(o["start_date_local"])} · {num(o["distance"] / 1000, 1)} km · {num(subida_do_pedal(o))} m de subida</span>'
+                       f'<em>{html.escape(motivo)}</em></a>')
+    if not cartoes:
+        return ""
+    return '<section class="parecidos"><h2>Pedais parecidos</h2><div class="grade-parecidos">' + "".join(cartoes) + "</div></section>"
+
+
+def montar_pagina_pedal(p, mais_novo, mais_velho, modelo, todos=None):
     km, media = numeros(p)
     titulo = titulo_exibido(p)
     v = p.get("_video")
@@ -1746,6 +1791,7 @@ def montar_pagina_pedal(p, mais_novo, mais_velho, modelo):
              "{{NUMEROS}}": nums, "{{VIDEO}}": video, "{{TEXTO}}": f"<p class=\"texto\">{html.escape(texto)}</p>" if texto else "",
              "{{CLIMA}}": bloco_clima(p), "{{LUGARES}}": bloco_lugares(p), "{{LINKS}}": botoes(p, extra=" " + bloco_gpx(p)) if p.get("_gpx") else botoes(p), "{{NOTA_GPX}}": NOTA_GPX if p.get("_gpx") and p.get("_cortado") else "",
              "{{NOTA_CORTE}}": "O traçado não mostra o começo nem o fim do percurso. " if p.get("_cortado") else "", "{{CIDADES}}": linha_cidades(p, 99), "{{NAV}}": "".join(nav),
+             "{{PARECIDOS}}": bloco_parecidos(p, todos or [], {x["id"] for x in (mais_novo, mais_velho) if x}),
              "{{JSONLD}}": "".join('<script type="application/ld+json">' + json.dumps(x, ensure_ascii=False) + "</script>\n" for x in ld)}
     saida = modelo
     for k, val in troca.items():
@@ -1794,6 +1840,19 @@ def escrever_sitemap(caminho, pedais):
     corpo = "".join(f"  <url><loc>{u}</loc><lastmod>{d}</lastmod></url>\n" for u, d in urls)
     with open(caminho, "w", encoding="utf-8", newline="\n") as f:
         f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + corpo + "</urlset>\n")
+
+
+def escrever_mapa_geral(pedais, base, pasta_gpx):
+    """Grava pedais/mapa/index.html: o mapa com os percursos de todos os pedais juntos (ferramentas/mapa_geral.py)."""
+    percursos = [(titulo_exibido(p), f"/pedais/{p['_slug']}/", mapa_geral.reduzir(mapa_geral.pontos_do_gpx(caminho_gpx(pasta_gpx, p["id"]))))
+                 for p in pedais if p["_gpx"]]
+    percursos = [x for x in percursos if x[2]]
+    os.makedirs(os.path.join(base, "mapa"), exist_ok=True)
+    modelo_mapa = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "modelo_mapa.tpl"), encoding="utf-8").read()
+    km_mapa = sum(p["distance"] for p in pedais if p["_gpx"]) / 1000
+    with open(os.path.join(base, "mapa", "index.html"), "w", encoding="utf-8", newline="\n") as f:
+        f.write(mapa_geral.montar_pagina(percursos, modelo_mapa, f"{len(percursos)} percursos · {num(km_mapa)} km"))
+    print(f"  mapa geral: {len(percursos)} percursos")
 
 
 def main():
@@ -1948,7 +2007,7 @@ def main():
         mais_novo = pedais[i - 1] if i > 0 else None
         mais_velho = pedais[i + 1] if i + 1 < len(pedais) else None
         with open(os.path.join(pasta, "index.html"), "w", encoding="utf-8", newline="\n") as f:
-            f.write(montar_pagina_pedal(p, mais_novo, mais_velho, modelo_pedal))
+            f.write(montar_pagina_pedal(p, mais_novo, mais_velho, modelo_pedal, pedais))
     slugs = {p["_slug"] for p in pedais}                # apaga as páginas de pedais que saíram
     for p in pedais:                                    # o endereço de antes (nome do Strava) vira um redirecionamento para o de agora
         antigo = slug_antigo(p)
@@ -1959,6 +2018,8 @@ def main():
                 f.write(pagina_de_redirecionamento(p))
             slugs.add(antigo)
     limpar_paginas_antigas(base, slugs)
+    if pedais:
+        escrever_mapa_geral(pedais, base, pasta_gpx)
     if pedais and injetar_na_home(args.home, bloco_ultimo(pedais[0])):
         print("  home: último pedal atualizado ->", titulo_exibido(pedais[0]))
     if args.sitemap and pedais:

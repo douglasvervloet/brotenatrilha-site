@@ -164,6 +164,15 @@
   .navegacao small { display: block; color: var(--suave); font-weight: 600; margin-bottom: 4px; }
   .navegacao .proximo { grid-column: 2; text-align: right; }
   .navegacao .anterior { grid-column: 1; }
+  .parecidos { margin-top: 36px; }
+  .parecidos h2 { margin: 0 0 12px; font-size: 1.2rem; }
+  .grade-parecidos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 12px; }
+  .grade-parecidos a { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; text-decoration: none; }
+  .grade-parecidos a:hover { border-color: var(--verde); }
+  .grade-parecidos b { line-height: 1.3; }
+  .grade-parecidos span { color: var(--suave); font-size: .88rem; }
+  .grade-parecidos em { font-style: normal; color: var(--verde); font-size: .88rem; font-weight: 600; }
+  @media (prefers-color-scheme: dark) { .grade-parecidos em { color: #7fcf9d; } }
   .todos { margin-top: 18px; text-align: center; }
   .todos a { font-weight: 700; color: var(--verde); }
   @media (prefers-color-scheme: dark) { .todos a { color: #7fcf9d; } }
@@ -199,6 +208,7 @@
   {{CLIMA}}
   <p class="links">{{LINKS}}</p>
   {{NOTA_GPX}}
+  {{PARECIDOS}}
   <nav class="navegacao" aria-label="Outros pedais">{{NAV}}</nav>
   <p class="todos"><a href="/pedais/">Ver todos os pedais</a></p>
 </main>
