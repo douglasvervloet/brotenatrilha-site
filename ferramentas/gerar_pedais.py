@@ -1711,9 +1711,7 @@ def montar_pagina(pedais, modelo):
     km = sum(p["distance"] for p in pedais) / 1000
     subida = sum(subida_do_pedal(p) for p in pedais)
     horas = sum(p["moving_time"] for p in pedais) / 3600
-    com_categoria = sum(1 for p in pedais for s in p.get("_subidas") or [] if s["categoria"] != "Sem categoria")
-    resumo = (f'{len(pedais)} pedais · {num(km)} km · {num(subida)} m de subida · {num(horas)} h pedalando'
-              + (f' · {com_categoria} subidas com categoria' if com_categoria else ''))
+    resumo = f'{len(pedais)} pedais · {num(km)} km · {num(subida)} m de subida · {num(horas)} h pedalando'
     return (modelo.replace("{{RESUMO}}", resumo).replace("{{CHIPS_ANO}}", chips_ano).replace("{{OPCOES_PASSA}}", opcoes(cont_passa)).replace("{{OPCOES_SAI}}", opcoes(cont_sai)).replace("{{OPCOES_CHEGA}}", opcoes(cont_chega))
             .replace("{{CONTEUDO}}", "\n".join(blocos))
             .replace("{{ATUALIZADO}}", data_longa(datetime.now().strftime("%Y-%m-%d"))))
