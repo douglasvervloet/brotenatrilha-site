@@ -888,6 +888,7 @@ def perfil_svg(caminho, subidas=None):
 # do ClimbPro). Categorias: Cat 4 a partir de 8.000, Cat 3 de 16.000, Cat 2 de 32.000, Cat 1 de 64.000 e HC de 80.000.
 SUBIDA_PASSO_M = 20                                  # a altitude reamostrada a cada 20 m, suavizada em ±2 pontos
 SUBIDA_TOLERANCIA_M = 10                             # uma descida de até 10 m no meio não corta a subida
+SUBIDA_FUNDO_M = 3                                   # a subida começa no último ponto a até 3 m do fundo do trecho
 CATEGORIAS_SUBIDA = [(80000, "HC"), (64000, "Cat 1"), (32000, "Cat 2"), (16000, "Cat 3"), (8000, "Cat 4")]
 CORES_CATEGORIA = {"Sem categoria": ("#7fb07a", "#14301c"), "Cat 4": ("#2d7046", "#ffffff"), "Cat 3": ("#f2c14e", "#3a2a00"),
                    "Cat 2": ("#e8873a", "#2e1600"), "Cat 1": ("#c8452c", "#ffffff"), "HC": ("#6e1f2a", "#ffffff")}
@@ -922,6 +923,12 @@ def subidas_do_perfil(perfil):
                 topo = k
             if alt[topo] - alt[k] > SUBIDA_TOLERANCIA_M:
                 break
+        # O começo da subida: entre os pontos de onde se chega ao topo com média de 3% ou mais, o último que está a até
+        # SUBIDA_FUNDO_M da altitude mais baixa (onde a subida começa de fato). Sem isso, um trecho plano longo antes da subida
+        # baixava a média e a subida inteira se perdia, como a Fonte Grande depois de 15 km de plano na Volta na Ilha.
+        validos = [s for s in range(i, topo) if (topo - s) * SUBIDA_PASSO_M >= 500 and alt[topo] - alt[s] >= 0.03 * (topo - s) * SUBIDA_PASSO_M]
+        fundo = min((alt[s] for s in validos), default=0)
+        ini = max((s for s in validos if alt[s] <= fundo + SUBIDA_FUNDO_M), default=i)
         comp = (topo - ini) * SUBIDA_PASSO_M
         ganho = alt[topo] - alt[ini]
         media = ganho / comp * 100 if comp else 0
