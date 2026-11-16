@@ -22,6 +22,10 @@ from xml.etree import ElementTree
 SITE = "https://brotenatrilha.com.br"
 ID_DO_CANAL = "UC2uS9f0ACz0LZC7HwZWVBPQ"      # o script só grava se o token for deste canal
 MARCA = "brotenatrilha.com.br/pedais/"      # se a descrição já tem isto, o vídeo já está com o link
+MARCA_ANALISES = "brotenatrilha.com.br/analises/"
+URL_ANALISES = SITE + "/analises/"
+LINHA_PEDAL = "Mapa, dados e clima deste pedal: "
+LINHA_ANALISES = "Esta e outras análises no site: "
 LIMITE_POR_RODADA = 10                       # trava de segurança: um erro de lógica não mexe em dezenas de vídeos
 ESPERA_DO_SITE_S = 480                       # tempo máximo esperando o GitHub Pages publicar uma página nova
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -42,6 +46,15 @@ def pedais_do_sitemap():
         if video:
             resultado[video.group(1)] = loc.text.strip()
     return resultado
+
+
+def analises_da_pagina():
+    """Os ids dos vídeos da página de análises (analises/index.html, montada por gerar_analises.py)."""
+    pagina = os.path.join(RAIZ, "analises", "index.html")
+    if not os.path.isfile(pagina):
+        return []
+    with open(pagina, encoding="utf-8") as f:
+        return sorted(set(re.findall(r'class="tocar" data-id="([A-Za-z0-9_-]{11})"', f.read())))
 
 
 def no_ar(url):
@@ -87,7 +100,7 @@ def api(token, metodo, url, corpo=None):
 
 def descricao_com_link(descricao, url):
     """A descrição com a linha do link depois da última linha 'Strava:' ou 'Komoot:'; sem elas, no fim do texto."""
-    linha = "Mapa, dados e clima deste pedal: " + url
+    linha = LINHA_PEDAL + url
     linhas = descricao.rstrip().split("\n")
     ultima = max((i for i, l in enumerate(linhas) if re.match(r"(Strava|Komoot)\s*:", l)), default=-1)
     if ultima >= 0:
@@ -96,11 +109,23 @@ def descricao_com_link(descricao, url):
     return descricao.rstrip() + "\n\n" + linha
 
 
-def so_a_linha_do_link_mudou(antes, depois, url):
-    """Trava de segurança: tirando a linha do link, o texto novo tem de ser igual ao antigo."""
-    restante = [l for l in depois.split("\n") if l != "Mapa, dados e clima deste pedal: " + url]
+def descricao_com_link_da_analise(descricao):
+    """A descrição de uma análise com o link da página de análises depois do primeiro parágrafo (antes da lista de peças)."""
+    linhas = descricao.rstrip().split("\n")
+    vazia = next((i for i, l in enumerate(linhas) if not l.strip()), None)
+    if vazia is None:
+        return descricao.rstrip() + "\n\n" + LINHA_ANALISES + URL_ANALISES
+    return "\n".join(linhas[:vazia] + ["", LINHA_ANALISES + URL_ANALISES] + linhas[vazia:])
+
+
+def so_a_linha_do_link_mudou(antes, depois, linha):
+    """Trava de segurança: tirando a linha do link (e a linha em branco que ela trouxe), o texto novo tem de ser igual ao antigo."""
     original = antes.rstrip().split("\n")
-    return restante == original or restante[:len(original)] == original
+    restante = [l for l in depois.split("\n") if l != linha]
+    if restante == original or restante[:len(original)] == original:
+        return True
+    sem_branca = [l for k, l in enumerate(restante) if not (l == "" and k > 0 and restante[k - 1] == "")]
+    return sem_branca == original
 
 
 def ler_log():
@@ -122,27 +147,35 @@ def main():
         print(f"::error::O token não é do canal Brote na Trilha (é de {[c['id'] for c in canal] or 'nenhum canal'}). "
               "Rode ferramentas/youtube_autorizar.ps1 de novo e escolha o canal certo.")
         sys.exit(1)
-    ids = list(pedais)
+    analises = [i for i in analises_da_pagina() if i not in pedais]
+    ids = list(pedais) + analises
     atuais = {}
     for i in range(0, len(ids), 50):
         r = api(token, "GET", "https://www.googleapis.com/youtube/v3/videos?part=snippet&maxResults=50&id=" + ",".join(ids[i:i + 50]))
         atuais.update({v["id"]: v["snippet"] for v in r.get("items", [])})
 
-    faltam = [i for i in ids if i in atuais and MARCA not in atuais[i].get("description", "")]
-    print(f"{len(pedais)} pedais com vídeo; {len(faltam)} sem o link na descrição.")
+    faltam = [i for i in pedais if i in atuais and MARCA not in atuais[i].get("description", "")]
+    faltam_analises = [i for i in analises if i in atuais and MARCA_ANALISES not in atuais[i].get("description", "")]
+    print(f"{len(pedais)} pedais com vídeo; {len(faltam)} sem o link na descrição. "
+          f"{len(analises)} análises; {len(faltam_analises)} sem o link.")
     for i in faltam:
         d = atuais[i].get("description", "")
         print(f"[diagnostico] {i}: {len(d)} caracteres; fim: {d[-160:]!r}")
-    prontos = esperar_no_ar([pedais[i] for i in faltam]) if faltam else set()
+    prontos = esperar_no_ar([pedais[i] for i in faltam] + ([URL_ANALISES] if faltam_analises else [])) if faltam or faltam_analises else set()
 
     log, gravados = ler_log(), 0
-    for id_video in faltam:
-        url, s = pedais[id_video], atuais[id_video]
+    for id_video in faltam + faltam_analises:
+        s = atuais[id_video]
+        if id_video in pedais:
+            url = pedais[id_video]
+            nova, linha = descricao_com_link(s.get("description", ""), url), LINHA_PEDAL + url
+        else:
+            url = URL_ANALISES
+            nova, linha = descricao_com_link_da_analise(s.get("description", "")), LINHA_ANALISES + URL_ANALISES
         if url not in prontos:
             print(f"[espera] a página ainda não está no ar: {url}")
             continue
-        nova = descricao_com_link(s.get("description", ""), url)
-        if not so_a_linha_do_link_mudou(s.get("description", ""), nova, url):
+        if not so_a_linha_do_link_mudou(s.get("description", ""), nova, linha):
             print(f"::warning::Conferência falhou, vídeo {id_video} não foi alterado.")
             continue
         if gravados >= LIMITE_POR_RODADA:
