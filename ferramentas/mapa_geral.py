@@ -7,7 +7,8 @@ não apontar de onde os pedais saem.
 O desenho usa como unidade o pixel do zoom 13 do mapa web (Z_MUNDO). O fundo é o relevo do OpenTopoMap em duas camadas, ambas gravadas
 na pasta da página (o robô só as refaz quando a região muda):
   - fundo-estado.webp: o estado inteiro, no zoom 10 (leve);
-  - fundo-detalhe.webp: a região onde está a maior parte dos pedais, no zoom 12 (aparece por cima quando se dá zoom).
+  - fundo-detalhe.webp: a região onde está a maior parte dos pedais, no zoom 12 (aparece por cima quando se dá zoom);
+  - fundo-detalhe-fino.webp: a mesma região no zoom 13 (4x os pixels, uns 2 MB); a página só o baixa quando alguém aproxima bastante.
 """
 import html
 import json
@@ -17,12 +18,12 @@ import re
 
 from PIL import Image, ImageEnhance
 
-Z_MUNDO, Z_ESTADO, Z_DETALHE = 13, 10, 12
+Z_MUNDO, Z_ESTADO, Z_DETALHE, Z_FINO = 13, 10, 12, 13
 CORTE_EXTRA_M = 1500    # cortado de cada ponta, além do que o GPX já corta
 PASSO_M = 250           # um ponto a cada 250 m
 MARGEM = 200            # margem em volta dos percursos (unidades do desenho)
 GRADE_DETALHE = 1024    # a região em detalhe é arredondada para esta grade: o fundo só se refaz quando ela muda
-VERSAO_DO_FUNDO = 2     # sobe quando muda o jeito de montar as imagens, para o robô refazê-las
+VERSAO_DO_FUNDO = 3     # sobe quando muda o jeito de montar as imagens, para o robô refazê-las
 
 
 def pixel_global(lat, lon, z):
@@ -117,15 +118,18 @@ def garantir_fundos(pasta, estado, nucleo, pasta_cache, baixar_tile):
     chave = {"versao": VERSAO_DO_FUNDO, "estado": estado, "nucleo": nucleo}
     arq_chave = os.path.join(pasta, "fundo.json")
     a_estado, a_detalhe = os.path.join(pasta, "fundo-estado.webp"), os.path.join(pasta, "fundo-detalhe.webp")
-    if os.path.isfile(arq_chave) and os.path.isfile(a_estado) and os.path.isfile(a_detalhe):
+    a_fino = os.path.join(pasta, "fundo-detalhe-fino.webp")
+    if os.path.isfile(arq_chave) and os.path.isfile(a_estado) and os.path.isfile(a_detalhe) and os.path.isfile(a_fino):
         with open(arq_chave, encoding="utf-8") as f:
             if json.load(f) == chave:
                 return
     montar_fundo(estado, Z_ESTADO, a_estado, pasta_cache, baixar_tile, 72)
     montar_fundo(nucleo, Z_DETALHE, a_detalhe, pasta_cache, baixar_tile, 66, borda=48)
+    montar_fundo(nucleo, Z_FINO, a_fino, pasta_cache, baixar_tile, 66, borda=96)
     with open(arq_chave, "w", encoding="utf-8", newline="\n") as f:
         json.dump(chave, f)
-    print(f"  fundos do mapa geral refeitos: estado {os.path.getsize(a_estado) // 1024} KB, detalhe {os.path.getsize(a_detalhe) // 1024} KB")
+    print(f"  fundos do mapa geral refeitos: estado {os.path.getsize(a_estado) // 1024} KB, "
+          f"detalhe {os.path.getsize(a_detalhe) // 1024} KB, fino {os.path.getsize(a_fino) // 1024} KB")
 
 
 def desenho(percursos, estado, nucleo, vista, todas):
@@ -146,6 +150,7 @@ def desenho(percursos, estado, nucleo, vista, todas):
             f'<defs>{"".join(defs)}</defs>'
             f'<image href="fundo-estado.webp" x="0" y="0" width="{largura}" height="{altura}" preserveAspectRatio="none"/>'
             f'<image href="fundo-detalhe.webp" x="{n[0]}" y="{n[1]}" width="{n[2]}" height="{n[3]}" preserveAspectRatio="none"/>'
+            f'<image id="fino" data-href="fundo-detalhe-fino.webp" x="{n[0]}" y="{n[1]}" width="{n[2]}" height="{n[3]}" preserveAspectRatio="none"/>'
             f'<g class="brilho">{"".join(brilho)}</g><g class="linhas">{"".join(linhas)}</g></svg>')
 
 

@@ -35,6 +35,8 @@
   .mapa-geral { position: relative; background: #0c1711; border: 1px solid var(--linha); border-radius: 18px; overflow: hidden; }
   .heat { display: block; width: 100%; height: min(80vh, 900px); min-height: 420px; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
   .heat.arrastando { cursor: grabbing; }
+  .heat #fino { opacity: 0; transition: opacity .4s; }
+  .heat #fino.pronto { opacity: 1; }
   .heat .brilho use { fill: none; stroke: #e8a33d; stroke-opacity: .16; stroke-width: 12px; stroke-linejoin: round; stroke-linecap: round; }
   .heat .vis { fill: none; stroke: #f2c14e; stroke-opacity: .55; stroke-width: 2.2px; stroke-linejoin: round; stroke-linecap: round; }
   .heat .alvo { fill: none; stroke: transparent; stroke-width: 16px; pointer-events: stroke; }
@@ -98,6 +100,16 @@
     var vb = numeros(svg.getAttribute("viewBox"));               // [x, y, largura, altura] no desenho
     var LIMITE_ZOOM = 1;                                          // o mais perto: 1 unidade do desenho por pixel da tela (o fundo em detalhe a 2x)
 
+    var PERTO_PARA_O_FINO = 1.7;                                  // abaixo de 1,7 unidades por pixel da tela, baixa o fundo fino (zoom 13)
+    var fino = document.getElementById("fino"), finoPedido = false;
+    function carregarFino() {                                     // o fundo fino pesa uns 2 MB: só se baixa quando alguém aproxima
+      if (finoPedido || !fino) return;
+      finoPedido = true;
+      var img = new Image();
+      img.onload = function () { fino.setAttribute("href", fino.dataset.href); fino.classList.add("pronto"); };
+      img.src = fino.dataset.href;
+    }
+
     function proporcao() { return svg.clientWidth / svg.clientHeight; }
     function entre(v, a, b) { return Math.min(Math.max(v, a), Math.max(a, b)); }
     function aplicar(x, y, w) {                                   // mantém a proporção da caixa e fica dentro do mapa
@@ -108,6 +120,7 @@
       y = h >= completo[3] ? (completo[3] - h) / 2 : entre(y, 0, completo[3] - h);
       vb = [x, y, w, h];
       svg.setAttribute("viewBox", vb.join(" "));
+      if (w / svg.clientWidth < PERTO_PARA_O_FINO) carregarFino();
     }
     function enquadrar(caixa) {                                   // mostra a caixa [x, y, w, h] inteira, centrada
       var p = proporcao(), w = Math.max(caixa[2], caixa[3] * p), h = w / p;
