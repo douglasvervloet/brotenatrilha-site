@@ -955,7 +955,8 @@
     });
 
     // ---- o terreno: o tipo de cada via, do OpenStreetMap, só com "Mostrar o terreno" ligado ----
-    var SERVIDORES_VIAS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter", "https://overpass.private.coffee/api/interpreter"];     // o primeiro, e os outros se ele estiver ocupado
+    var SERVIDORES_VIAS = ["https://overpass.openstreetmap.fr/api/interpreter", "https://maps.mail.ru/osm/tools/overpass/api/interpreter", "https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter", "https://overpass.private.coffee/api/interpreter"];     // vários serviços públicos: se um estiver ocupado ou fora do ar, tenta o seguinte
+    var bomServidor = null;                                        // o que respondeu por último: a próxima consulta começa por ele
     var PASSO_TERRENO = 200, DISTANCIA_TERRENO = 25, cacheVias = {}, esperaTerreno = null, versaoTerreno = 0;
     function tipoDoPiso(superficie, via) {                         // as mesmas regras do site e do BNT Editor; null se as marcas não dizem
       var s = (superficie || "").toLowerCase(), v = (via || "").toLowerCase();
@@ -976,12 +977,13 @@
     }
     function buscarVias(consulta) {                                // as vias de uma consulta, tentando um servidor depois do outro
       var corpo = "data=" + encodeURIComponent(consulta);
+      var lista = bomServidor ? [bomServidor].concat(SERVIDORES_VIAS.filter(function (s) { return s !== bomServidor; })) : SERVIDORES_VIAS;
       function tentar(i) {
-        if (i >= SERVIDORES_VIAS.length) return Promise.reject(new Error("sem servidor"));
-        var ctl = new AbortController(), tempo = setTimeout(function () { ctl.abort(); }, 45000);
-        return fetch(SERVIDORES_VIAS[i], { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: corpo, signal: ctl.signal })
+        if (i >= lista.length) return Promise.reject(new Error("sem servidor"));
+        var ctl = new AbortController(), tempo = setTimeout(function () { ctl.abort(); }, 25000);
+        return fetch(lista[i], { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: corpo, signal: ctl.signal })
           .then(function (r) { clearTimeout(tempo); if (!r.ok) throw new Error("http " + r.status); return r.json(); })
-          .then(function (d) { if (!d || !d.elements) throw new Error("resposta sem vias"); return d; })
+          .then(function (d) { if (!d || !d.elements) throw new Error("resposta sem vias"); bomServidor = lista[i]; return d; })
           .catch(function () { clearTimeout(tempo); return tentar(i + 1); });
       }
       return tentar(0).then(function (d) {
