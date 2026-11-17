@@ -165,6 +165,8 @@
   .botao svg { width: 18px; height: 18px; flex: none; }
   .botao.claro { background: transparent; color: var(--texto); border: 2px solid var(--linha); padding: 8px 18px; }
   .botao.claro:hover { border-color: var(--verde); }
+  button.botao { font: inherit; font-weight: 700; cursor: pointer; }
+  .botao[hidden] { display: none; }
   .navegacao { margin-top: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .navegacao a { display: block; padding: 14px 18px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; text-decoration: none; font-weight: 700; line-height: 1.3; }
   .navegacao a:hover { border-color: var(--verde); }
@@ -213,7 +215,7 @@
   {{SUBIDAS}}
   {{LUGARES}}
   {{CLIMA}}
-  <p class="links">{{LINKS}}</p>
+  <p class="links">{{LINKS}}<button type="button" class="botao claro" id="compartilhar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Compartilhar</button></p>
   {{NOTA_GPX}}
   {{PARECIDOS}}
   <nav class="navegacao" aria-label="Outros pedais">{{NAV}}</nav>
@@ -284,6 +286,29 @@
 })();
 </script>
 <script>document.getElementById("ano").textContent = new Date().getFullYear();</script>
+<script>
+  // Compartilhar: a folha de compartilhamento do aparelho, com a imagem do pedal (a mesma do WhatsApp) e o endereço; sem suporte, o botão fica escondido
+  (function () {
+    var botao = document.getElementById("compartilhar");
+    if (!botao || !navigator.share) return;
+    botao.hidden = false;
+    botao.addEventListener("click", async function () {
+      var titulo = document.querySelector("h1").textContent.trim(), url = document.querySelector('link[rel="canonical"]').href;
+      var dados = { title: titulo, text: titulo, url: url };
+      try {
+        var imagem = new URL(document.querySelector('meta[property="og:image"]').content).pathname;
+        if (imagem.indexOf("/pedais/compartilhar/") === 0) {
+          var blob = await (await fetch(imagem)).blob(), arquivo = new File([blob], "pedal.jpg", { type: blob.type || "image/jpeg" });
+          if (navigator.canShare && navigator.canShare({ files: [arquivo] })) dados = { title: titulo, text: titulo + "\n" + url, files: [arquivo] };   // com a imagem o endereço vai no texto
+        }
+      } catch (e) { /* sem a imagem, vai só o endereço */ }
+      try {
+        await navigator.share(dados);
+        if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: "uso/pedal/compartilhar", title: "Compartilhar pedal", event: true });
+      } catch (e) { /* a pessoa fechou a folha */ }
+    });
+  })();
+</script>
 <script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>

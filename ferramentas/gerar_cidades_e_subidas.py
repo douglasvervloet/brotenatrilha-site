@@ -2,10 +2,10 @@
 
 Roda depois do gerar_pedais.py, na raiz do site:  python ferramentas/gerar_cidades_e_subidas.py
 
-- Lê pedais/index.html (os cartões: endereço, título, data, números, capa e mapa) e ferramentas/cache_pedais.json (as cidades por onde cada pedal passa).
+- Lê as listas de pedais (pedais/index.html e pedais/<ano>/index.html; os cartões: endereço, título, data, números, capa e mapa) e ferramentas/cache_pedais.json (as cidades por onde cada pedal passa).
 - Uma página para cada cidade com 2 pedais ou mais (com menos, a página ficaria sem conteúdo): texto, totais, os cartões dos pedais e as outras cidades.
 - /subidas/: todas as subidas dos pedais (do GPX), da mais dura à mais leve, com filtro por categoria.
-- Põe os links no pedais/index.html e na inicial (entre as marcas <!--CIDADES--> e <!--/CIDADES-->) e as páginas novas no sitemap.xml.
+- Põe os links nas listas de pedais e na inicial (entre as marcas <!--CIDADES--> e <!--/CIDADES-->) e as páginas novas no sitemap.xml.
 """
 import glob
 import html
@@ -40,21 +40,25 @@ def numero_br(v, casas=0):
     return f"{v:,.{casas}f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
+def listas_de_pedais():
+    """As páginas da lista de pedais, do ano mais novo (pedais/index.html) ao mais velho (pedais/<ano>/index.html)."""
+    anos = sorted((d for d in os.listdir(os.path.join(RAIZ, "pedais")) if re.fullmatch(r"[0-9]{4}", d)), reverse=True)
+    return ["pedais/index.html"] + [f"pedais/{a}/index.html" for a in anos]
+
+
 def pedais_da_lista():
-    """Os pedais da lista em ordem (do mais novo ao mais velho): id, endereço, título, data, números e o cartão pronto para reaproveitar."""
-    lista = ler("pedais/index.html")
+    """Os pedais das listas em ordem (do mais novo ao mais velho): id, endereço, título, data, números e o cartão pronto para reaproveitar."""
+    cartoes = [c for arq in listas_de_pedais() for c in re.findall(r'<article class="pedal.*?</article>', ler(arq), re.S)]
     pedais = []
-    for cartao in re.findall(r'<article class="pedal.*?</article>', lista, re.S):
-        slug = re.search(r'class="mapa-link" href="([^"/]+)/"', cartao).group(1)
+    for cartao in cartoes:
+        slug = re.search(r'class="mapa-link" href="/pedais/([^"/]+)/"', cartao).group(1)
         pid = re.search(r"/planejar-pedal/\?pedal=(\d+)", cartao).group(1)
         titulo = html.unescape(re.sub(r"<[^>]+>", "", re.search(r"<h3>(.*?)</h3>", cartao, re.S).group(1))).strip()
         data = re.search(r'<p class="data">([^<]*)</p>', cartao).group(1)
         km = float(re.search(r'data-km="([\d.]+)"', cartao).group(1))
         rotulos = dict(re.findall(r"<dt>([^<]+)</dt><dd>([^<]+)</dd>", cartao))
         subida = int(re.sub(r"\D", "", rotulos.get("Subida", "0")) or 0)
-        absoluto = cartao.replace('href="' + slug + '/"', 'href="/pedais/' + slug + '/"').replace('src="capas/', 'src="/pedais/capas/').replace('src="mapas/', 'src="/pedais/mapas/')
-        absoluto = re.sub(r'(<a class="mapa-link" href="/pedais/[^"]+">)', r"\1", absoluto)
-        pedais.append({"id": pid, "slug": slug, "titulo": titulo, "data": data, "km": km, "subida": subida, "tempo": rotulos.get("Tempo", ""), "cartao": absoluto})
+        pedais.append({"id": pid, "slug": slug, "titulo": titulo, "data": data, "km": km, "subida": subida, "tempo": rotulos.get("Tempo", ""), "cartao": cartao})
     return pedais
 
 
@@ -279,7 +283,7 @@ def main():
     pagina_subidas, n_subidas = pagina_das_subidas(pedais)
     gravar("subidas/index.html", pagina_subidas)
     # os links: na lista de pedais e na inicial (entre as marcas) e na página de cada pedal já vão pelo gerar_pedais (linha das cidades)
-    for arq, prefixo, rotulo in (("pedais/index.html", "/", "Pedais por cidade"), ("index.html", "", "Pedais por cidade")):
+    for arq, prefixo, rotulo in [(a, "/", "Pedais por cidade") for a in listas_de_pedais()] + [("index.html", "", "Pedais por cidade")]:
         caminho = os.path.join(RAIZ, arq)
         t = ler(arq)
         if "<!--CIDADES-->" in t:

@@ -3,24 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pedais</title>
-<meta name="description" content="Os pedais do canal Brote na Trilha: percurso, distância, subida, tempo e o vídeo de cada passeio pelo Espírito Santo.">
-<link rel="canonical" href="https://brotenatrilha.com.br/pedais/">
+<title>{{TITULO}}</title>
+<meta name="description" content="{{DESCRICAO}}">
+<link rel="canonical" href="{{URL}}">
 <meta name="theme-color" content="#2d7046">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
 <meta property="og:site_name" content="Brote na Trilha">
-<meta property="og:title" content="Pedais | Brote na Trilha">
+<meta property="og:title" content="{{TITULO}} | Brote na Trilha">
 <meta property="og:description" content="Percurso, distância, subida e o vídeo de cada pedal do canal.">
-<meta property="og:url" content="https://brotenatrilha.com.br/pedais/">
+<meta property="og:url" content="{{URL}}">
 <meta property="og:image" content="https://brotenatrilha.com.br/compartilhar.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" type="image/png" sizes="48x48" href="../favicon.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/icone-512.png">
 <link rel="shortcut icon" href="/favicon.ico">
-<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>
   :root { --verde: #2d7046; --verde-escuro: #1e5434; --verde-fundo: #163d27; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; --mapa: #1b4a30; --barra: #2d7046; }
   @media (prefers-color-scheme: dark) { :root { --fundo: #0f1a13; --cartao: #172a1e; --texto: #e9f0ea; --suave: #a9bbae; --linha: #284534; --mapa: #12331f; --barra: #4fa56f; } }
@@ -48,6 +48,11 @@
   .chip { font: inherit; font-weight: 600; font-size: .9rem; cursor: pointer; padding: 7px 15px; border-radius: 999px; background: var(--cartao); color: var(--texto); border: 2px solid var(--linha); }
   .chip:hover { border-color: var(--verde); }
   .chip[aria-pressed="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
+  .anos { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 4px; }
+  .anos a { font-weight: 600; font-size: .9rem; padding: 7px 15px; border-radius: 999px; background: var(--cartao); color: var(--texto); border: 2px solid var(--linha); text-decoration: none; }
+  .anos a:hover { border-color: var(--verde); }
+  .anos a[aria-current="page"] { background: var(--verde); border-color: var(--verde); color: #fff; }
+  .anos small { opacity: .75; font-weight: 400; margin-left: 4px; }
   #contagem { margin: 0; color: var(--suave); font-size: .9rem; }
   .barra-filtros { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
   .barra-filtros input { flex: 1 1 240px; width: auto; min-width: 0; }
@@ -129,15 +134,16 @@
 <body>
 <header>
   <div class="miolo">
-    <a href="../">&larr; Brote na Trilha</a>
-    <h1>Pedais</h1>
+    <a href="/">&larr; Brote na Trilha</a>
+    <h1>{{TITULO}}</h1>
     <p>Os passeios do canal, com o percurso, os números e o vídeo de cada um.</p>
     <p class="resumo">{{RESUMO}}</p>
-    <p><a href="mapa/">Ver todos os percursos no mapa &rarr;</a></p>
+    <p><a href="/pedais/mapa/">Ver todos os percursos no mapa &rarr;</a></p>
   </div>
 </header>
 
 <main class="miolo">
+  <nav class="anos" aria-label="Pedais por ano">{{NAV_ANOS}}</nav>
   <div class="filtros" id="filtros" hidden>
     <div class="barra-filtros">
       <input type="search" id="busca" placeholder="Buscar pelo nome do pedal" aria-label="Buscar pelo nome do pedal" autocomplete="off">
@@ -153,7 +159,6 @@
       <p class="nota-painel"><a href="#por-cidade">Ver a página de cada cidade</a></p>
     </div>
     <div class="painel-filtros" id="p-outros" hidden>
-      <div><h3>Ano</h3><div class="chips" role="group" aria-label="Filtrar por ano">{{CHIPS_ANO}}</div></div>
       <div><h3>Distância</h3><div class="chips" role="group" aria-label="Filtrar por distância">
         <button type="button" class="chip" data-filtro="dist" data-valor="todas" aria-pressed="true">Todas</button>
         <button type="button" class="chip" data-filtro="dist" data-valor="ate50" aria-pressed="false">Até 50 km</button>
@@ -176,7 +181,7 @@
 <footer>
   <div class="miolo">
     <span>© <span id="ano">2026</span> Brote na Trilha</span>
-    <span><a href="../privacidade/">Política de privacidade</a> · <a href="../">Voltar ao site</a></span>
+    <span><a href="/privacidade/">Política de privacidade</a> · <a href="/">Voltar ao site</a></span>
     <a class="strava" href="https://www.strava.com" target="_blank" rel="noopener"><img src="/strava_powered_by.png" width="197" height="20" alt="Powered by Strava" loading="lazy" decoding="async"></a>
   </div>
 </footer>
@@ -202,11 +207,11 @@
     if (!filtros || !busca) return;
     filtros.hidden = false;
     var cartoes = [].slice.call(document.querySelectorAll(".pedal"));
-    var PADRAO = { ano: "todos", dist: "todas", texto: "", passa: "", sai: "", chega: "", subida: "", terreno: "" };
+    var PADRAO = { dist: "todas", texto: "", passa: "", sai: "", chega: "", subida: "", terreno: "" };
     var estado = JSON.parse(JSON.stringify(PADRAO));
     function norm(s) { return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
     // os dois grupos: um painel aberto de cada vez; o botão mostra quantos filtros do grupo estão ligados
-    var GRUPOS = [["g-mun", "p-mun", ["passa", "sai", "chega"]], ["g-outros", "p-outros", ["ano", "dist", "subida", "terreno"]]];
+    var GRUPOS = [["g-mun", "p-mun", ["passa", "sai", "chega"]], ["g-outros", "p-outros", ["dist", "subida", "terreno"]]];
     function abrirGrupo(id) {
       GRUPOS.forEach(function (g) {
         var abrir = g[0] === id && document.getElementById(g[1]).hidden;
@@ -227,7 +232,6 @@
       var visiveis = 0;
       cartoes.forEach(function (c) {
         var km = parseFloat(c.dataset.km);
-        var okAno = estado.ano === "todos" || c.dataset.ano === estado.ano;
         var okDist = estado.dist === "todas" || (estado.dist === "ate50" && km < 50) ||
           (estado.dist === "50a100" && km >= 50 && km <= 100) || (estado.dist === "mais100" && km > 100);
         var okTexto = !estado.texto || c.dataset.nome.indexOf(estado.texto) !== -1;
@@ -237,7 +241,7 @@
         // a subida mais dura do pedal tem a categoria pedida ou uma mais dura
         var okSubida = !estado.subida || parseInt(c.dataset.subida || "0", 10) >= parseInt(estado.subida, 10);
         var okTerreno = !estado.terreno || c.dataset.terreno === estado.terreno;   // o pedal cujo piso ainda não foi lido só aparece em "Qualquer"
-        var ok = okAno && okDist && okTexto && okPassa && okSai && okChega && okSubida && okTerreno;
+        var ok = okDist && okTexto && okPassa && okSai && okChega && okSubida && okTerreno;
         c.hidden = !ok;
         if (ok) visiveis++;
       });
@@ -258,7 +262,7 @@
     document.getElementById("limpar").addEventListener("click", function () {
       estado = JSON.parse(JSON.stringify(PADRAO)); busca.value = "";
       ["passa", "sai", "chega", "subida", "terreno"].forEach(function (id) { document.getElementById(id).value = ""; });
-      marcarChips("ano", "todos"); marcarChips("dist", "todas");
+      marcarChips("dist", "todas");
       aplicar();
     });
     aplicar();

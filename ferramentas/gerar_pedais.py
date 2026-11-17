@@ -5,8 +5,8 @@ a partir do Strava e do canal do YouTube.
 
 - Busca no Strava as atividades públicas cujo nome começa com "Brote na Trilha" (precisa de STRAVA_CLIENT_ID,
   STRAVA_CLIENT_SECRET e STRAVA_REFRESH_TOKEN; o escopo activity:read já deixa de fora as zonas de privacidade).
-- Casa cada pedal com o vídeo do canal pelo título (e pelo link do YouTube na descrição do Strava, se houver) e pega o
-  link do Komoot da descrição do vídeo (precisa de YOUTUBE_API_KEY; sem a chave, os cartões saem sem vídeo).
+- Casa cada pedal com o vídeo do canal pelo título (e pelo link do YouTube na descrição do Strava, se houver)
+  (precisa de YOUTUBE_API_KEY; sem a chave, os cartões saem sem vídeo).
 - Desenha o traçado em SVG, SEM o começo e o fim: os primeiros e os últimos 800 m são cortados, para não mostrar de onde
   o pedal sai (a casa de quem pedala).
 - Grava o GPX de cada pedal (pedais/gpx) com a altitude corrigida pelo relevo, pela mesma conta do BNT Editor: o gráfico de
@@ -299,13 +299,6 @@ def casar_videos(pedais, videos, ajustes):
             usados.add(vid)
     for p in pedais:
         p["_video"] = p["_video"] or None
-
-
-def link_komoot(video):
-    if not video:
-        return None
-    m = re.search(r"https?://(?:www\.)?komoot\.[a-z.]+/[^\s)\"'<>]+", video["descricao"])
-    return m.group(0).rstrip(".,;") if m else None
 
 
 def data_longa(iso):
@@ -1847,33 +1840,31 @@ ICONE_BAIXO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 ICONE_ROTA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="6" r="2.3"/><path d="M8.3 18H14a3.5 3.5 0 0 0 0-7h-4a3.5 3.5 0 0 1 0-7h5.7"/></svg>'
 
 
-def botoes(p, claro_assistir=False, extra="", komoot=True, strava=True):
+def botoes(p, claro_assistir=False, extra="", strava=True):
     links = []
     if p.get("_video"):
         links.append(f'<a class="botao" href="https://www.youtube.com/watch?v={p["_video"]["id"]}" target="_blank" rel="noopener">{ICONE_TOCAR}Assistir</a>')
     if strava:
         links.append(f'<a class="botao claro" href="https://www.strava.com/activities/{p["id"]}" target="_blank" rel="noopener">View on Strava</a>')
-    if komoot and p.get("_komoot"):
-        links.append(f'<a class="botao claro" href="{html.escape(p["_komoot"])}" target="_blank" rel="noopener">Komoot</a>')
     return " ".join(links) + extra
 
 
 def cartao(p):
     km, media = numeros(p)
     titulo = html.escape(titulo_exibido(p))
-    mapa = mapa_html(p, "mapas/")
-    capa = (f'<div class="capa"><img src="capas/{p["_video"]["id"]}.webp" width="{CAPA_L}" height="{CAPA_L * 9 // 16}" '
+    mapa = mapa_html(p, "/pedais/mapas/")
+    capa = (f'<div class="capa"><img src="/pedais/capas/{p["_video"]["id"]}.webp" width="{CAPA_L}" height="{CAPA_L * 9 // 16}" '
             f'loading="lazy" decoding="async" alt="Capa do vídeo {titulo}"></div>') if p.get("_capa") else ""
     # O botão de trocar a imagem só deste cartão (aparece com JavaScript; sem ele fica a capa); fora do link, que não pode ter botão dentro
     alterna = ('<button type="button" class="alterna" hidden aria-pressed="false" aria-label="Ver o mapa deste pedal">' + ICONE_MAPA + 'Ver mapa</button>'
                if capa else "")
     return f"""      <article class="pedal{"" if capa else " sem-capa"}" data-ano="{p["start_date_local"][:4]}" data-km="{km:.1f}" data-nome="{html.escape(normalizar(p["name"] + " " + titulo_exibido(p) + " " + " ".join(p.get("_passa", []))))}" data-subida="{nivel_da_subida(p)}" data-terreno="{terreno_do_pedal(p)}" data-sai="{slug_texto(p.get("_sai") or "")}" data-chega="{slug_texto(p.get("_chega") or "")}" data-passa="|{"|".join(slug_texto(c) for c in p.get("_passa", []))}|">
         <div class="imagem">
-          <a class="mapa-link" href="{p['_slug']}/" aria-label="Ver o pedal {titulo}">{capa}{mapa}</a>
+          <a class="mapa-link" href="/pedais/{p['_slug']}/" aria-label="Ver o pedal {titulo}">{capa}{mapa}</a>
           {alterna}
         </div>
         <div class="corpo">
-          <h3><a href="{p['_slug']}/">{titulo}</a></h3>
+          <h3><a href="/pedais/{p['_slug']}/">{titulo}</a></h3>
           <p class="data">{data_longa(p["start_date_local"])}</p>
           {linha_cidades(p)}
           <dl>
@@ -1887,13 +1878,27 @@ def cartao(p):
       </article>"""
 
 
-def montar_pagina(pedais, modelo):
-    por_ano = {}
-    for p in pedais:
-        por_ano.setdefault(p["start_date_local"][:4], []).append(p)
-    anos = sorted(por_ano, reverse=True)
+def anos_dos_pedais(pedais):
+    """Os anos que têm pedal, do mais novo ao mais velho."""
+    return sorted({p["start_date_local"][:4] for p in pedais}, reverse=True)
+
+
+def endereco_da_lista(ano, anos):
+    """O ano mais novo fica em /pedais/; os outros em /pedais/<ano>/ (a lista de um ano só pesa bem menos)."""
+    return "/pedais/" if ano == anos[0] else f"/pedais/{ano}/"
+
+
+def montar_pagina(todos, modelo, ano):
+    """A lista de pedais de um ano: os cartões do ano, os filtros e a navegação entre os anos."""
+    anos = anos_dos_pedais(todos)
+    pedais = [p for p in todos if p["start_date_local"][:4] == ano]
     blocos = [f'    <div class="bloco-ano">\n    <h2 class="ano">{ano}</h2>\n    <div class="grade">\n'
-              + "\n".join(cartao(p) for p in por_ano[ano]) + "\n    </div>\n    </div>" for ano in anos]
+              + "\n".join(cartao(p) for p in pedais) + "\n    </div>\n    </div>"]
+    nav_anos = "".join(f'<a href="{endereco_da_lista(a, anos)}"' + (' aria-current="page"' if a == ano else "")
+                       + f'>{a}<small>{sum(1 for p in todos if p["start_date_local"][:4] == a)}</small></a>' for a in anos)
+    titulo = "Pedais" if ano == anos[0] else f"Pedais de {ano}"
+    descricao = (f"Os {len(pedais)} pedais de {ano} do canal Brote na Trilha: percurso, distância, subida, tempo e o vídeo de cada passeio pelo Espírito Santo."
+                 if ano != anos[0] else "Os pedais do canal Brote na Trilha: percurso, distância, subida, tempo e o vídeo de cada passeio pelo Espírito Santo.")
     cont_passa, cont_sai, cont_chega = {}, {}, {}
     for p in pedais:
         for c in set(p.get("_passa", [])):
@@ -1906,13 +1911,12 @@ def montar_pagina(pedais, modelo):
     def opcoes(cont):
         return "".join(f'<option value="{slug_texto(c)}">{html.escape(c)} ({n})</option>'
                        for c, n in sorted(cont.items(), key=lambda x: (-x[1], sem_acento(x[0]))))
-    chips_ano = '<button type="button" class="chip" data-filtro="ano" data-valor="todos" aria-pressed="true">Todos os anos</button>' + "".join(
-        f'<button type="button" class="chip" data-filtro="ano" data-valor="{a}" aria-pressed="false">{a}</button>' for a in anos)
     km = sum(p["distance"] for p in pedais) / 1000
     subida = sum(subida_do_pedal(p) for p in pedais)
     horas = sum(p["moving_time"] for p in pedais) / 3600
     resumo = f'{len(pedais)} pedais · {num(km)} km · {num(subida)} m de subida · {num(horas)} h pedalando'
-    return (modelo.replace("{{RESUMO}}", resumo).replace("{{CHIPS_ANO}}", chips_ano).replace("{{OPCOES_PASSA}}", opcoes(cont_passa)).replace("{{OPCOES_SAI}}", opcoes(cont_sai)).replace("{{OPCOES_CHEGA}}", opcoes(cont_chega))
+    return (modelo.replace("{{TITULO}}", titulo).replace("{{DESCRICAO}}", html.escape(descricao)).replace("{{URL}}", "https://brotenatrilha.com.br" + endereco_da_lista(ano, anos))
+            .replace("{{NAV_ANOS}}", nav_anos).replace("{{RESUMO}}", resumo).replace("{{OPCOES_PASSA}}", opcoes(cont_passa)).replace("{{OPCOES_SAI}}", opcoes(cont_sai)).replace("{{OPCOES_CHEGA}}", opcoes(cont_chega))
             .replace("{{CONTEUDO}}", "\n".join(blocos))
             .replace("{{ATUALIZADO}}", data_longa(datetime.now().strftime("%Y-%m-%d"))))
 
@@ -2051,6 +2055,7 @@ def injetar_na_home(caminho, bloco):
 def escrever_sitemap(caminho, pedais):
     hoje = datetime.now().strftime("%Y-%m-%d")
     urls = [("https://brotenatrilha.com.br/", hoje), ("https://brotenatrilha.com.br/pedais/", hoje)] + ESTATICAS
+    urls += [(f"https://brotenatrilha.com.br/pedais/{a}/", hoje) for a in anos_dos_pedais(pedais)[1:]]
     urls += [(f"https://brotenatrilha.com.br/pedais/{p['_slug']}/", p["start_date_local"][:10]) for p in pedais]
     corpo = "".join(f"  <url><loc>{u}</loc><lastmod>{d}</lastmod></url>\n" for u, d in urls)
     with open(caminho, "w", encoding="utf-8", newline="\n") as f:
@@ -2183,7 +2188,6 @@ def main():
         print("  fora do site (sem vídeo):", p["start_date_local"][:10], p["name"])
     usados = set()
     for p in pedais:
-        p["_komoot"] = link_komoot(p["_video"])
         p["_slug"] = slug_do_pedal(p)
         if p["_slug"] in usados:
             p["_slug"] += f"-{p['id']}"
@@ -2258,7 +2262,7 @@ def main():
             json.dump(assinaturas, f, ensure_ascii=False, indent=0, sort_keys=True)
     print(f"  compartilhamento: {sum(1 for p in pedais if p['_compartilhar'])} de {len(pedais)} pedais com imagem própria")
     print(f"  começo e fim cortados em {sum(1 for p in pedais if p['_cortado'])} de {len(pedais)} pedais (os que saem ou chegam perto de casa)")
-    print(f"{len(pedais)} pedais; {sum(1 for p in pedais if p['_video'])} com vídeo; {sum(1 for p in pedais if p['_komoot'])} com Komoot; "
+    print(f"{len(pedais)} pedais; {sum(1 for p in pedais if p['_video'])} com vídeo; "
           f"{sum(1 for p in pedais if p['_mapa'] or p['_svg'])} com mapa")
 
     if not args.teste:
@@ -2268,7 +2272,11 @@ def main():
     modelo_pedal = open(args.modelo_pedal, encoding="utf-8").read()
     os.makedirs(base, exist_ok=True)
     with open(args.saida, "w", encoding="utf-8", newline="\n") as f:
-        f.write(montar_pagina(pedais, modelo))
+        f.write(montar_pagina(pedais, modelo, anos_dos_pedais(pedais)[0]))
+    for ano in anos_dos_pedais(pedais)[1:]:
+        os.makedirs(os.path.join(base, ano), exist_ok=True)
+        with open(os.path.join(base, ano, "index.html"), "w", encoding="utf-8", newline="\n") as f:
+            f.write(montar_pagina(pedais, modelo, ano))
     for i, p in enumerate(pedais):                      # uma página para cada pedal
         pasta = os.path.join(base, p["_slug"])
         os.makedirs(pasta, exist_ok=True)

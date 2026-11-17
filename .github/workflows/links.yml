@@ -1,0 +1,50 @@
+# Confere os links do site toda segunda-feira (e quando pedido, em Actions > Conferir links > Run workflow).
+# Se algum link estiver quebrado (interno, vídeo apagado do YouTube, loja ou outro site fora do ar), abre uma issue "Links quebrados no site"
+# (ou comenta na que já está aberta) e deixa a execução vermelha; o GitHub avisa por e-mail. O que conferir está em ferramentas/conferir_links.py.
+name: Conferir links
+
+on:
+  schedule:
+    - cron: "40 12 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  conferir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Conferir os links
+        id: links
+        continue-on-error: true
+        run: python -X utf8 ferramentas/conferir_links.py --relatorio "$RUNNER_TEMP/relatorio_links.md"
+
+      - name: Mostrar o relatório na execução
+        if: always()
+        run: '[ -f "$RUNNER_TEMP/relatorio_links.md" ] && cat "$RUNNER_TEMP/relatorio_links.md" >> "$GITHUB_STEP_SUMMARY" || true'
+
+      - name: Abrir ou atualizar o alerta
+        if: steps.links.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          titulo="Links quebrados no site"
+          aberta=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "$titulo in:title" --json number --jq '.[0].number')
+          if [ -n "$aberta" ]; then
+            gh issue comment "$aberta" --repo "$GITHUB_REPOSITORY" --body-file "$RUNNER_TEMP/relatorio_links.md"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$titulo" --body-file "$RUNNER_TEMP/relatorio_links.md"
+          fi
+
+      - name: Falhar se há link quebrado
+        if: steps.links.outcome == 'failure'
+        run: exit 1
