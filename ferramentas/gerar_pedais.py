@@ -1858,6 +1858,38 @@ def escrever_mapa_geral(pedais, base, pasta_gpx, pasta_cache):
         print(f"  mapa geral: {len(percursos)} percursos")
 
 
+def codificar_polilinha(pontos):
+    """A linha no formato de polilinha do Google (5 casas decimais): o mesmo que o link do Desenhar rota usa."""
+    saida, ultima = [], (0, 0)
+    for lat, lon in pontos:
+        atual = (round(lat * 1e5), round(lon * 1e5))
+        for delta in (atual[0] - ultima[0], atual[1] - ultima[1]):
+            delta = ~(delta << 1) if delta < 0 else delta << 1
+            while delta >= 0x20:
+                saida.append(chr((0x20 | (delta & 0x1F)) + 63))
+                delta >>= 5
+            saida.append(chr(delta + 63))
+        ultima = atual
+    return "".join(saida)
+
+
+def escrever_tracos(pedais, pasta_gpx):
+    """ferramentas/tracos_pedais.json: o traçado reduzido de cada pedal (o do mapa geral, sem 1,5 km de cada ponta), para a camada "Pedais do canal" do Desenhar rota."""
+    lista = []
+    for p in pedais:
+        if not p["_gpx"]:
+            continue
+        pontos = mapa_geral.reduzir(mapa_geral.pontos_do_gpx(caminho_gpx(pasta_gpx, p["id"])))
+        if pontos:
+            lista.append({"id": p["id"], "t": titulo_exibido(p), "u": p["_slug"], "p": codificar_polilinha(pontos)})
+    destino = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tracos_pedais.json")
+    texto = json.dumps(lista, ensure_ascii=False, separators=(",", ":"))
+    if not os.path.exists(destino) or open(destino, encoding="utf-8").read() != texto:
+        with open(destino, "w", encoding="utf-8", newline="\n") as f:
+            f.write(texto)
+        print(f"  traços dos pedais: {len(lista)} percursos")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--teste", help="arquivo JSON com atividades no formato da API do Strava (em vez de buscar)")
@@ -2023,6 +2055,7 @@ def main():
     limpar_paginas_antigas(base, slugs)
     if pedais:
         escrever_mapa_geral(pedais, base, pasta_gpx, pasta_cache)
+        escrever_tracos(pedais, pasta_gpx)
     if pedais and injetar_na_home(args.home, bloco_ultimo(pedais[0])):
         print("  home: último pedal atualizado ->", titulo_exibido(pedais[0]))
     if args.sitemap and pedais:
