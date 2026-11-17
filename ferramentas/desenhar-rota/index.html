@@ -149,7 +149,7 @@
     <div class="dica" id="dica">Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para remover.</div>
     <div class="credito-mapa" id="credito">© OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA)</div>
   </div>
-  <p class="aviso" style="margin-bottom:0"><b>Mostrar o terreno</b> ligado: uma amostra da rota (um ponto a cada 200 m) é enviada ao Overpass, o serviço público do OpenStreetMap, para saber o tipo de cada via; desligado, nada sai do navegador. Num pedal do canal aberto sem alterações, o terreno vem do que o site já calculou.</p>
+  <p class="aviso" style="margin-bottom:0"><b>Mostrar o terreno</b>: dentro do Espírito Santo, o terreno vem de arquivos do próprio site e nada sai do navegador. Fora dele, uma amostra da rota (um ponto a cada 200 m) é enviada ao Overpass, o serviço público do OpenStreetMap, para saber o tipo de cada via. Desligado, nada é enviado. Dados das vias: © colaboradores do OpenStreetMap (ODbL).</p>
   <p class="aviso">Com <b>Grudar nas ruas</b> desligado, nada do que você desenha sai do seu navegador. Ligado, os pontos de cada trecho (dois a dois) são enviados a um serviço público de rotas do OpenStreetMap
     (BRouter, com o da FOSSGIS como reserva) para seguir as ruas e trilhas; se nenhum responder, o trecho fica em linha reta. O mapa e a altitude vêm de servidores abertos (OpenTopoMap ou OpenStreetMap, conforme o estilo, e Amazon Web Services),
     que só recebem o pedido dos quadros do mapa que você vê. A sua localização, se você usar o botão, é lida só no seu navegador.</p>
@@ -1011,6 +1011,35 @@
     }
     function estadoDoTerreno(texto) { var e = document.getElementById("status-terreno"); e.textContent = texto || ""; e.hidden = !texto; }
     function agendarTerreno() { clearTimeout(esperaTerreno); if (terrenoLigado) esperaTerreno = setTimeout(buscarTerreno, 1200); }
+    var indiceDeVias = null, telasDeVias = {};
+    function viasDoSite(amostras) {                                // as vias do Espírito Santo, lidas dos arquivos do site (nada sai do navegador); rejeita se a rota sai da área coberta
+      if (!indiceDeVias) indiceDeVias = fetch("/ferramentas/vias/indice.json").then(function (r) { if (!r.ok) throw new Error("sem vias do site"); return r.json(); }).catch(function (e) { indiceDeVias = null; throw e; });
+      return indiceDeVias.then(function (ind) {
+        var c = ind.cobertura, precisa = {};
+        amostras.forEach(function (p) {
+          if (p.lat < c.sul || p.lat > c.norte || p.lon < c.oeste || p.lon > c.leste) throw new Error("fora da área");
+          precisa[Math.floor(p.lat / ind.tela) + "_" + Math.floor(p.lon / ind.tela)] = true;
+        });
+        var chaves = Object.keys(precisa).filter(function (k) { return ind.telas.indexOf(k) >= 0; });      // a tela sem arquivo não tem vias
+        return Promise.all(chaves.map(function (k) { return telaDeVias(k, ind.escala); })).then(function (listas) { return [].concat.apply([], listas); });
+      });
+    }
+    function telaDeVias(chave, escala) {                           // os segmentos [lat1, lon1, lat2, lon2, tipo] de um quadradinho
+      if (!telasDeVias[chave]) telasDeVias[chave] = fetch("/ferramentas/vias/" + chave + ".json").then(function (r) { if (!r.ok) throw new Error("tela " + chave); return r.json(); }).then(function (d) {
+        var segs = [];
+        d.w.forEach(function (via) {
+          var tipo = via[0] === 1 ? "Asfalto" : via[0] === 2 ? "Terra" : via[0] === 3 ? "Calçamento" : null, v = via[1], lat = 0, lon = 0, antes = null;
+          for (var i = 0; i < v.length; i += 2) {                  // as coordenadas vêm em inteiros de 1e-5 grau, cada uma como diferença da anterior
+            lat += v[i]; lon += v[i + 1];
+            var atual = [lat / escala, lon / escala];
+            if (antes) segs.push([antes[0], antes[1], atual[0], atual[1], tipo]);
+            antes = atual;
+          }
+        });
+        return segs;
+      }).catch(function (e) { delete telasDeVias[chave]; throw e; });
+      return telasDeVias[chave];
+    }
     function buscarTerreno() {
       if (!terrenoLigado || rota.length < 2) return;
       var ida = linhaDaIda(), comp = comprimento(ida);
@@ -1023,7 +1052,7 @@
         if (minha !== versaoTerreno || !terrenoLigado) return;
         estadoDoTerreno("Não consegui ver o terreno agora: o serviço do OpenStreetMap está ocupado. A linha fica numa cor só. Desligue e ligue “Mostrar o terreno”, ou mexa na rota, para tentar de novo.");
       }
-      estadoDoTerreno("Vendo o terreno no OpenStreetMap…");
+      estadoDoTerreno("Vendo o terreno…");
       var daPlanilha = deUmPedal ? deUmPedal.id : null;            // um pedal do canal aberto sem alterações: o terreno que o site já calculou
       var atalho = daPlanilha ? fetch("/ferramentas/cache_piso.json").then(function (r) { if (!r.ok) throw new Error("sem cache"); return r.json(); }).then(function (c) {
         if (!c[daPlanilha]) throw new Error("pedal fora do cache");
@@ -1031,6 +1060,9 @@
         return tipos;
       }) : Promise.reject(new Error("não é um pedal aberto"));
       atalho.then(pronto, function () {
+        return viasDoSite(amostras).then(function (segmentos) { pronto(classificarTerreno(amostras, segmentos)); }, pelaInternet);      // primeiro os arquivos do site; só se a rota sai da área coberta, o Overpass
+      }).catch(function (erro) { if (erro && erro.message !== "cancelado") falhou(); });
+      function pelaInternet() {
         var blocos = [];
         for (var i = 0; i < amostras.length; i += 79) blocos.push(amostras.slice(i, i + 80));
         var todas = [], seguinte = blocos.reduce(function (anterior, bloco) {
@@ -1042,7 +1074,7 @@
           });
         }, Promise.resolve());
         return seguinte.then(function () { pronto(classificarTerreno(amostras, todas)); });
-      }).catch(function (erro) { if (erro && erro.message !== "cancelado") falhou(); });
+      }
     }
     function atualizarTerrenoNaTela() {                            // a legenda no mapa e o resumo abaixo (só quando o terreno está disponível)
       var leg = document.getElementById("leg-terreno"), resumo = document.getElementById("piso-resumo");
