@@ -8,6 +8,9 @@ Uso:  python gerar_apoios.py ARQUIVO.osm.pbf [PASTA_DE_SAIDA]        (precisa do
 O arquivo é {"cobertura": {...}, "escala": 100000, "p": [[tipo, lat, lon, nome], ...]}, com lat e lon em inteiros de 1e-5 grau.
 Tipo: 1 água, 2 mercado ou padaria, 3 posto, 4 lanchonete ou restaurante, 5 bike, 6 banheiro.
 Os dados são do OpenStreetMap (ODbL, © colaboradores do OpenStreetMap).
+
+Lugares que o OpenStreetMap não tem entram à mão em apoios_manuais.json (ao lado deste script), e o robô mensal não os apaga:
+[{"nome": "Padaria Exemplo", "tipo": "mercado", "lat": -20.31, "lon": -40.43}]. O tipo é agua, mercado, posto, lanchonete, bike ou banheiro.
 """
 import json
 import os
@@ -17,6 +20,7 @@ import sys
 import osmium
 
 ESCALA = 100000
+TIPOS_MANUAIS = {"agua": 1, "mercado": 2, "posto": 3, "lanchonete": 4, "bike": 5, "banheiro": 6}
 COBERTURA = {"sul": -21.35, "norte": -18.0, "oeste": -41.95, "leste": -39.55}      # a mesma área das vias
 
 
@@ -70,6 +74,12 @@ def gerar(pbf, pasta):
             continue
         nome = (objeto.tags.get("name") or objeto.tags.get("brand") or "").strip()[:40]
         pontos.add((round(lat * ESCALA), round(lon * ESCALA), tipo, nome))
+    manuais = os.path.join(os.path.dirname(os.path.abspath(__file__)), "apoios_manuais.json")
+    if os.path.exists(manuais):
+        for item in json.load(open(manuais, encoding="utf-8")):
+            if item["tipo"] not in TIPOS_MANUAIS or not dentro(item["lat"], item["lon"]):
+                sys.exit(f"apoios_manuais.json: item inválido ou fora do Espírito Santo: {item}")
+            pontos.add((round(item["lat"] * ESCALA), round(item["lon"] * ESCALA), TIPOS_MANUAIS[item["tipo"]], item["nome"].strip()[:40]))
     lista = []
     for lat, lon, tipo, nome in sorted(pontos):
         if nome and any(p[3].lower() == nome.lower() and abs(p[1] - lat) <= 60 and abs(p[2] - lon) <= 60 for p in lista[-40:]):
