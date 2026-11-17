@@ -277,7 +277,7 @@
     <div class="tabela"><table id="tabela"></table></div>
   </div>
   <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled>Copiar link da rota</button><button class="sec" type="button" id="b-subidas" disabled>Ver no “Subidas do seu GPX”</button></div>
-  <p class="nota">A altitude vem do relevo do mapa (SRTM), a cada 25 m ao longo da linha, e pode diferir da de um aparelho de GPS. O GPX baixado traz só o traçado e a altitude. Com “Grudar nas ruas” desligado as linhas são retas entre os pontos: para seguir uma curva, clique com mais frequência.</p>
+  <p class="nota">A altitude vem do relevo do mapa (SRTM), a cada 25 m ao longo da linha, e pode diferir da de um aparelho de GPS. O ganho total ignora oscilações de até 12 m, ajustado com os pedais do canal contra o Strava (erro médio de uns 12%). O GPX baixado traz só o traçado e a altitude. Com “Grudar nas ruas” desligado as linhas são retas entre os pontos: para seguir uma curva, clique com mais frequência.</p>
   <p class="nota">O link guarda a rota no próprio endereço, depois do “#”: o navegador não envia essa parte a nenhum servidor. Quem abrir o link vê a mesma rota; o “Grudar nas ruas” é ligado por cada pessoa. Um pedal aberto do canal vai simplificado no link (só os pontos, sem o caminho inteiro).</p>
 </main>
 <footer>
@@ -922,7 +922,7 @@
         var perfil = perfilDe(pts), alt = altitudes(perfil);                                     // guarda o cálculo para colorir a linha e para o marcador do gráfico
         calculo = { perfil: perfil, alt: alt, subidas: subidasDe(alt) };
         ultimoTotal = total;
-        document.getElementById("n-ganho").textContent = fmt(ganhoComLimiar(alt, 4), 0) + " m";     // o ganho de altitude sem o ruído do relevo
+        document.getElementById("n-ganho").textContent = fmt(ganhoComLimiar(alt, LIMIAR_DO_GANHO), 0) + " m";     // o ganho de altitude sem o ruído do relevo
         atualizarLuz();
         if (idaEVolta) ajustarParaIdaEVolta(total / 1000, comprimento(linhaDaIda()) / 1000);
         desenharRota();
@@ -953,6 +953,7 @@
     });
 
 
+    var LIMIAR_DO_GANHO = 12;                                      // metros: ajustado com 16 pedais do canal contra o ganho do Strava (com 4 m a página dava 56% a mais; com 12 m, 12% de erro)
     function ganhoComLimiar(alt, limiar) {                         // soma só as subidas entre um vale e um pico separados por pelo menos `limiar` metros (o relevo do mapa tem ruído)
       var ganho = 0, base = alt[0], alto = alt[0];
       for (var i = 1; i < alt.length; i++) {
