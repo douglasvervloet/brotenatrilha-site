@@ -59,6 +59,8 @@
   .grudar[aria-pressed="true"] i::after { left: 19px; }
   .grudar small { background: var(--ambar); color: #2a1a00; font-weight: 800; border-radius: 999px; padding: 0 8px; font-size: .7rem; letter-spacing: .5px; }
   .bt svg { width: 22px; height: 22px; display: block; margin: auto; }
+  .bt svg.ic { display: inline-block; width: 17px; height: 17px; margin: 0 7px 0 0; vertical-align: -3px; }
+  .grudar svg.ic { flex: none; width: 17px; height: 17px; }
   .estilos { position: absolute; right: 68px; top: 12px; width: 232px; background: rgba(12, 23, 17, .93); border: 1px solid rgba(255, 255, 255, .3); border-radius: 16px; padding: 12px; color: #fff; }
   .estilos[hidden] { display: none; }
   .estilos h4 { margin: 0 0 8px; font-size: .9rem; }
@@ -137,6 +139,7 @@
   .sobre-dados .aviso b { color: var(--texto); }
   .zoom { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; }
   .zoom .bt { width: 44px; padding: 0; font-size: 1.4rem; line-height: 1; }
+  .dica[hidden] { display: none; }
   .dica { position: absolute; left: 12px; bottom: 12px; background: rgba(12, 23, 17, .85); color: #fff; border-radius: 12px; padding: 8px 14px; font-size: .85rem; max-width: 62%; pointer-events: none; }
   .credito-mapa { position: absolute; right: 8px; bottom: 6px; font-size: .72rem; color: #fff; opacity: .85; text-shadow: 0 1px 2px #000; max-width: 36%; text-align: right; pointer-events: none; }
   .aviso { margin-top: 12px; padding: 10px 16px; border-radius: 12px; background: rgba(232, 163, 61, .16); font-size: .9rem; }
@@ -188,19 +191,19 @@
     <svg id="rota" aria-hidden="true"></svg>
     <div class="barra">
       <div class="linha1">
-        <button class="bt" type="button" id="b-desenhar" aria-pressed="true">Desenhar</button>
-        <button class="bt" type="button" id="b-desfazer" disabled>Desfazer</button>
-        <button class="bt" type="button" id="b-refazer" disabled>Refazer</button>
-        <button class="bt" type="button" id="b-limpar" disabled>Limpar</button>
-        <button class="bt" type="button" id="b-ida-volta" aria-pressed="false" title="Repete a ida ao contrário, de volta ao início">⇄ Ida e volta</button>
+        <button class="bt" type="button" id="b-desenhar" aria-pressed="true"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg>Desenhar</button>
+        <button class="bt" type="button" id="b-desfazer" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>Desfazer</button>
+        <button class="bt" type="button" id="b-refazer" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg>Refazer</button>
+        <button class="bt" type="button" id="b-limpar" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 3h4M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>Limpar</button>
+        <button class="bt" type="button" id="b-ida-volta" aria-pressed="false" title="Repete a ida ao contrário, de volta ao início"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h14M14 4l4 4-4 4"/><path d="M20 16H6M10 12l-4 4 4 4"/></svg>Ida e volta</button>
       </div>
-      <button class="grudar" type="button" id="b-grudar" aria-pressed="false"><i></i>Grudar nas ruas <small>BETA</small></button>
-      <button class="grudar" type="button" id="b-livre" aria-pressed="false" title="Os próximos pontos ligam em linha reta, sem seguir as ruas"><i></i>Trecho livre</button>
-      <button class="grudar" type="button" id="b-terreno" aria-pressed="false"><i></i>Mostrar o terreno <small>BETA</small></button>
-      <button class="grudar" type="button" id="b-apoios" aria-pressed="false" title="Água, mercado, posto, lanchonete, bike e banheiro até 300 m da rota"><i></i>Pontos de apoio</button>
-      <button class="grudar" type="button" id="b-km" aria-pressed="false" title="Um rótulo de quilômetro de tempos em tempos ao longo da rota"><i></i>Marcos de km</button>
+      <button class="grudar" type="button" id="b-grudar" aria-pressed="false"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v8a6 6 0 0 0 12 0V3h-4v8a2 2 0 0 1-4 0V3z"/><path d="M6 7h4M14 7h4"/></svg>Grudar nas ruas <small>BETA</small></button>
+      <button class="grudar" type="button" id="b-livre" aria-pressed="false" title="Os próximos pontos ligam em linha reta, sem seguir as ruas"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><path d="M6.5 17.5l11-11" stroke-dasharray="2 3"/></svg>Trecho livre</button>
+      <button class="grudar" type="button" id="b-terreno" aria-pressed="false"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19l6-10 4 6 3-4 5 8z"/></svg>Mostrar o terreno <small>BETA</small></button>
+      <button class="grudar" type="button" id="b-apoios" aria-pressed="false" title="Água, mercado, posto, lanchonete, bike e banheiro até 300 m da rota"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>Pontos de apoio</button>
+      <button class="grudar" type="button" id="b-km" aria-pressed="false" title="Um rótulo de quilômetro de tempos em tempos ao longo da rota"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 21V4M6 5h11l-2.5 3.5L17 12H6"/></svg>Marcos de km</button>
     </div>
-    <div class="zoom"><button class="bt" type="button" id="b-mais" aria-label="Aproximar">+</button><button class="bt" type="button" id="b-menos" aria-label="Afastar">&minus;</button><button class="bt" type="button" id="b-local" aria-label="Minha localização" title="Minha localização"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button><button class="bt" type="button" id="b-estilo" aria-label="Estilo do mapa" aria-expanded="false" title="Estilo do mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="m2 13 10 5 10-5"/></svg></button></div>
+    <div class="zoom"><button class="bt" type="button" id="b-mais" aria-label="Aproximar" title="Aproximar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button class="bt" type="button" id="b-menos" aria-label="Afastar" title="Afastar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button><button class="bt" type="button" id="b-local" aria-label="Minha localização" title="Minha localização"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button><button class="bt" type="button" id="b-info" aria-label="Como usar o mapa" aria-expanded="false" title="Como usar o mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.2M12 7.6v.01"/></svg></button><button class="bt" type="button" id="b-estilo" aria-label="Estilo do mapa" aria-expanded="false" title="Estilo do mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="m2 13 10 5 10-5"/></svg></button></div>
     <div class="estilos" id="painel-estilos" role="group" aria-label="Estilo do mapa" hidden><h4>Estilo do mapa</h4><div class="grade"><button type="button" class="op" data-estilo="relevo" aria-pressed="true"><img src="estilo-relevo.webp" width="150" height="100" alt="">Relevo</button><button type="button" class="op" data-estilo="ruas" aria-pressed="false"><img src="estilo-ruas.webp" width="150" height="100" alt="">Ruas</button><button type="button" class="op" data-estilo="escuro" aria-pressed="false"><img src="estilo-escuro.webp" width="150" height="100" alt="">Escuro</button></div><small>Cada estilo pede os quadros do mapa a um servidor aberto diferente.</small></div>
     <div class="toast" id="aviso-local" role="status" aria-live="polite" hidden></div>
     <div class="leg-terreno" id="leg-terreno" hidden></div>
@@ -210,7 +213,7 @@
       <div class="trecho" id="menu-trecho"><span>Trecho até aqui</span><button type="button" data-modo="ruas">Ruas</button><button type="button" data-modo="livre">Livre</button></div>
       <button type="button" class="remover" id="menu-remover">Remover ponto</button>
     </div>
-    <div class="dica" id="dica">Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para mais opções.</div>
+    <div class="dica" id="dica" hidden>Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para mais opções.</div>
     <div class="credito-mapa" id="credito">© OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA)</div>
   </div>
   <div class="acoes">
@@ -723,6 +726,8 @@
       ultimoZoom = agora;
       dar_zoom(e.deltaY < 0 ? 1 : -1, local(e));
     }, { passive: false });
+    function mostrarDica(mostrar) { var d = document.getElementById("dica"); d.hidden = !mostrar; document.getElementById("b-info").setAttribute("aria-expanded", String(mostrar)); }
+    document.getElementById("b-info").addEventListener("click", function () { mostrarDica(document.getElementById("dica").hidden); });
     document.getElementById("b-mais").addEventListener("click", function () { dar_zoom(1, { x: L() / 2, y: A() / 2 }); });
     document.getElementById("b-menos").addEventListener("click", function () { dar_zoom(-1, { x: L() / 2, y: A() / 2 }); });
     document.getElementById("b-desfazer").addEventListener("click", desfazer);
@@ -740,7 +745,7 @@
       document.getElementById("dica").textContent = modoDesenhar ? "Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para mais opções." : "Modo de mover: arraste o mapa. Ligue “Desenhar” para acrescentar pontos.";
     });
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") { fecharMenuDoPonto(); fecharPopup(); }
+      if (e.key === "Escape") { fecharMenuDoPonto(); fecharPopup(); mostrarDica(false); }
       if (!(e.ctrlKey || e.metaKey) || /input|select|textarea/i.test((e.target.tagName || ""))) return;
       if (e.key === "z" || e.key === "Z") { e.preventDefault(); if (e.shiftKey) refazer(); else desfazer(); }
       if (e.key === "y" || e.key === "Y") { e.preventDefault(); refazer(); }
@@ -1071,7 +1076,8 @@
         }
       }
       var chuva = horas.filter(function (q) { return (q.prob !== null && q.prob >= 50) || q.mm >= 1; });
-      return "Céu " + partes.join(", ") + ". " + (chuva.length ? "Chuva provável " + (chuva.length > 1 ? "das " + hh(chuva[0]) + " às " + hh(chuva[chuva.length - 1]) : "às " + hh(chuva[0])) + "." : "Chuva improvável.");
+      var rajada = Math.round(Math.max.apply(null, horas.map(function (q) { return q.raj; })));
+      return "Céu " + partes.join(", ") + ". Rajadas de até " + rajada + " km/h. " + (chuva.length ? "Chuva provável " + (chuva.length > 1 ? "das " + hh(chuva[0]) + " às " + hh(chuva[chuva.length - 1]) : "às " + hh(chuva[0])) + "." : "Chuva improvável.");
     }
     function buscarPrevisao() {
       var data = document.getElementById("luz-data").value;
@@ -1080,7 +1086,7 @@
       if (dias > 15) { esconderPrevisao(); estadoDaPrevisao("A previsão só vai até 16 dias à frente. Escolha uma data mais perto."); return; }
       var fim = ultimaChegadaMin >= 1440 ? somarDias(data, 1) : data, lat = rota[0].lat.toFixed(2), lon = rota[0].lon.toFixed(2), minha = ++versaoPrevisao;
       var base = dias < -5 ? "https://archive-api.open-meteo.com/v1/archive" : "https://api.open-meteo.com/v1/forecast";
-      var variaveis = "temperature_2m,precipitation,wind_speed_10m,wind_direction_10m,cloud_cover" + (dias < -5 ? "" : ",precipitation_probability");
+      var variaveis = "temperature_2m,precipitation,wind_speed_10m,wind_gusts_10m,wind_direction_10m,cloud_cover" + (dias < -5 ? "" : ",precipitation_probability");
       var url = base + "?latitude=" + lat + "&longitude=" + lon + "&hourly=" + variaveis + "&timezone=America%2FSao_Paulo&wind_speed_unit=kmh&start_date=" + data + "&end_date=" + fim;
       estadoDaPrevisao("Buscando a previsão…");
       (cachePrevisao[url] ? Promise.resolve(cachePrevisao[url]) : fetch(url).then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })).then(function (d) {
@@ -1090,7 +1096,7 @@
         cachePrevisao[url] = d;
         var primeira = Math.floor(ultimaSaidaMin / 60), ultima = Math.min(h.time.length - 1, Math.floor(ultimaChegadaMin / 60));
         horasPrevistas = [];
-        for (var k = primeira; k <= ultima && k - primeira < 16; k++) horasPrevistas.push({ h: k, temp: h.temperature_2m[k], prob: h.precipitation_probability ? h.precipitation_probability[k] : null, mm: h.precipitation[k], vel: h.wind_speed_10m[k], dir: h.wind_direction_10m[k], nuvens: h.cloud_cover[k] });
+        for (var k = primeira; k <= ultima && k - primeira < 16; k++) horasPrevistas.push({ h: k, temp: h.temperature_2m[k], prob: h.precipitation_probability ? h.precipitation_probability[k] : null, mm: h.precipitation[k], vel: h.wind_speed_10m[k], raj: Math.max(h.wind_gusts_10m[k], h.wind_speed_10m[k]), dir: h.wind_direction_10m[k], nuvens: h.cloud_cover[k] });
         if (!horasPrevistas.length) throw new Error("sem horas");
         estadoDaPrevisao("");
         document.getElementById("previsao-grafico").hidden = false;
@@ -1099,26 +1105,37 @@
         escolherHoraDoVento(Math.min(horaDoVento, horasPrevistas.length - 1));
       }).catch(function () { if (minha === versaoPrevisao) { esconderPrevisao(); estadoDaPrevisao("Não consegui buscar a previsão agora. Tente de novo em instantes."); } });
     }
+    var ICONES_CEU = {                                              // sol (aberto), sol atrás de nuvem (parcial) e nuvem (nublado), no mesmo traço dos outros ícones do site
+      Aberto: ['#e6c44a', '<circle cx="12" cy="12" r="4"/><path d="M12 2.5V5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>'],
+      Parcial: ['#d9d29a', '<circle cx="8" cy="8" r="3"/><path d="M8 2.2v1.5M2.2 8h1.5M4 4l1 1M12 4l-1 1"/><path d="M9.5 20.5a3.7 3.7 0 0 1 .3-7.4 4.8 4.8 0 0 1 9 1.5 3 3 0 0 1-.6 5.9z"/>'],
+      Nublado: ['#b9c4be', '<path d="M6.5 19.5a4.5 4.5 0 0 1 .4-9 6 6 0 0 1 11.3 1.8 3.6 3.6 0 0 1-.7 7.2z"/>']
+    };
+    function iconeDoCeu(ceu, x, y) {                               // o ícone do céu da hora, centrado em (x, y); o nome fica na dica
+      var ic = ICONES_CEU[ceu];
+      return '<g transform="translate(' + (x - 14).toFixed(1) + " " + (y - 14).toFixed(1) + ') scale(1.17)" fill="none" stroke="' + ic[0] + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><title>' + ceu + "</title>" + ic[1] + "</g>";
+    }
     function desenharGraficoDoTempo(horas) {                        // quatro faixas pelas horas do pedal: temperatura, vento (com a direção), céu (nuvens) e chuva
       var n = horas.length, ml = 100, W = 876, passo = W / n, x = function (i) { return ml + passo * (i + 0.5); }, s = "", fonte = passo < 62 ? 11 : 13;
       var faixa = function (y1, titulo, meio) { return '<line x1="' + ml + '" y1="' + y1 + '" x2="' + (ml + W) + '" y2="' + y1 + '" stroke="var(--linha)"/><text class="eixo" x="' + (ml - 12) + '" y="' + meio + '" text-anchor="end">' + titulo + "</text>"; };
       s += '<rect x="' + (ml + passo * horaDoVento).toFixed(1) + '" y="12" width="' + passo.toFixed(1) + '" height="330" rx="10" fill="var(--verde)" opacity=".16"/>';
-      s += faixa(92, "Temp. (°C)", 62) + faixa(190, "Vento (km/h)", 160) + faixa(262, "Céu (nuvens)", 242) + faixa(334, "Chuva (%)", 314);
+      s += faixa(92, "Temp. (°C)", 62) + faixa(190, "Vento (km/h)", 156) + '<text class="eixo" x="' + (ml - 12) + '" y="172" text-anchor="end" style="font-size:11px">velocidade–rajada</text>' + faixa(262, "Céu (nuvens)", 242) + faixa(334, "Chuva (%)", 314);
       var temps = horas.map(function (q) { return q.temp; }), tmin = Math.min.apply(null, temps) - 2, tmax = Math.max.apply(null, temps) + 2;
       var yT = function (v) { return 92 - (v - tmin) / (tmax - tmin) * 50; };
       s += '<polyline points="' + horas.map(function (q, i) { return x(i).toFixed(1) + "," + yT(q.temp).toFixed(1); }).join(" ") + '" fill="none" stroke="#e8873a" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>';
       horas.forEach(function (q, i) { s += '<circle cx="' + x(i).toFixed(1) + '" cy="' + yT(q.temp).toFixed(1) + '" r="4.5" fill="#e8873a" stroke="#fff" stroke-width="1.5"/><text x="' + x(i).toFixed(1) + '" y="' + (yT(q.temp) - 10).toFixed(1) + '" text-anchor="middle">' + Math.round(q.temp) + "°</text>"; });
-      var vmax = Math.max(10, Math.max.apply(null, horas.map(function (q) { return q.vel; })) * 1.25), yV = function (v) { return 190 - v / vmax * 44; };
+      var vmax = Math.max(10, Math.max.apply(null, horas.map(function (q) { return q.raj; })) * 1.2), yV = function (v) { return 190 - v / vmax * 44; };
       s += '<polyline points="' + horas.map(function (q, i) { return x(i).toFixed(1) + "," + yV(q.vel).toFixed(1); }).join(" ") + '" fill="none" stroke="#3a9ad9" stroke-width="2.2" opacity=".6" stroke-linejoin="round"/>';
-      horas.forEach(function (q, i) {                                // só letras: a velocidade e de onde o vento vem (N, NE, L, SE, S, SO, O, NO); as setas ficam no mapa
-        s += '<circle cx="' + x(i).toFixed(1) + '" cy="' + yV(q.vel).toFixed(1) + '" r="4.5" fill="#3a9ad9" stroke="#fff" stroke-width="1.5"/>' +
-          '<text x="' + x(i).toFixed(1) + '" y="' + (yV(q.vel) - 14).toFixed(1) + '" text-anchor="middle" style="font-size:' + fonte + 'px">' + Math.round(q.vel) + " " + pontoCardeal(q.dir) + "</text>";
+      horas.forEach(function (q, i) {                                // o ponto cheio é a velocidade; o vazado, acima, é a rajada; o texto diz velocidade–rajada e de onde o vento vem (N, NE, L, SE, S, SO, O, NO)
+        s += '<line x1="' + x(i).toFixed(1) + '" y1="' + yV(q.vel).toFixed(1) + '" x2="' + x(i).toFixed(1) + '" y2="' + yV(q.raj).toFixed(1) + '" stroke="#3a9ad9" stroke-width="1.6" opacity=".5"/>' +
+          '<circle cx="' + x(i).toFixed(1) + '" cy="' + yV(q.raj).toFixed(1) + '" r="3.6" fill="var(--cartao)" stroke="#3a9ad9" stroke-width="1.8"/>' +
+          '<g transform="translate(' + x(i).toFixed(1) + " " + yV(q.vel).toFixed(1) + ") rotate(" + (q.dir + 180) + ')"><path d="M0 -9L6 6L0 2.5L-6 6Z" fill="#3a9ad9" stroke="#fff" stroke-width="1" stroke-linejoin="round"/></g>' +
+          '<text x="' + x(i).toFixed(1) + '" y="' + (yV(q.raj) - 9).toFixed(1) + '" text-anchor="middle" style="font-size:' + fonte + 'px">' + Math.round(q.vel) + "–" + Math.round(q.raj) + " " + pontoCardeal(q.dir) + "</text>";
       });
       var largura = Math.min(34, passo * 0.55);
       horas.forEach(function (q, i) {
         var ceu = ceuDe(q.nuvens), alturaCeu = Math.max(2, q.nuvens / 100 * 40);
         s += '<rect x="' + (x(i) - largura / 2).toFixed(1) + '" y="' + (262 - alturaCeu).toFixed(1) + '" width="' + largura.toFixed(1) + '" height="' + alturaCeu.toFixed(1) + '" rx="3" fill="' + (ceu === "Aberto" ? "#e6c44a" : "#9aa7a0") + '" opacity=".85"/>' +
-          '<text x="' + x(i).toFixed(1) + '" y="' + (262 - alturaCeu - 5).toFixed(1) + '" text-anchor="middle" style="font-size:' + fonte + 'px">' + ceu + "</text>";
+          iconeDoCeu(ceu, x(i), 262 - alturaCeu - 19);
         var altura = q.prob !== null ? q.prob / 100 * 40 : Math.min(q.mm / 5, 1) * 40, rotulo = q.prob !== null ? q.prob + "%" : fmt(q.mm, 1) + " mm";
         if (altura > 0.5) s += '<rect x="' + (x(i) - largura / 2).toFixed(1) + '" y="' + (334 - altura).toFixed(1) + '" width="' + largura.toFixed(1) + '" height="' + altura.toFixed(1) + '" rx="3" fill="#3a9ad9" opacity=".85"/>';
         if (q.prob === null ? q.mm > 0 : q.prob > 0) s += '<text x="' + x(i).toFixed(1) + '" y="' + (334 - altura - 5).toFixed(1) + '" text-anchor="middle" style="font-size:' + fonte + 'px">' + rotulo + "</text>";
@@ -1131,7 +1148,7 @@
       var selo = document.getElementById("vento-mapa");
       if (!ventoNoMapa) { selo.hidden = true; desenharRota(); return; }
       document.getElementById("vento-seta").setAttribute("transform", "rotate(" + (ventoNoMapa.dir + 180) + " 17 17)");
-      document.getElementById("vento-texto").textContent = "Vento de " + pontoCardeal(ventoNoMapa.dir) + " · " + Math.round(ventoNoMapa.vel) + " km/h · " + dois(ventoNoMapa.h % 24) + "h";
+      document.getElementById("vento-texto").textContent = "Vento de " + pontoCardeal(ventoNoMapa.dir) + " · " + Math.round(ventoNoMapa.vel) + " km/h (rajadas de " + Math.round(ventoNoMapa.raj) + ") · " + dois(ventoNoMapa.h % 24) + "h";
       selo.hidden = false;
       desenharRota();
     }
@@ -1139,7 +1156,7 @@
       if (!horasPrevistas[i]) return;
       horaDoVento = i;
       var q = horasPrevistas[i];
-      ventoNoMapa = { dir: q.dir, vel: q.vel, h: q.h };
+      ventoNoMapa = { dir: q.dir, vel: q.vel, raj: q.raj, h: q.h };
       desenharGraficoDoTempo(horasPrevistas);
       atualizarVentoNoMapa();
     }
