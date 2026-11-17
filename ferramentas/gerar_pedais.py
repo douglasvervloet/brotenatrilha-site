@@ -1213,7 +1213,8 @@ def bloco_gpx(p):
     if not p.get("_gpx"):
         return ""
     nome = f'{p["_slug"]}.gpx'
-    return (f'<a class="botao claro" href="/pedais/gpx/{p["id"]}.gpx" download="{html.escape(nome)}">Baixar GPX</a>')
+    return (f'<a class="botao claro" href="/pedais/gpx/{p["id"]}.gpx" download="{html.escape(nome)}">Baixar GPX</a> '
+            f'<a class="botao claro" href="/ferramentas/desenhar-rota/?pedal={p["id"]}">Abrir no Desenhar rota</a>')
 
 
 # ----------------------------------------------------------------------------- bairros e localidades (OpenStreetMap)

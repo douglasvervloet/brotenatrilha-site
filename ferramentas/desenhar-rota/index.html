@@ -84,10 +84,15 @@
   .acoes .sec:hover:not(:disabled) { border-color: var(--verde); }
   .acoes button:disabled { opacity: .45; cursor: default; }
   .nota { color: var(--suave); font-size: .88rem; margin-top: 16px; }
+  #grafico { touch-action: pan-y; cursor: crosshair; }
+  .campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; margin-top: 6px; }
+  .campos label { display: block; font-weight: 700; font-size: .92rem; margin-bottom: 4px; }
+  .campos input { width: 100%; font: inherit; padding: 10px 14px; border-radius: 12px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); }
+  .campos input:focus { border-color: var(--verde); outline: none; }
   footer { background: var(--verde-fundo); color: #cfe0d3; padding: 24px 0; font-size: .92rem; margin-top: 20px; }
   footer .miolo { display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: space-between; }
   footer a { color: #fff; }
-  @media (max-width: 560px) { .dica { max-width: calc(100% - 24px); bottom: 34px; } .credito-mapa { max-width: 100%; } }
+  @media (max-width: 560px) { .dica { max-width: calc(100% - 24px); bottom: 34px; } .credito-mapa { max-width: 100%; } .grafico text { font-size: 26px; } }
 </style>
 </head>
 <body>
@@ -121,12 +126,28 @@
   <p class="nota" id="status-grudar" aria-live="polite" hidden></p>
   <p class="nota" id="vazio">Clique no mapa para começar. Com pelo menos 1 km desenhado, aparecem os números e as subidas.</p>
   <p class="nota" id="erro" hidden></p>
+  <p class="nota" id="msg-pedal" hidden></p>
   <div id="resultado" hidden>
     <div class="numeros">
       <div><span>Distância</span><b id="n-dist"></b></div>
       <div><span>Ganho de altitude</span><b id="n-ganho"></b></div>
       <div><span>Subidas com categoria</span><b id="n-cat"></b></div>
     </div>
+    <h2>Tempo e luz do dia</h2>
+    <div class="campos">
+      <div><label for="luz-data">Data</label><input id="luz-data" type="date"></div>
+      <div><label for="luz-saida">Saída</label><input id="luz-saida" type="time" value="06:30"></div>
+      <div><label for="luz-vel">Velocidade média (km/h)</label><input id="luz-vel" inputmode="decimal" value="14"></div>
+    </div>
+    <div class="numeros">
+      <div><span>Tempo de pedal</span><b id="luz-tempo">–</b></div>
+      <div><span>Chegada</span><b id="luz-chegada">–</b></div>
+      <div><span>Nascer do sol</span><b id="luz-nasce">–</b></div>
+      <div><span>Pôr do sol</span><b id="luz-poe">–</b></div>
+      <div><span>Luz que sobra</span><b id="luz-sobra">–</b></div>
+    </div>
+    <p class="aviso" id="luz-aviso"></p>
+    <p class="nota" style="margin-top:8px">O tempo é só pelo ritmo informado: não conta paradas. O nascer e o pôr do sol são aproximados (diferença de poucos minutos), no horário de Brasília.</p>
     <div class="grafico">
       <svg id="grafico" viewBox="0 0 1000 300" role="img" aria-label="Gráfico de altimetria com as subidas"></svg>
       <div class="legenda" id="legenda"></div>
@@ -134,8 +155,9 @@
     <h2>Subidas da rota</h2>
     <div class="tabela"><table id="tabela"></table></div>
   </div>
-  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled>Baixar GPX</button><button class="sec" type="button" id="b-subidas" disabled>Ver no “Subidas do seu GPX”</button></div>
+  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled>Baixar GPX</button><button class="sec" type="button" id="b-link" disabled>Copiar link da rota</button><button class="sec" type="button" id="b-subidas" disabled>Ver no “Subidas do seu GPX”</button></div>
   <p class="nota">A altitude vem do relevo do mapa (SRTM), a cada 25 m ao longo da linha, e pode diferir da de um aparelho de GPS. O GPX baixado traz só o traçado e a altitude. Com “Grudar nas ruas” desligado as linhas são retas entre os pontos: para seguir uma curva, clique com mais frequência.</p>
+  <p class="nota">O link guarda a rota no próprio endereço, depois do “#”: o navegador não envia essa parte a nenhum servidor. Quem abrir o link vê a mesma rota; o “Grudar nas ruas” é ligado por cada pessoa. Um pedal aberto do canal vai simplificado no link (só os pontos, sem o caminho inteiro).</p>
 </main>
 <footer>
   <div class="miolo">
@@ -272,7 +294,7 @@
     var URL_ALTITUDE = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";   // metros = R·256 + G + B/256 − 32768
     var Z_ALTITUDE = 12, Z_MIN = 8, Z_MAX = 17, PASSO_AMOSTRA = 25;                                  // altitude lida no zoom 12; um ponto a cada 25 m
     var caixa = document.getElementById("mapa"), camada = document.getElementById("quadros"), desenho = document.getElementById("rota");
-    var z = 11, rota = [], antes = [], depois = [], modoDesenhar = true, pontosGpx = null, grudar = false;
+    var z = 11, rota = [], antes = [], depois = [], modoDesenhar = true, pontosGpx = null, grudar = false, calculo = null, marcador = null, ultimoTotal = 0;
 
     function mundo(lat, lon, nivel) {                              // coordenadas -> pixels do mapa mundial no zoom `nivel`
       var n = 256 * Math.pow(2, nivel), s = Math.sin(lat * Math.PI / 180);
@@ -319,7 +341,7 @@
       if (!rota.length) return [];
       var linha = [rota[0]];
       for (var i = 1; i < rota.length; i++) {
-        if (grudar && rota[i].caminho) linha = linha.concat(rota[i].caminho);
+        if ((grudar || rota[i].fixo) && rota[i].caminho) linha = linha.concat(rota[i].caminho);     // "fixo": o caminho original de um pedal aberto
         linha.push(rota[i]);
       }
       return linha;
@@ -328,13 +350,24 @@
     function desenharRota() {
       desenho.setAttribute("viewBox", "0 0 " + L() + " " + A());
       if (!rota.length) { desenho.innerHTML = ""; return; }
-      var p = rota.map(paraTela), linha = linhaCompleta().map(paraTela).map(function (q) { return q.x.toFixed(1) + "," + q.y.toFixed(1); }).join(" ");
-      var svg = '<polyline points="' + linha + '" fill="none" stroke="#f2c14e" stroke-opacity=".28" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>' +
-        '<polyline points="' + linha + '" fill="none" stroke="#f2c14e" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>';
+      var p = rota.map(paraTela), pontos = function (lista) { return lista.map(function (q) { return q.x.toFixed(1) + "," + q.y.toFixed(1); }).join(" "); };
+      var linha = pontos(linhaCompleta().map(paraTela));
+      var svg = '<polyline points="' + linha + '" fill="none" stroke="#0c1711" stroke-opacity=".55" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"/>' +
+        '<polyline points="' + linha + '" fill="none" stroke="#f4f0e6" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>';
+      if (calculo && pontosGpx) {                                  // as subidas, na cor da categoria, por cima da linha
+        calculo.subidas.forEach(function (s) {
+          var de = s.ini * PASSO / 1000, ate = s.topo * PASSO / 1000, trecho = [];
+          for (var i = 0; i < calculo.perfil.length; i++) {
+            var k = calculo.perfil[i][0];
+            if (k >= de && k <= ate) trecho.push(paraTela({ lat: pontosGpx[i][0], lon: pontosGpx[i][1] }));
+          }
+          if (trecho.length > 1) svg += '<polyline points="' + pontos(trecho) + '" fill="none" stroke="' + CORES[s.categoria][0] + '" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>';
+        });
+      }
       p.forEach(function (q, i) {
-        var ultimo = i === p.length - 1 && p.length > 1, primeiro = i === 0;
-        var cor = primeiro ? "#2d7046" : ultimo ? "#c8452c" : "#fff", raio = primeiro || ultimo ? 9 : 6, borda = primeiro || ultimo ? "#fff" : "#1c2a22";
-        svg += '<circle class="ponto" data-i="' + i + '" cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="' + raio + '" fill="' + cor + '" stroke="' + borda + '" stroke-width="' + (primeiro || ultimo ? 3 : 2) + '"/>';
+        var ehUltimo = i === p.length - 1 && p.length > 1, primeiro = i === 0;
+        var cor = primeiro ? "#2d7046" : ehUltimo ? "#c8452c" : "#fff", raio = primeiro || ehUltimo ? 9 : 6, borda = primeiro || ehUltimo ? "#fff" : "#1c2a22";
+        svg += '<circle class="ponto" data-i="' + i + '" cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="' + raio + '" fill="' + cor + '" stroke="' + borda + '" stroke-width="' + (primeiro || ehUltimo ? 3 : 2) + '"/>';
       });
       if (p.length > 1) {
         var f = p[p.length - 1], km = fmt(comprimento(linhaCompleta()) / 1000, 1) + " km";
@@ -342,17 +375,30 @@
           '<text x="46" y="20" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">' + km + "</text></g>";
       }
       desenho.innerHTML = svg;
+      desenharMarcadorNoMapa();
+    }
+    function desenharMarcadorNoMapa() {                            // o anel branco com a altitude e a inclinação, no ponto que o gráfico mostra
+      var antigo = document.getElementById("marc-mapa");
+      if (antigo) antigo.remove();
+      if (!marcador) return;
+      var q = paraTela(marcador), dx = q.x > L() - 200 ? -184 : 16, dy = q.y < 70 ? 14 : -52;
+      desenho.insertAdjacentHTML("beforeend", '<g id="marc-mapa" pointer-events="none"><circle cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="11" fill="none" stroke="#fff" stroke-width="3"/>' +
+        '<circle cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="4" fill="#fff"/><g transform="translate(' + (q.x + dx).toFixed(1) + "," + (q.y + dy).toFixed(1) + ')">' +
+        '<rect width="168" height="42" rx="12" fill="rgba(12,23,17,.9)" stroke="#fff" stroke-opacity=".4"/>' +
+        '<text x="84" y="18" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">km ' + fmt(marcador.km, 1) + " · " + Math.round(marcador.alt) + ' m</text>' +
+        '<text x="84" y="35" text-anchor="middle" fill="#f2c14e" font-size="13" font-weight="700">' + fmt(marcador.incl, 1) + "% de inclinação</text></g></g>");
     }
     function redesenhar() { desenharQuadros(); desenharRota(); }
 
     // ---- histórico (desfazer e refazer) ----
-    function copia() { return rota.map(function (p) { return { lat: p.lat, lon: p.lon, caminho: p.caminho, reta: p.reta }; }); }
+    function copia() { return rota.map(function (p) { return { lat: p.lat, lon: p.lon, caminho: p.caminho, reta: p.reta, fixo: p.fixo }; }); }
     function guardar() { antes.push(copia()); if (antes.length > 100) antes.shift(); depois = []; }
-    function mudou() { botoes(); agendar(); desenharRota(); }
+    function mudou() { calculo = null; marcador = null; botoes(); agendar(); desenharRota(); }
     function botoes() {
       document.getElementById("b-desfazer").disabled = !antes.length;
       document.getElementById("b-refazer").disabled = !depois.length;
       document.getElementById("b-limpar").disabled = !rota.length;
+      document.getElementById("b-link").disabled = rota.length < 2;
     }
     function desfazer() { if (!antes.length) return; depois.push(copia()); rota = antes.pop(); mudou(); pedirPendentes(); }
     function refazer() { if (!depois.length) return; antes.push(copia()); rota = depois.pop(); mudou(); pedirPendentes(); }
@@ -403,7 +449,7 @@
         redesenhar();
       } else {
         rota[gesto.i] = daTela(local(e));                          // um ponto novo: os trechos dos dois lados voltam a linha reta até soltar
-        if (rota[gesto.i + 1]) { rota[gesto.i + 1].caminho = null; rota[gesto.i + 1].reta = false; }
+        if (rota[gesto.i + 1]) { rota[gesto.i + 1].caminho = null; rota[gesto.i + 1].reta = false; rota[gesto.i + 1].fixo = false; }
         mudou();
       }
     });
@@ -416,7 +462,7 @@
       if (g.moveu) { if (g.tipo === "ponto") pedirPendentes(); return; }
       if (g.tipo === "ponto") {                                                                    // clicar num ponto remove
         guardar(); rota.splice(g.i, 1);
-        if (rota[g.i]) { rota[g.i].caminho = null; rota[g.i].reta = false; }
+        if (rota[g.i]) { rota[g.i].caminho = null; rota[g.i].reta = false; rota[g.i].fixo = false; }
         mudou(); pedirPendentes();
       } else if (modoDesenhar && e.type === "pointerup") { guardar(); rota.push(daTela(local(e))); mudou(); pedirPendentes(); }   // clicar no mapa acrescenta
     }
@@ -570,11 +616,12 @@
       var v = document.getElementById("vazio"), e = document.getElementById("erro");
       v.hidden = !!erroDeRede; v.textContent = texto;
       e.hidden = !erroDeRede; e.textContent = erroDeRede ? texto : "";
-      pontosGpx = null;
+      pontosGpx = null; calculo = null; ultimoTotal = 0;
       document.getElementById("b-gpx").disabled = document.getElementById("b-subidas").disabled = true;
     }
     function calcular() {
       var minha = ++versao;
+      atualizarEndereco();
       if (rota.length < 2) return vazio("Clique no mapa para começar. Com pelo menos 1 km desenhado, aparecem os números e as subidas.");
       var total = comprimento(linhaCompleta());
       if (total < 1000) return vazio("Continue desenhando: faltam " + fmt((1000 - total) / 1000, 1) + " km para os números e as subidas aparecerem.");
@@ -585,9 +632,15 @@
         mostrar(pts);
         document.getElementById("n-dist").textContent = fmt(total / 1000, 1) + " km";           // o comprimento da linha desenhada, igual ao do rótulo no mapa
         document.getElementById("b-gpx").disabled = document.getElementById("b-subidas").disabled = false;
-      }).catch(function () {
+        var perfil = perfilDe(pts), alt = altitudes(perfil);                                     // guarda o cálculo para colorir a linha e para o marcador do gráfico
+        calculo = { perfil: perfil, alt: alt, subidas: subidasDe(alt) };
+        ultimoTotal = total;
+        document.getElementById("n-ganho").textContent = fmt(ganhoComLimiar(alt, 4), 0) + " m";     // o ganho de altitude sem o ruído do relevo
+        atualizarLuz();
+        desenharRota();
+      }, function () {                                              // só a falha de rede ao baixar a altitude cai aqui
         if (minha === versao) vazio("Não consegui baixar a altitude deste trecho. Confira a conexão e mexa na rota para tentar de novo.", true);
-      });
+      }).catch(function (erro) { if (window.console) console.error(erro); });
     }
 
     // ---- o GPX ----
@@ -607,6 +660,170 @@
       try { sessionStorage.setItem("gpx-desenhado", gpxTexto(pontosGpx)); } catch (x) { return; }
       location.href = "../subidas-do-gpx/?de=rota";
     });
+
+
+    function ganhoComLimiar(alt, limiar) {                         // soma só as subidas entre um vale e um pico separados por pelo menos `limiar` metros (o relevo do mapa tem ruído)
+      var ganho = 0, base = alt[0], alto = alt[0];
+      for (var i = 1; i < alt.length; i++) {
+        var v = alt[i];
+        if (v > alto) alto = v;
+        else if (alto - v >= limiar) { ganho += alto - base; base = v; alto = v; }
+        if (v < base) { base = v; alto = v; }
+      }
+      return ganho + (alto - base);
+    }
+    // ---- o marcador: passar o dedo ou o mouse no gráfico mostra o ponto no mapa ----
+    var grafico = document.getElementById("grafico");
+    function moverMarcador(e) {
+      if (!calculo || !pontosGpx) return;
+      var r = grafico.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * 1000, alt = calculo.alt, n = alt.length;
+      var i = Math.round((x - 46) / 940 * (n - 1));
+      if (i < 0 || i >= n) return sairDoMarcador();
+      var km = i * PASSO / 1000, perfil = calculo.perfil, lo = 0, hi = perfil.length - 1;
+      while (lo < hi) { var meio = (lo + hi) >> 1; if (perfil[meio][0] < km) lo = meio + 1; else hi = meio; }
+      var a = Math.max(0, i - 5), b = Math.min(n - 1, i + 5);
+      marcador = { lat: pontosGpx[lo][0], lon: pontosGpx[lo][1], km: km, alt: alt[i], incl: (alt[b] - alt[a]) / ((b - a) * PASSO) * 100 };
+      desenharMarcadorNoMapa();
+      var min = Math.min.apply(null, alt), max = Math.max.apply(null, alt), folga = (max - min) * 0.08 || 5;
+      var cx = 46 + 940 * i / (n - 1), cy = 30 + (300 - 30 - 28) * (1 - (alt[i] - (min - folga)) / ((max + folga) - (min - folga))), lado = cx > 780 ? -162 : 12;
+      var antigo = document.getElementById("marc-grafico");
+      if (antigo) antigo.remove();
+      grafico.insertAdjacentHTML("beforeend", '<g id="marc-grafico" pointer-events="none"><line x1="' + cx.toFixed(1) + '" y1="30" x2="' + cx.toFixed(1) + '" y2="272" stroke="#fff" stroke-width="2" stroke-dasharray="5 4"/>' +
+        '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="6" fill="#fff" stroke="#1c2a22" stroke-width="2"/><g transform="translate(' + (cx + lado).toFixed(1) + ',32)">' +
+        '<rect width="150" height="40" rx="10" fill="#10160f" stroke="#fff" stroke-opacity=".4"/>' +
+        '<text x="75" y="17" text-anchor="middle" style="fill:#fff;font-weight:700">km ' + fmt(km, 1) + " · " + Math.round(alt[i]) + ' m</text>' +
+        '<text x="75" y="33" text-anchor="middle" style="fill:#f2c14e;font-weight:700">' + fmt(marcador.incl, 1) + "% de inclinação</text></g></g>");
+    }
+    function sairDoMarcador() {
+      marcador = null;
+      var antigo = document.getElementById("marc-grafico");
+      if (antigo) antigo.remove();
+      desenharMarcadorNoMapa();
+    }
+    grafico.addEventListener("pointermove", moverMarcador);
+    grafico.addEventListener("pointerdown", moverMarcador);
+    grafico.addEventListener("pointerleave", sairDoMarcador);
+    grafico.addEventListener("pointercancel", sairDoMarcador);
+
+    // ---- tempo e luz do dia ----
+    function solDoDia(lat, lon, ano, mes, dia) {                   // [nascer, pôr] em minutos desde a meia-noite, no horário de Brasília (UTC−3); null se o sol não nasce ou não se põe
+      var n = Math.round((Date.UTC(ano, mes - 1, dia) - Date.UTC(ano, 0, 0)) / 86400000), g = 2 * Math.PI / 365 * (n - 1), r = Math.PI / 180;
+      var eq = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+      var d = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+      var c = Math.cos(90.833 * r) / (Math.cos(lat * r) * Math.cos(d)) - Math.tan(lat * r) * Math.tan(d);
+      if (c < -1 || c > 1) return null;
+      var ha = Math.acos(c) / r;
+      return [720 - 4 * (lon + ha) - eq - 180, 720 - 4 * (lon - ha) - eq - 180];
+    }
+    function numero(t) { var v = parseFloat(String(t).replace(",", ".")); return isFinite(v) && v > 0 ? v : null; }     // aceita vírgula ou ponto
+    function dois(v) { return (v < 10 ? "0" : "") + v; }
+    function horaMin(min) { min = ((Math.round(min) % 1440) + 1440) % 1440; return dois(Math.floor(min / 60)) + ":" + dois(min % 60); }
+    function duracaoMin(min) { var h = Math.floor(min / 60), m = Math.round(min % 60); if (m === 60) { h++; m = 0; } return h + " h " + dois(m) + " min"; }
+    function atualizarLuz() {
+      var ids = ["luz-tempo", "luz-chegada", "luz-nasce", "luz-poe", "luz-sobra"], aviso = document.getElementById("luz-aviso");
+      var data = document.getElementById("luz-data").value, saida = document.getElementById("luz-saida").value, vel = numero(document.getElementById("luz-vel").value);
+      if (!ultimoTotal || !rota.length || !data || !saida || !vel) { ids.forEach(function (i) { document.getElementById(i).textContent = "–"; }); aviso.hidden = true; return; }
+      var dd = data.split("-").map(Number), ss = saida.split(":").map(Number), saidaMin = ss[0] * 60 + ss[1];
+      var tempo = ultimoTotal / 1000 / vel * 60, chegada = saidaMin + tempo, sol = solDoDia(rota[0].lat, rota[0].lon, dd[0], dd[1], dd[2]);
+      document.getElementById("luz-tempo").textContent = duracaoMin(tempo);
+      document.getElementById("luz-chegada").textContent = horaMin(chegada) + (chegada >= 1440 ? " (dia seguinte)" : "");
+      if (!sol) { ["luz-nasce", "luz-poe", "luz-sobra"].forEach(function (i) { document.getElementById(i).textContent = "–"; }); aviso.hidden = true; return; }
+      document.getElementById("luz-nasce").textContent = horaMin(sol[0]);
+      document.getElementById("luz-poe").textContent = horaMin(sol[1]);
+      document.getElementById("luz-sobra").textContent = chegada <= sol[1] ? duracaoMin(sol[1] - chegada) : "–";
+      var texto = chegada > sol[1] ? "Você chega " + duracaoMin(chegada - sol[1]) + " depois do pôr do sol: leve luzes na bike."
+        : saidaMin < sol[0] ? "Você sai " + duracaoMin(sol[0] - saidaMin) + " antes do nascer do sol: leve luzes para o começo."
+        : "Você faz o pedal com a luz do dia.";
+      aviso.textContent = texto; aviso.hidden = false;
+    }
+    (function () { var h = new Date(); document.getElementById("luz-data").value = h.getFullYear() + "-" + dois(h.getMonth() + 1) + "-" + dois(h.getDate()); })();
+    ["luz-data", "luz-saida", "luz-vel"].forEach(function (id) { document.getElementById(id).addEventListener("input", atualizarLuz); });
+
+    // ---- o link da rota: os pontos vão no próprio endereço, depois do "#" (o navegador não envia essa parte a servidor) ----
+    function codificarNumero(v) {
+      v = v < 0 ? ~(v << 1) : (v << 1);
+      var s = "";
+      while (v >= 0x20) { s += String.fromCharCode((0x20 | (v & 0x1f)) + 63); v >>= 5; }
+      return s + String.fromCharCode(v + 63);
+    }
+    function codificar(pts) {                                      // a codificação de linha com 5 casas decimais (uns 1 m)
+      var la0 = 0, lo0 = 0, s = "";
+      pts.forEach(function (p) {
+        var la = Math.round(p.lat * 1e5), lo = Math.round(p.lon * 1e5);
+        s += codificarNumero(la - la0) + codificarNumero(lo - lo0);
+        la0 = la; lo0 = lo;
+      });
+      return s;
+    }
+    function decodificar(s) {
+      var i = 0, la = 0, lo = 0, saida = [];
+      function proximo() { var r = 0, sh = 0, b; do { b = s.charCodeAt(i++) - 63; r |= (b & 0x1f) << sh; sh += 5; } while (b >= 0x20 && i <= s.length); return (r & 1) ? ~(r >> 1) : (r >> 1); }
+      while (i < s.length) { la += proximo(); lo += proximo(); saida.push({ lat: la / 1e5, lon: lo / 1e5 }); }
+      return saida;
+    }
+    function hashDaRota() { return rota.length ? "#r=" + encodeURIComponent(codificar(rota)) : ""; }
+    function atualizarEndereco() { try { history.replaceState(null, "", location.pathname + hashDaRota()); } catch (x) { /* sem história, o link só não acompanha */ } }
+    document.getElementById("b-link").addEventListener("click", function () {
+      var url = location.origin + location.pathname + hashDaRota(), botao = this, msg = document.getElementById("msg-pedal");
+      function pronto() { botao.textContent = "Link copiado"; setTimeout(function () { botao.textContent = "Copiar link da rota"; }, 2000); }
+      function avisar() { msg.textContent = "Não consegui copiar sozinho. Copie o endereço desta página: " + url; msg.hidden = false; }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(pronto, avisar); else avisar();
+    });
+
+    // ---- abrir uma rota que já existe: a do link ou um pedal do canal (?pedal=número) ----
+    function enquadrarRota() {                                     // zoom e centro para a rota caber na tela
+      var la = rota.map(function (p) { return p.lat; }), lo = rota.map(function (p) { return p.lon; });
+      var nS = Math.min.apply(null, la), nN = Math.max.apply(null, la), oeste = Math.min.apply(null, lo), leste = Math.max.apply(null, lo);
+      for (var nz = 16; nz >= Z_MIN; nz--) {
+        var a = mundo(nN, oeste, nz), b = mundo(nS, leste, nz);
+        if (b.x - a.x <= L() * 0.75 && b.y - a.y <= A() * 0.75) { z = nz; centro = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; break; }
+        if (nz === Z_MIN) { z = nz; centro = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; }
+      }
+      redesenhar();
+    }
+    function simplificar(pts, tolerancia) {                        // os índices dos pontos que ficam: tira os que estão a menos de `tolerancia` metros da linha entre os vizinhos
+      var kx = 111320 * Math.cos(pts[0].lat * Math.PI / 180), ky = 110540, xy = pts.map(function (p) { return [p.lon * kx, p.lat * ky]; });
+      var manter = pts.map(function () { return false; }), pilha = [[0, pts.length - 1]];
+      manter[0] = manter[pts.length - 1] = true;
+      while (pilha.length) {
+        var s = pilha.pop(), a = s[0], b = s[1], dx = xy[b][0] - xy[a][0], dy = xy[b][1] - xy[a][1], comp = Math.hypot(dx, dy) || 1e-9, maior = 0, im = -1;
+        for (var i = a + 1; i < b; i++) {
+          var d = Math.abs(dy * (xy[i][0] - xy[a][0]) - dx * (xy[i][1] - xy[a][1])) / comp;
+          if (d > maior) { maior = d; im = i; }
+        }
+        if (maior > tolerancia && im > 0) { manter[im] = true; pilha.push([a, im], [im, b]); }
+      }
+      var indices = [];
+      manter.forEach(function (m, i) { if (m) indices.push(i); });
+      return indices;
+    }
+    function carregarPedal(id) {
+      var msg = document.getElementById("msg-pedal");
+      fetch("/pedais/gpx/" + id + ".gpx").then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.text(); }).then(function (texto) {
+        var pts = [], re = /<trkpt lat="([-\d.]+)" lon="([-\d.]+)"/g, m;
+        while ((m = re.exec(texto))) pts.push({ lat: parseFloat(m[1]), lon: parseFloat(m[2]) });
+        if (pts.length < 2) throw new Error("sem pontos");
+        var tolerancia = 40, indices = simplificar(pts, tolerancia);   // quanto mais longo o pedal, menos pontos: para dar para ajustar com o mouse
+        while (indices.length > 70 && tolerancia < 400) { tolerancia = Math.round(tolerancia * 1.5); indices = simplificar(pts, tolerancia); }
+        rota = indices.map(function (ix, n) {                        // cada ponto guarda o caminho original desde o anterior: a linha continua igual ao GPX, e só vira reta onde a pessoa mexer
+          var ponto = { lat: pts[ix].lat, lon: pts[ix].lon, fixo: true };
+          if (n > 0) ponto.caminho = pts.slice(indices[n - 1] + 1, ix);
+          return ponto;
+        });
+        guardar(); antes = [];
+        enquadrarRota(); mudou();
+        msg.textContent = "Percurso do pedal aberto e simplificado em " + rota.length + " pontos para você ajustar. A altitude vem do relevo do mapa, e não do GPX original.";
+        msg.hidden = false;
+      }).catch(function () { msg.textContent = "Não consegui abrir o percurso deste pedal."; msg.hidden = false; });
+    }
+    var doPedal = location.search.match(/[?&]pedal=(\d+)(&|$)/), doLink = location.hash.match(/^#r=(.+)$/);
+    if (doPedal) carregarPedal(doPedal[1]);
+    else if (doLink) {
+      try {
+        var lidos = decodificar(decodeURIComponent(doLink[1])).slice(0, 500);
+        if (lidos.length && lidos.every(function (p) { return isFinite(p.lat) && isFinite(p.lon) && Math.abs(p.lat) <= 85 && Math.abs(p.lon) <= 180; })) { rota = lidos; enquadrarRota(); mudou(); }
+      } catch (x) { /* um link que não é nosso: ignora */ }
+    }
 
     redesenhar();
     botoes();
