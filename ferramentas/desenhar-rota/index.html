@@ -540,7 +540,7 @@
     }
     function marcosDeKm(tela, kms) {                               // um rótulo de quilômetro de tempos em tempos, com o espaçamento conforme o zoom
       if (!kmLigado || tela.length < 2) return "";
-      var mpp = 156543.03 * Math.cos((rota[0].lat * Math.PI) / 180) / Math.pow(2, z), passo = 50, passos = [0.5, 1, 2, 5, 10, 20, 50];
+      var mpp = 156543.03 * Math.cos((rota[0].lat * Math.PI) / 180) / Math.pow(2, z), passo = 50, passos = [5, 10, 20, 50];      // no mínimo um marco a cada 5 km (com a hora, se houver)
       for (var s = 0; s < passos.length; s++) if (passos[s] * 1000 / mpp >= 90) { passo = passos[s]; break; }
       var saida = "", i = 1, w = L(), h = A();
       for (var km = passo; km < kms[kms.length - 1] - passo * 0.3; km += passo) {
