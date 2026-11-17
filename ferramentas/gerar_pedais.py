@@ -37,9 +37,10 @@ from datetime import datetime, timedelta, timezone
 import mapa_geral                                    # o mapa com todos os pedais (ferramentas/mapa_geral.py)
 
 try:
-    from PIL import Image
+    from PIL import Image, ImageEnhance
 except ImportError:                                  # sem Pillow o robô desenha só o traçado, sem o mapa de fundo
     Image = None
+    ImageEnhance = None
 
 CANAL_UPLOADS = "UU2uS9f0ACz0LZC7HwZWVBPQ"          # lista de envios do canal (UC... vira UU...)
 PREFIXO = re.compile(r"^\s*brote\s+na\s+trilha\s*[-–—:]*\s*", re.I)
@@ -48,7 +49,7 @@ MAX_PONTOS = 260
 CORRECOES = {"estradrões": "estradões"}              # erros de digitação nos nomes do Strava
 MAPA_PREENCHE = 0.92                               # quanto da imagem o traçado ocupa (o resto é margem)
 MAPA_L, MAPA_A = 800, 480                           # tamanho da imagem do mapa (5:3)
-URL_TILE = "https://tile.opentopomap.org/{z}/{x}/{y}.png"   # o mesmo estilo da tela de resumo do BNT Editor
+URL_TILE = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"   # o mapa de ruas, o mesmo padrão da ferramenta Desenhar rota
 AGENTE = "brotenatrilha.com.br (contato@brotenatrilha.com.br)"
 MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro",
          "novembro", "dezembro"]
@@ -464,13 +465,14 @@ def gerar_mapa(pedal_id, pontos, pasta_mapas, pasta_cache):
     ox = int((x0 + x1) / 2 - larg_z / 2)             # canto do recorte, em pixels globais do zoom z
     oy = int((y0 + y1) / 2 - alt_z / 2)
     arquivo = os.path.join(pasta_mapas, f"{pedal_id}.webp")
-    if not os.path.exists(arquivo):
+    if os.environ.get("REFAZER_MAPAS") == "1" or not os.path.exists(arquivo):      # REFAZER_MAPAS=1 troca os mapas de fundo que já existem
         tela = Image.new("RGB", (int(larg_z) + 1, int(alt_z) + 1), (207, 224, 196))
         for tx in range(ox // 256, (ox + int(larg_z)) // 256 + 1):
             for ty in range(oy // 256, (oy + int(alt_z)) // 256 + 1):
                 if 0 <= tx < 2 ** z and 0 <= ty < 2 ** z:
                     tela.paste(baixar_tile(z, tx, ty, pasta_cache), (tx * 256 - ox, ty * 256 - oy))
         tela = tela.crop((0, 0, int(larg_z), int(alt_z))).resize((MAPA_L, MAPA_A), Image.LANCZOS)
+        tela = ImageEnhance.Color(ImageEnhance.Brightness(tela).enhance(0.74)).enhance(0.85)      # o mesmo tom do mapa de ruas do Desenhar rota
         os.makedirs(pasta_mapas, exist_ok=True)
         tela.save(arquivo, "WEBP", quality=80, method=6)
     if len(pontos) > MAX_PONTOS:

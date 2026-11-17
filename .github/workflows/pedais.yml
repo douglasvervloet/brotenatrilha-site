@@ -17,6 +17,10 @@ on:
         description: "Ler todas as atividades do Strava de novo (em vez de só as novas)"
         type: boolean
         default: false
+      refazer_mapas:
+        description: "Refazer também a imagem de fundo do mapa de cada pedal (use junto com 'completo')"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -43,6 +47,7 @@ jobs:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           CASA_COORD: ${{ secrets.CASA_COORD }}   # "lat,lon" de casa; só pedais que saem/chegam a 500 m dela têm começo e fim cortados
           NOVO_REFRESH_ARQUIVO: ${{ runner.temp }}/novo_refresh.txt
+          REFAZER_MAPAS: ${{ github.event.inputs.refazer_mapas == 'true' && '1' || '0' }}   # troca os mapas de fundo que já existem
           ORCAMENTO_LUGARES: "2500"   # consultas ao OpenStreetMap por rodada (1 por segundo); pedal novo gasta uns 75
         run: |
           # aos domingos (e quando pedido na mão) lê tudo de novo: pega atividades apagadas, editadas ou enviadas muito depois
