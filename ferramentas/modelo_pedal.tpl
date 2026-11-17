@@ -14,6 +14,9 @@
 <meta property="og:description" content="{{DESCRICAO_META}}">
 <meta property="og:url" content="{{URL}}">
 <meta property="og:image" content="{{OG_IMAGE}}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="{{OG_IMAGE}}">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">

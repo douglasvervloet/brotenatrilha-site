@@ -83,6 +83,8 @@
   h3 a { text-decoration: none; }
   h3 a:hover { text-decoration: underline; }
   .data { margin: 0; color: var(--suave); font-size: .9rem; }
+  .planejar-atalho { align-self: flex-start; margin-top: 10px; padding: 6px 14px; border: 2px solid var(--linha); border-radius: 999px; font-size: .85rem; font-weight: 700; color: var(--texto); text-decoration: none; }
+  .planejar-atalho:hover { border-color: var(--verde); }
   dl { margin: 10px 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
   dl div { text-align: center; }
   dt { font-size: .68rem; letter-spacing: .5px; text-transform: uppercase; color: var(--suave); }

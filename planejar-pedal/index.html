@@ -17,6 +17,8 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" sizes="48x48" href="../favicon.png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Planejar pedal">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Planejar pedal", "url": "https://brotenatrilha.com.br/planejar-pedal/", "applicationCategory": "SportsApplication", "operatingSystem": "Qualquer navegador", "inLanguage": "pt-BR", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "BRL"}, "publisher": {"@type": "Organization", "name": "Brote na Trilha", "url": "https://brotenatrilha.com.br/"}}</script>
 <style>
   :root { --verde: #2d7046; --verde-escuro: #1e5434; --verde-fundo: #163d27; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; }
@@ -125,6 +127,17 @@
   .apoio-filtro:hover { border-color: var(--verde); }
   .popup { position: absolute; z-index: 6; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(420px, calc(100% - 32px)); background: rgba(12, 23, 17, .97); color: #fff; border: 1px solid rgba(255, 255, 255, .35); border-radius: 16px; padding: 16px 18px; box-shadow: 0 10px 30px rgba(0, 0, 0, .5); }
   .popup[hidden] { display: none; }
+  .busca { display: flex; gap: 8px; margin: 0 0 10px; }
+  .busca input { flex: 1; min-width: 0; font: inherit; padding: 10px 16px; border-radius: 999px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); }
+  .busca input:focus { outline: none; border-color: var(--verde); }
+  .busca button { font: inherit; font-weight: 700; padding: 10px 18px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid var(--linha); background: transparent; color: var(--texto); }
+  .busca button svg.ic { width: 17px; height: 17px; }
+  .busca button:hover { border-color: var(--verde); }
+  .busca-res { list-style: none; margin: -2px 0 10px; padding: 6px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; }
+  .busca-res[hidden] { display: none; }
+  .busca-res button { display: block; width: 100%; text-align: left; font: inherit; padding: 9px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--texto); cursor: pointer; }
+  .busca-res button:hover, .busca-res button:focus-visible { background: rgba(127, 176, 122, .18); }
+  .busca-res .vazio { padding: 9px 12px; color: var(--suave); }
   .passeio { position: fixed; z-index: 60; left: 50%; bottom: 16px; transform: translateX(-50%); width: min(440px, calc(100% - 24px)); background: rgba(12, 23, 17, .98); color: #fff; border: 1px solid rgba(255, 255, 255, .25); border-radius: 16px; padding: 14px 16px; box-shadow: 0 12px 40px rgba(0, 0, 0, .55); }
   .passeio[hidden] { display: none; }
   .passeio small { color: var(--ambar); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: .7rem; }
@@ -254,6 +267,11 @@
   </div>
 </header>
 <main class="miolo">
+  <form class="busca" id="busca" role="search">
+    <input type="search" id="busca-q" placeholder="Buscar cidade ou lugar" aria-label="Buscar cidade ou lugar" maxlength="80" autocomplete="off" enterkeyhint="search">
+    <button class="sec" type="submit" id="busca-ok"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Buscar</button>
+  </form>
+  <ul class="busca-res" id="busca-res" hidden></ul>
   <div class="mapa" id="mapa" role="application" aria-label="Mapa de relevo para desenhar a rota">
     <div id="quadros"></div>
     <canvas id="piso-camada" aria-hidden="true"></canvas>
@@ -333,7 +351,7 @@
   </div>
   <details class="sobre-dados">
     <summary>Privacidade e fontes dos dados</summary>
-    <p class="aviso"><b>Previsão do tempo</b>: só ao clicar no botão, o ponto de saída (arredondado a cerca de 1 km) e a data vão ao Open-Meteo, um serviço público de meteorologia. <b>Pontos de interesse</b>: lidos de um arquivo do próprio site (OpenStreetMap), só no Espírito Santo; a foto e o texto, quando existem, vêm da Wikipédia e do Wikimedia Commons e só são pedidos ao abrir o ponto (eles recebem o seu endereço IP). <b>Roadbook</b>: montado no seu navegador, nada é enviado. <b>Evitar rodovias</b> usa o mesmo serviço de rotas do Grudar nas ruas. <b>Pontos de apoio</b>: lidos de um arquivo do próprio site (dados do OpenStreetMap, © colaboradores, ODbL), só no Espírito Santo. <b>Abrir um GPX</b>: o arquivo é lido só no seu navegador. <b>Minhas rotas</b>: ficam guardadas neste navegador, e nada é enviado.</p>
+    <p class="aviso"><b>Previsão do tempo</b>: só ao clicar no botão, o ponto de saída (arredondado a cerca de 1 km) e a data vão ao Open-Meteo, um serviço público de meteorologia. <b>Buscar um lugar</b>: só quando você envia a busca, o texto digitado vai ao Nominatim (OpenStreetMap), que recebe o seu endereço IP. <b>Pontos de interesse</b>: lidos de um arquivo do próprio site (OpenStreetMap), só no Espírito Santo; a foto e o texto, quando existem, vêm da Wikipédia e do Wikimedia Commons e só são pedidos ao abrir o ponto (eles recebem o seu endereço IP). <b>Roadbook e imagem da rota</b>: montados no seu navegador, nada é enviado. <b>Evitar rodovias</b> usa o mesmo serviço de rotas do Grudar nas ruas. <b>Pontos de apoio</b>: lidos de um arquivo do próprio site (dados do OpenStreetMap, © colaboradores, ODbL), só no Espírito Santo. <b>Abrir um GPX</b>: o arquivo é lido só no seu navegador. <b>Minhas rotas</b>: ficam guardadas neste navegador, e nada é enviado.</p>
     <p class="aviso"><b>Mostrar o terreno</b>: dentro do Espírito Santo, o terreno vem de arquivos do próprio site e nada sai do navegador. Fora dele, uma amostra da rota (um ponto a cada 200 m) é enviada ao Overpass, o serviço público do OpenStreetMap, para saber o tipo de cada via. Desligado, nada é enviado. Dados das vias: © colaboradores do OpenStreetMap (ODbL).</p>
     <p class="aviso">Com <b>Grudar nas ruas</b> desligado, nada do que você desenha sai do seu navegador. Ligado, os pontos de cada trecho (dois a dois) são enviados a um serviço público de rotas do OpenStreetMap
       (Valhalla, da FOSSGIS, e, se ele não responder, BRouter e o OSRM da FOSSGIS) para seguir as ruas e trilhas; se nenhum responder, o trecho fica em linha reta. O mapa e a altitude vêm de servidores abertos (OpenTopoMap ou OpenStreetMap, conforme o estilo, e Amazon Web Services),
@@ -383,7 +401,7 @@
     <h2>Subidas da rota</h2>
     <div class="tabela"><table id="tabela"></table></div>
   </div>
-  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="rot">Copiar link da rota</span></button><button class="sec" type="button" id="b-subidas" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19l6-10 4 6 3-4 5 8z"/></svg>Ver no “Subidas do seu GPX”</button><button class="sec" type="button" id="b-roadbook" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Roadbook para imprimir</button></div>
+  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="rot">Copiar link da rota</span></button><button class="sec" type="button" id="b-subidas" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19l6-10 4 6 3-4 5 8z"/></svg>Ver no “Subidas do seu GPX”</button><button class="sec" type="button" id="b-roadbook" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Roadbook para imprimir</button><button class="sec" type="button" id="b-imagem" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 3.5 3L16 12l4.5 4.5"/></svg>Salvar imagem</button></div>
   <p class="nota">A altitude vem do relevo do mapa (SRTM), a cada 25 m ao longo da linha, e pode diferir da de um aparelho de GPS. O ganho total ignora oscilações de até 12 m, ajustado com os pedais do canal contra o Strava (erro médio de uns 12%). O GPX baixado traz só o traçado e a altitude. Com “Grudar nas ruas” desligado as linhas são retas entre os pontos: para seguir uma curva, clique com mais frequência.</p>
   <p class="nota">O link guarda a rota no próprio endereço, depois do “#”: o navegador não envia essa parte a nenhum servidor. Quem abrir o link vê a mesma rota; o “Grudar nas ruas” é ligado por cada pessoa. Um pedal aberto do canal vai simplificado no link (só os pontos, sem o caminho inteiro).</p>
 </main>
@@ -1024,7 +1042,7 @@
       v.hidden = !!erroDeRede; v.textContent = texto;
       e.hidden = !erroDeRede; e.textContent = erroDeRede ? texto : "";
       pontosGpx = null; calculo = null; ultimoTotal = 0;
-      document.getElementById("b-gpx").disabled = document.getElementById("b-subidas").disabled = document.getElementById("b-roadbook").disabled = true;
+      document.getElementById("b-gpx").disabled = document.getElementById("b-subidas").disabled = document.getElementById("b-roadbook").disabled = document.getElementById("b-imagem").disabled = true;
     }
     function calcular() {
       var minha = ++versao;
@@ -1038,7 +1056,7 @@
         document.getElementById("vazio").hidden = true;
         mostrar(pts);
         document.getElementById("n-dist").textContent = fmt(total / 1000, 1) + " km";           // o comprimento da linha desenhada, igual ao do rótulo no mapa
-        document.getElementById("b-gpx").disabled = document.getElementById("b-subidas").disabled = document.getElementById("b-roadbook").disabled = false;
+        document.getElementById("b-gpx").disabled = document.getElementById("b-subidas").disabled = document.getElementById("b-roadbook").disabled = document.getElementById("b-imagem").disabled = false;
         var perfil = perfilDe(pts), alt = altitudes(perfil);                                     // guarda o cálculo para colorir a linha e para o marcador do gráfico
         calculo = { perfil: perfil, alt: alt, subidas: subidasDe(alt) };
         ultimoTotal = total;
@@ -2180,11 +2198,12 @@
     // ---- o passeio guiado: cada passo explica uma parte da tela; o alvo ganha contorno e o cartão fica fixo embaixo ----
     var PASSOS_DO_PASSEIO = [
       { alvo: "#mapa", titulo: "Clique no mapa", texto: "Cada clique põe um ponto da rota. Clique na linha para inserir um ponto no meio, arraste um ponto para ajustar e clique nele para mais opções." },
+      { alvo: "#busca", titulo: "Buscar um lugar", texto: "Digite uma cidade ou um lugar e escolha na lista: o mapa vai direto até lá." },
       { alvo: "#b-grupo-desenho", titulo: "Grudar nas ruas", texto: "Com a chave ligada, a rota segue as ruas entre os pontos. Dá para evitar rodovias ou ligar em linha reta (Trecho livre)." },
       { alvo: "#b-grupo-camadas", titulo: "Camadas do mapa", texto: "Terreno (asfalto, terra e calçamento), pontos de apoio, marcos de km, piso das ruas, pedais do canal e pontos de interesse com foto." },
       { alvo: ".linha1", titulo: "Desfazer, refazer e ida e volta", texto: "Errou um ponto? Desfaça. A ida e volta repete a rota ao contrário, de volta ao início." },
       { alvo: "#resultado", titulo: "Os números", texto: "Depois de desenhar, abaixo do mapa aparecem a distância, o ganho de altitude, as subidas com categoria, a luz do dia, o vento e a previsão do tempo." },
-      { alvo: "#b-gpx", titulo: "Roadbook e GPX", texto: "Com a rota pronta, imprima o roadbook, baixe o GPX para o GPS ou copie o link para mandar a um amigo." },
+      { alvo: "#b-gpx", titulo: "Roadbook e GPX", texto: "Com a rota pronta, imprima o roadbook, salve a imagem para compartilhar, baixe o GPX para o GPS ou copie o link para mandar a um amigo." },
       { alvo: "#b-minhas", titulo: "Minhas rotas", texto: "Salve a rota neste navegador para voltar nela depois, ou abra um GPX seu para ver as subidas." }
     ], passoAtual = -1;
     function limparAlvoDoPasseio() { var a = document.querySelector(".passo-alvo"); if (a) a.classList.remove("passo-alvo"); }
@@ -2227,6 +2246,151 @@
     document.getElementById("passeio-volta").addEventListener("click", function () { mostrarPasso(passoAtual - 1); });
     document.getElementById("passeio-pular").addEventListener("click", fecharPasseio);
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && passoAtual >= 0) fecharPasseio(); });
+
+    // ---- buscar um lugar: só ao enviar o formulário, o texto vai ao Nominatim (OpenStreetMap); nada é buscado enquanto se digita ----
+    var listaBusca = document.getElementById("busca-res"), buscando = false;
+    function irParaOLugar(lat, lon, caixaGeo) {                    // caixaGeo = [sul, norte, oeste, leste]; sem ela, zoom 13
+      var alvo = 13;
+      if (caixaGeo) {
+        for (var nz = 16; nz >= Z_MIN; nz--) {
+          var a = mundo(caixaGeo[1], caixaGeo[2], nz), b = mundo(caixaGeo[0], caixaGeo[3], nz);
+          if (b.x - a.x <= L() * 0.85 && b.y - a.y <= A() * 0.85) { alvo = nz; break; }
+          alvo = nz;
+        }
+      }
+      z = Math.max(Z_MIN, Math.min(Z_MAX, alvo));
+      centro = mundo(lat, lon, z);
+      redesenhar();
+      document.getElementById("mapa").scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+    function mostrarResultadosDaBusca(itens, texto) {
+      listaBusca.innerHTML = "";
+      if (!itens.length) { var v = document.createElement("li"); v.className = "vazio"; v.textContent = texto || "Nenhum lugar encontrado."; listaBusca.appendChild(v); }
+      itens.forEach(function (it) {
+        var li = document.createElement("li"), b = document.createElement("button");
+        b.type = "button";
+        b.textContent = it.display_name.split(", ").slice(0, 4).join(", ");
+        b.addEventListener("click", function () {
+          var bb = it.boundingbox ? it.boundingbox.map(Number) : null;      // [sul, norte, oeste, leste]
+          irParaOLugar(Number(it.lat), Number(it.lon), bb);
+          listaBusca.hidden = true;
+        });
+        li.appendChild(b); listaBusca.appendChild(li);
+      });
+      listaBusca.hidden = false;
+    }
+    document.getElementById("busca").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var q = document.getElementById("busca-q").value.trim();
+      if (q.length < 2 || buscando) return;
+      buscando = true;
+      var botao = document.getElementById("busca-ok");
+      botao.disabled = true;
+      fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=br&accept-language=pt-BR&viewbox=-41.95,-18.0,-39.55,-21.35&q=" + encodeURIComponent(q))
+        .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
+        .then(function (itens) { mostrarResultadosDaBusca(itens); })
+        .catch(function () { mostrarResultadosDaBusca([], "Não consegui buscar agora. Tente de novo em instantes."); })
+        .then(function () { buscando = false; botao.disabled = false; });
+    });
+    document.addEventListener("pointerdown", function (e) { if (!listaBusca.hidden && !e.target.closest("#busca, #busca-res")) listaBusca.hidden = true; });
+
+    // ---- salvar a rota como imagem: um PNG 1200x630 com o mapa e a rota, a altimetria, os números, o logo e o endereço; tudo montado no navegador ----
+    function carregarImagem(url, comCors) {
+      return new Promise(function (ok) {
+        var img = new Image();
+        if (comCors) img.crossOrigin = "anonymous";
+        img.onload = function () { ok(img); };
+        img.onerror = function () { ok(null); };
+        img.src = url;
+      });
+    }
+    function retanguloArredondado(c, x, y, w, h, r) {
+      c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+    }
+    function linhasDoTexto(c, texto, largura, maximo) {
+      var palavras = texto.split(/\s+/), linhas = [], atual = "";
+      palavras.forEach(function (p) {
+        var teste = atual ? atual + " " + p : p;
+        if (c.measureText(teste).width <= largura || !atual) atual = teste; else { linhas.push(atual); atual = p; }
+      });
+      if (atual) linhas.push(atual);
+      if (linhas.length > maximo) { linhas = linhas.slice(0, maximo); linhas[maximo - 1] = linhas[maximo - 1].replace(/.{0,2}$/, "…"); }
+      return linhas;
+    }
+    function montarImagemDaRota(comMapa) {                         // Promise do canvas pronto; comMapa=false desenha só a rota (se os quadros do mapa não deixarem copiar)
+      var pts = linhaDaIda(), W = 1200, H = 630, MX = 40, MY = 40, MW = 660, MH = 550, AH = 400, FONTE = '"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+      var tela = document.createElement("canvas"); tela.width = W; tela.height = H;
+      var c = tela.getContext("2d"), grad = c.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, "#1e4a30"); grad.addColorStop(1, "#0f2218"); c.fillStyle = grad; c.fillRect(0, 0, W, H);
+      var la = pts.map(function (p) { return p.lat; }), lo = pts.map(function (p) { return p.lon; });
+      var sul = Math.min.apply(null, la), norte = Math.max.apply(null, la), oeste = Math.min.apply(null, lo), leste = Math.max.apply(null, lo);
+      var a14 = mundo(norte, oeste, 14), b14 = mundo(sul, leste, 14);
+      var zf = Math.max(8, Math.min(16, 14 + Math.log(Math.min(MW * 0.88 / Math.max(b14.x - a14.x, 1), AH * 0.88 / Math.max(b14.y - a14.y, 1))) / Math.LN2));
+      var zt = Math.min(17, Math.ceil(zf)), esc = Math.pow(2, zf - zt), a = mundo(norte, oeste, zt), b = mundo(sul, leste, zt);
+      var vw = MW / esc, vh = MH / esc, ox = (a.x + b.x) / 2 - vw / 2, oy = (a.y + b.y) / 2 - (AH / 2) / esc, n = Math.pow(2, zt), pedidos = [];
+      if (comMapa) {
+        for (var tx = Math.floor(ox / 256); tx <= Math.floor((ox + vw) / 256); tx++) {
+          for (var ty = Math.floor(oy / 256); ty <= Math.floor((oy + vh) / 256); ty++) {
+            if (ty < 0 || ty >= n) continue;
+            (function (tx2, ty2) {
+              pedidos.push(carregarImagem(ESTILOS.ruas.url.replace("{z}", zt).replace("{x}", ((tx2 % n) + n) % n).replace("{y}", ty2), true).then(function (img) { return { img: img, tx: tx2, ty: ty2 }; }));
+            })(tx, ty);
+          }
+        }
+      }
+      return Promise.all([Promise.all(pedidos), carregarImagem("/logo.png", false)]).then(function (r) {
+        var quadrosImg = r[0], logo = r[1];
+        c.save(); retanguloArredondado(c, MX, MY, MW, MH, 24); c.clip();
+        c.fillStyle = "#cfe0c4"; c.fillRect(MX, MY, MW, MH);
+        quadrosImg.forEach(function (q) { if (q.img) c.drawImage(q.img, MX + (q.tx * 256 - ox) * esc, MY + (q.ty * 256 - oy) * esc, 256 * esc + 0.6, 256 * esc + 0.6); });
+        c.fillStyle = "rgba(0,0,0,.26)"; c.fillRect(MX, MY, MW, MH);                // o mesmo tom escurecido do mapa da página
+        var xy = pts.map(function (p) { var m = mundo(p.lat, p.lon, zt); return [MX + (m.x - ox) * esc, MY + (m.y - oy) * esc]; });
+        c.lineJoin = "round"; c.lineCap = "round";
+        [["#ffffff", 8], ["#d6004f", 4.5]].forEach(function (e) { c.strokeStyle = e[0]; c.lineWidth = e[1]; c.beginPath(); xy.forEach(function (q, i) { if (i) c.lineTo(q[0], q[1]); else c.moveTo(q[0], q[1]); }); c.stroke(); });
+        [[xy[0], "#2d7046"], [xy[xy.length - 1], "#d6452c"]].forEach(function (e) { c.fillStyle = e[1]; c.strokeStyle = "#fff"; c.lineWidth = 3; c.beginPath(); c.arc(e[0][0], e[0][1], 8, 0, 7); c.fill(); c.stroke(); });
+        c.fillStyle = "rgba(255,255,255,.85)"; c.font = "12px " + FONTE; c.textAlign = "right"; c.fillText("© OpenStreetMap contributors", MX + MW - 14, MY + 22);
+        c.restore(); c.strokeStyle = "rgba(255,255,255,.55)"; c.lineWidth = 2; retanguloArredondado(c, MX, MY, MW, MH, 24); c.stroke();
+
+        var PX = MX + 14, PW = MW - 28, PH = 122, PY = MY + MH - 14 - PH, alt = calculo.alt;      // a altimetria dentro do mapa, numa faixa escura na parte de baixo
+        c.fillStyle = "rgba(10,20,14,.78)"; retanguloArredondado(c, PX, PY, PW, PH, 16); c.fill();
+        var mn = Math.min.apply(null, alt), mx = Math.max.apply(null, alt), faixa = Math.max(mx - mn, 20), gx = PX + 16, gw = PW - 32, gy = PY + 32, gh = PH - 54;
+        function caminhoDaAltimetria() { c.beginPath(); alt.forEach(function (v, i) { var x = gx + gw * i / Math.max(alt.length - 1, 1), y = gy + gh - gh * (v - mn) / faixa; if (i) c.lineTo(x, y); else c.moveTo(x, y); }); }
+        caminhoDaAltimetria(); c.lineTo(gx + gw, gy + gh); c.lineTo(gx, gy + gh); c.closePath(); c.fillStyle = "rgba(127,176,122,.6)"; c.fill();
+        caminhoDaAltimetria(); c.strokeStyle = "#cfe9c8"; c.lineWidth = 2; c.stroke();
+        c.fillStyle = "rgba(255,255,255,.9)"; c.font = "14px " + FONTE; c.textAlign = "left"; c.fillText("Altimetria · máx. " + Math.round(mx) + " m", gx, PY + 22);
+        c.fillText("0 km", gx, PY + PH - 10); c.textAlign = "right"; c.fillText(fmt(alt.length * PASSO / 1000, 0) + " km", gx + gw, PY + PH - 10);
+
+        var XT = MX + MW + 40, LT = W - XT - 40, nome = (document.getElementById("nome-rota").value || "").trim() || "Minha rota";
+        c.fillStyle = "#fff"; c.textAlign = "left"; c.textBaseline = "alphabetic"; c.font = "bold 42px " + FONTE;
+        var linhas = linhasDoTexto(c, nome, LT, 4), yy = 100;
+        linhas.forEach(function (l) { c.fillText(l, XT, yy); yy += 50; });
+        yy = Math.max(yy + 30, 400);
+        c.fillStyle = "#e8a33d"; c.font = "bold 54px " + FONTE; c.fillText(document.getElementById("n-dist").textContent, XT, yy);
+        c.fillStyle = "#e0eee4"; c.font = "26px " + FONTE;
+        c.fillText(document.getElementById("n-ganho").textContent + " de subida  ·  " + document.getElementById("luz-tempo").textContent, XT, yy + 44);
+        c.font = "bold 26px " + FONTE; var enderecoW = c.measureText("brotenatrilha.com.br/planejar-pedal").width;
+        if (logo) c.drawImage(logo, XT + (enderecoW - 78) / 2, H - 40 - 26 - 12 - 78, 78, 78);      // o logo, pequeno e centralizado acima do endereço
+        c.fillStyle = "#fff"; c.fillText("brotenatrilha.com.br/planejar-pedal", XT, H - 40);
+        return tela;
+      });
+    }
+    function gerarImagemDaRota() {                                 // PNG em um Blob (tenta com o mapa de fundo; se o navegador não deixar copiar os quadros, só com a rota)
+      function paraBlob(tela) { return new Promise(function (ok, falha) { try { tela.toBlob(function (b) { if (b) ok(b); else falha(new Error("vazio")); }, "image/png"); } catch (x) { falha(x); } }); }
+      return montarImagemDaRota(true).then(paraBlob).catch(function () { return montarImagemDaRota(false).then(paraBlob); });
+    }
+    document.getElementById("b-imagem").addEventListener("click", function () {
+      var botao = this, msg = document.getElementById("msg-pedal"), nome = (document.getElementById("nome-rota").value || "").trim() || "minha-rota";
+      botao.disabled = true;
+      gerarImagemDaRota().then(function (blob) {
+        var arquivo = "rota-" + nome.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + ".png";
+        var pacote = (typeof File === "function") ? new File([blob], arquivo, { type: "image/png" }) : null;
+        if (pacote && window.matchMedia("(pointer: coarse)").matches && navigator.canShare && navigator.canShare({ files: [pacote] })) {      // no celular, abre o compartilhar
+          return navigator.share({ files: [pacote], title: nome }).catch(function () { /* a pessoa fechou o compartilhar */ });
+        }
+        var link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = arquivo;
+        document.body.appendChild(link); link.click(); link.remove(); setTimeout(function () { URL.revokeObjectURL(link.href); }, 5000);
+      }).catch(function () { msg.textContent = "Não consegui montar a imagem agora. Tente de novo."; msg.hidden = false; }).then(function () { botao.disabled = !calculo; });
+    });
 
     // ---- o estilo do mapa ----
     var painel = document.getElementById("painel-estilos"), botaoEstilo = document.getElementById("b-estilo");

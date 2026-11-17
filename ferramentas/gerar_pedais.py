@@ -37,10 +37,12 @@ from datetime import datetime, timedelta, timezone
 import mapa_geral                                    # o mapa com todos os pedais (ferramentas/mapa_geral.py)
 
 try:
-    from PIL import Image, ImageEnhance
+    from PIL import Image, ImageDraw, ImageEnhance, ImageFont
 except ImportError:                                  # sem Pillow o robô desenha só o traçado, sem o mapa de fundo
     Image = None
     ImageEnhance = None
+    ImageDraw = None
+    ImageFont = None
 
 CANAL_UPLOADS = "UU2uS9f0ACz0LZC7HwZWVBPQ"          # lista de envios do canal (UC... vira UU...)
 PREFIXO = re.compile(r"^\s*brote\s+na\s+trilha\s*[-–—:]*\s*", re.I)
@@ -485,6 +487,166 @@ def gerar_mapa(pedal_id, pontos, pasta_mapas, pasta_cache):
     d = "M" + " L".join(coords)
     return (f'<svg viewBox="0 0 {MAPA_L} {MAPA_A}" role="img" aria-label="Traçado do percurso sobre o mapa, sem o começo e o fim">'
             f'<path class="halo" d="{d}"/><path class="linha" d="{d}"/></svg>')
+
+
+# ----------------------------------------------------------------------------- imagem de compartilhamento (WhatsApp, Instagram, redes)
+COMPARTILHAR_L, COMPARTILHAR_A = 1200, 630
+SITE_ENDERECO = "brotenatrilha.com.br"
+VERSAO_IMAGEM = 2                                    # sobe quando o desenho da imagem muda: o robô refaz todas
+CARTAO_L, CARTAO_A, CARTAO_ROTA_A = 660, 550, 400    # o cartão do mapa e a altura da parte de cima, onde a rota fica (embaixo vai a altimetria)
+
+
+def fonte_da_imagem(tamanho, negrito=True):
+    """A fonte DejaVu que vai junto no repositório (ferramentas/fontes): tem os acentos e é a mesma em qualquer máquina, então a imagem sai igual no robô e aqui."""
+    arquivo = "DejaVuSans-Bold.ttf" if negrito else "DejaVuSans.ttf"
+    return ImageFont.truetype(os.path.join(os.path.dirname(os.path.abspath(__file__)), "fontes", arquivo), tamanho)
+
+
+def quebrar_em_linhas(desenho, texto, fonte, largura, max_linhas):
+    """O texto em linhas que cabem na largura; None se passar de max_linhas."""
+    linhas, atual = [], ""
+    for palavra in texto.split():
+        teste = (atual + " " + palavra).strip()
+        if desenho.textlength(teste, font=fonte) <= largura or not atual:
+            atual = teste
+        else:
+            linhas.append(atual)
+            atual = palavra
+    if atual:
+        linhas.append(atual)
+    return linhas if len(linhas) <= max_linhas else None
+
+
+def pontos_do_gpx(caminho):
+    """[(lat, lon, altitude)] do GPX do pedal (o traçado já sem o começo e o fim perto de casa)."""
+    with open(caminho, encoding="utf-8") as f:
+        texto = f.read()
+    return [(float(a), float(b), float(c) if c else None)
+            for a, b, c in re.findall(r'<trkpt lat="([-\d.]+)" lon="([-\d.]+)">\s*(?:<ele>([-\d.]+)</ele>)?', texto)]
+
+
+def mapa_do_cartao(pontos, pasta_cache):
+    """O mapa de ruas (escurecido) do tamanho do cartão, com a rota na parte de cima, e a rota em pixels do cartão."""
+    lats, lons = [p[0] for p in pontos], [p[1] for p in pontos]
+    x0, y1 = pixel_global(min(lats), min(lons), 14)
+    x1, y0 = pixel_global(max(lats), max(lons), 14)
+    zf = 14 + math.log2(min(CARTAO_L * 0.88 / max(x1 - x0, 1.0), CARTAO_ROTA_A * 0.88 / max(y1 - y0, 1.0)))
+    zf = max(8.0, min(16.0, zf))
+    z = min(17, math.ceil(zf))
+    escala = 2 ** (zf - z)
+    x0, y1 = pixel_global(min(lats), min(lons), z)
+    x1, y0 = pixel_global(max(lats), max(lons), z)
+    larg_z, alt_z = CARTAO_L / escala, CARTAO_A / escala
+    ox = (x0 + x1) / 2 - larg_z / 2                      # a rota fica no centro da parte de cima do cartão
+    oy = (y0 + y1) / 2 - (CARTAO_ROTA_A / 2) / escala
+    tela = Image.new("RGB", (int(larg_z) + 2, int(alt_z) + 2), (207, 224, 196))
+    for tx in range(int(ox) // 256, int(ox + larg_z) // 256 + 1):
+        for ty in range(int(oy) // 256, int(oy + alt_z) // 256 + 1):
+            if 0 <= tx < 2 ** z and 0 <= ty < 2 ** z:
+                tela.paste(baixar_tile(z, tx, ty, pasta_cache), (int(tx * 256 - ox), int(ty * 256 - oy)))
+    mapa = tela.crop((0, 0, int(larg_z), int(alt_z))).resize((CARTAO_L, CARTAO_A), Image.LANCZOS)
+    mapa = Image.eval(mapa, lambda v: int(v * 0.74))     # o mesmo tom escurecido do mapa do Planejar pedal
+    xy = []
+    for lat, lon, _ in pontos:
+        x, y = pixel_global(lat, lon, z)
+        xy.append(((x - ox) * escala, (y - oy) * escala))
+    return mapa, xy
+
+
+def gerar_compartilhar(p, pasta_saida, pasta_gpx, pasta_cache, logo, assinaturas):
+    """Grava pedais/compartilhar/<id>.jpg (1200x630): o mapa com o traçado e a altimetria dentro dele, o título, os números, o logo e o endereço.
+    Só refaz quando o título ou os números mudaram (ou REFAZER_MAPAS=1). True se a imagem existe."""
+    arq_gpx = os.path.join(pasta_gpx, f"{p['id']}.gpx")
+    if not os.path.exists(arq_gpx):
+        return False
+    km, media = numeros(p)
+    titulo = titulo_exibido(p)
+    assinatura = f"{VERSAO_IMAGEM}|{titulo}|{km:.1f}|{subida_do_pedal(p)}|{p['moving_time']}"
+    destino = os.path.join(pasta_saida, f"{p['id']}.jpg")
+    if os.path.exists(destino) and assinaturas.get(str(p["id"])) == assinatura and os.environ.get("REFAZER_MAPAS") != "1":
+        return True
+    pontos = pontos_do_gpx(arq_gpx)
+    if len(pontos) < 5:
+        return False
+    mapa, xy = mapa_do_cartao(pontos, pasta_cache)
+    ss = 2                                               # desenha em dobro e reduz: linhas sem serrilhado
+    camada = Image.new("RGBA", (CARTAO_L * ss, CARTAO_A * ss), (0, 0, 0, 0))
+    d = ImageDraw.Draw(camada)
+    grande = [(x * ss, y * ss) for x, y in xy]
+    d.line(grande, fill=(255, 255, 255, 255), width=8 * ss, joint="curve")
+    d.line(grande, fill=(214, 0, 79, 255), width=int(4.5 * ss), joint="curve")
+    camada = camada.resize((CARTAO_L, CARTAO_A), Image.LANCZOS)
+    mapa = mapa.convert("RGBA")
+    mapa.alpha_composite(camada)
+
+    altitudes = [p3[2] for p3 in pontos if p3[2] is not None]          # a altimetria numa faixa escura dentro do mapa, embaixo
+    faixa_x, faixa_a = 14, 122
+    faixa_y = CARTAO_A - 14 - faixa_a
+    painel = Image.new("RGBA", (CARTAO_L, CARTAO_A), (0, 0, 0, 0))
+    dp = ImageDraw.Draw(painel)
+    dp.rounded_rectangle((faixa_x, faixa_y, CARTAO_L - faixa_x, faixa_y + faixa_a), radius=16, fill=(10, 20, 14, 200))
+    if len(altitudes) > 5:
+        passo = max(1, len(altitudes) // 320)
+        alt = altitudes[::passo]
+        mn, mx = min(alt), max(alt)
+        faixa = max(mx - mn, 20.0)
+        gx, gw, gy, gh = faixa_x + 16, CARTAO_L - 2 * faixa_x - 32, faixa_y + 32, faixa_a - 54
+        curva = [(gx + gw * i / max(len(alt) - 1, 1), gy + gh - gh * (v - mn) / faixa) for i, v in enumerate(alt)]
+        dp.polygon(curva + [(gx + gw, gy + gh), (gx, gy + gh)], fill=(127, 176, 122, 153))
+        dp.line(curva, fill=(207, 233, 200, 255), width=2)
+        dp.text((gx, faixa_y + 10), f"Altimetria · máx. {round(mx)} m", font=fonte_da_imagem(14, False), fill=(255, 255, 255, 230))
+        dp.text((gx, faixa_y + faixa_a - 26), "0 km", font=fonte_da_imagem(14, False), fill=(255, 255, 255, 230))
+        rotulo = f"{num(km, 0)} km"
+        dp.text((gx + gw - dp.textlength(rotulo, font=fonte_da_imagem(14, False)), faixa_y + faixa_a - 26), rotulo, font=fonte_da_imagem(14, False), fill=(255, 255, 255, 230))
+    credito = "© OpenStreetMap contributors"
+    dp.text((CARTAO_L - 14 - dp.textlength(credito, font=fonte_da_imagem(12, False)), 10), credito, font=fonte_da_imagem(12, False), fill=(255, 255, 255, 220))
+    mapa.alpha_composite(painel)
+
+    mascara = Image.new("L", (CARTAO_L * ss, CARTAO_A * ss), 0)
+    ImageDraw.Draw(mascara).rounded_rectangle((0, 0, CARTAO_L * ss - 1, CARTAO_A * ss - 1), radius=24 * ss, fill=255)
+    mascara = mascara.resize((CARTAO_L, CARTAO_A), Image.LANCZOS)
+
+    tela = Image.new("RGB", (COMPARTILHAR_L, COMPARTILHAR_A), (15, 34, 24))
+    degrade = ImageDraw.Draw(tela)
+    for y in range(COMPARTILHAR_A):                      # o verde do site, mais escuro embaixo
+        k = y / COMPARTILHAR_A
+        degrade.line([(0, y), (COMPARTILHAR_L, y)], fill=(int(30 - 15 * k), int(74 - 40 * k), int(48 - 24 * k)))
+    x_mapa = y_mapa = 40
+    tela.paste(mapa.convert("RGB"), (x_mapa, y_mapa), mascara)
+    pincel = ImageDraw.Draw(tela)
+    pincel.rounded_rectangle((x_mapa, y_mapa, x_mapa + CARTAO_L, y_mapa + CARTAO_A), radius=24, outline=(255, 255, 255), width=2)
+
+    x_texto = x_mapa + CARTAO_L + 40
+    largura_texto = COMPARTILHAR_L - x_texto - 40
+    linhas, tam = None, 44
+    while linhas is None and tam >= 26:                  # o maior tamanho em que o título cabe em até 4 linhas
+        linhas = quebrar_em_linhas(pincel, titulo, fonte_da_imagem(tam), largura_texto, 4)
+        if linhas is None:
+            tam -= 3
+    if linhas is None:
+        linhas = quebrar_em_linhas(pincel, titulo[:50] + "…", fonte_da_imagem(26), largura_texto, 4) or [titulo[:24]]
+        tam = 26
+    y = 62
+    for linha in linhas:
+        pincel.text((x_texto, y), linha, font=fonte_da_imagem(tam), fill=(255, 255, 255))
+        y += int(tam * 1.22)
+    y = max(y + 24, 340)
+    pincel.text((x_texto, y), f"{num(km, 1)} km", font=fonte_da_imagem(50), fill=(232, 163, 61))
+    pincel.text((x_texto, y + 62), f"{num(subida_do_pedal(p))} m de subida  ·  {duracao(p['moving_time'])}", font=fonte_da_imagem(24, False), fill=(224, 238, 228))
+    texto_end = SITE_ENDERECO + "/planejar-pedal"
+    tam_end = 26
+    while tam_end > 16 and pincel.textlength(texto_end, font=fonte_da_imagem(tam_end)) > largura_texto:      # o endereço cabe na coluna
+        tam_end -= 1
+    fonte_end = fonte_da_imagem(tam_end)
+    larg_end = pincel.textlength(texto_end, font=fonte_end)
+    if logo is not None:                                 # o logo, pequeno e centralizado, acima do endereço
+        marca = logo.resize((78, 78), Image.LANCZOS)
+        tela.paste(marca, (int(x_texto + (larg_end - 78) / 2), COMPARTILHAR_A - 40 - tam_end - 12 - 78), marca)
+    pincel.text((x_texto, COMPARTILHAR_A - 40 - tam_end), texto_end, font=fonte_end, fill=(255, 255, 255))
+    os.makedirs(pasta_saida, exist_ok=True)
+    tela.save(destino, "JPEG", quality=84, optimize=True, progressive=True)
+    assinaturas[str(p["id"])] = assinatura
+    return True
 
 
 # ----------------------------------------------------------------------------- página
@@ -1629,7 +1791,7 @@ def capa_recente(video):
 
 
 # As pastas de pedais/ que guardam arquivos e não páginas de pedais: a limpeza das páginas antigas não pode apagá-las
-PASTAS_DE_ARQUIVOS = ("mapas", "gpx", "capas", "mapa")
+PASTAS_DE_ARQUIVOS = ("mapas", "gpx", "capas", "mapa", "compartilhar")
 
 
 def limpar_paginas_antigas(base, slugs):
@@ -1692,6 +1854,7 @@ def cartao(p):
             <div><dt>Tempo</dt><dd>{duracao(p["moving_time"])}</dd></div>
             <div><dt>Média</dt><dd>{num(media, 1)} km/h</dd></div>
           </dl>
+          <a class="planejar-atalho" href="/planejar-pedal/?pedal={p["id"]}">Planejar a partir deste pedal</a>
         </div>
       </article>"""
 
@@ -1773,14 +1936,15 @@ def montar_pagina_pedal(p, mais_novo, mais_velho, modelo, todos=None):
     descricao_meta = (f"{titulo}: {num(km, 1)} km, {num(subida_do_pedal(p))} m de subida e {duracao(p['moving_time'])} de pedal "
                       f"em {data_longa(p['start_date_local'])}. Veja o mapa do percurso e o vídeo.")
     url = f"https://brotenatrilha.com.br/pedais/{p['_slug']}/"
-    og = f"https://i.ytimg.com/vi/{v['id']}/hqdefault.jpg" if v else "https://brotenatrilha.com.br/compartilhar.jpg"
+    miniatura = f"https://i.ytimg.com/vi/{v['id']}/hqdefault.jpg" if v else "https://brotenatrilha.com.br/compartilhar.jpg"
+    og = f"https://brotenatrilha.com.br/pedais/compartilhar/{p['id']}.jpg" if p.get("_compartilhar") else miniatura      # a imagem com o mapa, os números e o endereço
     ld = [{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
         {"@type": "ListItem", "position": 1, "name": "Brote na Trilha", "item": "https://brotenatrilha.com.br/"},
         {"@type": "ListItem", "position": 2, "name": "Pedais", "item": "https://brotenatrilha.com.br/pedais/"},
         {"@type": "ListItem", "position": 3, "name": titulo, "item": url}]}]
     if v:
         ld.append({"@context": "https://schema.org", "@type": "VideoObject", "name": v["titulo"],
-                   "description": texto or descricao_meta, "thumbnailUrl": [og], "uploadDate": v.get("publicado") or v["data"] + "T00:00:00-03:00",
+                   "description": texto or descricao_meta, "thumbnailUrl": [miniatura], "uploadDate": v.get("publicado") or v["data"] + "T00:00:00-03:00",
                    "embedUrl": f"https://www.youtube.com/embed/{v['id']}", "contentUrl": f"https://www.youtube.com/watch?v={v['id']}"})
     video = (f'<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/{v["id"]}" title="{html.escape(v["titulo"])}" loading="lazy" '
              'allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" '
@@ -2027,6 +2191,28 @@ def main():
             if nome.endswith(".webp") and nome not in atuais:
                 os.remove(os.path.join(pasta_mapas, nome))
                 print("  mapa removido:", nome)
+    pasta_compartilhar = os.path.join(base, "compartilhar")
+    logo = Image.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "logo.png")).convert("RGBA") if Image is not None else None
+    arq_assinaturas = os.path.join(pasta_compartilhar, "assinaturas.json")
+    assinaturas = json.load(open(arq_assinaturas, encoding="utf-8")) if os.path.exists(arq_assinaturas) else {}
+    for p in pedais:                                    # a imagem de compartilhamento (WhatsApp, redes): só se refaz quando o título ou os números mudam
+        p["_compartilhar"] = False
+        if Image is not None:
+            try:
+                p["_compartilhar"] = gerar_compartilhar(p, pasta_compartilhar, pasta_gpx, pasta_cache, logo, assinaturas)
+            except Exception as erro:
+                print("  sem imagem de compartilhamento:", p["name"], "-", erro)
+    if os.path.isdir(pasta_compartilhar) or assinaturas:
+        os.makedirs(pasta_compartilhar, exist_ok=True)
+        atuais_imagens = {f"{p['id']}.jpg" for p in pedais if p["_compartilhar"]}
+        for nome in os.listdir(pasta_compartilhar):
+            if nome.endswith(".jpg") and nome not in atuais_imagens:
+                os.remove(os.path.join(pasta_compartilhar, nome))
+                print("  imagem de compartilhamento removida:", nome)
+        assinaturas = {k: v for k, v in assinaturas.items() if f"{k}.jpg" in atuais_imagens}
+        with open(arq_assinaturas, "w", encoding="utf-8", newline="\n") as f:
+            json.dump(assinaturas, f, ensure_ascii=False, indent=0, sort_keys=True)
+    print(f"  compartilhamento: {sum(1 for p in pedais if p['_compartilhar'])} de {len(pedais)} pedais com imagem própria")
     print(f"  começo e fim cortados em {sum(1 for p in pedais if p['_cortado'])} de {len(pedais)} pedais (os que saem ou chegam perto de casa)")
     print(f"{len(pedais)} pedais; {sum(1 for p in pedais if p['_video'])} com vídeo; {sum(1 for p in pedais if p['_komoot'])} com Komoot; "
           f"{sum(1 for p in pedais if p['_mapa'] or p['_svg'])} com mapa")

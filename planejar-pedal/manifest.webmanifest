@@ -1,0 +1,15 @@
+{
+  "name": "Planejar pedal | Brote na Trilha",
+  "short_name": "Planejar pedal",
+  "description": "Desenhe a rota do seu pedal e veja subidas, terreno, vento e a previsão do tempo.",
+  "lang": "pt-BR",
+  "start_url": "/planejar-pedal/",
+  "scope": "/planejar-pedal/",
+  "display": "standalone",
+  "background_color": "#0f1a13",
+  "theme_color": "#2d7046",
+  "icons": [
+    { "src": "/icone-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
