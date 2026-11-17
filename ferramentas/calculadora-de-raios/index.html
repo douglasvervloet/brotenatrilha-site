@@ -27,6 +27,8 @@
   header { background: linear-gradient(180deg, var(--verde), var(--verde-fundo)); color: #fff; padding: 18px 0 34px; }
   header a { color: #fff; text-decoration: none; font-weight: 600; opacity: .9; }
   h1 { margin: 20px 0 0; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; letter-spacing: -.5px; }
+  header h1 { display: flex; align-items: center; gap: 14px; }
+  header h1 .icone { flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: rgba(255, 255, 255, .16); color: #fff; }
   header p { margin: 10px 0 0; color: #dcebe0; max-width: 62ch; }
   main { padding: 28px 0 40px; }
   .grade { display: grid; grid-template-columns: 1.1fr 1fr; gap: 22px; align-items: start; }
@@ -65,7 +67,7 @@
 <header>
   <div class="miolo">
     <a href="../">&larr; Ferramentas</a>
-    <h1>Calculadora de raios</h1>
+    <h1><span class="icone"><svg class="icone-svg" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9.2"/><circle cx="12" cy="12" r="1.9"/><path d="M13.90 12.00L21.20 12.00M13.34 13.34L18.51 18.51M12.00 13.90L12.00 21.20M10.66 13.34L5.49 18.51M10.10 12.00L2.80 12.00M10.66 10.66L5.49 5.49M12.00 10.10L12.00 2.80M13.34 10.66L18.51 5.49"/></svg></span>Calculadora de raios</h1>
     <p>O comprimento dos raios da roda que você vai montar, para cada lado do cubo.</p>
   </div>
 </header>

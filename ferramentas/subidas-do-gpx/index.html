@@ -27,6 +27,8 @@
   header { background: linear-gradient(180deg, var(--verde), var(--verde-fundo)); color: #fff; padding: 18px 0 34px; }
   header a { color: #fff; text-decoration: none; font-weight: 600; opacity: .9; }
   h1 { margin: 20px 0 0; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; letter-spacing: -.5px; }
+  header h1 { display: flex; align-items: center; gap: 14px; }
+  header h1 .icone { flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: rgba(255, 255, 255, .16); color: #fff; }
   header p { margin: 10px 0 0; color: #dcebe0; max-width: 62ch; }
   main { padding: 26px 0 40px; }
   h2 { font-size: 1.2rem; margin: 30px 0 10px; }
@@ -63,7 +65,7 @@
 <header>
   <div class="miolo">
     <a href="../">&larr; Ferramentas</a>
-    <h1>Subidas do seu GPX</h1>
+    <h1><span class="icone"><svg class="icone-svg" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 2.8h8.2L19 7.6v13.6H6z"/><path d="M14 2.8v5.2h5"/><path d="M8.6 17.4l2.6-3.8 2 2.2 2.6-4.2"/></svg></span>Subidas do seu GPX</h1>
     <p>Escolha um arquivo GPX e veja as subidas com categoria, extensão, ganho e inclinação.</p>
   </div>
 </header>

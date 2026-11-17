@@ -30,6 +30,8 @@
   header a { color: #fff; text-decoration: none; font-weight: 600; opacity: .9; }
   header a:hover { opacity: 1; text-decoration: underline; }
   h1 { margin: 20px 0 0; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; letter-spacing: -.5px; }
+  header h1 { display: flex; align-items: center; gap: 14px; }
+  header h1 .icone { flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: rgba(255, 255, 255, .16); color: #fff; }
   header p { margin: 10px 0 0; color: #dcebe0; max-width: 62ch; }
   main { padding: 22px 0 40px; }
   h2 { font-size: 1.2rem; margin: 28px 0 10px; }
@@ -80,6 +82,13 @@
   .leg-terreno .amostra { width: 24px; margin-right: 8px; vertical-align: middle; outline-color: rgba(255, 255, 255, .7); }
   .leg-terreno small { display: block; opacity: .8; font-size: .74rem; }
   @media (max-width: 560px) { .leg-terreno { top: auto; bottom: 62px; right: 12px; } }
+  .menu-ponto { position: absolute; z-index: 5; display: flex; flex-direction: column; gap: 8px; background: rgba(12, 23, 17, .95); border: 1px solid rgba(255, 255, 255, .3); border-radius: 14px; padding: 10px 12px; color: #fff; font-size: .85rem; box-shadow: 0 6px 18px rgba(0, 0, 0, .4); }
+  .menu-ponto[hidden] { display: none; }
+  .menu-ponto .trecho { display: flex; align-items: center; gap: 6px; }
+  .menu-ponto .trecho span { opacity: .85; margin-right: 4px; }
+  .menu-ponto button { font: inherit; font-weight: 700; min-height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .35); background: transparent; color: #fff; cursor: pointer; }
+  .menu-ponto button[aria-pressed="true"] { background: #2d7046; border-color: #fff; }
+  .menu-ponto .remover { border-color: rgba(232, 135, 58, .8); color: #ffd2b0; }
   .zoom { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; }
   .zoom .bt { width: 44px; padding: 0; font-size: 1.4rem; line-height: 1; }
   .dica { position: absolute; left: 12px; bottom: 12px; background: rgba(12, 23, 17, .85); color: #fff; border-radius: 12px; padding: 8px 14px; font-size: .85rem; max-width: 62%; pointer-events: none; }
@@ -123,7 +132,7 @@
 <header>
   <div class="miolo">
     <a href="../">&larr; Ferramentas</a>
-    <h1>Desenhar rota</h1>
+    <h1><span class="icone"><svg class="icone-svg" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="5.5" cy="18.5" r="2.2"/><circle cx="18.5" cy="5.5" r="2.2"/><path d="M7.7 18.5h4.3a3.2 3.2 0 0 0 0-6.4h-1a3.2 3.2 0 0 1 0-6.4h5.3"/></svg></span>Desenhar rota</h1>
     <p>Clique no mapa para desenhar o percurso e veja a distância, o ganho de altitude e as subidas com categoria. Depois, baixe o GPX.</p>
   </div>
 </header>
@@ -140,18 +149,23 @@
         <button class="bt" type="button" id="b-ida-volta" aria-pressed="false" title="Repete a ida ao contrário, de volta ao início">⇄ Ida e volta</button>
       </div>
       <button class="grudar" type="button" id="b-grudar" aria-pressed="false"><i></i>Grudar nas ruas <small>BETA</small></button>
+      <button class="grudar" type="button" id="b-livre" aria-pressed="false" title="Os próximos pontos ligam em linha reta, sem seguir as ruas"><i></i>Trecho livre</button>
       <button class="grudar" type="button" id="b-terreno" aria-pressed="false"><i></i>Mostrar o terreno <small>BETA</small></button>
     </div>
     <div class="zoom"><button class="bt" type="button" id="b-mais" aria-label="Aproximar">+</button><button class="bt" type="button" id="b-menos" aria-label="Afastar">&minus;</button><button class="bt" type="button" id="b-local" aria-label="Minha localização" title="Minha localização"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button><button class="bt" type="button" id="b-estilo" aria-label="Estilo do mapa" aria-expanded="false" title="Estilo do mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="m2 13 10 5 10-5"/></svg></button></div>
     <div class="estilos" id="painel-estilos" role="group" aria-label="Estilo do mapa" hidden><h4>Estilo do mapa</h4><div class="grade"><button type="button" class="op" data-estilo="relevo" aria-pressed="true"><img src="estilo-relevo.webp" width="150" height="100" alt="">Relevo</button><button type="button" class="op" data-estilo="ruas" aria-pressed="false"><img src="estilo-ruas.webp" width="150" height="100" alt="">Ruas</button><button type="button" class="op" data-estilo="escuro" aria-pressed="false"><img src="estilo-escuro.webp" width="150" height="100" alt="">Escuro</button></div><small>Cada estilo pede os quadros do mapa a um servidor aberto diferente.</small></div>
     <div class="toast" id="aviso-local" role="status" aria-live="polite" hidden></div>
     <div class="leg-terreno" id="leg-terreno" hidden></div>
-    <div class="dica" id="dica">Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para remover.</div>
+    <div class="menu-ponto" id="menu-ponto" hidden>
+      <div class="trecho" id="menu-trecho"><span>Trecho até aqui</span><button type="button" data-modo="ruas">Ruas</button><button type="button" data-modo="livre">Livre</button></div>
+      <button type="button" class="remover" id="menu-remover">Remover ponto</button>
+    </div>
+    <div class="dica" id="dica">Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para mais opções.</div>
     <div class="credito-mapa" id="credito">© OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA)</div>
   </div>
   <p class="aviso" style="margin-bottom:0"><b>Mostrar o terreno</b>: dentro do Espírito Santo, o terreno vem de arquivos do próprio site e nada sai do navegador. Fora dele, uma amostra da rota (um ponto a cada 200 m) é enviada ao Overpass, o serviço público do OpenStreetMap, para saber o tipo de cada via. Desligado, nada é enviado. Dados das vias: © colaboradores do OpenStreetMap (ODbL).</p>
   <p class="aviso">Com <b>Grudar nas ruas</b> desligado, nada do que você desenha sai do seu navegador. Ligado, os pontos de cada trecho (dois a dois) são enviados a um serviço público de rotas do OpenStreetMap
-    (BRouter, com o da FOSSGIS como reserva) para seguir as ruas e trilhas; se nenhum responder, o trecho fica em linha reta. O mapa e a altitude vêm de servidores abertos (OpenTopoMap ou OpenStreetMap, conforme o estilo, e Amazon Web Services),
+    (Valhalla, da FOSSGIS, e, se ele não responder, BRouter e o OSRM da FOSSGIS) para seguir as ruas e trilhas; se nenhum responder, o trecho fica em linha reta. O mapa e a altitude vêm de servidores abertos (OpenTopoMap ou OpenStreetMap, conforme o estilo, e Amazon Web Services),
     que só recebem o pedido dos quadros do mapa que você vê. A sua localização, se você usar o botão, é lida só no seu navegador.</p>
   <p class="nota" id="status-grudar" aria-live="polite" hidden></p>
   <p class="nota" id="status-terreno" aria-live="polite" hidden></p>
@@ -331,7 +345,7 @@
     var URL_ALTITUDE = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";   // metros = R·256 + G + B/256 − 32768
     var Z_ALTITUDE = 12, Z_MIN = 8, Z_MAX = 17, PASSO_AMOSTRA = 25;                                  // altitude lida no zoom 12; um ponto a cada 25 m
     var caixa = document.getElementById("mapa"), camada = document.getElementById("quadros"), desenho = document.getElementById("rota");
-    var z = 11, rota = [], antes = [], depois = [], modoDesenhar = true, pontosGpx = null, grudar = false, calculo = null, marcador = null, ultimoTotal = 0, idaEVolta = false, terrenoLigado = false, terreno = null, deUmPedal = null;
+    var z = 11, rota = [], antes = [], depois = [], modoDesenhar = true, pontosGpx = null, grudar = false, calculo = null, marcador = null, ultimoTotal = 0, idaEVolta = false, terrenoLigado = false, terreno = null, deUmPedal = null, livre = false, menuDoPonto = null;
 
     function mundo(lat, lon, nivel) {                              // coordenadas -> pixels do mapa mundial no zoom `nivel`
       var n = 256 * Math.pow(2, nivel), s = Math.sin(lat * Math.PI / 180);
@@ -419,6 +433,10 @@
       if (!rota.length) { desenho.innerHTML = ""; desenharLocalizacao(); return; }
       var p = rota.map(paraTela), idaLinha = linhaDaIda(), idaTela = idaLinha.map(paraTela), kms = kmsDaLinha(idaLinha), kmIda = kms[kms.length - 1];
       var svg = tracado(idaTela, kms, 4);
+      if (grudar) for (var k = 1; k < rota.length; k++) {                                         // os trechos livres (sem seguir as ruas), pontilhados
+        if (rota[k].livre) svg += '<polyline points="' + p[k - 1].x.toFixed(1) + "," + p[k - 1].y.toFixed(1) + " " + p[k].x.toFixed(1) + "," + p[k].y.toFixed(1) +
+          '" fill="none" stroke="#0c1711" stroke-width="2.6" stroke-dasharray="0.1 6" stroke-linecap="round" pointer-events="none"/>';
+      }
       if (idaEVolta && idaTela.length > 1) svg += tracado(ladoDireito(idaTela, 7), kms, 2.6);
       var comRetorno = idaEVolta && p.length > 1;
       p.forEach(function (q, i) {
@@ -459,7 +477,7 @@
     function redesenhar() { desenharQuadros(); desenharRota(); }
 
     // ---- histórico (desfazer e refazer) ----
-    function copia() { return rota.map(function (p) { return { lat: p.lat, lon: p.lon, caminho: p.caminho, reta: p.reta, fixo: p.fixo }; }); }
+    function copia() { return rota.map(function (p) { return { lat: p.lat, lon: p.lon, caminho: p.caminho, reta: p.reta, fixo: p.fixo, livre: p.livre }; }); }
     function guardar() { antes.push(copia()); if (antes.length > 100) antes.shift(); depois = []; deUmPedal = null; }          // mexer na rota: já não é o pedal do canal como veio
     function mudou() { calculo = null; marcador = null; terreno = null; botoes(); agendar(); desenharRota(); atualizarTerrenoNaTela(); }
     function botoes() {
@@ -491,7 +509,7 @@
       return melhor;
     }
     function inserirNaLinha(achado) {                              // o ponto novo fica sobre a linha; o caminho do trecho (se houver) se divide nele
-      var onde = daTela({ x: achado.x, y: achado.y }), b = rota[achado.i], novo = { lat: onde.lat, lon: onde.lon };
+      var onde = daTela({ x: achado.x, y: achado.y }), b = rota[achado.i], novo = { lat: onde.lat, lon: onde.lon, livre: b.livre };      // um trecho livre dividido continua livre dos dois lados
       if ((grudar || b.fixo) && b.caminho) {
         novo.caminho = b.caminho.slice(0, achado.j);
         novo.fixo = b.fixo;
@@ -514,6 +532,8 @@
     function distanciaDosDedos() { var k = Object.keys(dedos), a = dedos[k[0]], b = dedos[k[1]]; return Math.hypot(a.x - b.x, a.y - b.y); }
     caixa.addEventListener("pointerdown", function (e) {
       if (!painel.hidden && !e.target.closest(".estilos, #b-estilo")) abrirPainel(false);
+      if (e.target.closest(".menu-ponto")) return;
+      fecharMenuDoPonto();
       if (e.target.closest(".barra, .zoom, .estilos")) return;
       caixa.setPointerCapture(e.pointerId);
       dedos[e.pointerId] = { x: e.clientX, y: e.clientY };
@@ -545,7 +565,8 @@
         centro.y -= e.clientY - anterior.y;
         redesenhar();
       } else {
-        rota[gesto.i] = daTela(local(e));                          // um ponto novo: os trechos dos dois lados voltam a linha reta até soltar
+        var livreAntes = rota[gesto.i].livre;
+        rota[gesto.i] = daTela(local(e)); rota[gesto.i].livre = livreAntes;      // um ponto novo, que continua livre ou não: os trechos dos dois lados voltam a linha reta até soltar
         if (rota[gesto.i + 1]) { rota[gesto.i + 1].caminho = null; rota[gesto.i + 1].reta = false; rota[gesto.i + 1].fixo = false; }
         mudou();
       }
@@ -557,14 +578,12 @@
       if (!g || g.tipo === "pinca") { if (!Object.keys(dedos).length) gesto = null; return; }
       gesto = null;
       if (g.moveu) { if (g.tipo === "ponto") pedirPendentes(); return; }
-      if (g.tipo === "ponto") {                                                                    // clicar num ponto remove
-        guardar(); rota.splice(g.i, 1);
-        if (rota[g.i]) { rota[g.i].caminho = null; rota[g.i].reta = false; rota[g.i].fixo = false; }
-        mudou(); pedirPendentes();
+      if (g.tipo === "ponto") {                                                                    // clicar num ponto abre as opções dele
+        abrirMenuDoPonto(g.i, local(e));
       } else if (modoDesenhar && e.type === "pointerup") {                                        // clicar no mapa: na linha, insere um ponto ali; fora dela, acrescenta no fim
         var clique = local(e), achado = pontoNaLinha(clique, e.pointerType === "touch" ? 16 : 9);
         guardar();
-        if (achado) inserirNaLinha(achado); else rota.push(daTela(clique));
+        if (achado) inserirNaLinha(achado); else { var novo = daTela(clique); novo.livre = livre; rota.push(novo); }
         mudou(); pedirPendentes();
       }
     }
@@ -591,9 +610,10 @@
       modoDesenhar = !modoDesenhar;
       this.setAttribute("aria-pressed", String(modoDesenhar));
       caixa.classList.toggle("mover", !modoDesenhar);
-      document.getElementById("dica").textContent = modoDesenhar ? "Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para remover." : "Modo de mover: arraste o mapa. Ligue “Desenhar” para acrescentar pontos.";
+      document.getElementById("dica").textContent = modoDesenhar ? "Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para mais opções." : "Modo de mover: arraste o mapa. Ligue “Desenhar” para acrescentar pontos.";
     });
     document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") fecharMenuDoPonto();
       if (!(e.ctrlKey || e.metaKey) || /input|select|textarea/i.test((e.target.tagName || ""))) return;
       if (e.key === "z" || e.key === "Z") { e.preventDefault(); if (e.shiftKey) refazer(); else desfazer(); }
       if (e.key === "y" || e.key === "Y") { e.preventDefault(); refazer(); }
@@ -652,12 +672,20 @@
     }
 
     // ---- "Grudar nas ruas": o caminho entre dois pontos pelas ruas e trilhas do OpenStreetMap ----
-    var URL_BROUTER = "https://brouter.de/brouter?lonlats={a}|{b}&profile=mtb&alternativeidx=0&format=geojson";                       // perfil de MTB
-    var URL_OSRM = "https://routing.openstreetmap.de/routed-bike/route/v1/driving/{a};{b}?overview=full&geometries=geojson";         // reserva (FOSSGIS)
+    var URL_VALHALLA = "https://valhalla1.openstreetmap.de/route";                                                                          // 1º serviço (FOSSGIS): bike híbrida, que usa estradas e trilhas
+    var URL_BROUTER = "https://brouter.de/brouter?lonlats={a}|{b}&profile=trekking&alternativeidx=0&format=geojson";                    // 2º: perfil trekking (o mtb evitava vias por onde se pedala)
+    var URL_OSRM = "https://routing.openstreetmap.de/routed-bike/route/v1/driving/{a};{b}?overview=full&geometries=geojson";         // 3º (FOSSGIS)
     var fila = [], emCurso = false, cacheRotas = {};
     function buscarJson(url) {
       var ctl = new AbortController(), tempo = setTimeout(function () { ctl.abort(); }, 9000);
       return fetch(url, { signal: ctl.signal }).then(function (r) { clearTimeout(tempo); if (!r.ok) throw new Error("http " + r.status); return r.json(); });
+    }
+    function viaValhalla(a, b) {
+      var ctl = new AbortController(), tempo = setTimeout(function () { ctl.abort(); }, 9000);
+      var corpo = { locations: [{ lat: a.lat, lon: a.lon }, { lat: b.lat, lon: b.lon }], costing: "bicycle", costing_options: { bicycle: { bicycle_type: "Hybrid", use_roads: 0.8 } } };
+      return fetch(URL_VALHALLA, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo), signal: ctl.signal })
+        .then(function (r) { clearTimeout(tempo); if (!r.ok) throw new Error("http " + r.status); return r.json(); })
+        .then(function (d) { return decodificar(d.trip.legs[0].shape, 1e6); });
     }
     function viaBrouter(a, b) {
       return buscarJson(URL_BROUTER.replace("{a}", a.lon.toFixed(6) + "," + a.lat.toFixed(6)).replace("{b}", b.lon.toFixed(6) + "," + b.lat.toFixed(6))).then(function (d) {
@@ -670,14 +698,14 @@
       });
     }
     function caminhoPelasRuas(a, b) {                                // [{lat, lon}] ou null se nenhum serviço respondeu
-      return viaBrouter(a, b).catch(function () { return viaOsrm(a, b); }).catch(function () { return null; });
+      return viaValhalla(a, b).catch(function () { return viaBrouter(a, b); }).catch(function () { return viaOsrm(a, b); }).catch(function () { return null; });
     }
     function chaveDoTrecho(a, b) { return [a.lat, a.lon, b.lat, b.lon].map(function (v) { return v.toFixed(5); }).join(","); }
     function pedirPendentes() {                                      // pede o caminho de cada trecho que ainda não tem (só com "Grudar nas ruas" ligado)
       if (grudar) {
         for (var i = 1; i < rota.length; i++) {
           var a = rota[i - 1], b = rota[i];
-          if (b.caminho || b.reta || b.pedidoPara === a) continue;
+          if (b.caminho || b.reta || b.livre || b.pedidoPara === a) continue;
           var guardado = cacheRotas[chaveDoTrecho(a, b)];
           if (guardado) { b.caminho = guardado; continue; }
           b.pedidoPara = a;
@@ -689,7 +717,7 @@
     function andarFila() {
       if (emCurso) return;
       var t = fila.shift();
-      while (t && (!grudar || rota.indexOf(t.b) < 1 || rota[rota.indexOf(t.b) - 1] !== t.a)) t = fila.shift();      // descarta o que já não vale
+      while (t && (!grudar || t.b.livre || rota.indexOf(t.b) < 1 || rota[rota.indexOf(t.b) - 1] !== t.a)) t = fila.shift();      // descarta o que já não vale
       if (!t) { estado(); desenharRota(); agendar(); return; }
       emCurso = true;
       estado();
@@ -860,13 +888,18 @@
       });
       return s;
     }
-    function decodificar(s) {
+    function decodificar(s, escala) {                              // polilinha do Google: 1e5 por padrão; o Valhalla usa 1e6
       var i = 0, la = 0, lo = 0, saida = [];
       function proximo() { var r = 0, sh = 0, b; do { b = s.charCodeAt(i++) - 63; r |= (b & 0x1f) << sh; sh += 5; } while (b >= 0x20 && i <= s.length); return (r & 1) ? ~(r >> 1) : (r >> 1); }
-      while (i < s.length) { la += proximo(); lo += proximo(); saida.push({ lat: la / 1e5, lon: lo / 1e5 }); }
+      while (i < s.length) { la += proximo(); lo += proximo(); saida.push({ lat: la / (escala || 1e5), lon: lo / (escala || 1e5) }); }
       return saida;
     }
-    function hashDaRota() { return rota.length ? "#r=" + encodeURIComponent(codificar(rota)) + (idaEVolta ? "&iv=1" : "") : ""; }
+    function hashDaRota() {
+      if (!rota.length) return "";
+      var livres = [];
+      rota.forEach(function (p, i) { if (p.livre) livres.push(i); });
+      return "#r=" + encodeURIComponent(codificar(rota)) + (livres.length ? "&l=" + livres.join(".") : "") + (idaEVolta ? "&iv=1" : "");
+    }
     function atualizarEndereco() { try { history.replaceState(null, "", location.pathname + hashDaRota()); } catch (x) { /* sem história, o link só não acompanha */ } }
     document.getElementById("b-link").addEventListener("click", function () {
       var url = location.origin + location.pathname + hashDaRota(), botao = this, msg = document.getElementById("msg-pedal");
@@ -922,14 +955,54 @@
         msg.hidden = false;
       }).catch(function () { msg.textContent = "Não consegui abrir o percurso deste pedal."; msg.hidden = false; });
     }
-    var doPedal = location.search.match(/[?&]pedal=(\d+)(&|$)/), doLink = location.hash.match(/^#r=([^&]+)(&iv=1)?$/);
+    var doPedal = location.search.match(/[?&]pedal=(\d+)(&|$)/), doLink = location.hash.match(/^#r=([^&]+)((?:&[a-z]+=[\d.]*)*)$/);
     if (doPedal) carregarPedal(doPedal[1]);
     else if (doLink) {
       try {
         var lidos = decodificar(decodeURIComponent(doLink[1])).slice(0, 500);
-        if (lidos.length && lidos.every(function (p) { return isFinite(p.lat) && isFinite(p.lon) && Math.abs(p.lat) <= 85 && Math.abs(p.lon) <= 180; })) { rota = lidos; if (doLink[2]) { idaEVolta = true; document.getElementById("b-ida-volta").setAttribute("aria-pressed", "true"); } enquadrarRota(); mudou(); }
+        if (lidos.length && lidos.every(function (p) { return isFinite(p.lat) && isFinite(p.lon) && Math.abs(p.lat) <= 85 && Math.abs(p.lon) <= 180; })) {
+          rota = lidos;
+          var listaLivres = doLink[2].match(/&l=([\d.]+)/);
+          if (listaLivres) listaLivres[1].split(".").forEach(function (n) { if (rota[Number(n)] && Number(n) > 0) rota[Number(n)].livre = true; });
+          if (/&iv=1/.test(doLink[2])) { idaEVolta = true; document.getElementById("b-ida-volta").setAttribute("aria-pressed", "true"); }
+          enquadrarRota(); mudou();
+        }
       } catch (x) { /* um link que não é nosso: ignora */ }
     }
+
+    // ---- as opções de um ponto: o trecho até ele segue as ruas ou fica livre (linha reta), ou remover o ponto ----
+    var menu = document.getElementById("menu-ponto");
+    function fecharMenuDoPonto() { menu.hidden = true; menuDoPonto = null; }
+    function abrirMenuDoPonto(i, onde) {
+      menuDoPonto = i;
+      document.getElementById("menu-trecho").hidden = i === 0;                                    // o primeiro ponto não tem trecho até ele
+      [].forEach.call(menu.querySelectorAll("[data-modo]"), function (b) { b.setAttribute("aria-pressed", String((b.dataset.modo === "livre") === !!rota[i].livre)); });
+      menu.hidden = false;
+      menu.style.left = Math.max(8, Math.min(onde.x + 14, L() - menu.offsetWidth - 8)) + "px";
+      menu.style.top = Math.max(8, Math.min(onde.y + 14, A() - menu.offsetHeight - 8)) + "px";
+    }
+    [].forEach.call(menu.querySelectorAll("[data-modo]"), function (b) {
+      b.addEventListener("click", function () {
+        var p = rota[menuDoPonto], quer = b.dataset.modo === "livre";
+        fecharMenuDoPonto();
+        if (!p || !!p.livre === quer) return;
+        guardar();
+        p.livre = quer; p.caminho = null; p.reta = false; p.fixo = false;                         // o trecho refaz o caminho: reto se livre, pelas ruas se não
+        mudou(); pedirPendentes();
+      });
+    });
+    document.getElementById("menu-remover").addEventListener("click", function () {
+      var i = menuDoPonto;
+      fecharMenuDoPonto();
+      if (i === null || !rota[i]) return;
+      guardar(); rota.splice(i, 1);
+      if (rota[i]) { rota[i].caminho = null; rota[i].reta = false; rota[i].fixo = false; }
+      mudou(); pedirPendentes();
+    });
+    document.getElementById("b-livre").addEventListener("click", function () {                    // os pontos que vierem a seguir ligam em linha reta
+      livre = !livre;
+      this.setAttribute("aria-pressed", String(livre));
+    });
 
     // ---- ida e volta: a rota desenhada, repetida ao contrário até o início ----
     function ajustarParaIdaEVolta(totalKm, kmRetorno) {
