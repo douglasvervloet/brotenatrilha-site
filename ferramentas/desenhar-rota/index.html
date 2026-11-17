@@ -48,6 +48,14 @@
   .bt:hover:not(:disabled) { border-color: var(--ambar); }
   .bt:disabled { opacity: .45; cursor: default; }
   .bt[aria-pressed="true"] { border-color: var(--ambar); }
+  .grudar { display: flex; align-items: center; gap: 10px; font: inherit; font-weight: 700; font-size: .9rem; min-height: 40px; padding: 0 16px 0 10px; border-radius: 999px; cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, .35); background: rgba(12, 23, 17, .85); color: #fff; align-self: flex-start; }
+  .grudar i { width: 38px; height: 22px; border-radius: 999px; background: #4d5e53; position: relative; flex: none; transition: background .2s; }
+  .grudar i::after { content: ""; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left .2s; }
+  .grudar[aria-pressed="true"] { border-color: var(--ambar); }
+  .grudar[aria-pressed="true"] i { background: #2d7046; }
+  .grudar[aria-pressed="true"] i::after { left: 19px; }
+  .grudar small { background: var(--ambar); color: #2a1a00; font-weight: 800; border-radius: 999px; padding: 0 8px; font-size: .7rem; letter-spacing: .5px; }
   .zoom { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; }
   .zoom .bt { width: 44px; padding: 0; font-size: 1.4rem; line-height: 1; }
   .dica { position: absolute; left: 12px; bottom: 12px; background: rgba(12, 23, 17, .85); color: #fff; border-radius: 12px; padding: 8px 14px; font-size: .85rem; max-width: 62%; pointer-events: none; }
@@ -101,12 +109,16 @@
         <button class="bt" type="button" id="b-refazer" disabled>Refazer</button>
         <button class="bt" type="button" id="b-limpar" disabled>Limpar</button>
       </div>
+      <button class="grudar" type="button" id="b-grudar" aria-pressed="false"><i></i>Grudar nas ruas <small>BETA</small></button>
     </div>
     <div class="zoom"><button class="bt" type="button" id="b-mais" aria-label="Aproximar">+</button><button class="bt" type="button" id="b-menos" aria-label="Afastar">&minus;</button></div>
     <div class="dica" id="dica">Clique para adicionar um ponto. Arraste um ponto para ajustar; clique nele para remover.</div>
     <div class="credito-mapa">© OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA)</div>
   </div>
-  <p class="aviso">Nada do que você desenha sai do seu navegador. O mapa e a altitude vêm de servidores abertos (OpenTopoMap e Amazon Web Services), que só recebem o pedido dos quadros do mapa que você vê.</p>
+  <p class="aviso">Com <b>Grudar nas ruas</b> desligado, nada do que você desenha sai do seu navegador. Ligado, os pontos de cada trecho (dois a dois) são enviados a um serviço público de rotas do OpenStreetMap
+    (BRouter, com o da FOSSGIS como reserva) para seguir as ruas e trilhas; se nenhum responder, o trecho fica em linha reta. O mapa e a altitude vêm de servidores abertos (OpenTopoMap e Amazon Web Services),
+    que só recebem o pedido dos quadros do mapa que você vê.</p>
+  <p class="nota" id="status-grudar" aria-live="polite" hidden></p>
   <p class="nota" id="vazio">Clique no mapa para começar. Com pelo menos 1 km desenhado, aparecem os números e as subidas.</p>
   <p class="nota" id="erro" hidden></p>
   <div id="resultado" hidden>
@@ -123,7 +135,7 @@
     <div class="tabela"><table id="tabela"></table></div>
   </div>
   <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled>Baixar GPX</button><button class="sec" type="button" id="b-subidas" disabled>Ver no “Subidas do seu GPX”</button></div>
-  <p class="nota">A altitude vem do relevo do mapa (SRTM), a cada 50 m ao longo da linha, e pode diferir da de um aparelho de GPS. O GPX baixado traz só o traçado e a altitude. Linhas retas entre os pontos: para seguir uma curva, clique com mais frequência.</p>
+  <p class="nota">A altitude vem do relevo do mapa (SRTM), a cada 25 m ao longo da linha, e pode diferir da de um aparelho de GPS. O GPX baixado traz só o traçado e a altitude. Com “Grudar nas ruas” desligado as linhas são retas entre os pontos: para seguir uma curva, clique com mais frequência.</p>
 </main>
 <footer>
   <div class="miolo">
@@ -258,9 +270,9 @@
   (function () {
     var URL_MAPA = "https://tile.opentopomap.org/{z}/{x}/{y}.png";
     var URL_ALTITUDE = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";   // metros = R·256 + G + B/256 − 32768
-    var Z_ALTITUDE = 12, Z_MIN = 8, Z_MAX = 17, PASSO_AMOSTRA = 50;                                  // altitude lida no zoom 12; um ponto a cada 50 m
+    var Z_ALTITUDE = 12, Z_MIN = 8, Z_MAX = 17, PASSO_AMOSTRA = 25;                                  // altitude lida no zoom 12; um ponto a cada 25 m
     var caixa = document.getElementById("mapa"), camada = document.getElementById("quadros"), desenho = document.getElementById("rota");
-    var z = 11, rota = [], antes = [], depois = [], modoDesenhar = true, pontosGpx = null;
+    var z = 11, rota = [], antes = [], depois = [], modoDesenhar = true, pontosGpx = null, grudar = false;
 
     function mundo(lat, lon, nivel) {                              // coordenadas -> pixels do mapa mundial no zoom `nivel`
       var n = 256 * Math.pow(2, nivel), s = Math.sin(lat * Math.PI / 180);
@@ -303,11 +315,20 @@
 
     // ---- a rota em cima do mapa ----
     function metrosEntre(a, b) { return metros([a.lat, a.lon], [b.lat, b.lon]); }
+    function linhaCompleta() {                                     // a linha da rota: os pontos clicados e, com "Grudar nas ruas", o caminho pelas ruas entre eles
+      if (!rota.length) return [];
+      var linha = [rota[0]];
+      for (var i = 1; i < rota.length; i++) {
+        if (grudar && rota[i].caminho) linha = linha.concat(rota[i].caminho);
+        linha.push(rota[i]);
+      }
+      return linha;
+    }
     function comprimento(pts) { var t = 0; for (var i = 1; i < pts.length; i++) t += metrosEntre(pts[i - 1], pts[i]); return t; }
     function desenharRota() {
       desenho.setAttribute("viewBox", "0 0 " + L() + " " + A());
       if (!rota.length) { desenho.innerHTML = ""; return; }
-      var p = rota.map(paraTela), linha = p.map(function (q) { return q.x.toFixed(1) + "," + q.y.toFixed(1); }).join(" ");
+      var p = rota.map(paraTela), linha = linhaCompleta().map(paraTela).map(function (q) { return q.x.toFixed(1) + "," + q.y.toFixed(1); }).join(" ");
       var svg = '<polyline points="' + linha + '" fill="none" stroke="#f2c14e" stroke-opacity=".28" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>' +
         '<polyline points="' + linha + '" fill="none" stroke="#f2c14e" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>';
       p.forEach(function (q, i) {
@@ -316,7 +337,7 @@
         svg += '<circle class="ponto" data-i="' + i + '" cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="' + raio + '" fill="' + cor + '" stroke="' + borda + '" stroke-width="' + (primeiro || ultimo ? 3 : 2) + '"/>';
       });
       if (p.length > 1) {
-        var f = p[p.length - 1], km = fmt(comprimento(rota) / 1000, 1) + " km";
+        var f = p[p.length - 1], km = fmt(comprimento(linhaCompleta()) / 1000, 1) + " km";
         svg += '<g transform="translate(' + (f.x + 14).toFixed(1) + "," + (f.y - 34).toFixed(1) + ')"><rect width="92" height="30" rx="15" fill="rgba(12,23,17,.88)" stroke="#fff" stroke-opacity=".4"/>' +
           '<text x="46" y="20" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">' + km + "</text></g>";
       }
@@ -325,7 +346,7 @@
     function redesenhar() { desenharQuadros(); desenharRota(); }
 
     // ---- histórico (desfazer e refazer) ----
-    function copia() { return rota.map(function (p) { return { lat: p.lat, lon: p.lon }; }); }
+    function copia() { return rota.map(function (p) { return { lat: p.lat, lon: p.lon, caminho: p.caminho, reta: p.reta }; }); }
     function guardar() { antes.push(copia()); if (antes.length > 100) antes.shift(); depois = []; }
     function mudou() { botoes(); agendar(); desenharRota(); }
     function botoes() {
@@ -333,9 +354,9 @@
       document.getElementById("b-refazer").disabled = !depois.length;
       document.getElementById("b-limpar").disabled = !rota.length;
     }
-    function desfazer() { if (!antes.length) return; depois.push(copia()); rota = antes.pop(); mudou(); }
-    function refazer() { if (!depois.length) return; antes.push(copia()); rota = depois.pop(); mudou(); }
-    function limpar() { if (!rota.length) return; guardar(); rota = []; mudou(); }
+    function desfazer() { if (!antes.length) return; depois.push(copia()); rota = antes.pop(); mudou(); pedirPendentes(); }
+    function refazer() { if (!depois.length) return; antes.push(copia()); rota = depois.pop(); mudou(); pedirPendentes(); }
+    function limpar() { if (!rota.length) return; guardar(); rota = []; mudou(); pedirPendentes(); }
 
     // ---- as ações do mapa: arrastar, desenhar, ajustar, zoom ----
     function dar_zoom(d, p) {
@@ -381,7 +402,8 @@
         centro.y -= e.clientY - anterior.y;
         redesenhar();
       } else {
-        rota[gesto.i] = daTela(local(e));
+        rota[gesto.i] = daTela(local(e));                          // um ponto novo: os trechos dos dois lados voltam a linha reta até soltar
+        if (rota[gesto.i + 1]) { rota[gesto.i + 1].caminho = null; rota[gesto.i + 1].reta = false; }
         mudou();
       }
     });
@@ -391,9 +413,12 @@
       caixa.classList.remove("arrastando");
       if (!g || g.tipo === "pinca") { if (!Object.keys(dedos).length) gesto = null; return; }
       gesto = null;
-      if (g.moveu) return;
-      if (g.tipo === "ponto") { guardar(); rota.splice(g.i, 1); mudou(); }                       // clicar num ponto remove
-      else if (modoDesenhar && e.type === "pointerup") { guardar(); rota.push(daTela(local(e))); mudou(); }   // clicar no mapa acrescenta
+      if (g.moveu) { if (g.tipo === "ponto") pedirPendentes(); return; }
+      if (g.tipo === "ponto") {                                                                    // clicar num ponto remove
+        guardar(); rota.splice(g.i, 1);
+        if (rota[g.i]) { rota[g.i].caminho = null; rota[g.i].reta = false; }
+        mudou(); pedirPendentes();
+      } else if (modoDesenhar && e.type === "pointerup") { guardar(); rota.push(daTela(local(e))); mudou(); pedirPendentes(); }   // clicar no mapa acrescenta
     }
     caixa.addEventListener("pointerup", soltar);
     caixa.addEventListener("pointercancel", soltar);
@@ -409,6 +434,11 @@
     document.getElementById("b-desfazer").addEventListener("click", desfazer);
     document.getElementById("b-refazer").addEventListener("click", refazer);
     document.getElementById("b-limpar").addEventListener("click", limpar);
+    document.getElementById("b-grudar").addEventListener("click", function () {
+      grudar = !grudar;
+      this.setAttribute("aria-pressed", String(grudar));
+      desenharRota(); agendar(); pedirPendentes();
+    });
     document.getElementById("b-desenhar").addEventListener("click", function () {
       modoDesenhar = !modoDesenhar;
       this.setAttribute("aria-pressed", String(modoDesenhar));
@@ -472,6 +502,66 @@
       });
     }
 
+    // ---- "Grudar nas ruas": o caminho entre dois pontos pelas ruas e trilhas do OpenStreetMap ----
+    var URL_BROUTER = "https://brouter.de/brouter?lonlats={a}|{b}&profile=mtb&alternativeidx=0&format=geojson";                       // perfil de MTB
+    var URL_OSRM = "https://routing.openstreetmap.de/routed-bike/route/v1/driving/{a};{b}?overview=full&geometries=geojson";         // reserva (FOSSGIS)
+    var fila = [], emCurso = false, cacheRotas = {};
+    function buscarJson(url) {
+      var ctl = new AbortController(), tempo = setTimeout(function () { ctl.abort(); }, 9000);
+      return fetch(url, { signal: ctl.signal }).then(function (r) { clearTimeout(tempo); if (!r.ok) throw new Error("http " + r.status); return r.json(); });
+    }
+    function viaBrouter(a, b) {
+      return buscarJson(URL_BROUTER.replace("{a}", a.lon.toFixed(6) + "," + a.lat.toFixed(6)).replace("{b}", b.lon.toFixed(6) + "," + b.lat.toFixed(6))).then(function (d) {
+        return d.features[0].geometry.coordinates.map(function (p) { return { lat: p[1], lon: p[0] }; });
+      });
+    }
+    function viaOsrm(a, b) {
+      return buscarJson(URL_OSRM.replace("{a}", a.lon.toFixed(6) + "," + a.lat.toFixed(6)).replace("{b}", b.lon.toFixed(6) + "," + b.lat.toFixed(6))).then(function (d) {
+        return d.routes[0].geometry.coordinates.map(function (p) { return { lat: p[1], lon: p[0] }; });
+      });
+    }
+    function caminhoPelasRuas(a, b) {                                // [{lat, lon}] ou null se nenhum serviço respondeu
+      return viaBrouter(a, b).catch(function () { return viaOsrm(a, b); }).catch(function () { return null; });
+    }
+    function chaveDoTrecho(a, b) { return [a.lat, a.lon, b.lat, b.lon].map(function (v) { return v.toFixed(5); }).join(","); }
+    function pedirPendentes() {                                      // pede o caminho de cada trecho que ainda não tem (só com "Grudar nas ruas" ligado)
+      if (grudar) {
+        for (var i = 1; i < rota.length; i++) {
+          var a = rota[i - 1], b = rota[i];
+          if (b.caminho || b.reta || b.pedidoPara === a) continue;
+          var guardado = cacheRotas[chaveDoTrecho(a, b)];
+          if (guardado) { b.caminho = guardado; continue; }
+          b.pedidoPara = a;
+          fila.push({ a: a, b: b });
+        }
+      }
+      andarFila();
+    }
+    function andarFila() {
+      if (emCurso) return;
+      var t = fila.shift();
+      while (t && (!grudar || rota.indexOf(t.b) < 1 || rota[rota.indexOf(t.b) - 1] !== t.a)) t = fila.shift();      // descarta o que já não vale
+      if (!t) { estado(); desenharRota(); agendar(); return; }
+      emCurso = true;
+      estado();
+      caminhoPelasRuas(t.a, t.b).then(function (c) {
+        var ib = rota.indexOf(t.b);
+        if (ib >= 1 && rota[ib - 1] === t.a) {
+          if (c) { t.b.caminho = c; cacheRotas[chaveDoTrecho(t.a, t.b)] = c; } else { t.b.reta = true; }
+        }
+        emCurso = false;
+        desenharRota(); agendar();
+        setTimeout(andarFila, 150);                                   // sem pressa: o serviço é comunitário
+      });
+    }
+    function estado() {                                              // a frase de situação abaixo do aviso
+      var e = document.getElementById("status-grudar"), retas = 0;
+      for (var i = 1; i < rota.length; i++) if (rota[i].reta) retas++;
+      if (grudar && (emCurso || fila.length)) { e.textContent = "Seguindo as ruas e trilhas do OpenStreetMap…"; e.hidden = false; }
+      else if (grudar && retas) { e.textContent = "Não consegui seguir as ruas em " + retas + (retas === 1 ? " trecho" : " trechos") + ": ficaram em linha reta. Mexa num ponto para tentar de novo."; e.hidden = false; }
+      else e.hidden = true;
+    }
+
     // ---- os números, o gráfico e as subidas ----
     var espera = null, versao = 0;
     function agendar() { clearTimeout(espera); espera = setTimeout(calcular, 250); }
@@ -486,12 +576,14 @@
     function calcular() {
       var minha = ++versao;
       if (rota.length < 2) return vazio("Clique no mapa para começar. Com pelo menos 1 km desenhado, aparecem os números e as subidas.");
-      if (comprimento(rota) < 1000) return vazio("Continue desenhando: faltam " + fmt((1000 - comprimento(rota)) / 1000, 1) + " km para os números e as subidas aparecerem.");
-      comAltitude(amostrar(rota)).then(function (pts) {
+      var total = comprimento(linhaCompleta());
+      if (total < 1000) return vazio("Continue desenhando: faltam " + fmt((1000 - total) / 1000, 1) + " km para os números e as subidas aparecerem.");
+      comAltitude(amostrar(linhaCompleta())).then(function (pts) {
         if (minha !== versao) return;
         pontosGpx = pts;
         document.getElementById("vazio").hidden = true;
         mostrar(pts);
+        document.getElementById("n-dist").textContent = fmt(total / 1000, 1) + " km";           // o comprimento da linha desenhada, igual ao do rótulo no mapa
         document.getElementById("b-gpx").disabled = document.getElementById("b-subidas").disabled = false;
       }).catch(function () {
         if (minha === versao) vazio("Não consegui baixar a altitude deste trecho. Confira a conexão e mexa na rota para tentar de novo.", true);
