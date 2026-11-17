@@ -65,8 +65,9 @@
   .pedal.ver-mapa .capa { display: none; }
   .pedal.ver-mapa .mapa-link .mapa { display: block; }
   .pedal.ver-mapa .mapa-link .mapa.vazio { display: grid; }
-  .alterna { position: absolute; right: 10px; top: 50%; transform: translateY(-50%);   /* no meio, à direita: o texto das capas costuma ficar em cima e embaixo */ font: inherit; font-weight: 600; font-size: .78rem; cursor: pointer; padding: 5px 12px; border-radius: 999px;
+  .alterna { position: absolute; right: 10px; top: 50%; transform: translateY(-50%);   /* no meio, à direita: o texto das capas costuma ficar em cima e embaixo */ font: inherit; font-weight: 600; font-size: .78rem; cursor: pointer; padding: 5px 12px; display: inline-flex; align-items: center; gap: 6px; border-radius: 999px;
     background: rgba(12, 22, 16, .78); color: #fff; border: 1px solid rgba(255, 255, 255, .35); backdrop-filter: blur(4px); }
+  .alterna svg { width: 14px; height: 14px; flex: none; }
   .alterna:hover { background: rgba(12, 22, 16, .92); border-color: #fff; }
   .alterna:focus-visible { outline: 2px solid var(--ambar, #e8a33d); outline-offset: 2px; }
   .alterna[hidden] { display: none; }
@@ -150,12 +151,13 @@
   document.getElementById("ano").textContent = new Date().getFullYear();
 
   // Cada cartão mostra a capa do vídeo e tem o seu botão para ver o mapa (sem JavaScript fica a capa)
+  var ICONE_MAPA_JS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>', ICONE_CAPA_JS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5v5l4.5-2.5z"/></svg>';
   [].forEach.call(document.querySelectorAll(".pedal .alterna"), function (botao) {
     botao.hidden = false;
     botao.addEventListener("click", function () {
       var cartao = botao.closest(".pedal");
       var mapa = cartao.classList.toggle("ver-mapa");
-      botao.textContent = mapa ? "Ver capa" : "Ver mapa";
+      botao.innerHTML = mapa ? ICONE_CAPA_JS + "Ver capa" : ICONE_MAPA_JS + "Ver mapa";
       botao.setAttribute("aria-pressed", String(mapa));
       botao.setAttribute("aria-label", mapa ? "Ver a capa do vídeo deste pedal" : "Ver o mapa deste pedal");
     });

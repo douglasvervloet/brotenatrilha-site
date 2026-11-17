@@ -100,12 +100,6 @@
   }
   .botao svg { width: 22px; height: 22px; flex: none; }
   .botao:hover { transform: translateY(-2px); }
-  .novidade { display: flex; align-items: center; gap: 14px; max-width: 560px; margin: 22px auto 0; padding: 12px 18px; text-align: left; text-decoration: none; color: #fff; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.4); border-radius: 16px; backdrop-filter: blur(2px); transition: background .2s, transform .2s; }
-  .novidade:hover { background: rgba(255,255,255,.2); transform: translateY(-2px); }
-  .novidade .selo { flex: none; background: var(--ambar); color: #1b2a1f; font-weight: 800; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
-  .novidade .texto { font-size: .95rem; line-height: 1.4; }
-  .novidade .texto b { display: block; font-size: 1.05rem; }
-  .novidade .seta { flex: none; margin-left: auto; font-size: 1.4rem; }
   .botao.principal { background: var(--ambar); color: #1b2a1f; }
   .botao.principal:hover { background: #f0b255; }
   .botao.contorno { border-color: rgba(255,255,255,.55); color: #fff; }
@@ -250,9 +244,8 @@
 
   @media (max-width: 760px) {
     .topo .miolo { flex-direction: column; gap: 4px; padding: 10px 0; }
-    .menu { flex-wrap: nowrap; justify-content: flex-start; gap: 18px; max-width: 100%; overflow-x: auto; white-space: nowrap; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding: 0 4px; }
-    .menu::-webkit-scrollbar { display: none; }
-    .menu a { font-size: .9rem; flex: none; }
+    .menu { flex-wrap: wrap; justify-content: center; gap: 2px 16px; }
+    .menu a { font-size: .9rem; }
     .capa { padding: 150px 0 130px; }
     .sobre, .brote, .fotos { grid-template-columns: 1fr; gap: 22px; }
     section { padding: 48px 0; }
@@ -301,11 +294,6 @@
           Instagram
         </a>
       </div>
-      <a class="novidade" href="planejar-pedal/">
-        <span class="selo">Novo</span>
-        <span class="texto"><b>Planejar pedal</b>Desenhe a rota no mapa e veja subidas, terreno, vento e a previsão do tempo. Dá para imprimir o roadbook.</span>
-        <span class="seta" aria-hidden="true">&rarr;</span>
-      </a>
       <ul class="numeros" id="numeros" hidden aria-label="Números do canal no YouTube">
         <li><strong id="n-inscritos"></strong><span>inscritos</span></li>
         <li><strong id="n-visualizacoes"></strong><span>visualizações</span></li>
@@ -522,18 +510,19 @@
   document.querySelectorAll(".facade .tocar").forEach((b) => b.addEventListener("click", () => ativarPlayer(b.parentElement, true)));
 
   // A capa do último vídeo (a mesma que a lista de pedais usa, guardada no próprio site) serve de fundo do primeiro player
-  const linkUltimo = document.querySelector('.ultimo a[href*="watch?v="]');
-  if (linkUltimo) {
-    const id = (linkUltimo.href.match(/[?&]v=([\w-]+)/) || [])[1];
-    const botaoUltimos = document.querySelector("#player-ultimos .tocar");
-    if (id && botaoUltimos) {
-      const img = new Image();
-      img.onload = () => { botaoUltimos.style.backgroundImage = 'url("pedais/capas/' + id + '.webp")'; };
-      img.src = "pedais/capas/" + id + ".webp";
-    }
+  function fundoDoPlayer(botao, endereco) {
+    if (!botao) return;
+    const img = new Image();
+    img.onload = () => { botao.style.backgroundImage = 'url("' + endereco + '")'; };
+    img.onerror = () => { botao.style.backgroundImage = ""; };      // sem a capa, fica o fundo liso
+    img.src = endereco;
   }
+  const linkUltimo = document.querySelector('.ultimo a[href*="watch?v="]');
+  const idUltimo = linkUltimo ? (linkUltimo.href.match(/[?&]v=([\w-]+)/) || [])[1] : null;
+  if (idUltimo) fundoDoPlayer(document.querySelector("#player-ultimos .tocar"), "pedais/capas/" + idUltimo + ".webp");
 
   // Escolher uma playlist troca o que o player mostra e o link "Abrir no YouTube"
+  fundoDoPlayer(document.querySelector("#player-playlist .tocar"), "capas-playlists/" + document.querySelector(".chip[aria-pressed=true]").dataset.lista + ".webp");
   const botoes = document.querySelectorAll(".chip");
   const player = document.getElementById("player-playlist");
   const abrir = document.getElementById("abrir-playlist");
@@ -544,7 +533,10 @@
       player.dataset.src = "https://www.youtube-nocookie.com/embed/videoseries?list=" + lista;
       const iframe = player.querySelector("iframe");
       if (iframe) iframe.src = player.dataset.src;                       // o player já está aberto: troca a lista
-      else player.querySelector(".rotulo").textContent = "Tocar a playlist " + botao.textContent;
+      else {
+        player.querySelector(".rotulo").textContent = "Tocar a playlist " + botao.textContent;
+        fundoDoPlayer(player.querySelector(".tocar"), "capas-playlists/" + lista + ".webp");      // a capa do vídeo mais novo da playlist escolhida
+      }
       abrir.href = "https://www.youtube.com/playlist?list=" + lista;
     });
   });

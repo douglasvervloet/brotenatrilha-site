@@ -48,6 +48,8 @@
   .controles button { font: inherit; font-weight: 700; min-width: 44px; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 2px solid rgba(255, 255, 255, .35);
                       background: rgba(12, 23, 17, .82); color: #fff; cursor: pointer; backdrop-filter: blur(4px); }
   .controles button:hover { border-color: var(--ambar); }
+  .controles #regiao, .controles #estado { display: inline-flex; align-items: center; gap: 8px; }
+  .controles #regiao svg, .controles #estado svg { width: 17px; height: 17px; flex: none; }
   .controles .mais, .controles .menos { font-size: 1.5rem; line-height: 1; padding: 0; }
   .credito, .nota { margin-top: 14px; color: var(--suave); font-size: .88rem; }
   .todos { margin-top: 18px; }
@@ -73,8 +75,8 @@
     {{SVG}}
     <div class="controles" id="controles" hidden>
       <div class="par"><button type="button" class="mais" id="mais" aria-label="Aproximar">+</button><button type="button" class="menos" id="menos" aria-label="Afastar">&minus;</button></div>
-      <button type="button" id="regiao">Região principal</button>
-      <button type="button" id="estado">Estado inteiro</button>
+      <button type="button" id="regiao"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>Região principal</button>
+      <button type="button" id="estado"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>Estado inteiro</button>
     </div>
   </div>
   <p class="nota">Role (ou use os botões) para aproximar e arraste para mover. Passe o mouse (ou toque) numa linha para ver o pedal e abrir a página dele. Os começos e os fins dos percursos ficam de fora.</p>

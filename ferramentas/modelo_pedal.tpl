@@ -150,6 +150,7 @@
   .lugares td:nth-child(2) { color: var(--texto); font-weight: 600; }
   .lugares .km { white-space: nowrap; font-variant-numeric: tabular-nums; width: 1%; }
   .lugares.recolhido tr.extra { display: none; }
+  .mais-lugares svg { width: 16px; height: 16px; }
   .mais-lugares { margin-top: 12px; font: inherit; font-weight: 700; font-size: .9rem; cursor: pointer; }
   .nota-gpx { margin: 10px 0 0; font-size: .8rem; color: var(--suave); }
   .nota-lugares { margin: 10px 0 0; font-size: .8rem; color: var(--suave); }
@@ -224,7 +225,7 @@
     <a class="strava" href="https://www.strava.com" target="_blank" rel="noopener"><img src="/strava_powered_by.png" width="197" height="20" alt="Powered by Strava" loading="lazy" decoding="async"></a>
   </div>
 </footer>
-<script>document.querySelectorAll(".mais-lugares").forEach(function (b) {var s = b.closest(".lugares"), n = b.dataset.total; s.classList.add("recolhido"); b.hidden = false;b.addEventListener("click", function () {var fechado = s.classList.toggle("recolhido"); b.setAttribute("aria-expanded", fechado ? "false" : "true");b.textContent = fechado ? "Mostrar todos os " + n : "Mostrar menos";});});</script>
+<script>document.querySelectorAll(".mais-lugares").forEach(function (b) {var s = b.closest(".lugares"), n = b.dataset.total; s.classList.add("recolhido"); b.hidden = false;b.addEventListener("click", function () {var fechado = s.classList.toggle("recolhido"); b.setAttribute("aria-expanded", fechado ? "false" : "true");b.innerHTML = fechado ? "Mostrar todos os " + n + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' : 'Mostrar menos<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>';});});</script>
 <script>
 /* Perfil de altimetria ligado ao mapa. Passar o mouse (ou tocar) no gráfico mostra o ponto no mapa; passar no traçado do mapa mostra o ponto no
    gráfico. A posição no mapa vem da fração da distância percorrida aplicada ao comprimento do traçado desenhado (getPointAtLength). */

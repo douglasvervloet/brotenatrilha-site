@@ -45,7 +45,8 @@
   .corpo h2 { margin: 0; font-size: 1.15rem; line-height: 1.3; }
   .data { margin: 0; color: var(--suave); font-size: .88rem; }
   .texto { margin: 4px 0 0; color: var(--texto); font-size: .95rem; }
-  .abrir { margin-top: auto; padding-top: 8px; font-weight: 700; color: var(--verde-escuro); text-decoration: none; }
+  .abrir svg { width: 16px; height: 16px; flex: none; }
+  .abrir { display: inline-flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 8px; font-weight: 700; color: var(--verde-escuro); text-decoration: none; }
   .abrir:hover { text-decoration: underline; }
   @media (prefers-color-scheme: dark) { .abrir { color: #7fcf9d; } }
   .aviso-afiliado { margin: 0 0 18px; padding: 12px 16px; border: 1px solid var(--linha); border-left: 4px solid var(--ambar); border-radius: 12px; background: var(--cartao); color: var(--texto-suave, var(--suave, inherit)); font-size: .92rem; line-height: 1.45; }

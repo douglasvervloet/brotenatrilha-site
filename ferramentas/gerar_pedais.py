@@ -656,7 +656,6 @@ ESTATICAS = [("https://brotenatrilha.com.br/privacidade/", "2026-10-12"), ("http
             ("https://brotenatrilha.com.br/ferramentas/categoria-de-subida/", "2026-11-16"),
             ("https://brotenatrilha.com.br/ferramentas/calculadora-de-raios/", "2026-11-16"),
             ("https://brotenatrilha.com.br/ferramentas/pressao-dos-pneus/", "2026-11-17"),
-            ("https://brotenatrilha.com.br/ferramentas/subidas-do-gpx/", "2026-11-16"),
             ("https://brotenatrilha.com.br/planejar-pedal/", "2026-11-17")]
 
 
@@ -1488,7 +1487,7 @@ def bloco_lugares(p):
             juntas.append([km, lugar, [cidade]])
     corpo = "".join(f"<tr{' class=\"extra\"' if i >= LUGARES_VISIVEIS else ''}><td class=\"km\">{num(km, 1)}</td><td>{html.escape(lugar)}</td>"
                     f"<td>{html.escape(' / '.join(cidades))}</td></tr>" for i, (km, lugar, cidades) in enumerate(juntas))
-    botao = (f'<button type="button" class="botao claro mais-lugares" data-total="{len(juntas)}" aria-expanded="false" hidden>Mostrar todos os {len(juntas)}</button>'
+    botao = (f'<button type="button" class="botao claro mais-lugares" data-total="{len(juntas)}" aria-expanded="false" hidden>Mostrar todos os {len(juntas)}{ICONE_BAIXO}</button>'
              if len(juntas) > LUGARES_VISIVEIS else "")   # sem JavaScript o botão fica escondido e a lista aparece inteira
     return ('<section class="lugares"><h2>Por onde passa</h2><table><thead><tr><th>Km</th><th>Bairro ou localidade</th><th>Município</th></tr></thead>'
             '<tbody>' + corpo + '</tbody></table>' + botao +
@@ -1821,6 +1820,9 @@ def mapa_do_pedal(p):
 
 ICONE_TOCAR = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>'                       # os ícones dos botões de ação (traço fino, como os do Planejar pedal)
 ICONE_BAIXAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>'
+ICONE_MAPA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>'
+ICONE_CAPA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5v5l4.5-2.5z"/></svg>'
+ICONE_BAIXO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>'
 ICONE_ROTA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="6" r="2.3"/><path d="M8.3 18H14a3.5 3.5 0 0 0 0-7h-4a3.5 3.5 0 0 1 0-7h5.7"/></svg>'
 
 
@@ -1842,7 +1844,7 @@ def cartao(p):
     capa = (f'<div class="capa"><img src="capas/{p["_video"]["id"]}.webp" width="{CAPA_L}" height="{CAPA_L * 9 // 16}" '
             f'loading="lazy" decoding="async" alt="Capa do vídeo {titulo}"></div>') if p.get("_capa") else ""
     # O botão de trocar a imagem só deste cartão (aparece com JavaScript; sem ele fica a capa); fora do link, que não pode ter botão dentro
-    alterna = ('<button type="button" class="alterna" hidden aria-pressed="false" aria-label="Ver o mapa deste pedal">Ver mapa</button>'
+    alterna = ('<button type="button" class="alterna" hidden aria-pressed="false" aria-label="Ver o mapa deste pedal">' + ICONE_MAPA + 'Ver mapa</button>'
                if capa else "")
     return f"""      <article class="pedal{"" if capa else " sem-capa"}" data-ano="{p["start_date_local"][:4]}" data-km="{km:.1f}" data-nome="{html.escape(normalizar(p["name"] + " " + titulo_exibido(p) + " " + " ".join(p.get("_passa", []))))}" data-subida="{nivel_da_subida(p)}" data-terreno="{terreno_do_pedal(p)}" data-sai="{slug_texto(p.get("_sai") or "")}" data-chega="{slug_texto(p.get("_chega") or "")}" data-passa="|{"|".join(slug_texto(c) for c in p.get("_passa", []))}|">
         <div class="imagem">

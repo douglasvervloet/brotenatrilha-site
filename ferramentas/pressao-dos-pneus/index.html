@@ -69,7 +69,8 @@
   .passos li::before { content: counter(p); flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--verde); color: #fff; font-weight: 800; }
   .passos b { display: block; }
   .passos span { color: var(--suave); font-size: .95rem; }
-  .botao-silca { display: inline-block; margin-top: 8px; padding: 13px 28px; border-radius: 999px; background: var(--verde); border: 2px solid var(--verde); color: #fff; font-weight: 800; text-decoration: none; }
+  .botao-silca svg { width: 18px; height: 18px; flex: none; }
+  .botao-silca { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; padding: 13px 28px; border-radius: 999px; background: var(--verde); border: 2px solid var(--verde); color: #fff; font-weight: 800; text-decoration: none; }
   .botao-silca:hover { background: var(--verde-escuro); }
   .peso { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-top: 12px; }
   .aviso-seguranca { border-left: 4px solid var(--ambar); padding: 10px 16px; background: var(--cartao); border-radius: 0 12px 12px 0; margin-top: 22px; }
@@ -86,7 +87,7 @@
 <main class="miolo">
   <div class="painel">
     <p style="margin:0 0 6px">A SILCA, marca de acessórios para bicicleta, oferece uma calculadora de pressão para ciclistas. O cálculo é feito no site deles: aqui você vê o que ela pede e como achar cada dado.</p>
-    <a class="botao-silca" href="https://silca.cc/pages/pro-tire-pressure-calculator" target="_blank" rel="noopener noreferrer">Abrir a calculadora da SILCA</a>
+    <a class="botao-silca" href="https://silca.cc/pages/pro-tire-pressure-calculator" target="_blank" rel="noopener noreferrer">Abrir a calculadora da SILCA<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
     <p class="nota" style="margin-top:10px">Abre em outra aba, em inglês. O que você preencher vai para a SILCA, e não para este site.</p>
   </div>
 

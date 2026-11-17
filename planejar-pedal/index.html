@@ -88,6 +88,7 @@
   .leg-terreno .amostra { width: 24px; margin-right: 8px; vertical-align: middle; outline-color: rgba(255, 255, 255, .7); }
   .leg-terreno small { display: block; opacity: .8; font-size: .74rem; }
   @media (max-width: 560px) { .leg-terreno { top: auto; bottom: 62px; right: 12px; } }
+  @media (max-width: 760px) and (pointer: coarse) { .mapa { height: min(56vh, 520px); height: min(56dvh, 520px); min-height: 340px; } }      /* celular: o mapa não toma a tela inteira, sobra página para rolar com o dedo (no mapa o dedo move o mapa) */
   @media (max-width: 560px) {                                       /* celular: a primeira linha da barra só com ícones (cabe em uma linha) e os botões de baixo, dois por linha */
     .linha1 .bt { display: inline-flex; align-items: center; justify-content: center; width: 40px; padding: 0; font-size: 0; }
     .linha1 .bt svg.ic { margin: 0; width: 18px; height: 18px; }
@@ -100,7 +101,7 @@
   .menu-ponto[hidden] { display: none; }
   .menu-ponto .trecho { display: flex; align-items: center; gap: 6px; }
   .menu-ponto .trecho span { opacity: .85; margin-right: 4px; }
-  .menu-ponto button { font: inherit; font-weight: 700; min-height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .35); background: transparent; color: #fff; cursor: pointer; }
+  .menu-ponto button { display: inline-flex; align-items: center; gap: 7px; font: inherit; font-weight: 700; min-height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .35); background: transparent; color: #fff; cursor: pointer; }
   .menu-ponto button[aria-pressed="true"] { background: #2d7046; border-color: #fff; }
   .menu-ponto .remover { border-color: rgba(232, 135, 58, .8); color: #ffd2b0; }
   #rota g.apoio, #rota g.apoio *, #rota g.interesse, #rota g.interesse * { pointer-events: auto; cursor: pointer; }
@@ -152,9 +153,11 @@
   .passeio p { margin: 6px 0 12px; color: #dcebe0; font-size: .92rem; line-height: 1.45; }
   .passeio-botoes { display: flex; align-items: center; gap: 8px; }
   .passeio-botoes span { flex: 1; }
-  .passeio-botoes button { font: inherit; font-weight: 700; padding: 7px 16px; border-radius: 999px; cursor: pointer; border: 2px solid var(--verde); background: var(--verde); color: #fff; }
+  .passeio-botoes button { display: inline-flex; align-items: center; gap: 7px; font: inherit; font-weight: 700; padding: 7px 16px; border-radius: 999px; cursor: pointer; border: 2px solid var(--verde); background: var(--verde); color: #fff; }
   .passeio-botoes button.sem-fundo { background: transparent; border-color: rgba(255, 255, 255, .35); }
   .passeio-botoes button[hidden] { display: none; }
+  .menu-ponto button svg.ic, .passeio-botoes button svg.ic, .popup button svg.ic { width: 15px; height: 15px; flex: none; }
+  .popup button { display: inline-flex; align-items: center; gap: 8px; }
   .passo-alvo { outline: 3px solid var(--ambar); outline-offset: 4px; border-radius: 14px; }
   .popup b { display: flex; align-items: center; gap: 10px; font-size: 1rem; }
   .popup b i { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--ambar); color: #2a1a00; font-style: normal; font-weight: 800; }
@@ -165,9 +168,11 @@
   .opcao input { width: 18px; height: 18px; accent-color: var(--verde); }
   .previsao-grafico { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 10px 12px 4px; margin-top: 10px; }
   .previsao-grafico[hidden] { display: none; }
+  .previsao-grafico { overflow-x: auto; }
   .previsao-grafico svg { width: 100%; height: auto; display: block; }
   .previsao-grafico text { font-family: inherit; font-size: 13px; fill: var(--texto); }
   .previsao-grafico .eixo { fill: var(--suave); font-size: 12px; }
+  @media (max-width: 560px) { .previsao-grafico .eixo { font-size: 11px; } }
   .previsao-grafico [data-i] { cursor: pointer; }
   .vento-mapa { position: absolute; right: 12px; bottom: 34px; display: flex; align-items: center; gap: 10px; background: rgba(12, 23, 17, .9); color: #fff; border-radius: 14px; padding: 8px 14px; font-size: .85rem; pointer-events: none; }
   .vento-mapa[hidden] { display: none; }
@@ -223,6 +228,10 @@
   .cartao-interesse .dados { color: #f2c14e; font-size: .82rem; font-weight: 700; }
   .cartao-interesse p { margin: 0; color: #dcebe0; font-size: .85rem; line-height: 1.4; }
   .cartao-interesse a { color: #9fd3ff; font-size: .82rem; }
+  .mapa.maximizado { position: fixed; inset: 0; z-index: 40; width: auto; height: 100vh !important; height: 100dvh !important; min-height: 0 !important; border-radius: 0; border: 0; }
+  body.sem-rolagem { overflow: hidden; }
+  .dica-gestos { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 7; max-width: 80%; padding: 10px 16px; border-radius: 14px; background: rgba(12, 23, 17, .92); color: #fff; font-weight: 700; font-size: .9rem; text-align: center; pointer-events: none; opacity: 0; transition: opacity .2s; }
+  .dica-gestos.ativa { opacity: 1; }
   .zoom { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; }
   .zoom .bt { width: 44px; padding: 0; font-size: 1.4rem; line-height: 1; }
   .dica[hidden] { display: none; }
@@ -314,20 +323,21 @@
         <button class="grudar" type="button" id="b-interesses" aria-pressed="false" title="Mirantes, praias, cachoeiras, locais históricos e outros pontos de interesse a até 1 km da rota (só no Espírito Santo)"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>Pontos de interesse</button>
       </div>
     </div>
-    <div class="zoom"><button class="bt" type="button" id="b-mais" aria-label="Aproximar" title="Aproximar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button class="bt" type="button" id="b-menos" aria-label="Afastar" title="Afastar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button><button class="bt" type="button" id="b-local" aria-label="Minha localização" title="Minha localização"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button><button class="bt" type="button" id="b-info" aria-label="Como usar o mapa" aria-expanded="false" title="Como usar o mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.2M12 7.6v.01"/></svg></button><button class="bt" type="button" id="b-estilo" aria-label="Estilo do mapa" aria-expanded="false" title="Estilo do mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="m2 13 10 5 10-5"/></svg></button></div>
+    <div class="zoom"><button class="bt" type="button" id="b-mais" aria-label="Aproximar" title="Aproximar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button class="bt" type="button" id="b-menos" aria-label="Afastar" title="Afastar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button><button class="bt" type="button" id="b-local" aria-label="Minha localização" title="Minha localização"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button><button class="bt" type="button" id="b-info" aria-label="Como usar o mapa" aria-expanded="false" title="Como usar o mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.2M12 7.6v.01"/></svg></button><button class="bt" type="button" id="b-estilo" aria-label="Estilo do mapa" aria-expanded="false" title="Estilo do mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="m2 13 10 5 10-5"/></svg></button><button class="bt" type="button" id="b-max" aria-label="Mapa em tela cheia" title="Mapa em tela cheia" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>
+    <div class="dica-gestos" id="dica-gestos" aria-hidden="true">Use dois dedos para mover o mapa</div>
     <div class="estilos" id="painel-estilos" role="group" aria-label="Estilo do mapa" hidden><h4>Estilo do mapa</h4><div class="grade"><button type="button" class="op" data-estilo="relevo" aria-pressed="true"><img src="estilo-relevo.webp" width="150" height="100" alt="">Relevo</button><button type="button" class="op" data-estilo="ruas" aria-pressed="false"><img src="estilo-ruas.webp" width="150" height="100" alt="">Ruas</button><button type="button" class="op" data-estilo="escuro" aria-pressed="false"><img src="estilo-escuro.webp" width="150" height="100" alt="">Escuro</button></div><small>Cada estilo pede os quadros do mapa a um servidor aberto diferente.</small></div>
     <div class="toast" id="aviso-local" role="status" aria-live="polite" hidden></div>
     <div class="leg-terreno" id="leg-terreno" hidden></div>
     <div class="leg-piso" id="leg-piso" hidden></div>
     <div class="vento-mapa" id="vento-mapa" hidden><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><g id="vento-seta"><path d="M17 3L27 29L17 23L7 29Z" fill="#9fd3ff" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></g></svg><span id="vento-texto"></span></div>
-    <div class="popup" id="popup" role="dialog" aria-labelledby="popup-titulo" hidden><b id="popup-titulo"></b><p id="popup-texto"></p><button type="button" id="popup-ok">Entendi</button></div>
+    <div class="popup" id="popup" role="dialog" aria-labelledby="popup-titulo" hidden><b id="popup-titulo"></b><p id="popup-texto"></p><button type="button" id="popup-ok"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Entendi</button></div>
     <div class="menu-ponto" id="menu-ponto" hidden>
-      <div class="trecho" id="menu-trecho"><span>Trecho até aqui</span><button type="button" data-modo="ruas">Ruas</button><button type="button" data-modo="livre">Livre</button></div>
-      <button type="button" class="remover" id="menu-remover">Remover ponto</button>
+      <div class="trecho" id="menu-trecho"><span>Trecho até aqui</span><button type="button" data-modo="ruas"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="6" r="2.3"/><path d="M8.3 18H14a3.5 3.5 0 0 0 0-7h-4a3.5 3.5 0 0 1 0-7h5.7"/></svg>Ruas</button><button type="button" data-modo="livre"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20L20 4"/></svg>Livre</button></div>
+      <button type="button" class="remover" id="menu-remover"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>Remover ponto</button>
     </div>
     <div class="menu-ponto" id="menu-traco" hidden>
       <b id="traco-titulo"></b>
-      <button type="button" id="traco-abrir">Abrir este pedal</button>
+      <button type="button" id="traco-abrir"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l3.5-8h5l3.5 8M9.5 9L13 17M9 6h2.5"/></svg>Abrir este pedal</button>
       <a id="traco-link" href="#" target="_blank" rel="noopener">Ver a página do pedal</a>
     </div>
     <div class="cartao-interesse" id="cartao-interesse" hidden>
@@ -352,7 +362,7 @@
     <small id="passeio-n"></small>
     <b id="passeio-titulo"></b>
     <p id="passeio-texto"></p>
-    <div class="passeio-botoes"><button type="button" id="passeio-pular" class="sem-fundo">Pular</button><span></span><button type="button" id="passeio-volta" class="sem-fundo">Anterior</button><button type="button" id="passeio-segue">Próximo</button></div>
+    <div class="passeio-botoes"><button type="button" id="passeio-pular" class="sem-fundo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5l9 7-9 7z"/><path d="M18 5v14"/></svg>Pular</button><span></span><button type="button" id="passeio-volta" class="sem-fundo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Anterior</button><button type="button" id="passeio-segue">Próximo<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
   </div>
   <div class="minhas" id="painel-minhas" hidden>
     <div class="salvar"><button type="button" id="b-salvar" disabled title="Salvar esta rota neste navegador"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg>Salvar rota</button></div>
@@ -411,7 +421,7 @@
     <h2>Subidas da rota</h2>
     <div class="tabela"><table id="tabela"></table></div>
   </div>
-  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled title="Copiar o link da rota"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="rot">Copiar link</span></button><button class="sec" type="button" id="b-subidas" disabled title="Ver no Subidas do seu GPX"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19l6-10 4 6 3-4 5 8z"/></svg>Ver subidas</button><button class="sec" type="button" id="b-roadbook" disabled title="Roadbook para imprimir"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Roadbook</button><button class="sec" type="button" id="b-imagem" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 3.5 3L16 12l4.5 4.5"/></svg>Salvar imagem</button></div>
+  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled title="Copiar o link da rota"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="rot">Copiar link</span></button><button class="sec" type="button" id="b-roadbook" disabled title="Roadbook para imprimir"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Roadbook</button><button class="sec" type="button" id="b-imagem" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 3.5 3L16 12l4.5 4.5"/></svg>Salvar imagem</button></div>
   <p class="nota">A altitude vem do relevo do mapa (SRTM), a cada 25 m ao longo da linha, e pode diferir da de um aparelho de GPS. O ganho total ignora oscilações de até 12 m, ajustado com os pedais do canal contra o Strava (erro médio de uns 12%). O GPX baixado traz só o traçado e a altitude. Com “Grudar nas ruas” desligado as linhas são retas entre os pontos: para seguir uma curva, clique com mais frequência.</p>
   <p class="nota">O link guarda a rota no próprio endereço, depois do “#”: o navegador não envia essa parte a nenhum servidor. Quem abrir o link vê a mesma rota; o “Grudar nas ruas” é ligado por cada pessoa. Um pedal aberto do canal vai simplificado no link (só os pontos, sem o caminho inteiro).</p>
 </main>
@@ -814,7 +824,7 @@
         var alvoApoio = e.target.closest ? e.target.closest(".apoio") : null, alvoTraco = e.target.closest ? e.target.closest(".traco") : null, alvoInteresse = e.target.closest ? e.target.closest(".interesse") : null;
         gesto = { tipo: i !== undefined ? "ponto" : "mapa", i: Number(i), apoio: alvoApoio ? Number(alvoApoio.dataset.a) : null, traco: alvoTraco ? Number(alvoTraco.dataset.t) : null, interesse: alvoInteresse ? Number(alvoInteresse.dataset.j) : null, x0: e.clientX, y0: e.clientY, moveu: false };
       } else if (Object.keys(dedos).length === 2) {
-        gesto = { tipo: "pinca", d0: distanciaDosDedos(), moveu: true };
+        gesto = { tipo: "pinca", d0: distanciaDosDedos(), moveu: true, meio: null };
       }
     });
     caixa.addEventListener("pointermove", function (e) {
@@ -824,6 +834,8 @@
       if (gesto.tipo === "pinca") {                                // pinça: um nível de zoom a cada 1,5x
         var d = distanciaDosDedos(), k = Object.keys(dedos), r = caixa.getBoundingClientRect();
         var meio = { x: (dedos[k[0]].x + dedos[k[1]].x) / 2 - r.left, y: (dedos[k[0]].y + dedos[k[1]].y) / 2 - r.top };
+        if (gesto.meio) { centro.x -= meio.x - gesto.meio.x; centro.y -= meio.y - gesto.meio.y; redesenhar(); }      // dois dedos movem o mapa
+        gesto.meio = meio;
         if (d > gesto.d0 * 1.5) { dar_zoom(1, meio); gesto.d0 = d; } else if (d < gesto.d0 / 1.5) { dar_zoom(-1, meio); gesto.d0 = d; }
         return;
       }
@@ -833,7 +845,10 @@
         if (gesto.tipo === "ponto") guardar();
       }
       if (!gesto.moveu) return;
-      if (gesto.tipo === "mapa") {
+      if (gesto.tipo === "mapa" && e.pointerType === "touch" && !caixa.classList.contains("maximizado")) {      // um dedo no mapa rola a página (dois dedos movem o mapa; na tela cheia um dedo move)
+        window.scrollBy(0, anterior.y - e.clientY);
+        mostrarDicaDeGestos();
+      } else if (gesto.tipo === "mapa") {
         centro.x -= e.clientX - anterior.x;
         centro.y -= e.clientY - anterior.y;
         redesenhar();
@@ -1052,7 +1067,7 @@
       v.hidden = !!erroDeRede; v.textContent = texto;
       e.hidden = !erroDeRede; e.textContent = erroDeRede ? texto : "";
       pontosGpx = null; calculo = null; ultimoTotal = 0;
-      document.getElementById("b-gpx").disabled = document.getElementById("b-subidas").disabled = document.getElementById("b-roadbook").disabled = document.getElementById("b-imagem").disabled = true;
+      document.getElementById("b-gpx").disabled = document.getElementById("b-roadbook").disabled = document.getElementById("b-imagem").disabled = true;
     }
     function calcular() {
       var minha = ++versao;
@@ -1066,7 +1081,7 @@
         document.getElementById("vazio").hidden = true;
         mostrar(pts);
         document.getElementById("n-dist").textContent = fmt(total / 1000, 1) + " km";           // o comprimento da linha desenhada, igual ao do rótulo no mapa
-        document.getElementById("b-gpx").disabled = document.getElementById("b-subidas").disabled = document.getElementById("b-roadbook").disabled = document.getElementById("b-imagem").disabled = false;
+        document.getElementById("b-gpx").disabled = document.getElementById("b-roadbook").disabled = document.getElementById("b-imagem").disabled = false;
         var perfil = perfilDe(pts), alt = altitudes(perfil);                                     // guarda o cálculo para colorir a linha e para o marcador do gráfico
         calculo = { perfil: perfil, alt: alt, subidas: subidasDe(alt) };
         ultimoTotal = total;
@@ -1094,11 +1109,6 @@
       a.href = url; a.download = "rota-brote-na-trilha.gpx";
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
-    });
-    document.getElementById("b-subidas").addEventListener("click", function () {      // leva a rota para a página "Subidas do seu GPX" (a página lê do navegador, nada é enviado)
-      if (!pontosGpx) return;
-      try { sessionStorage.setItem("gpx-desenhado", gpxTexto(pontosGpx)); } catch (x) { return; }
-      location.href = "/ferramentas/subidas-do-gpx/?de=rota";
     });
 
 
@@ -1321,10 +1331,12 @@
       caixa.hidden = false;
     }
     function desenharGraficoDoTempo(horas) {                        // quatro faixas pelas horas do pedal: temperatura, vento (com a direção), céu (nuvens) e chuva
-      var n = horas.length, ml = 100, W = 876, passo = W / n, x = function (i) { return ml + passo * (i + 0.5); }, s = "", fonte = passo < 62 ? 11 : 13;
+      var n = horas.length, svgTempo = document.getElementById("grafico-tempo"), disponivel = Math.round(svgTempo.parentNode.clientWidth - 24) || 1000;
+      var larg = Math.max(320, Math.min(1000, disponivel)), estreito = larg < 600, ml = estreito ? 62 : 100;      // no celular o gráfico é desenhado em tamanho real (1 unidade = 1 px), com 44 px por hora; passando da largura, rola para o lado
+      var W = estreito ? Math.max(larg - ml - 8, 44 * n) : larg - ml - 24, total = ml + W + (estreito ? 8 : 24), passo = W / n, x = function (i) { return ml + passo * (i + 0.5); }, s = "", fonte = passo < 62 ? 11 : 13;
       var faixa = function (y1, titulo, meio) { return '<line x1="' + ml + '" y1="' + y1 + '" x2="' + (ml + W) + '" y2="' + y1 + '" stroke="var(--linha)"/><text class="eixo" x="' + (ml - 12) + '" y="' + meio + '" text-anchor="end">' + titulo + "</text>"; };
       s += '<rect x="' + (ml + passo * horaDoVento).toFixed(1) + '" y="12" width="' + passo.toFixed(1) + '" height="330" rx="10" fill="var(--verde)" opacity=".16"/>';
-      s += faixa(92, "Temp. (°C)", 62) + faixa(190, "Vento (km/h)", 156) + '<text class="eixo" x="' + (ml - 12) + '" y="172" text-anchor="end" style="font-size:11px">velocidade–rajada</text>' + faixa(262, "Céu (nuvens)", 242) + faixa(334, "Chuva (%)", 314);
+      s += faixa(92, estreito ? "Temp." : "Temp. (°C)", 62) + faixa(190, estreito ? "Vento" : "Vento (km/h)", 156) + '<text class="eixo" x="' + (ml - 12) + '" y="172" text-anchor="end" style="font-size:11px">' + (estreito ? "vel.–raj." : "velocidade–rajada") + '</text>' + faixa(262, estreito ? "Céu" : "Céu (nuvens)", 242) + faixa(334, estreito ? "Chuva" : "Chuva (%)", 314);
       var temps = horas.map(function (q) { return q.temp; }), tmin = Math.min.apply(null, temps) - 2, tmax = Math.max.apply(null, temps) + 2;
       var yT = function (v) { return 92 - (v - tmin) / (tmax - tmin) * 50; };
       s += '<polyline points="' + horas.map(function (q, i) { return x(i).toFixed(1) + "," + yT(q.temp).toFixed(1); }).join(" ") + '" fill="none" stroke="#e8873a" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>';
@@ -1335,7 +1347,7 @@
         s += '<line x1="' + x(i).toFixed(1) + '" y1="' + yV(q.vel).toFixed(1) + '" x2="' + x(i).toFixed(1) + '" y2="' + yV(q.raj).toFixed(1) + '" stroke="#3a9ad9" stroke-width="1.6" opacity=".5"/>' +
           '<circle cx="' + x(i).toFixed(1) + '" cy="' + yV(q.raj).toFixed(1) + '" r="3.6" fill="var(--cartao)" stroke="#3a9ad9" stroke-width="1.8"/>' +
           '<g transform="translate(' + x(i).toFixed(1) + " " + yV(q.vel).toFixed(1) + ") rotate(" + (q.dir + 180) + ')"><path d="M0 -9L6 6L0 2.5L-6 6Z" fill="#3a9ad9" stroke="#fff" stroke-width="1" stroke-linejoin="round"/></g>' +
-          '<text x="' + x(i).toFixed(1) + '" y="' + (yV(q.raj) - 9).toFixed(1) + '" text-anchor="middle" style="font-size:' + fonte + 'px">' + Math.round(q.vel) + "–" + Math.round(q.raj) + " " + pontoCardeal(q.dir) + "</text>";
+          '<text x="' + x(i).toFixed(1) + '" y="' + (yV(q.raj) - 9).toFixed(1) + '" text-anchor="middle" style="font-size:' + fonte + 'px">' + Math.round(q.vel) + "–" + Math.round(q.raj) + (passo < 56 ? "" : " " + pontoCardeal(q.dir)) + "</text>";
       });
       var largura = Math.min(34, passo * 0.55);
       horas.forEach(function (q, i) {
@@ -1348,8 +1360,11 @@
         s += '<text class="eixo" x="' + x(i).toFixed(1) + '" y="360" text-anchor="middle">' + dois(q.h % 24) + "h</text>";
         s += '<rect data-i="' + i + '" x="' + (ml + passo * i).toFixed(1) + '" y="12" width="' + passo.toFixed(1) + '" height="330" fill="transparent"/>';
       });
-      document.getElementById("grafico-tempo").innerHTML = s;
+      svgTempo.setAttribute("viewBox", "0 0 " + total + " 372");
+      svgTempo.style.width = estreito ? total + "px" : "";
+      svgTempo.innerHTML = s;
     }
+    window.addEventListener("resize", function () { if (horasPrevistas && horasPrevistas.length && !document.getElementById("previsao-grafico").hidden) desenharGraficoDoTempo(horasPrevistas); });
     function atualizarVentoNoMapa() {                              // o selo com a seta e a velocidade, e as setas espalhadas no mapa
       var selo = document.getElementById("vento-mapa");
       if (!ventoNoMapa) { selo.hidden = true; desenharRota(); return; }
@@ -1369,7 +1384,7 @@
     document.getElementById("grafico-tempo").addEventListener("click", function (e) { var c = e.target.closest ? e.target.closest("[data-i]") : null; if (c) escolherHoraDoVento(Number(c.dataset.i)); });
     document.getElementById("b-previsao").addEventListener("click", function () {      // liga e desliga; ligada, ela se atualiza sozinha quando a data, a hora ou a rota mudam
       previsaoLigada = !previsaoLigada;
-      this.textContent = previsaoLigada ? "Esconder a previsão" : "Ver a previsão para a saída";
+      this.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a4 4 0 0 1 .5-8A5.5 5.5 0 0 1 18 11.5 3.3 3.3 0 0 1 17.5 18z"/></svg>' + (previsaoLigada ? "Esconder previsão" : "Ver previsão");
       if (previsaoLigada) buscarPrevisao(); else { versaoPrevisao++; estadoDaPrevisao(""); esconderPrevisao(); }
     });
 
@@ -2191,7 +2206,7 @@
         ".numeros{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.numeros div{border:1px solid #dcd8c9;border-radius:10px;padding:8px 12px}.numeros span{display:block;font-size:.78rem;color:#4d5e53}.numeros b{font-size:1.2rem}" +
         "table{border-collapse:collapse;width:100%;font-size:.88rem}th,td{border-bottom:1px solid #dcd8c9;padding:5px 8px;text-align:left}th{background:#f2efe6}svg{width:100%;height:auto;max-height:430px;display:block}svg text{font-family:inherit;fill:#4d5e53;font-size:12px}" +
         ".nota{font-size:.8rem;color:#4d5e53}.imprimir{margin:12px 0;padding:10px 22px;border-radius:999px;border:0;background:#2d7046;color:#fff;font-weight:700;font-size:1rem;cursor:pointer}@page{size:A4;margin:12mm}@media print{.imprimir{display:none}h2,table,svg{break-inside:avoid}body{padding:0}}";
-      return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Roadbook · ' + htmlSeguro(nome) + "</title><style>" + css + '</style></head><body><button class="imprimir" onclick="window.print()">Imprimir ou salvar em PDF</button>' + h.join("") + "</body></html>";
+      return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Roadbook · ' + htmlSeguro(nome) + "</title><style>" + css + '</style></head><body><button class="imprimir" onclick="window.print()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-3px;margin-right:8px"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Imprimir ou salvar em PDF</button>' + h.join("") + "</body></html>";
     }
     document.getElementById("b-roadbook").addEventListener("click", function () {
       var janela = window.open("", "_blank"), msg = document.getElementById("msg-pedal");
@@ -2207,7 +2222,7 @@
 
     // ---- o passeio guiado: cada passo explica uma parte da tela; o alvo ganha contorno e o cartão fica fixo embaixo ----
     var PASSOS_DO_PASSEIO = [
-      { alvo: "#mapa", titulo: "Clique no mapa", texto: "Cada clique põe um ponto da rota. Clique na linha para inserir um ponto no meio, arraste um ponto para ajustar e clique nele para mais opções." },
+      { alvo: "#mapa", titulo: "Clique no mapa", texto: "Cada clique põe um ponto da rota. Clique na linha para inserir um ponto no meio, arraste um ponto para ajustar e clique nele para mais opções. No celular, dois dedos movem o mapa e o botão de tela cheia o amplia." },
       { alvo: ".campos-do-topo", titulo: "Buscar um lugar e dar nome", texto: "Digite uma cidade ou um lugar e escolha na lista: o mapa vai direto até lá. O nome da rota sai na imagem e no roadbook." },
       { alvo: "#b-grupo-desenho", titulo: "Grudar nas ruas", texto: "Com a chave ligada, a rota segue as ruas entre os pontos. Dá para evitar rodovias ou ligar em linha reta (Trecho livre)." },
       { alvo: "#b-grupo-camadas", titulo: "Camadas do mapa", texto: "Terreno (asfalto, terra e calçamento), pontos de apoio, marcos de km, piso das ruas, pedais do canal e pontos de interesse com foto." },
@@ -2237,7 +2252,7 @@
       document.getElementById("passeio-texto").textContent = p.texto;
       document.getElementById("passeio-volta").hidden = n === 0;
       document.getElementById("passeio-pular").hidden = n === PASSOS_DO_PASSEIO.length - 1;
-      document.getElementById("passeio-segue").textContent = n === PASSOS_DO_PASSEIO.length - 1 ? "Concluir" : "Próximo";
+      document.getElementById("passeio-segue").innerHTML = n === PASSOS_DO_PASSEIO.length - 1 ? 'Concluir<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : 'Próximo<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
       cartao.hidden = false;
     }
     function abrirPasseio() {
@@ -2401,6 +2416,27 @@
         document.body.appendChild(link); link.click(); link.remove(); setTimeout(function () { URL.revokeObjectURL(link.href); }, 5000);
       }).catch(function () { msg.textContent = "Não consegui montar a imagem agora. Tente de novo."; msg.hidden = false; }).then(function () { botao.disabled = !calculo; });
     });
+
+    // ---- gestos no celular e mapa em tela cheia ----
+    var tempoDaDica = null;
+    function mostrarDicaDeGestos() {
+      var d = document.getElementById("dica-gestos");
+      d.classList.add("ativa");
+      clearTimeout(tempoDaDica);
+      tempoDaDica = setTimeout(function () { d.classList.remove("ativa"); }, 1400);
+    }
+    var ICONE_EXPANDIR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>', ICONE_REDUZIR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>';
+    function maximizarMapa(sim) {
+      caixa.classList.toggle("maximizado", sim);
+      document.body.classList.toggle("sem-rolagem", sim);
+      var b = document.getElementById("b-max");
+      b.setAttribute("aria-pressed", String(sim));
+      b.title = b.ariaLabel = sim ? "Sair da tela cheia" : "Mapa em tela cheia";
+      b.innerHTML = sim ? ICONE_REDUZIR : ICONE_EXPANDIR;
+      redesenhar();
+    }
+    document.getElementById("b-max").addEventListener("click", function () { maximizarMapa(!caixa.classList.contains("maximizado")); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && caixa.classList.contains("maximizado")) maximizarMapa(false); });
 
     // ---- o estilo do mapa ----
     var painel = document.getElementById("painel-estilos"), botaoEstilo = document.getElementById("b-estilo");

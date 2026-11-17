@@ -75,6 +75,7 @@ def resumo_da_descricao(texto):
 
 # Domínios de links de afiliado: vão com rel="sponsored" (o pedido do Google para link pago ou de comissão)
 AFILIADOS = ("s.click.aliexpress.com", "amzn.to", "shope.ee", "mercadolivre.com/sec", "magalu.lu")
+ICONE_TOCAR = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>'
 SELO_AFILIADO = '<span class="selo-afiliado" title="Link de afiliado: se você comprar por ele, o canal recebe uma comissão, sem custo extra para você">afiliado</span>'      # o selo ao lado de cada link pago: o aviso tem de estar à vista
 AVISO_AFILIADO = '<aside class="aviso-afiliado" role="note"><strong>Links de afiliado.</strong> Alguns links desta página são de afiliados e vêm marcados com &ldquo;afiliado&rdquo;. Se você comprar por eles, o canal recebe uma comissão, sem custo extra para você.</aside>'
 
@@ -134,7 +135,7 @@ def cartao(v):
       <p class="data">{data_longa(v["publicado"])}</p>
       {f'<p class="texto">{html.escape(texto)}</p>' if texto else ""}
       {extras}
-      <a class="abrir" href="https://www.youtube.com/watch?v={v["id"]}" target="_blank" rel="noopener">Assistir no YouTube</a>
+      <a class="abrir" href="https://www.youtube.com/watch?v={v["id"]}" target="_blank" rel="noopener">{ICONE_TOCAR}Assistir no YouTube</a>
     </div>
   </article>"""
 
