@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sobre o canal e o brote | Brote na Trilha</title>
+<meta name="description" content="O Brote na Trilha é um canal de pedais com amigos no Espírito Santo. E o que é o brote, o pão de milho pomerano que aparece no logo do canal.">
+<link rel="canonical" href="https://brotenatrilha.com.br/sobre/">
+<meta name="theme-color" content="#2d7046">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Brote na Trilha">
+<meta property="og:title" content="Sobre o canal e o brote | Brote na Trilha">
+<meta property="og:description" content="Um canal de pedais com amigos no Espírito Santo e a história do brote, o pão de milho pomerano.">
+<meta property="og:url" content="https://brotenatrilha.com.br/sobre/">
+<meta property="og:image" content="https://brotenatrilha.com.br/compartilhar.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="48x48" href="../favicon.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icone-512.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+  :root {
+    --verde: #2d7046;
+    --verde-escuro: #1e5434;
+    --verde-fundo: #163d27;
+    --ambar: #e8a33d;
+    --ambar-escuro: #c9851f;
+    --fundo: #f6f3ea;
+    --cartao: #ffffff;
+    --texto: #1c2a22;
+    --texto-suave: #4d5e53;
+    --linha: #dcd8c9;
+    --raio: 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fundo: #0f1a13;
+      --cartao: #172a1e;
+      --texto: #e9f0ea;
+      --texto-suave: #a9bbae;
+      --linha: #284534;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--fundo);
+    color: var(--texto);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  img { max-width: 100%; height: auto; display: block; }
+  picture { display: contents; }
+
+  .pular { position: absolute; left: -999px; top: 0; background: #fff; color: #000; padding: 8px 14px; z-index: 10; }
+  .pular:focus { left: 8px; top: 8px; }
+  :focus-visible { outline: 3px solid var(--ambar); outline-offset: 3px; border-radius: 4px; }
+
+  .miolo { width: min(1080px, 100% - 32px); margin-inline: auto; }
+
+  /* ---------- Topo ---------- */
+  .topo { position: absolute; inset: 0 0 auto 0; z-index: 5; }
+  .topo .miolo { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; }
+  .marca { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; font-weight: 700; letter-spacing: .2px; }
+  .marca img { width: 38px; height: 38px; }
+  .menu { display: flex; gap: 22px; }
+  .menu a { color: #e8f1ea; text-decoration: none; font-size: .95rem; padding: 6px 2px; border-bottom: 2px solid transparent; }
+  .menu a:hover { border-bottom-color: var(--ambar); }
+
+  /* ---------- Capa ---------- */
+  .capa {
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    text-align: center;
+    background:
+      radial-gradient(1200px 500px at 50% -10%, #3d8a58 0%, transparent 60%),
+      linear-gradient(180deg, var(--verde) 0%, var(--verde-fundo) 100%);
+    padding: 110px 0 150px;
+  }
+  .capa .miolo { position: relative; z-index: 2; }
+  .capa .logo { width: clamp(150px, 26vw, 230px); margin: 0 auto 18px; filter: drop-shadow(0 14px 28px rgba(0,0,0,.35)); }
+  .capa h1 { margin: 0; font-size: clamp(2.3rem, 7vw, 4rem); line-height: 1.05; letter-spacing: -.5px; }
+  .capa p { margin: 14px auto 0; max-width: 34ch; font-size: clamp(1.05rem, 2.6vw, 1.3rem); color: #dcebe0; }
+  .acoes { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 30px; }
+
+  .botao {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 13px 22px; border-radius: 999px;
+    font-weight: 700; text-decoration: none; font-size: 1rem;
+    border: 2px solid transparent;
+    transition: transform .15s ease, background .15s ease, border-color .15s ease;
+  }
+  .botao svg { width: 22px; height: 22px; flex: none; }
+  .botao:hover { transform: translateY(-2px); }
+  .botao.principal { background: var(--ambar); color: #1b2a1f; }
+  .botao.principal:hover { background: #f0b255; }
+  .botao.contorno { border-color: rgba(255,255,255,.55); color: #fff; }
+  .botao.contorno:hover { background: rgba(255,255,255,.12); border-color: #fff; }
+
+  /* números do canal (aparecem quando estatisticas.json existe) */
+  .numeros { display: flex; flex-wrap: wrap; gap: 14px 40px; justify-content: center; margin: 34px 0 0; padding: 0; list-style: none; }
+  .numeros[hidden] { display: none; }
+  .numeros li { text-align: center; }
+  .numeros strong { display: block; font-size: clamp(1.5rem, 4vw, 2rem); line-height: 1.1; color: var(--ambar); font-variant-numeric: tabular-nums; }
+  .numeros span { font-size: .82rem; letter-spacing: .6px; text-transform: uppercase; color: #cfe2d4; }
+
+  /* perfil de altimetria no pé da capa */
+  .perfil { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: 120px; z-index: 1; }
+  .perfil .fundo { fill: var(--fundo); }
+  .perfil .serra { fill: rgba(255,255,255,.07); }
+  .perfil .linha { fill: none; stroke: var(--ambar); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; opacity: .9; }
+
+  /* ---------- Seções ---------- */
+  section { padding: 40px 0; }
+  section:not(.fundo-claro) + section:not(.fundo-claro) { padding-top: 8px; }      /* duas seções seguidas sem fundo próprio: o espaço de uma só */
+  .titulo { margin: 0 0 8px; font-size: clamp(1.6rem, 4vw, 2.1rem); line-height: 1.2; letter-spacing: -.2px; }
+  .titulo::after { content: ""; display: block; width: 52px; height: 4px; border-radius: 2px; background: var(--ambar); margin-top: 10px; }
+  .lead { color: var(--texto-suave); max-width: 60ch; margin: 14px 0 0; }
+
+  .player {
+    margin-top: 28px;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--raio);
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 18px 40px rgba(20, 50, 30, .25);
+  }
+  .player iframe { width: 100%; height: 100%; border: 0; display: block; }
+  .facade { position: relative; background: linear-gradient(135deg, #1e4a30, #0f2218); }
+  .facade .tocar { position: absolute; inset: 0; width: 100%; border: 0; padding: 0; color: #fff; font: inherit; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: transparent center / cover no-repeat; }
+  .facade .tocar::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, .15), rgba(0, 0, 0, .55)); }
+  .facade .seta, .facade .rotulo { position: relative; }
+  .facade .seta { width: 76px; height: 76px; border-radius: 50%; background: var(--ambar); color: #2a1a00; display: grid; place-items: center; box-shadow: 0 8px 24px rgba(0, 0, 0, .4); transition: transform .15s ease; }
+  .facade .seta svg { width: 34px; height: 34px; margin-left: 4px; }
+  .facade .tocar:hover .seta, .facade .tocar:focus-visible .seta { transform: scale(1.08); }
+  .facade .rotulo { font-size: 1.05rem; text-shadow: 0 2px 8px rgba(0, 0, 0, .7); padding: 0 16px; text-align: center; }
+  .mais { margin-top: 22px; }
+  .botao.verde { background: var(--verde); color: #fff; }
+  .botao.verde:hover { background: var(--verde-escuro); }
+
+  .escolha { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+  .chip {
+    font: inherit; font-weight: 600; cursor: pointer;
+    padding: 10px 18px; border-radius: 999px;
+    background: var(--cartao); color: var(--texto);
+    border: 2px solid var(--linha);
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .chip:hover { border-color: var(--verde); }
+  .chip[aria-pressed="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
+  .escolha + .player { margin-top: 18px; }
+
+  /* último pedal (preenchido pelo robô diário) */
+  .planejar { display: grid; grid-template-columns: 1.3fr 1fr; gap: 28px; align-items: center; margin-top: 26px; }
+  .planejar-print { display: block; border-radius: 16px; overflow: hidden; box-shadow: 0 14px 36px rgba(20, 50, 30, .22); transition: transform .2s; }
+  .planejar-print:hover { transform: translateY(-3px); }
+  .planejar-print img { display: block; width: 100%; height: auto; }
+  .planejar-texto ul { margin: 0; padding-left: 20px; display: grid; gap: 10px; }
+  .planejar-texto .links { margin: 22px 0 0; }
+  @media (max-width: 760px) { .planejar { grid-template-columns: 1fr; gap: 20px; } }
+  .ultimo { display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; align-items: center; margin-top: 26px; }
+  .ultimo-mapa { display: block; text-decoration: none; }
+  .ultimo .mapa { display: block; position: relative; aspect-ratio: 5 / 3; border-radius: 16px; overflow: hidden; background: #cfe0c4; box-shadow: 0 14px 36px rgba(20, 50, 30, .22); }
+  .ultimo .mapa img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .ultimo .mapa svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ultimo .mapa path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .ultimo .mapa .halo { stroke: #ffffff; stroke-width: 8; opacity: .9; }
+  .ultimo .mapa .linha { stroke: #d6004f; stroke-width: 4.5; }
+  .ultimo h3 { margin: 0; font-size: clamp(1.3rem, 3.5vw, 1.7rem); line-height: 1.25; }
+  .ultimo h3 a { text-decoration: none; }
+  .ultimo h3 a:hover { text-decoration: underline; }
+  .ultimo .data { margin: 4px 0 0; color: var(--texto-suave); }
+  .ultimo dl { margin: 16px 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .ultimo dl div { background: var(--cartao); border: 1px solid var(--linha); border-radius: 12px; padding: 10px 4px; text-align: center; }
+  .ultimo dt { font-size: .68rem; letter-spacing: .5px; text-transform: uppercase; color: var(--texto-suave); }
+  .ultimo dd { margin: 2px 0 0; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .ultimo .links { margin: 18px 0 0; display: flex; flex-wrap: wrap; gap: 10px; }
+  .botao.borda { border-color: var(--linha); color: var(--texto); }
+  .botao.borda:hover { border-color: var(--verde); }
+  @media (max-width: 760px) { .ultimo { grid-template-columns: 1fr; gap: 20px; } }
+
+  .sobre { display: block; }
+  .sobre p { margin: 14px 0 0; max-width: 720px; }
+  .cartao {
+    background: var(--cartao);
+    border: 1px solid var(--linha);
+    border-radius: var(--raio);
+    padding: 24px;
+  }
+  .cartao h3 { margin: 0 0 6px; font-size: 1.15rem; }
+  .cartao p { margin: 8px 0 0; color: var(--texto-suave); }
+
+  .pronuncia { margin: 14px 0 0; color: var(--texto-suave); }
+  .pronuncia strong { color: var(--verde); font-size: 1.1em; letter-spacing: .5px; }
+  @media (prefers-color-scheme: dark) { .pronuncia strong { color: #7fcf9d; } }
+
+  .brote { display: grid; grid-template-columns: 1.4fr 1fr; gap: 36px; align-items: start; margin-top: 18px; }
+  .brote p { margin: 12px 0 0; }
+  .brote h3 { margin: 26px 0 0; font-size: 1.15rem; }
+  .brote .cartao h3 { margin-top: 0; }
+  .fotos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 34px; }
+  .fotos figure { margin: 0; }
+  .fotos img { width: 100%; border-radius: var(--raio); box-shadow: 0 10px 28px rgba(20, 50, 30, .22); }
+  .fotos figcaption { margin-top: 10px; font-size: .92rem; color: var(--texto-suave); }
+  .fatos { margin: 12px 0 0; }
+  .fatos dt { font-size: .8rem; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--verde); margin-top: 14px; }
+  .fatos dt:first-child { margin-top: 0; }
+  .fatos dd { margin: 2px 0 0; color: var(--texto-suave); }
+  @media (prefers-color-scheme: dark) { .fatos dt { color: #7fcf9d; } }
+  .fontes { margin-top: 28px; font-size: .88rem; color: var(--texto-suave); }
+  .cartao a { color: var(--verde); font-weight: 600; }
+  @media (prefers-color-scheme: dark) { .cartao a { color: #7fcf9d; } }
+
+  .redes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 26px; }
+  .rede {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--raio);
+    padding: 20px 22px; text-decoration: none;
+    transition: transform .15s ease, border-color .15s ease;
+  }
+  .rede:hover { transform: translateY(-3px); border-color: var(--verde); }
+  .rede .icone { width: 46px; height: 46px; border-radius: 12px; background: var(--verde); color: #fff; display: grid; place-items: center; flex: none; }
+  .rede .icone svg { width: 26px; height: 26px; }
+  .rede strong { display: block; }
+  .rede span { color: var(--texto-suave); font-size: .92rem; }
+
+  .fundo-claro { background: color-mix(in srgb, var(--verde) 7%, var(--fundo)); border-block: 1px solid var(--linha); }
+
+  /* ---------- Rodapé ---------- */
+  footer { background: var(--verde-fundo); color: #cfe0d3; padding: 34px 0; font-size: .92rem; }
+  footer .miolo { display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: center; justify-content: space-between; }
+  footer a { color: #fff; }
+  footer .strava { display: inline-block; background: #fff; border-radius: 6px; padding: 6px 10px; line-height: 0; }
+  footer .strava img { height: 20px; width: auto; display: block; }
+  footer .peq { color: #9fb7a6; }
+  footer .aviso { flex-basis: 100%; color: #9fb7a6; font-size: .85rem; }
+
+  @media (max-width: 760px) {
+    .topo .miolo { flex-direction: column; gap: 4px; padding: 10px 0; }
+    .menu { flex-wrap: wrap; justify-content: center; gap: 2px 16px; }
+    .menu a { font-size: .9rem; }
+    .capa { padding: 150px 0 130px; }
+    .sobre, .brote, .fotos { grid-template-columns: 1fr; gap: 22px; }
+    section { padding: 28px 0; }
+    section:not(.fundo-claro) + section:not(.fundo-claro) { padding-top: 4px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .botao, .rede { transition: none; }
+  }
+</style>
+<style>.capa.curta { padding: 96px 0 56px; } .capa.curta h1 { font-size: clamp(2rem, 6vw, 3rem); } .capa.curta .perfil { display: none; }</style>
+</head>
+<body>
+<header class="topo">
+  <div class="miolo">
+    <a class="marca" href="../" aria-label="Brote na Trilha, início">
+      <img src="../favicon.png" width="38" height="38" alt="">
+      <span>Brote na Trilha</span>
+    </a>
+    <nav class="menu" aria-label="Principal">
+      <a href="../#videos">Vídeos</a>
+      <a href="../#playlists">Playlists</a>
+      <a href="../pedais/">Pedais</a>
+      <a href="../planejar-pedal/">Planejar pedal</a>
+      <a href="../analises/">Análises</a>
+      <a href="../ferramentas/">Ferramentas</a>
+      <a href="./" aria-current="page">Sobre</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="capa curta">
+    <div class="miolo">
+      <h1>Sobre o canal</h1>
+      <p>Pedais com amigos pelo Espírito Santo, e o pão que vai no logo.</p>
+    </div>
+  </div>
+
+  <section id="sobre">
+    <div class="miolo sobre">
+      <div>
+        <h2 class="titulo">O canal</h2>
+        <p>O Brote na Trilha é um canal de pedais com amigos no Espírito Santo: a gente pedala, filma e conta como foi.</p>
+        <p>Cada vídeo mostra o percurso e traz, na descrição, a rota no Strava ou no Komoot, com distância, altimetria e tempo, para quem quiser pedalar o mesmo caminho.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="brote" class="fundo-claro">
+    <div class="miolo">
+      <h2 class="titulo">O que é o brote</h2>
+      <p class="pronuncia">Pronuncia-se <strong>BRÔ-te</strong>, com o "o" fechado. É o pão que aparece no logo do canal, ao lado da garrafa térmica e da bike.</p>
+      <div class="brote">
+        <div class="texto">
+          <p>O brote é um pão de milho tradicional dos descendentes de imigrantes pomeranos no Espírito Santo. O nome vem do alemão <em>Brot</em>, que significa "pão"; em pomerano, o de milho é o <em>mijlchebrood</em>.</p>
+          <p>Os pomeranos chegaram ao estado em meados do século XIX. Como o trigo não se adaptou ao clima tropical do interior, passaram a usar o milho. Por muito tempo o pão foi motivo de vergonha, e quem o comia era chamado de "broteiro" de modo pejorativo. Hoje ele é orgulho e símbolo da cultura pomerana, e em 2024 foi reconhecido como patrimônio cultural imaterial do Espírito Santo.</p>
+          <h3>Como é feito</h3>
+          <p>A massa leva fubá de milho, tradicionalmente moído em moinho, raízes raladas, como batata-doce, inhame, cará e aipim, sal e fermento. Depois de crescer, ela é porcionada sobre folhas de bananeira, que evitam que grude, e assada em forno à lenha até a casca escurecer.</p>
+          <h3>Como se come</h3>
+          <p>Com manteiga, linguiça defumada, geleia, coalhada ou café com leite. É presença certa em cafés coloniais e casamentos pomeranos.</p>
+        </div>
+        <aside class="cartao">
+          <h3>Em resumo</h3>
+          <dl class="fatos">
+            <dt>Origem</dt><dd>Pomeranos no Espírito Santo, século XIX</dd>
+            <dt>Feito com</dt><dd>Fubá de milho e raízes</dd>
+            <dt>Assado em</dt><dd>Forno à lenha, sobre folha de bananeira</dd>
+            <dt>Onde é feito</dt><dd>Santa Maria de Jetibá, Santa Leopoldina, Laranja da Terra, Itarana e Vila Pavão</dd>
+            <dt>Reconhecimento</dt><dd>Patrimônio cultural imaterial do Espírito Santo (2024)</dd>
+          </dl>
+        </aside>
+      </div>
+      <div class="fotos">
+        <figure>
+          <picture><source srcset="../brote-forno.webp" type="image/webp"><img decoding="async" src="../brote-forno.jpg" width="1280" height="800" loading="lazy" alt="Brote assado numa forma sobre folha de bananeira, dentro do forno à lenha"></picture>
+          <figcaption>Brote assado em forno à lenha, sobre folha de bananeira.</figcaption>
+        </figure>
+        <figure>
+          <picture><source srcset="../brote-cortado.webp" type="image/webp"><img decoding="async" src="../brote-cortado.jpg" width="1280" height="800" loading="lazy" alt="Duas fatias de brote com manteiga num prato, ao lado de um copo de café"></picture>
+          <figcaption>Brote cortado, com manteiga e café.</figcaption>
+        </figure>
+      </div>
+      <p class="fontes">
+        Fontes:
+        <a href="https://slowfoodbrasil.org.br/arca_do_gosto/brote-pomerano/" target="_blank" rel="noopener">Slow Food Brasil (Arca do Gosto)</a>,
+        <a href="https://eshoje.com.br/geral/cidades/2024/06/pao-pomerano-feito-de-raizes-e-farinha-de-milho-vira-patrimonio-imaterial-do-es/" target="_blank" rel="noopener">ES Hoje</a>
+        e <a href="https://pt.wikipedia.org/wiki/Brote" target="_blank" rel="noopener">Wikipédia</a>.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="miolo">
+    <span>© <span id="ano">2026</span> Brote na Trilha</span>
+    <span class="peq">Vídeos editados com o <a href="../bnteditor/">BNT Editor</a></span>
+    <span class="aviso">As visitas ao site são contadas sem cookies e sem identificar ninguém. <a href="../privacidade/">Política de privacidade</a>.</span>
+    <a class="strava" href="https://www.strava.com" target="_blank" rel="noopener"><img src="../strava_powered_by.png" width="197" height="20" alt="Powered by Strava" loading="lazy" decoding="async"></a>
+  </div>
+</footer>
+<script>document.getElementById("ano").textContent = new Date().getFullYear();</script>
+  <script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

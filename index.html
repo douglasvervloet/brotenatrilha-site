@@ -123,7 +123,8 @@
   .perfil .linha { fill: none; stroke: var(--ambar); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; opacity: .9; }
 
   /* ---------- Seções ---------- */
-  section { padding: 64px 0; }
+  section { padding: 40px 0; }
+  section:not(.fundo-claro) + section:not(.fundo-claro) { padding-top: 8px; }      /* duas seções seguidas sem fundo próprio: o espaço de uma só */
   .titulo { margin: 0 0 8px; font-size: clamp(1.6rem, 4vw, 2.1rem); line-height: 1.2; letter-spacing: -.2px; }
   .titulo::after { content: ""; display: block; width: 52px; height: 4px; border-radius: 2px; background: var(--ambar); margin-top: 10px; }
   .lead { color: var(--texto-suave); max-width: 60ch; margin: 14px 0 0; }
@@ -252,7 +253,8 @@
     .menu a { font-size: .9rem; }
     .capa { padding: 150px 0 130px; }
     .sobre, .brote, .fotos { grid-template-columns: 1fr; gap: 22px; }
-    section { padding: 48px 0; }
+    section { padding: 28px 0; }
+    section:not(.fundo-claro) + section:not(.fundo-claro) { padding-top: 4px; }
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
@@ -277,7 +279,7 @@
       <a href="planejar-pedal/">Planejar pedal</a>
       <a href="analises/">Análises</a>
       <a href="ferramentas/">Ferramentas</a>
-      <a href="#sobre">Sobre</a>
+      <a href="sobre/">Sobre</a>
     </nav>
   </div>
 </header>
@@ -392,54 +394,12 @@
     <div class="miolo sobre">
       <div>
         <h2 class="titulo">Sobre o canal</h2>
-        <p>O Brote na Trilha é um canal de pedais com amigos no Espírito Santo: a gente pedala, filma e conta como foi.</p>
-        <p>Cada vídeo mostra o percurso e traz, na descrição, a rota no Strava ou no Komoot, com distância, altimetria e tempo, para quem quiser pedalar o mesmo caminho.</p>
+        <p>O Brote na Trilha é um canal de pedais com amigos no Espírito Santo: a gente pedala, filma e conta como foi. Cada vídeo traz o percurso, com distância, altimetria e tempo.</p>
+        <p class="links"><a class="botao verde" href="sobre/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Conhecer o canal e o brote</a></p>
       </div>
     </div>
   </section>
 
-  <section id="brote">
-    <div class="miolo">
-      <h2 class="titulo">O que é o brote</h2>
-      <p class="pronuncia">Pronuncia-se <strong>BRÔ-te</strong>, com o "o" fechado. É o pão que aparece no logo do canal, ao lado da garrafa térmica e da bike.</p>
-      <div class="brote">
-        <div class="texto">
-          <p>O brote é um pão de milho tradicional dos descendentes de imigrantes pomeranos no Espírito Santo. O nome vem do alemão <em>Brot</em>, que significa "pão"; em pomerano, o de milho é o <em>mijlchebrood</em>.</p>
-          <p>Os pomeranos chegaram ao estado em meados do século XIX. Como o trigo não se adaptou ao clima tropical do interior, passaram a usar o milho. Por muito tempo o pão foi motivo de vergonha, e quem o comia era chamado de "broteiro" de modo pejorativo. Hoje ele é orgulho e símbolo da cultura pomerana, e em 2024 foi reconhecido como patrimônio cultural imaterial do Espírito Santo.</p>
-          <h3>Como é feito</h3>
-          <p>A massa leva fubá de milho, tradicionalmente moído em moinho, raízes raladas, como batata-doce, inhame, cará e aipim, sal e fermento. Depois de crescer, ela é porcionada sobre folhas de bananeira, que evitam que grude, e assada em forno à lenha até a casca escurecer.</p>
-          <h3>Como se come</h3>
-          <p>Com manteiga, linguiça defumada, geleia, coalhada ou café com leite. É presença certa em cafés coloniais e casamentos pomeranos.</p>
-        </div>
-        <aside class="cartao">
-          <h3>Em resumo</h3>
-          <dl class="fatos">
-            <dt>Origem</dt><dd>Pomeranos no Espírito Santo, século XIX</dd>
-            <dt>Feito com</dt><dd>Fubá de milho e raízes</dd>
-            <dt>Assado em</dt><dd>Forno à lenha, sobre folha de bananeira</dd>
-            <dt>Onde é feito</dt><dd>Santa Maria de Jetibá, Santa Leopoldina, Laranja da Terra, Itarana e Vila Pavão</dd>
-            <dt>Reconhecimento</dt><dd>Patrimônio cultural imaterial do Espírito Santo (2024)</dd>
-          </dl>
-        </aside>
-      </div>
-      <div class="fotos">
-        <figure>
-          <picture><source srcset="brote-forno.webp" type="image/webp"><img decoding="async" src="brote-forno.jpg" width="1280" height="800" loading="lazy" alt="Brote assado numa forma sobre folha de bananeira, dentro do forno à lenha"></picture>
-          <figcaption>Brote assado em forno à lenha, sobre folha de bananeira.</figcaption>
-        </figure>
-        <figure>
-          <picture><source srcset="brote-cortado.webp" type="image/webp"><img decoding="async" src="brote-cortado.jpg" width="1280" height="800" loading="lazy" alt="Duas fatias de brote com manteiga num prato, ao lado de um copo de café"></picture>
-          <figcaption>Brote cortado, com manteiga e café.</figcaption>
-        </figure>
-      </div>
-      <p class="fontes">
-        Fontes:
-        <a href="https://slowfoodbrasil.org.br/arca_do_gosto/brote-pomerano/" target="_blank" rel="noopener">Slow Food Brasil (Arca do Gosto)</a>,
-        <a href="https://eshoje.com.br/geral/cidades/2024/06/pao-pomerano-feito-de-raizes-e-farinha-de-milho-vira-patrimonio-imaterial-do-es/" target="_blank" rel="noopener">ES Hoje</a>
-        e <a href="https://pt.wikipedia.org/wiki/Brote" target="_blank" rel="noopener">Wikipédia</a>.
-      </p>
-    </div>
-  </section>
 
   <section id="redes" class="fundo-claro">
     <div class="miolo">
