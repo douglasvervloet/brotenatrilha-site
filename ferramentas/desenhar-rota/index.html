@@ -120,21 +120,12 @@
   .acoes .opcao { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: .92rem; cursor: pointer; padding: 0 6px; }
   .acoes .opcao[hidden] { display: none; }
   .opcao input { width: 18px; height: 18px; accent-color: var(--verde); }
-  .previsao { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 10px; margin-top: 10px; }
-  .previsao[hidden] { display: none; }
-  .previsao .hora { flex: 0 0 132px; display: grid; gap: 3px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; padding: 10px 12px; font-size: .88rem; }
-  .previsao .hora b { font-size: 1.05rem; }
-  .previsao .hora .temp { font-size: 1.15rem; font-weight: 800; }
-  .previsao .hora span { color: var(--suave); }
-  .previsao .hora.chuva { border-color: #3a9ad9; }
   .previsao-grafico { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 10px 12px 4px; margin-top: 10px; }
   .previsao-grafico[hidden] { display: none; }
   .previsao-grafico svg { width: 100%; height: auto; display: block; }
   .previsao-grafico text { font-family: inherit; font-size: 13px; fill: var(--texto); }
   .previsao-grafico .eixo { fill: var(--suave); font-size: 12px; }
   .previsao-grafico [data-i] { cursor: pointer; }
-  .previsao .hora { cursor: pointer; }
-  .previsao .hora.ativa { border-color: var(--verde); box-shadow: 0 0 0 2px var(--verde); }
   .vento-mapa { position: absolute; right: 12px; bottom: 34px; display: flex; align-items: center; gap: 10px; background: rgba(12, 23, 17, .9); color: #fff; border-radius: 14px; padding: 8px 14px; font-size: .85rem; pointer-events: none; }
   .vento-mapa[hidden] { display: none; }
   .zoom { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; }
@@ -263,8 +254,8 @@
     <h2>Previsão do tempo</h2>
     <div class="acoes" style="margin-top:8px"><button class="sec" type="button" id="b-previsao">Ver a previsão para a saída</button></div>
     <p class="nota" id="status-previsao" aria-live="polite" hidden></p>
-    <div class="previsao-grafico" id="previsao-grafico" hidden><svg id="grafico-tempo" viewBox="0 0 1000 300" role="img" aria-label="Gráfico da temperatura, do vento e da chuva previstos para as horas do pedal"></svg></div>
-    <div class="previsao" id="previsao" hidden></div>
+    <div class="previsao-grafico" id="previsao-grafico" hidden><svg id="grafico-tempo" viewBox="0 0 1000 372" role="img" aria-label="Gráfico da temperatura, do vento e da chuva previstos para as horas do pedal"></svg></div>
+    <p class="nota" id="resumo-previsao" hidden style="margin-top:10px"></p>
     <div class="grafico">
       <svg id="grafico" viewBox="0 0 1000 300" role="img" aria-label="Gráfico de altimetria com as subidas"></svg>
       <div class="legenda" id="legenda"></div>
@@ -1050,62 +1041,79 @@
 
     // ---- a previsão do tempo na saída (Open-Meteo): só depois de clicar no botão; vai o ponto de saída, arredondado, e a data ----
     var previsaoLigada = false, esperaPrevisao = null, ultimaSaidaMin = 0, ultimaChegadaMin = 0, versaoPrevisao = 0, cachePrevisao = {};
-    var CONDICOES = { 0: "Céu limpo", 1: "Quase limpo", 2: "Parcialmente nublado", 3: "Nublado", 45: "Nevoeiro", 48: "Nevoeiro", 51: "Garoa", 53: "Garoa", 55: "Garoa", 56: "Garoa gelada", 57: "Garoa gelada",
-      61: "Chuva fraca", 63: "Chuva", 65: "Chuva forte", 66: "Chuva gelada", 67: "Chuva gelada", 80: "Pancadas fracas", 81: "Pancadas", 82: "Pancadas fortes", 95: "Trovoada", 96: "Trovoada com granizo", 99: "Trovoada com granizo" };
     function pontoCardeal(graus) { return ["N", "NE", "L", "SE", "S", "SO", "O", "NO"][Math.round(graus / 45) % 8]; }      // de onde o vento sopra
     function estadoDaPrevisao(texto) { var e = document.getElementById("status-previsao"); e.textContent = texto || ""; e.hidden = !texto; }
     function agendarPrevisao() { clearTimeout(esperaPrevisao); if (previsaoLigada) esperaPrevisao = setTimeout(buscarPrevisao, 700); }
     function somarDias(iso, dias) { var d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + dias); return d.getFullYear() + "-" + dois(d.getMonth() + 1) + "-" + dois(d.getDate()); }
+    function ceuDe(nuvens) { return nuvens < 25 ? "Aberto" : nuvens < 60 ? "Parcial" : "Nublado"; }
+    function esconderPrevisao() {
+      document.getElementById("previsao-grafico").hidden = true;
+      document.getElementById("resumo-previsao").hidden = true;
+      horasPrevistas = []; ventoNoMapa = null; atualizarVentoNoMapa();
+    }
+    function resumoDaPrevisao(horas) {                             // "Céu aberto das 06h às 08h, nublado às 09h. Chuva improvável."
+      var partes = [], ini = 0, hh = function (q) { return dois(q.h % 24) + "h"; };
+      for (var i = 1; i <= horas.length; i++) {
+        if (i === horas.length || ceuDe(horas[i].nuvens) !== ceuDe(horas[ini].nuvens)) {
+          var c = ceuDe(horas[ini].nuvens), nome = c === "Aberto" ? "aberto" : c === "Parcial" ? "parcialmente nublado" : "nublado";
+          partes.push(nome + (i - 1 > ini ? " das " + hh(horas[ini]) + " às " + hh(horas[i - 1]) : " às " + hh(horas[ini])));
+          ini = i;
+        }
+      }
+      var chuva = horas.filter(function (q) { return (q.prob !== null && q.prob >= 50) || q.mm >= 1; });
+      return "Céu " + partes.join(", ") + ". " + (chuva.length ? "Chuva provável " + (chuva.length > 1 ? "das " + hh(chuva[0]) + " às " + hh(chuva[chuva.length - 1]) : "às " + hh(chuva[0])) + "." : "Chuva improvável.");
+    }
     function buscarPrevisao() {
-      var data = document.getElementById("luz-data").value, caixaPrev = document.getElementById("previsao");
-      if (!previsaoLigada || !rota.length || !data || !ultimoTotal) { caixaPrev.hidden = true; document.getElementById("previsao-grafico").hidden = true; ventoNoMapa = null; atualizarVentoNoMapa(); return; }
+      var data = document.getElementById("luz-data").value;
+      if (!previsaoLigada || !rota.length || !data || !ultimoTotal) { esconderPrevisao(); return; }
       var hoje = new Date(), iso = hoje.getFullYear() + "-" + dois(hoje.getMonth() + 1) + "-" + dois(hoje.getDate()), dias = Math.round((new Date(data + "T12:00:00") - new Date(iso + "T12:00:00")) / 86400000);
-      if (dias > 15) { caixaPrev.hidden = true; document.getElementById("previsao-grafico").hidden = true; ventoNoMapa = null; atualizarVentoNoMapa(); estadoDaPrevisao("A previsão só vai até 16 dias à frente. Escolha uma data mais perto."); return; }
+      if (dias > 15) { esconderPrevisao(); estadoDaPrevisao("A previsão só vai até 16 dias à frente. Escolha uma data mais perto."); return; }
       var fim = ultimaChegadaMin >= 1440 ? somarDias(data, 1) : data, lat = rota[0].lat.toFixed(2), lon = rota[0].lon.toFixed(2), minha = ++versaoPrevisao;
       var base = dias < -5 ? "https://archive-api.open-meteo.com/v1/archive" : "https://api.open-meteo.com/v1/forecast";
-      var variaveis = "temperature_2m,precipitation,wind_speed_10m,wind_direction_10m,weather_code" + (dias < -5 ? "" : ",precipitation_probability");
+      var variaveis = "temperature_2m,precipitation,wind_speed_10m,wind_direction_10m,cloud_cover" + (dias < -5 ? "" : ",precipitation_probability");
       var url = base + "?latitude=" + lat + "&longitude=" + lon + "&hourly=" + variaveis + "&timezone=America%2FSao_Paulo&wind_speed_unit=kmh&start_date=" + data + "&end_date=" + fim;
       estadoDaPrevisao("Buscando a previsão…");
       (cachePrevisao[url] ? Promise.resolve(cachePrevisao[url]) : fetch(url).then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })).then(function (d) {
         if (minha !== versaoPrevisao || !previsaoLigada) return;
-        cachePrevisao[url] = d;
-        var h = d.hourly, primeira = Math.floor(ultimaSaidaMin / 60), ultima = Math.min(h.time.length - 1, Math.floor(ultimaChegadaMin / 60)), html = "";
+        var h = d.hourly;
         if (!h || !h.time) throw new Error("sem dados");
-        for (var i = primeira; i <= ultima && i - primeira < 16; i++) {
-          var chuvaProb = h.precipitation_probability ? h.precipitation_probability[i] : null, mm = h.precipitation[i], chove = (chuvaProb !== null && chuvaProb >= 50) || mm >= 1;
-          html += '<div class="hora' + (chove ? " chuva" : "") + '" data-i="' + (i - primeira) + '"><b>' + dois(i % 24) + "h</b><span class=\"temp\" style=\"color:var(--texto)\">" + Math.round(h.temperature_2m[i]) + " °C</span><span>" + (CONDICOES[h.weather_code[i]] || "–") + "</span><span>" +
-            (chuvaProb !== null ? "Chuva " + chuvaProb + "%" : "Chuva " + fmt(mm, 1) + " mm") + "</span><span>Vento " + pontoCardeal(h.wind_direction_10m[i]) + " " + Math.round(h.wind_speed_10m[i]) + " km/h</span></div>";
-        }
-        if (!html) throw new Error("sem horas");
-        caixaPrev.innerHTML = html; caixaPrev.hidden = false; estadoDaPrevisao("");
+        cachePrevisao[url] = d;
+        var primeira = Math.floor(ultimaSaidaMin / 60), ultima = Math.min(h.time.length - 1, Math.floor(ultimaChegadaMin / 60));
         horasPrevistas = [];
-        for (var k = primeira; k <= ultima && k - primeira < 16; k++) horasPrevistas.push({ h: k, temp: h.temperature_2m[k], prob: h.precipitation_probability ? h.precipitation_probability[k] : null, mm: h.precipitation[k], vel: h.wind_speed_10m[k], dir: h.wind_direction_10m[k] });
+        for (var k = primeira; k <= ultima && k - primeira < 16; k++) horasPrevistas.push({ h: k, temp: h.temperature_2m[k], prob: h.precipitation_probability ? h.precipitation_probability[k] : null, mm: h.precipitation[k], vel: h.wind_speed_10m[k], dir: h.wind_direction_10m[k], nuvens: h.cloud_cover[k] });
+        if (!horasPrevistas.length) throw new Error("sem horas");
+        estadoDaPrevisao("");
         document.getElementById("previsao-grafico").hidden = false;
+        var resumo = document.getElementById("resumo-previsao");
+        resumo.textContent = resumoDaPrevisao(horasPrevistas); resumo.hidden = false;
         escolherHoraDoVento(Math.min(horaDoVento, horasPrevistas.length - 1));
-      }).catch(function () { if (minha === versaoPrevisao) { caixaPrev.hidden = true; document.getElementById("previsao-grafico").hidden = true; ventoNoMapa = null; atualizarVentoNoMapa(); estadoDaPrevisao("Não consegui buscar a previsão agora. Tente de novo em instantes."); } });
+      }).catch(function () { if (minha === versaoPrevisao) { esconderPrevisao(); estadoDaPrevisao("Não consegui buscar a previsão agora. Tente de novo em instantes."); } });
     }
-    function desenharGraficoDoTempo(horas) {                        // três faixas pelas horas do pedal: temperatura, vento (com a direção) e chuva
-      var n = horas.length, ml = 100, W = 876, passo = W / n, x = function (i) { return ml + passo * (i + 0.5); }, s = "";
+    function desenharGraficoDoTempo(horas) {                        // quatro faixas pelas horas do pedal: temperatura, vento (com a direção), céu (nuvens) e chuva
+      var n = horas.length, ml = 100, W = 876, passo = W / n, x = function (i) { return ml + passo * (i + 0.5); }, s = "", fonte = passo < 62 ? 11 : 13;
       var faixa = function (y1, titulo, meio) { return '<line x1="' + ml + '" y1="' + y1 + '" x2="' + (ml + W) + '" y2="' + y1 + '" stroke="var(--linha)"/><text class="eixo" x="' + (ml - 12) + '" y="' + meio + '" text-anchor="end">' + titulo + "</text>"; };
-      s += '<rect x="' + (ml + passo * horaDoVento).toFixed(1) + '" y="12" width="' + passo.toFixed(1) + '" height="262" rx="10" fill="var(--verde)" opacity=".16"/>';
-      s += faixa(92, "Temp. (°C)", 62) + faixa(190, "Vento (km/h)", 160) + faixa(262, "Chuva (%)", 242);
+      s += '<rect x="' + (ml + passo * horaDoVento).toFixed(1) + '" y="12" width="' + passo.toFixed(1) + '" height="330" rx="10" fill="var(--verde)" opacity=".16"/>';
+      s += faixa(92, "Temp. (°C)", 62) + faixa(190, "Vento (km/h)", 160) + faixa(262, "Céu (nuvens)", 242) + faixa(334, "Chuva (%)", 314);
       var temps = horas.map(function (q) { return q.temp; }), tmin = Math.min.apply(null, temps) - 2, tmax = Math.max.apply(null, temps) + 2;
       var yT = function (v) { return 92 - (v - tmin) / (tmax - tmin) * 50; };
       s += '<polyline points="' + horas.map(function (q, i) { return x(i).toFixed(1) + "," + yT(q.temp).toFixed(1); }).join(" ") + '" fill="none" stroke="#e8873a" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>';
       horas.forEach(function (q, i) { s += '<circle cx="' + x(i).toFixed(1) + '" cy="' + yT(q.temp).toFixed(1) + '" r="4.5" fill="#e8873a" stroke="#fff" stroke-width="1.5"/><text x="' + x(i).toFixed(1) + '" y="' + (yT(q.temp) - 10).toFixed(1) + '" text-anchor="middle">' + Math.round(q.temp) + "°</text>"; });
       var vmax = Math.max(10, Math.max.apply(null, horas.map(function (q) { return q.vel; })) * 1.25), yV = function (v) { return 190 - v / vmax * 44; };
       s += '<polyline points="' + horas.map(function (q, i) { return x(i).toFixed(1) + "," + yV(q.vel).toFixed(1); }).join(" ") + '" fill="none" stroke="#3a9ad9" stroke-width="2.2" opacity=".6" stroke-linejoin="round"/>';
-      horas.forEach(function (q, i) {                                // a seta do vento aponta para onde ele sopra
-        s += '<g transform="translate(' + x(i).toFixed(1) + " " + yV(q.vel).toFixed(1) + ") rotate(" + (q.dir + 180) + ')"><path d="M0 -9L6 6L0 2.5L-6 6Z" fill="#3a9ad9" stroke="#fff" stroke-width="1" stroke-linejoin="round"/></g>' +
-          '<text x="' + x(i).toFixed(1) + '" y="' + (yV(q.vel) - 14).toFixed(1) + '" text-anchor="middle">' + Math.round(q.vel) + "</text>";
+      horas.forEach(function (q, i) {                                // só letras: a velocidade e de onde o vento vem (N, NE, L, SE, S, SO, O, NO); as setas ficam no mapa
+        s += '<circle cx="' + x(i).toFixed(1) + '" cy="' + yV(q.vel).toFixed(1) + '" r="4.5" fill="#3a9ad9" stroke="#fff" stroke-width="1.5"/>' +
+          '<text x="' + x(i).toFixed(1) + '" y="' + (yV(q.vel) - 14).toFixed(1) + '" text-anchor="middle" style="font-size:' + fonte + 'px">' + Math.round(q.vel) + " " + pontoCardeal(q.dir) + "</text>";
       });
       var largura = Math.min(34, passo * 0.55);
       horas.forEach(function (q, i) {
+        var ceu = ceuDe(q.nuvens), alturaCeu = Math.max(2, q.nuvens / 100 * 40);
+        s += '<rect x="' + (x(i) - largura / 2).toFixed(1) + '" y="' + (262 - alturaCeu).toFixed(1) + '" width="' + largura.toFixed(1) + '" height="' + alturaCeu.toFixed(1) + '" rx="3" fill="' + (ceu === "Aberto" ? "#e6c44a" : "#9aa7a0") + '" opacity=".85"/>' +
+          '<text x="' + x(i).toFixed(1) + '" y="' + (262 - alturaCeu - 5).toFixed(1) + '" text-anchor="middle" style="font-size:' + fonte + 'px">' + ceu + "</text>";
         var altura = q.prob !== null ? q.prob / 100 * 40 : Math.min(q.mm / 5, 1) * 40, rotulo = q.prob !== null ? q.prob + "%" : fmt(q.mm, 1) + " mm";
-        if (altura > 0.5) s += '<rect x="' + (x(i) - largura / 2).toFixed(1) + '" y="' + (262 - altura).toFixed(1) + '" width="' + largura.toFixed(1) + '" height="' + altura.toFixed(1) + '" rx="3" fill="#3a9ad9" opacity=".85"/>';
-        if (q.prob === null ? q.mm > 0 : q.prob > 0) s += '<text x="' + x(i).toFixed(1) + '" y="' + (262 - altura - 5).toFixed(1) + '" text-anchor="middle">' + rotulo + "</text>";
-        s += '<text class="eixo" x="' + x(i).toFixed(1) + '" y="288" text-anchor="middle">' + dois(q.h % 24) + "h</text>";
-        s += '<rect data-i="' + i + '" x="' + (ml + passo * i).toFixed(1) + '" y="12" width="' + passo.toFixed(1) + '" height="262" fill="transparent"/>';
+        if (altura > 0.5) s += '<rect x="' + (x(i) - largura / 2).toFixed(1) + '" y="' + (334 - altura).toFixed(1) + '" width="' + largura.toFixed(1) + '" height="' + altura.toFixed(1) + '" rx="3" fill="#3a9ad9" opacity=".85"/>';
+        if (q.prob === null ? q.mm > 0 : q.prob > 0) s += '<text x="' + x(i).toFixed(1) + '" y="' + (334 - altura - 5).toFixed(1) + '" text-anchor="middle" style="font-size:' + fonte + 'px">' + rotulo + "</text>";
+        s += '<text class="eixo" x="' + x(i).toFixed(1) + '" y="360" text-anchor="middle">' + dois(q.h % 24) + "h</text>";
+        s += '<rect data-i="' + i + '" x="' + (ml + passo * i).toFixed(1) + '" y="12" width="' + passo.toFixed(1) + '" height="330" fill="transparent"/>';
       });
       document.getElementById("grafico-tempo").innerHTML = s;
     }
@@ -1117,21 +1125,19 @@
       selo.hidden = false;
       desenharRota();
     }
-    function escolherHoraDoVento(i) {
+    function escolherHoraDoVento(i) {                              // a hora escolhida (clicando no gráfico) é a do selo e das setas do mapa
       if (!horasPrevistas[i]) return;
       horaDoVento = i;
       var q = horasPrevistas[i];
       ventoNoMapa = { dir: q.dir, vel: q.vel, h: q.h };
-      [].forEach.call(document.querySelectorAll("#previsao .hora"), function (c) { c.classList.toggle("ativa", Number(c.dataset.i) === i); });
       desenharGraficoDoTempo(horasPrevistas);
       atualizarVentoNoMapa();
     }
-    document.getElementById("previsao").addEventListener("click", function (e) { var c = e.target.closest ? e.target.closest(".hora") : null; if (c) escolherHoraDoVento(Number(c.dataset.i)); });
     document.getElementById("grafico-tempo").addEventListener("click", function (e) { var c = e.target.closest ? e.target.closest("[data-i]") : null; if (c) escolherHoraDoVento(Number(c.dataset.i)); });
-    document.getElementById("b-previsao").addEventListener("click", function () {
-      previsaoLigada = true;
-      this.textContent = "Atualizar a previsão";
-      buscarPrevisao();
+    document.getElementById("b-previsao").addEventListener("click", function () {      // liga e desliga; ligada, ela se atualiza sozinha quando a data, a hora ou a rota mudam
+      previsaoLigada = !previsaoLigada;
+      this.textContent = previsaoLigada ? "Esconder a previsão" : "Ver a previsão para a saída";
+      if (previsaoLigada) buscarPrevisao(); else { versaoPrevisao++; estadoDaPrevisao(""); esconderPrevisao(); }
     });
 
     // ---- o link da rota: os pontos vão no próprio endereço, depois do "#" (o navegador não envia essa parte a servidor) ----
