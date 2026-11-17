@@ -128,6 +128,13 @@
   .previsao-grafico [data-i] { cursor: pointer; }
   .vento-mapa { position: absolute; right: 12px; bottom: 34px; display: flex; align-items: center; gap: 10px; background: rgba(12, 23, 17, .9); color: #fff; border-radius: 14px; padding: 8px 14px; font-size: .85rem; pointer-events: none; }
   .vento-mapa[hidden] { display: none; }
+  .sobre-dados { margin-top: 12px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 0 18px; }
+  .sobre-dados summary { cursor: pointer; font-weight: 700; padding: 13px 0; list-style: none; display: flex; align-items: center; justify-content: space-between; }
+  .sobre-dados summary::-webkit-details-marker { display: none; }
+  .sobre-dados summary::after { content: ""; width: 9px; height: 9px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform .2s; }
+  .sobre-dados[open] summary::after { transform: rotate(225deg); }
+  .sobre-dados .aviso { background: transparent; padding: 0; margin: 0 0 12px; color: var(--suave); }
+  .sobre-dados .aviso b { color: var(--texto); }
   .zoom { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; }
   .zoom .bt { width: 44px; padding: 0; font-size: 1.4rem; line-height: 1; }
   .dica { position: absolute; left: 12px; bottom: 12px; background: rgba(12, 23, 17, .85); color: #fff; border-radius: 12px; padding: 8px 14px; font-size: .85rem; max-width: 62%; pointer-events: none; }
@@ -216,11 +223,14 @@
     <ul id="lista-minhas"></ul>
     <p class="nota" id="msg-minhas" aria-live="polite" style="margin-top:12px"></p>
   </div>
-  <p class="aviso" style="margin-bottom:0"><b>Previsão do tempo</b>: só ao clicar no botão, o ponto de saída (arredondado a cerca de 1 km) e a data vão ao Open-Meteo, um serviço público de meteorologia. <b>Pontos de apoio</b>: lidos de um arquivo do próprio site (dados do OpenStreetMap, © colaboradores, ODbL), só no Espírito Santo. <b>Abrir um GPX</b>: o arquivo é lido só no seu navegador. <b>Minhas rotas</b>: ficam guardadas neste navegador, e nada é enviado.</p>
-  <p class="aviso" style="margin-bottom:0"><b>Mostrar o terreno</b>: dentro do Espírito Santo, o terreno vem de arquivos do próprio site e nada sai do navegador. Fora dele, uma amostra da rota (um ponto a cada 200 m) é enviada ao Overpass, o serviço público do OpenStreetMap, para saber o tipo de cada via. Desligado, nada é enviado. Dados das vias: © colaboradores do OpenStreetMap (ODbL).</p>
-  <p class="aviso">Com <b>Grudar nas ruas</b> desligado, nada do que você desenha sai do seu navegador. Ligado, os pontos de cada trecho (dois a dois) são enviados a um serviço público de rotas do OpenStreetMap
-    (Valhalla, da FOSSGIS, e, se ele não responder, BRouter e o OSRM da FOSSGIS) para seguir as ruas e trilhas; se nenhum responder, o trecho fica em linha reta. O mapa e a altitude vêm de servidores abertos (OpenTopoMap ou OpenStreetMap, conforme o estilo, e Amazon Web Services),
-    que só recebem o pedido dos quadros do mapa que você vê. A sua localização, se você usar o botão, é lida só no seu navegador.</p>
+  <details class="sobre-dados">
+    <summary>Privacidade e fontes dos dados</summary>
+    <p class="aviso"><b>Previsão do tempo</b>: só ao clicar no botão, o ponto de saída (arredondado a cerca de 1 km) e a data vão ao Open-Meteo, um serviço público de meteorologia. <b>Pontos de apoio</b>: lidos de um arquivo do próprio site (dados do OpenStreetMap, © colaboradores, ODbL), só no Espírito Santo. <b>Abrir um GPX</b>: o arquivo é lido só no seu navegador. <b>Minhas rotas</b>: ficam guardadas neste navegador, e nada é enviado.</p>
+    <p class="aviso"><b>Mostrar o terreno</b>: dentro do Espírito Santo, o terreno vem de arquivos do próprio site e nada sai do navegador. Fora dele, uma amostra da rota (um ponto a cada 200 m) é enviada ao Overpass, o serviço público do OpenStreetMap, para saber o tipo de cada via. Desligado, nada é enviado. Dados das vias: © colaboradores do OpenStreetMap (ODbL).</p>
+    <p class="aviso">Com <b>Grudar nas ruas</b> desligado, nada do que você desenha sai do seu navegador. Ligado, os pontos de cada trecho (dois a dois) são enviados a um serviço público de rotas do OpenStreetMap
+      (Valhalla, da FOSSGIS, e, se ele não responder, BRouter e o OSRM da FOSSGIS) para seguir as ruas e trilhas; se nenhum responder, o trecho fica em linha reta. O mapa e a altitude vêm de servidores abertos (OpenTopoMap ou OpenStreetMap, conforme o estilo, e Amazon Web Services),
+      que só recebem o pedido dos quadros do mapa que você vê. A sua localização, se você usar o botão, é lida só no seu navegador.</p>
+  </details>
   <p class="nota" id="status-grudar" aria-live="polite" hidden></p>
   <p class="nota" id="status-terreno" aria-live="polite" hidden></p>
   <p class="nota" id="status-apoios" aria-live="polite" hidden></p>
