@@ -137,6 +137,12 @@
   .sobre-dados[open] summary::after { transform: rotate(225deg); }
   .sobre-dados .aviso { background: transparent; padding: 0; margin: 0 0 12px; color: var(--suave); }
   .sobre-dados .aviso b { color: var(--texto); }
+  .vento-percurso { margin-top: 14px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 12px 16px; }
+  .vento-percurso[hidden] { display: none; }
+  .faixa-vento { display: flex; height: 16px; border-radius: 8px; overflow: hidden; margin-top: 8px; }
+  .faixa-vento span { display: block; min-width: 2px; }
+  .legenda-vento { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: .9rem; }
+  .legenda-vento i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
   .zoom { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; }
   .zoom .bt { width: 44px; padding: 0; font-size: 1.4rem; line-height: 1; }
   .dica[hidden] { display: none; }
@@ -269,6 +275,7 @@
     <p class="nota" id="status-previsao" aria-live="polite" hidden></p>
     <div class="previsao-grafico" id="previsao-grafico" hidden><svg id="grafico-tempo" viewBox="0 0 1000 372" role="img" aria-label="Gráfico da temperatura, do vento e da chuva previstos para as horas do pedal"></svg></div>
     <p class="nota" id="resumo-previsao" hidden style="margin-top:10px"></p>
+    <div class="vento-percurso" id="vento-percurso" hidden></div>
     <div class="grafico">
       <svg id="grafico" viewBox="0 0 1000 300" role="img" aria-label="Gráfico de altimetria com as subidas"></svg>
       <div class="legenda" id="legenda"></div>
@@ -420,7 +427,7 @@
     var URL_ALTITUDE = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";   // metros = R·256 + G + B/256 − 32768
     var Z_ALTITUDE = 12, Z_MIN = 8, Z_MAX = 17, PASSO_AMOSTRA = 25;                                  // altitude lida no zoom 12; um ponto a cada 25 m
     var caixa = document.getElementById("mapa"), camada = document.getElementById("quadros"), desenho = document.getElementById("rota");
-    var z = 11, rota = [], antes = [], depois = [], modoDesenhar = true, pontosGpx = null, grudar = false, calculo = null, marcador = null, ultimoTotal = 0, idaEVolta = false, terrenoLigado = false, terreno = null, deUmPedal = null, livre = false, menuDoPonto = null, apoiosLigado = false, apoios = null, apoioAberto = null, kmLigado = false, ventoNoMapa = null, horaDoVento = 0, horasPrevistas = [];
+    var z = 11, rota = [], antes = [], depois = [], modoDesenhar = true, pontosGpx = null, grudar = false, calculo = null, marcador = null, ultimoTotal = 0, idaEVolta = false, terrenoLigado = false, terreno = null, deUmPedal = null, livre = false, menuDoPonto = null, apoiosLigado = false, apoios = null, apoioAberto = null, kmLigado = false, ventoNoMapa = null, horaDoVento = 0, horasPrevistas = [], temposDoPercurso = null;
 
     function mundo(lat, lon, nivel) {                              // coordenadas -> pixels do mapa mundial no zoom `nivel`
       var n = 256 * Math.pow(2, nivel), s = Math.sin(lat * Math.PI / 180);
@@ -526,6 +533,11 @@
       }
       return saida;
     }
+    function horaDoMarco(km, raio) {                               // a hora estimada de passagem, numa pílula ao lado do marco (se há saída e perfil)
+      if (!temposDoPercurso) return "";
+      var cum = temposDoPercurso.cum, i = Math.min(cum.length - 1, Math.round(km * 1000 / PASSO)), hora = horaMin(temposDoPercurso.saida + cum[i]).replace(" (dia seguinte)", "");
+      return '<g transform="translate(' + (raio + 4) + ' 0)"><rect y="-8" width="40" height="16" rx="8" fill="rgba(12,23,17,.92)" stroke="#fff" stroke-opacity=".45"/><text x="20" y="3.6" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">' + hora + "</text></g>";
+    }
     function marcosDeKm(tela, kms) {                               // um rótulo de quilômetro de tempos em tempos, com o espaçamento conforme o zoom
       if (!kmLigado || tela.length < 2) return "";
       var mpp = 156543.03 * Math.cos((rota[0].lat * Math.PI) / 180) / Math.pow(2, z), passo = 50, passos = [0.5, 1, 2, 5, 10, 20, 50];
@@ -537,7 +549,7 @@
         if (x < -12 || y < -12 || x > w + 12 || y > h + 12) continue;
         var rotulo = fmt(km, passo < 1 ? 1 : 0);
         saida += '<g transform="translate(' + x.toFixed(1) + " " + y.toFixed(1) + ')" pointer-events="none"><circle r="' + (rotulo.length > 2 ? 11.5 : 9.5) + '" fill="rgba(12,23,17,.92)" stroke="#fff" stroke-width="1.5"/>' +
-          '<text y="3.6" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">' + rotulo + "</text></g>";
+          '<text y="3.6" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">' + rotulo + "</text>" + horaDoMarco(km, rotulo.length > 2 ? 11.5 : 9.5) + "</g>";
       }
       return saida;
     }
@@ -1022,25 +1034,29 @@
       }
       return (lo + hi) / 2;
     }
-    function tempoPelasSubidas(alt, vPlanoKmh, massa) {            // minutos para percorrer o perfil de altitude (uma amostra a cada PASSO metros)
-      var v0 = vPlanoKmh / 3.6, p0 = (CRR * massa * GRAV + 0.5 * RHO_AR * CDA * v0 * v0) * v0, segundos = 0;
+    function temposAcumulados(alt, vPlanoKmh, massa) {             // os minutos desde a saída até cada amostra do perfil (uma a cada PASSO metros)
+      var v0 = vPlanoKmh / 3.6, p0 = (CRR * massa * GRAV + 0.5 * RHO_AR * CDA * v0 * v0) * v0, segundos = 0, acumulado = [0];
       for (var i = 1; i < alt.length; i++) {
         var inc = Math.max(-0.2, Math.min(0.25, (alt[i] - alt[i - 1]) / PASSO));
         var v = Math.max(0.8, Math.min(velocidadeNaInclinacao(inc > 0.01 ? p0 * FATOR_SUBIDA : p0, inc, massa), VMAX_DESCIDA / 3.6));
         segundos += PASSO / v;
+        acumulado.push(segundos / 60);
       }
-      return segundos / 60;
+      return acumulado;
     }
     function atualizarLuz() {
       var ids = ["luz-tempo", "luz-chegada", "luz-nasce", "luz-poe", "luz-sobra"], aviso = document.getElementById("luz-aviso");
-      document.getElementById("luz-media").textContent = "";
+      document.getElementById("luz-media").textContent = ""; temposDoPercurso = null;
       var data = document.getElementById("luz-data").value, saida = document.getElementById("luz-saida").value, vel = numero(document.getElementById("luz-vel").value);
       if (!ultimoTotal || !rota.length || !data || !saida || !vel) { ids.forEach(function (i) { document.getElementById(i).textContent = "–"; }); aviso.hidden = true; return; }
       var dd = data.split("-").map(Number), ss = saida.split(":").map(Number), saidaMin = ss[0] * 60 + ss[1];
       var massa = numero(document.getElementById("luz-massa").value) || 85;
-      var tempo = calculo ? tempoPelasSubidas(calculo.alt, vel, massa) : ultimoTotal / 1000 / vel * 60, chegada = saidaMin + tempo, sol = solDoDia(rota[0].lat, rota[0].lon, dd[0], dd[1], dd[2]);
+      var cum = calculo ? temposAcumulados(calculo.alt, vel, massa) : null, tempo = cum ? cum[cum.length - 1] : ultimoTotal / 1000 / vel * 60, chegada = saidaMin + tempo, sol = solDoDia(rota[0].lat, rota[0].lon, dd[0], dd[1], dd[2]);
       document.getElementById("luz-media").textContent = "média de " + fmt(ultimoTotal / 1000 / (tempo / 60), 1) + " km/h";
       ultimaSaidaMin = saidaMin; ultimaChegadaMin = chegada; agendarPrevisao();
+      temposDoPercurso = cum ? { cum: cum, saida: saidaMin } : null;
+      if (kmLigado) desenharRota();
+      atualizarVentoNoPercurso();
       document.getElementById("luz-tempo").textContent = duracaoMin(tempo);
       document.getElementById("luz-chegada").textContent = horaMin(chegada) + (chegada >= 1440 ? " (dia seguinte)" : "");
       if (!sol) { ["luz-nasce", "luz-poe", "luz-sobra"].forEach(function (i) { document.getElementById(i).textContent = "–"; }); aviso.hidden = true; return; }
@@ -1063,6 +1079,7 @@
     function somarDias(iso, dias) { var d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + dias); return d.getFullYear() + "-" + dois(d.getMonth() + 1) + "-" + dois(d.getDate()); }
     function ceuDe(nuvens) { return nuvens < 25 ? "Aberto" : nuvens < 60 ? "Parcial" : "Nublado"; }
     function esconderPrevisao() {
+      document.getElementById("vento-percurso").hidden = true;
       document.getElementById("previsao-grafico").hidden = true;
       document.getElementById("resumo-previsao").hidden = true;
       horasPrevistas = []; ventoNoMapa = null; atualizarVentoNoMapa();
@@ -1104,6 +1121,7 @@
         var resumo = document.getElementById("resumo-previsao");
         resumo.textContent = resumoDaPrevisao(horasPrevistas); resumo.hidden = false;
         escolherHoraDoVento(Math.min(horaDoVento, horasPrevistas.length - 1));
+        atualizarVentoNoPercurso();
       }).catch(function () { if (minha === versaoPrevisao) { esconderPrevisao(); estadoDaPrevisao("Não consegui buscar a previsão agora. Tente de novo em instantes."); } });
     }
     var ICONES_CEU = {                                              // sol (aberto), sol atrás de nuvem (parcial) e nuvem (nublado), no mesmo traço dos outros ícones do site
@@ -1114,6 +1132,37 @@
     function iconeDoCeu(ceu, x, y) {                               // o ícone do céu da hora, centrado em (x, y); o nome fica na dica
       var ic = ICONES_CEU[ceu];
       return '<g transform="translate(' + (x - 14).toFixed(1) + " " + (y - 14).toFixed(1) + ') scale(1.17)" fill="none" stroke="' + ic[0] + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><title>' + ceu + "</title>" + ic[1] + "</g>";
+    }
+    function rumo(a, b) { var dy = b.lat - a.lat, dx = (b.lon - a.lon) * Math.cos(a.lat * Math.PI / 180); return (Math.atan2(dx, dy) * 180 / Math.PI + 360) % 360; }      // a direção do trecho, em graus a partir do norte
+    function atualizarVentoNoPercurso() {                          // quanto do percurso é com vento a favor, de lado e contra, pelo vento da hora em que se passa por cada trecho
+      var caixa = document.getElementById("vento-percurso");
+      if (!previsaoLigada || !horasPrevistas.length || !temposDoPercurso || rota.length < 2) { caixa.hidden = true; return; }
+      var amostras = amostrar(linhaCompleta(), 100), cum = temposDoPercurso.cum, saida = temposDoPercurso.saida;
+      var COR = { favor: "#2fae7a", lado: "#9aa7a0", contra: "#d4503a" }, NOME = { favor: "A favor", lado: "De lado", contra: "Contra" };
+      var classes = [], somaVento = 0, n = amostras.length;
+      for (var i = 1; i < n; i++) {
+        var quilometro = (i - 0.5) * 0.1, minutos = saida + cum[Math.min(cum.length - 1, Math.round(quilometro * 1000 / PASSO))], hora = Math.floor(minutos / 60);
+        var q = horasPrevistas.reduce(function (m, hq) { return Math.abs(hq.h - hora) < Math.abs(m.h - hora) ? hq : m; }, horasPrevistas[0]);
+        var rumoDoPedal = rumo(amostras[Math.max(0, i - 4)], amostras[Math.min(n - 1, i + 3)]);      // o rumo numa janela de uns 700 m: as curvas pequenas não contam
+        var cosseno = Math.cos(((q.dir + 180) - rumoDoPedal) * Math.PI / 180);                     // o vento sopra para q.dir + 180: 1 é de costas, -1 é de frente
+        classes.push(q.vel < 5 ? "lado" : cosseno >= 0.5 ? "favor" : cosseno <= -0.5 ? "contra" : "lado");
+        somaVento += q.vel * cosseno * 0.1;
+      }
+      var faixas = [];
+      classes.forEach(function (c, k) { if (faixas.length && faixas[faixas.length - 1].classe === c) faixas[faixas.length - 1].km += 0.1; else faixas.push({ classe: c, km: 0.1, de: k * 0.1 }); });
+      for (var j = 1; j < faixas.length; j++) {                    // um trecho com menos de 400 m vira parte do anterior: a faixa não fica picotada
+        if (faixas[j].km < 0.4) { faixas[j - 1].km += faixas[j].km; faixas.splice(j, 1); j--; }
+        else if (faixas[j - 1].classe === faixas[j].classe) { faixas[j - 1].km += faixas[j].km; faixas.splice(j, 1); j--; }
+      }
+      var km = { favor: 0, lado: 0, contra: 0 };
+      faixas.forEach(function (f) { km[f.classe] += f.km; });
+      var total = km.favor + km.lado + km.contra, medio = somaVento / total;
+      caixa.innerHTML = "<b>Vento ao longo do percurso</b><div class=\"faixa-vento\">" + faixas.map(function (f) {
+        return '<span style="flex:' + f.km.toFixed(2) + ";background:" + COR[f.classe] + '" title="' + NOME[f.classe] + ": km " + fmt(f.de, 1) + " a " + fmt(f.de + f.km, 1) + '"></span>';
+      }).join("") + '</div><div class="legenda-vento">' + ["favor", "lado", "contra"].map(function (c) {
+        return '<span><i style="background:' + COR[c] + '"></i>' + NOME[c] + " " + Math.round(km[c] / total * 100) + "% (" + fmt(km[c], 1) + " km)</span>";
+      }).join("") + "<span>No geral: " + (Math.abs(medio) < 1 ? "sem efeito do vento" : fmt(Math.abs(medio), 0) + " km/h " + (medio > 0 ? "a favor" : "contra")) + "</span></div>";
+      caixa.hidden = false;
     }
     function desenharGraficoDoTempo(horas) {                        // quatro faixas pelas horas do pedal: temperatura, vento (com a direção), céu (nuvens) e chuva
       var n = horas.length, ml = 100, W = 876, passo = W / n, x = function (i) { return ml + passo * (i + 0.5); }, s = "", fonte = passo < 62 ? 11 : 13;
