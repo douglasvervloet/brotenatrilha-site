@@ -387,7 +387,7 @@
   </div>
   <details class="sobre-dados">
     <summary>Privacidade e fontes dos dados</summary>
-    <p class="aviso"><b>Previsão do tempo</b>: só ao clicar no botão, o ponto de saída (arredondado a cerca de 1 km) e a data vão ao Open-Meteo, um serviço público de meteorologia. <b>Buscar um lugar</b>: só quando você envia a busca, o texto digitado vai ao Nominatim (OpenStreetMap), que recebe o seu endereço IP. <b>Pontos de interesse</b>: lidos de um arquivo do próprio site (OpenStreetMap), só no Espírito Santo; a foto e o texto, quando existem, vêm da Wikipédia e do Wikimedia Commons e só são pedidos ao abrir o ponto (eles recebem o seu endereço IP). <b>Roadbook e imagem da rota</b>: montados no seu navegador, nada é enviado. <b>Evitar rodovias</b> usa o mesmo serviço de rotas do Grudar nas ruas. <b>Pontos de apoio</b>: lidos de um arquivo do próprio site (dados do OpenStreetMap, © colaboradores, ODbL), só no Espírito Santo. <b>Abrir GPX</b>: o arquivo é lido só no seu navegador. <b>Minhas rotas</b>: ficam guardadas neste navegador, e nada é enviado.</p>
+    <p class="aviso"><b>Previsão do tempo</b>: só ao clicar no botão, o ponto de saída (arredondado a cerca de 1 km) e a data vão ao Open-Meteo, um serviço público de meteorologia. <b>Buscar um lugar</b>: só quando você envia a busca, o texto digitado vai ao Nominatim (OpenStreetMap), que recebe o seu endereço IP. <b>Pontos de interesse</b>: lidos de um arquivo do próprio site (OpenStreetMap), só no Espírito Santo; a foto e o texto, quando existem, vêm da Wikipédia e do Wikimedia Commons e só são pedidos ao abrir o ponto (eles recebem o seu endereço IP). <b>Contagem de usos</b>: o site conta quantas vezes cada botão é usado (só o nome do botão, sem cookies e sem o que você desenha, digita ou escolhe). <b>Roadbook e imagem da rota</b>: montados no seu navegador, nada é enviado. <b>Evitar rodovias</b> usa o mesmo serviço de rotas do Grudar nas ruas. <b>Pontos de apoio</b>: lidos de um arquivo do próprio site (dados do OpenStreetMap, © colaboradores, ODbL), só no Espírito Santo. <b>Abrir GPX</b>: o arquivo é lido só no seu navegador. <b>Minhas rotas</b>: ficam guardadas neste navegador, e nada é enviado.</p>
     <p class="aviso"><b>Mostrar o terreno</b>: dentro do Espírito Santo, o terreno vem de arquivos do próprio site e nada sai do navegador. Fora dele, uma amostra da rota (um ponto a cada 200 m) é enviada ao Overpass, o serviço público do OpenStreetMap, para saber o tipo de cada via. Desligado, nada é enviado. Dados das vias: © colaboradores do OpenStreetMap (ODbL).</p>
     <p class="aviso">Com <b>Grudar nas ruas</b> desligado, nada do que você desenha sai do seu navegador. Ligado, os pontos de cada trecho (dois a dois) são enviados a um serviço público de rotas do OpenStreetMap
       (Valhalla, da FOSSGIS, e, se ele não responder, BRouter e o OSRM da FOSSGIS) para seguir as ruas e trilhas; se nenhum responder, o trecho fica em linha reta. O mapa e a altitude vêm de servidores abertos (OpenTopoMap ou OpenStreetMap, conforme o estilo, e Amazon Web Services),
@@ -2326,6 +2326,7 @@
     }
     document.getElementById("busca").addEventListener("submit", function (e) {
       e.preventDefault();
+      if (!e.submitter && e.isTrusted !== false) contarUso("buscar-lugar");
       var q = document.getElementById("busca-q").value.trim();
       if (q.length < 2 || buscando) return;
       buscando = true;
@@ -2464,6 +2465,15 @@
     }
     document.getElementById("b-max").addEventListener("click", function () { maximizarMapa(!caixa.classList.contains("maximizado")); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && caixa.classList.contains("maximizado")) maximizarMapa(false); });
+
+    // ---- quais recursos são usados: só o NOME do recurso vai ao contador (GoatCounter, sem cookies); nada do que a pessoa desenha, digita ou escolhe ----
+    var USOS = { "b-exemplo": "exemplo", "b-max": "tela-cheia", "b-imagem": "salvar-imagem", "b-roadbook": "roadbook", "b-gpx": "baixar-gpx", "b-link": "copiar-link", "b-previsao": "previsao",
+      "b-terreno": "camada-terreno", "b-apoios": "camada-apoios", "b-km": "camada-marcos-km", "b-piso": "camada-piso", "b-pedais": "camada-pedais", "b-interesses": "camada-interesses",
+      "b-grudar": "grudar-nas-ruas", "b-livre": "trecho-livre", "b-evitar": "evitar-rodovias", "b-passeio": "como-usar", "busca-ok": "buscar-lugar", "b-abrir-gpx": "abrir-gpx", "b-minhas": "minhas-rotas", "b-salvar": "salvar-rota", "traco-abrir": "abrir-pedal-do-canal" };
+    function contarUso(nome) {
+      try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: "uso/planejar-pedal/" + nome, title: "Planejar pedal: " + nome, event: true }); } catch (x) { /* o contador é opcional */ }
+    }
+    document.addEventListener("click", function (e) { if (!e.isTrusted) return; var b = e.target.closest ? e.target.closest("button") : null; if (b && USOS[b.id] && !b.disabled) contarUso(USOS[b.id]); }, true);      // fase de captura: alguns botões trocam o ícone no próprio clique. Só o clique de verdade da pessoa: os que o próprio site faz por script (o Exemplo liga 4 chaves) não contam
 
     // ---- o estilo do mapa ----
     var painel = document.getElementById("painel-estilos"), botaoEstilo = document.getElementById("b-estilo");

@@ -1935,6 +1935,21 @@ def bloco_parecidos(p, pedais, excluir):
     return '<section class="parecidos"><h2>Pedais parecidos</h2><div class="grade-parecidos">' + "".join(cartoes) + "</div></section>"
 
 
+def exercicio_ld(p, titulo, url):
+    """Os dados estruturados do pedal como atividade física (schema.org ExerciseAction): data (sem a hora), distância, tempo e as cidades por onde passa.
+    Nada de coordenadas: o começo e o fim perto de casa não aparecem."""
+    km, _ = numeros(p)
+    seg = int(p["moving_time"])
+    duracao_iso = "PT" + (f"{seg // 3600}H" if seg >= 3600 else "") + f"{seg % 3600 // 60}M"
+    lugares = [c for c in p.get("_passa", [])[:6] if c]
+    dados = {"@context": "https://schema.org", "@type": "WebPage", "name": titulo, "url": url, "inLanguage": "pt-BR",
+             "mainEntity": {"@type": "ExerciseAction", "name": titulo, "exerciseType": "Cycling", "startTime": p["start_date_local"][:10],
+                            "distance": {"@type": "Distance", "name": f"{km:.1f} km"}, "exerciseDuration": duracao_iso}}
+    if lugares:
+        dados["mainEntity"]["location"] = [{"@type": "Place", "name": c} for c in lugares]
+    return dados
+
+
 def montar_pagina_pedal(p, mais_novo, mais_velho, modelo, todos=None):
     km, media = numeros(p)
     titulo = titulo_exibido(p)
@@ -1949,6 +1964,7 @@ def montar_pagina_pedal(p, mais_novo, mais_velho, modelo, todos=None):
         {"@type": "ListItem", "position": 1, "name": "Brote na Trilha", "item": "https://brotenatrilha.com.br/"},
         {"@type": "ListItem", "position": 2, "name": "Pedais", "item": "https://brotenatrilha.com.br/pedais/"},
         {"@type": "ListItem", "position": 3, "name": titulo, "item": url}]}]
+    ld.append(exercicio_ld(p, titulo, url))
     if v:
         ld.append({"@context": "https://schema.org", "@type": "VideoObject", "name": v["titulo"],
                    "description": texto or descricao_meta, "thumbnailUrl": [miniatura], "uploadDate": v.get("publicado") or v["data"] + "T00:00:00-03:00",
