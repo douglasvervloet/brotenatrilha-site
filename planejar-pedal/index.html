@@ -127,6 +127,12 @@
   .apoio-filtro:hover { border-color: var(--verde); }
   .popup { position: absolute; z-index: 6; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(420px, calc(100% - 32px)); background: rgba(12, 23, 17, .97); color: #fff; border: 1px solid rgba(255, 255, 255, .35); border-radius: 16px; padding: 16px 18px; box-shadow: 0 10px 30px rgba(0, 0, 0, .5); }
   .popup[hidden] { display: none; }
+  .campos-do-topo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 10px; }
+  .campos-do-topo .busca { margin: 0; }
+  .nome-da-rota { display: flex; }
+  .nome-da-rota input { flex: 1; min-width: 0; font: inherit; padding: 10px 16px; border-radius: 999px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); }
+  .nome-da-rota input:focus { outline: none; border-color: var(--verde); }
+  @media (max-width: 760px) { .campos-do-topo { grid-template-columns: 1fr; } }
   .busca { display: flex; gap: 8px; margin: 0 0 10px; }
   .busca input { flex: 1; min-width: 0; font: inherit; padding: 10px 16px; border-radius: 999px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); }
   .busca input:focus { outline: none; border-color: var(--verde); }
@@ -267,10 +273,13 @@
   </div>
 </header>
 <main class="miolo">
+  <div class="campos-do-topo">
   <form class="busca" id="busca" role="search">
     <input type="search" id="busca-q" placeholder="Buscar cidade ou lugar" aria-label="Buscar cidade ou lugar" maxlength="80" autocomplete="off" enterkeyhint="search">
     <button class="sec" type="submit" id="busca-ok"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Buscar</button>
   </form>
+  <div class="nome-da-rota"><input id="nome-rota" type="text" maxlength="60" placeholder="Nome da rota (sai na imagem e no roadbook)" aria-label="Nome da rota" autocomplete="off"></div>
+  </div>
   <ul class="busca-res" id="busca-res" hidden></ul>
   <div class="mapa" id="mapa" role="application" aria-label="Mapa de relevo para desenhar a rota">
     <div id="quadros"></div>
@@ -345,7 +354,7 @@
     <div class="passeio-botoes"><button type="button" id="passeio-pular" class="sem-fundo">Pular</button><span></span><button type="button" id="passeio-volta" class="sem-fundo">Anterior</button><button type="button" id="passeio-segue">Próximo</button></div>
   </div>
   <div class="minhas" id="painel-minhas" hidden>
-    <div class="salvar"><input id="nome-rota" type="text" maxlength="60" placeholder="Nome da rota" aria-label="Nome da rota"><button type="button" id="b-salvar" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg>Salvar esta rota</button></div>
+    <div class="salvar"><button type="button" id="b-salvar" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg>Salvar esta rota</button></div>
     <ul id="lista-minhas"></ul>
     <p class="nota" id="msg-minhas" aria-live="polite" style="margin-top:12px"></p>
   </div>
@@ -1760,7 +1769,7 @@
       lista.unshift({ n: nome.slice(0, 60), em: new Date().toISOString(), km: comprimento(linhaCompleta()) / 1000, h: hashDaRota(),
         c: rota.map(function (p) { return p.fixo && p.caminho && p.caminho.length ? codificar(p.caminho) : ""; }) });
       if (!gravarRotas(lista)) { avisoMinhas("Não consegui guardar: este navegador não deixa salvar dados do site."); return; }
-      campo.value = ""; avisoMinhas("Rota guardada."); desenharMinhas();
+      avisoMinhas("Rota guardada."); desenharMinhas();
     });
     document.getElementById("lista-minhas").addEventListener("click", function (e) {
       var b = e.target.closest ? e.target.closest("button") : null;
@@ -2198,7 +2207,7 @@
     // ---- o passeio guiado: cada passo explica uma parte da tela; o alvo ganha contorno e o cartão fica fixo embaixo ----
     var PASSOS_DO_PASSEIO = [
       { alvo: "#mapa", titulo: "Clique no mapa", texto: "Cada clique põe um ponto da rota. Clique na linha para inserir um ponto no meio, arraste um ponto para ajustar e clique nele para mais opções." },
-      { alvo: "#busca", titulo: "Buscar um lugar", texto: "Digite uma cidade ou um lugar e escolha na lista: o mapa vai direto até lá." },
+      { alvo: ".campos-do-topo", titulo: "Buscar um lugar e dar nome", texto: "Digite uma cidade ou um lugar e escolha na lista: o mapa vai direto até lá. O nome da rota sai na imagem e no roadbook." },
       { alvo: "#b-grupo-desenho", titulo: "Grudar nas ruas", texto: "Com a chave ligada, a rota segue as ruas entre os pontos. Dá para evitar rodovias ou ligar em linha reta (Trecho livre)." },
       { alvo: "#b-grupo-camadas", titulo: "Camadas do mapa", texto: "Terreno (asfalto, terra e calçamento), pontos de apoio, marcos de km, piso das ruas, pedais do canal e pontos de interesse com foto." },
       { alvo: ".linha1", titulo: "Desfazer, refazer e ida e volta", texto: "Errou um ponto? Desfaça. A ida e volta repete a rota ao contrário, de volta ao início." },
