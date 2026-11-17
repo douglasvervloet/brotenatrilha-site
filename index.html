@@ -139,6 +139,14 @@
     box-shadow: 0 18px 40px rgba(20, 50, 30, .25);
   }
   .player iframe { width: 100%; height: 100%; border: 0; display: block; }
+  .facade { position: relative; background: linear-gradient(135deg, #1e4a30, #0f2218); }
+  .facade .tocar { position: absolute; inset: 0; width: 100%; border: 0; padding: 0; color: #fff; font: inherit; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: transparent center / cover no-repeat; }
+  .facade .tocar::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, .15), rgba(0, 0, 0, .55)); }
+  .facade .seta, .facade .rotulo { position: relative; }
+  .facade .seta { width: 76px; height: 76px; border-radius: 50%; background: var(--ambar); color: #2a1a00; display: grid; place-items: center; box-shadow: 0 8px 24px rgba(0, 0, 0, .4); transition: transform .15s ease; }
+  .facade .seta svg { width: 34px; height: 34px; margin-left: 4px; }
+  .facade .tocar:hover .seta, .facade .tocar:focus-visible .seta { transform: scale(1.08); }
+  .facade .rotulo { font-size: 1.05rem; text-shadow: 0 2px 8px rgba(0, 0, 0, .7); padding: 0 16px; text-align: center; }
   .mais { margin-top: 22px; }
   .botao.verde { background: var(--verde); color: #fff; }
   .botao.verde:hover { background: var(--verde-escuro); }
@@ -242,8 +250,9 @@
 
   @media (max-width: 760px) {
     .topo .miolo { flex-direction: column; gap: 4px; padding: 10px 0; }
-    .menu { flex-wrap: wrap; justify-content: center; gap: 2px 16px; }
-    .menu a { font-size: .9rem; }
+    .menu { flex-wrap: nowrap; justify-content: flex-start; gap: 18px; max-width: 100%; overflow-x: auto; white-space: nowrap; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding: 0 4px; }
+    .menu::-webkit-scrollbar { display: none; }
+    .menu a { font-size: .9rem; flex: none; }
     .capa { padding: 150px 0 130px; }
     .sobre, .brote, .fotos { grid-template-columns: 1fr; gap: 22px; }
     section { padding: 48px 0; }
@@ -315,17 +324,11 @@
     <div class="miolo">
       <h2 class="titulo">Últimos vídeos</h2>
       <p class="lead">Os pedais mais recentes do canal. A lista se atualiza sozinha a cada vídeo novo.</p>
-      <div class="player">
-        <iframe
-          src="https://www.youtube-nocookie.com/embed/videoseries?list=UU2uS9f0ACz0LZC7HwZWVBPQ"
-          title="Vídeos do Brote na Trilha"
-          loading="lazy"
-          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerpolicy="strict-origin-when-cross-origin"
-          allowfullscreen></iframe>
+      <div class="player facade" id="player-ultimos" data-src="https://www.youtube-nocookie.com/embed/videoseries?list=UU2uS9f0ACz0LZC7HwZWVBPQ" data-titulo="Vídeos do Brote na Trilha">
+        <button type="button" class="tocar" aria-label="Tocar os últimos vídeos"><span class="seta"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span><span class="rotulo">Tocar os últimos vídeos</span></button>
       </div>
       <p class="mais">
-        <a class="botao verde" href="https://www.youtube.com/@BroteNaTrilha/videos" target="_blank" rel="noopener">Ver todos os vídeos no YouTube</a>
+        <a class="botao verde" href="https://www.youtube.com/@BroteNaTrilha/videos" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Ver todos no YouTube</a>
       </p>
     </div>
   </section>
@@ -344,7 +347,7 @@
             <li>Vento e previsão do tempo para a hora da saída</li>
             <li>Roadbook para imprimir e GPX para baixar</li>
           </ul>
-          <p class="links"><a class="botao verde" href="planejar-pedal/">Planejar o meu pedal</a></p>
+          <p class="links"><a class="botao verde" href="planejar-pedal/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="6" r="2.3"/><path d="M8.3 18H14a3.5 3.5 0 0 0 0-7h-4a3.5 3.5 0 0 1 0-7h5.7"/></svg>Planejar meu pedal</a></p>
         </div>
       </div>
     </div>
@@ -366,7 +369,7 @@
           <div><dt>Tempo</dt><dd>3h10</dd></div>
           <div><dt>Média</dt><dd>18,3 km/h</dd></div>
         </dl>
-        <p class="links"><a class="botao verde" href="https://www.youtube.com/watch?v=-rwF_1mrCSM" target="_blank" rel="noopener">Assistir no YouTube</a> <a class="botao borda" href="pedais/">Ver todos os pedais</a></p>
+        <p class="links"><a class="botao verde" href="https://www.youtube.com/watch?v=-rwF_1mrCSM" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Assistir no YouTube</a> <a class="botao borda" href="pedais/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Ver todos os pedais</a></p>
       </div>
     </div>
     <!--/ULTIMO_PEDAL-->
@@ -384,17 +387,11 @@
         <button class="chip" type="button" data-lista="PLOHdygxxt5OA" aria-pressed="false">Análises</button>
         <button class="chip" type="button" data-lista="PLYHTgWKh1DvA" aria-pressed="false">Cachoeiras</button>
       </div>
-      <div class="player">
-        <iframe id="player-playlist"
-          src="https://www.youtube-nocookie.com/embed/videoseries?list=PLEWtj7-TH0v4"
-          title="Playlist do Brote na Trilha"
-          loading="lazy"
-          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerpolicy="strict-origin-when-cross-origin"
-          allowfullscreen></iframe>
+      <div class="player facade" id="player-playlist" data-src="https://www.youtube-nocookie.com/embed/videoseries?list=PLEWtj7-TH0v4" data-titulo="Playlist do Brote na Trilha">
+        <button type="button" class="tocar" aria-label="Tocar a playlist"><span class="seta"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></span><span class="rotulo">Tocar a playlist Grande Vitória</span></button>
       </div>
       <p class="mais">
-        <a id="abrir-playlist" class="botao verde" href="https://www.youtube.com/playlist?list=PLEWtj7-TH0v4" target="_blank" rel="noopener">Abrir esta playlist no YouTube</a>
+        <a id="abrir-playlist" class="botao verde" href="https://www.youtube.com/playlist?list=PLEWtj7-TH0v4" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h12M3 11h12M3 16h7M17 13.5l5 3-5 3z"/></svg>Abrir no YouTube</a>
       </p>
     </div>
   </section>
@@ -511,6 +508,31 @@
     })
     .catch(() => {});
 
+  // Os players do YouTube só são carregados quando a pessoa toca em tocar (a página abre mais rápido e nada vai ao YouTube antes)
+  function ativarPlayer(caixa, tocar) {
+    const f = document.createElement("iframe");
+    f.src = caixa.dataset.src + (tocar ? "&autoplay=1" : "");
+    f.title = caixa.dataset.titulo;
+    f.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    f.referrerPolicy = "strict-origin-when-cross-origin";
+    f.allowFullscreen = true;
+    caixa.replaceChildren(f);
+    caixa.classList.remove("facade");
+  }
+  document.querySelectorAll(".facade .tocar").forEach((b) => b.addEventListener("click", () => ativarPlayer(b.parentElement, true)));
+
+  // A capa do último vídeo (a mesma que a lista de pedais usa, guardada no próprio site) serve de fundo do primeiro player
+  const linkUltimo = document.querySelector('.ultimo a[href*="watch?v="]');
+  if (linkUltimo) {
+    const id = (linkUltimo.href.match(/[?&]v=([\w-]+)/) || [])[1];
+    const botaoUltimos = document.querySelector("#player-ultimos .tocar");
+    if (id && botaoUltimos) {
+      const img = new Image();
+      img.onload = () => { botaoUltimos.style.backgroundImage = 'url("pedais/capas/' + id + '.webp")'; };
+      img.src = "pedais/capas/" + id + ".webp";
+    }
+  }
+
   // Escolher uma playlist troca o que o player mostra e o link "Abrir no YouTube"
   const botoes = document.querySelectorAll(".chip");
   const player = document.getElementById("player-playlist");
@@ -519,7 +541,10 @@
     botao.addEventListener("click", () => {
       const lista = botao.dataset.lista;
       botoes.forEach((b) => b.setAttribute("aria-pressed", String(b === botao)));
-      player.src = "https://www.youtube-nocookie.com/embed/videoseries?list=" + lista;
+      player.dataset.src = "https://www.youtube-nocookie.com/embed/videoseries?list=" + lista;
+      const iframe = player.querySelector("iframe");
+      if (iframe) iframe.src = player.dataset.src;                       // o player já está aberto: troca a lista
+      else player.querySelector(".rotulo").textContent = "Tocar a playlist " + botao.textContent;
       abrir.href = "https://www.youtube.com/playlist?list=" + lista;
     });
   });

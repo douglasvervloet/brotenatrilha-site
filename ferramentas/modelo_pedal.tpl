@@ -157,8 +157,9 @@
   .video iframe { width: 100%; height: 100%; border: 0; display: block; }
   .texto { margin: 22px 0 0; color: var(--suave); font-size: 1.05rem; }
   .links { margin: 22px 0 0; display: flex; flex-wrap: wrap; gap: 10px; }
-  .botao { display: inline-block; padding: 10px 20px; border-radius: 999px; background: var(--verde); color: #fff; font-weight: 700; text-decoration: none; transition: background .15s ease; }
+  .botao { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 999px; background: var(--verde); color: #fff; font-weight: 700; text-decoration: none; transition: background .15s ease; }
   .botao:hover { background: var(--verde-escuro); }
+  .botao svg { width: 18px; height: 18px; flex: none; }
   .botao.claro { background: transparent; color: var(--texto); border: 2px solid var(--linha); padding: 8px 18px; }
   .botao.claro:hover { border-color: var(--verde); }
   .navegacao { margin-top: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }

@@ -1378,8 +1378,8 @@ def bloco_gpx(p):
     if not p.get("_gpx"):
         return ""
     nome = f'{p["_slug"]}.gpx'
-    return (f'<a class="botao claro" href="/pedais/gpx/{p["id"]}.gpx" download="{html.escape(nome)}">Baixar GPX</a> '
-            f'<a class="botao claro" href="/planejar-pedal/?pedal={p["id"]}">Planejar a partir deste pedal</a>')
+    return (f'<a class="botao claro" href="/pedais/gpx/{p["id"]}.gpx" download="{html.escape(nome)}">{ICONE_BAIXAR}Baixar GPX</a> '
+            f'<a class="botao claro" href="/planejar-pedal/?pedal={p["id"]}">{ICONE_ROTA}Planejar este pedal</a>')
 
 
 # ----------------------------------------------------------------------------- bairros e localidades (OpenStreetMap)
@@ -1819,10 +1819,15 @@ def mapa_do_pedal(p):
     return mapa_html(p, "/pedais/mapas/", "eager")
 
 
+ICONE_TOCAR = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>'                       # os ícones dos botões de ação (traço fino, como os do Planejar pedal)
+ICONE_BAIXAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>'
+ICONE_ROTA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="6" r="2.3"/><path d="M8.3 18H14a3.5 3.5 0 0 0 0-7h-4a3.5 3.5 0 0 1 0-7h5.7"/></svg>'
+
+
 def botoes(p, claro_assistir=False, extra="", komoot=True, strava=True):
     links = []
     if p.get("_video"):
-        links.append(f'<a class="botao" href="https://www.youtube.com/watch?v={p["_video"]["id"]}" target="_blank" rel="noopener">Assistir</a>')
+        links.append(f'<a class="botao" href="https://www.youtube.com/watch?v={p["_video"]["id"]}" target="_blank" rel="noopener">{ICONE_TOCAR}Assistir</a>')
     if strava:
         links.append(f'<a class="botao claro" href="https://www.strava.com/activities/{p["id"]}" target="_blank" rel="noopener">View on Strava</a>')
     if komoot and p.get("_komoot"):
@@ -1854,7 +1859,7 @@ def cartao(p):
             <div><dt>Tempo</dt><dd>{duracao(p["moving_time"])}</dd></div>
             <div><dt>Média</dt><dd>{num(media, 1)} km/h</dd></div>
           </dl>
-          <a class="planejar-atalho" href="/planejar-pedal/?pedal={p["id"]}">Planejar a partir deste pedal</a>
+          <a class="planejar-atalho" href="/planejar-pedal/?pedal={p["id"]}">{ICONE_ROTA}Planejar este pedal</a>
         </div>
       </article>"""
 
@@ -2047,7 +2052,7 @@ def escrever_tracos(pedais, pasta_gpx):
             continue
         pontos = mapa_geral.reduzir(mapa_geral.pontos_do_gpx(caminho_gpx(pasta_gpx, p["id"])))
         if pontos:
-            lista.append({"id": p["id"], "t": titulo_exibido(p), "u": p["_slug"], "p": codificar_polilinha(pontos)})
+            lista.append({"id": str(p["id"]), "t": titulo_exibido(p), "u": p["_slug"], "p": codificar_polilinha(pontos)})
     destino = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tracos_pedais.json")
     texto = json.dumps(lista, ensure_ascii=False, separators=(",", ":"))
     if not os.path.exists(destino) or open(destino, encoding="utf-8").read() != texto:

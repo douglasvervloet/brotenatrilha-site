@@ -127,16 +127,17 @@
   .apoio-filtro:hover { border-color: var(--verde); }
   .popup { position: absolute; z-index: 6; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(420px, calc(100% - 32px)); background: rgba(12, 23, 17, .97); color: #fff; border: 1px solid rgba(255, 255, 255, .35); border-radius: 16px; padding: 16px 18px; box-shadow: 0 10px 30px rgba(0, 0, 0, .5); }
   .popup[hidden] { display: none; }
-  .campos-do-topo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 10px; }
+  .campos-do-topo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin: 0 0 10px; }
+  .campos-do-topo > * { min-width: 0; }
   .campos-do-topo .busca { margin: 0; }
   .nome-da-rota { display: flex; }
-  .nome-da-rota input { flex: 1; min-width: 0; font: inherit; padding: 10px 16px; border-radius: 999px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); }
+  .nome-da-rota input { flex: 1; width: 100%; min-width: 0; font: inherit; padding: 10px 16px; border-radius: 999px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); }
   .nome-da-rota input:focus { outline: none; border-color: var(--verde); }
-  @media (max-width: 760px) { .campos-do-topo { grid-template-columns: 1fr; } }
+  @media (max-width: 760px) { .campos-do-topo { grid-template-columns: minmax(0, 1fr); } }
   .busca { display: flex; gap: 8px; margin: 0 0 10px; }
-  .busca input { flex: 1; min-width: 0; font: inherit; padding: 10px 16px; border-radius: 999px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); }
+  .busca input { flex: 1; width: 100%; min-width: 0; font: inherit; padding: 10px 16px; border-radius: 999px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); }
   .busca input:focus { outline: none; border-color: var(--verde); }
-  .busca button { font: inherit; font-weight: 700; padding: 10px 18px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid var(--linha); background: transparent; color: var(--texto); }
+  .busca button { flex: none; font: inherit; font-weight: 700; padding: 10px 18px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid var(--linha); background: transparent; color: var(--texto); }
   .busca button svg.ic { width: 17px; height: 17px; }
   .busca button:hover { border-color: var(--verde); }
   .busca-res { list-style: none; margin: -2px 0 10px; padding: 6px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; }
@@ -278,7 +279,7 @@
     <input type="search" id="busca-q" placeholder="Buscar cidade ou lugar" aria-label="Buscar cidade ou lugar" maxlength="80" autocomplete="off" enterkeyhint="search">
     <button class="sec" type="submit" id="busca-ok"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Buscar</button>
   </form>
-  <div class="nome-da-rota"><input id="nome-rota" type="text" maxlength="60" placeholder="Nome da rota (sai na imagem e no roadbook)" aria-label="Nome da rota" autocomplete="off"></div>
+  <div class="nome-da-rota"><input id="nome-rota" type="text" maxlength="60" placeholder="Nome da rota" aria-label="Nome da rota" title="O nome sai na imagem e no roadbook" autocomplete="off"></div>
   </div>
   <ul class="busca-res" id="busca-res" hidden></ul>
   <div class="mapa" id="mapa" role="application" aria-label="Mapa de relevo para desenhar a rota">
@@ -341,11 +342,11 @@
     <div class="credito-mapa" id="credito">© OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA)</div>
   </div>
   <div class="acoes">
-    <button class="sec" type="button" id="b-abrir-gpx"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Abrir um GPX</button>
+    <button class="sec" type="button" id="b-abrir-gpx" title="Abrir um arquivo GPX seu"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Abrir GPX</button>
     <input type="file" id="arq-gpx" accept=".gpx,application/gpx+xml,text/xml" hidden>
     <button class="sec" type="button" id="b-minhas" aria-expanded="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4z"/></svg>Minhas rotas<span class="contagem" id="n-minhas">0</span></button>
     <button class="sec" type="button" id="b-passeio"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg>Como usar</button>
-    <button class="sec" type="button" id="b-exemplo" title="Abre o pedal de Queimados (Serra) para você ver como a ferramenta funciona"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l3.5-8h5l3.5 8M9.5 9L13 17M9 6h2.5"/></svg>Pedal de exemplo</button>
+    <button class="sec" type="button" id="b-exemplo" title="Pedal de exemplo: abre o pedal de Queimados (Serra) para você ver como a ferramenta funciona"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l3.5-8h5l3.5 8M9.5 9L13 17M9 6h2.5"/></svg>Exemplo</button>
   </div>
   <div class="passeio" id="passeio" role="dialog" aria-labelledby="passeio-titulo" hidden>
     <small id="passeio-n"></small>
@@ -354,13 +355,13 @@
     <div class="passeio-botoes"><button type="button" id="passeio-pular" class="sem-fundo">Pular</button><span></span><button type="button" id="passeio-volta" class="sem-fundo">Anterior</button><button type="button" id="passeio-segue">Próximo</button></div>
   </div>
   <div class="minhas" id="painel-minhas" hidden>
-    <div class="salvar"><button type="button" id="b-salvar" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg>Salvar esta rota</button></div>
+    <div class="salvar"><button type="button" id="b-salvar" disabled title="Salvar esta rota neste navegador"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg>Salvar rota</button></div>
     <ul id="lista-minhas"></ul>
     <p class="nota" id="msg-minhas" aria-live="polite" style="margin-top:12px"></p>
   </div>
   <details class="sobre-dados">
     <summary>Privacidade e fontes dos dados</summary>
-    <p class="aviso"><b>Previsão do tempo</b>: só ao clicar no botão, o ponto de saída (arredondado a cerca de 1 km) e a data vão ao Open-Meteo, um serviço público de meteorologia. <b>Buscar um lugar</b>: só quando você envia a busca, o texto digitado vai ao Nominatim (OpenStreetMap), que recebe o seu endereço IP. <b>Pontos de interesse</b>: lidos de um arquivo do próprio site (OpenStreetMap), só no Espírito Santo; a foto e o texto, quando existem, vêm da Wikipédia e do Wikimedia Commons e só são pedidos ao abrir o ponto (eles recebem o seu endereço IP). <b>Roadbook e imagem da rota</b>: montados no seu navegador, nada é enviado. <b>Evitar rodovias</b> usa o mesmo serviço de rotas do Grudar nas ruas. <b>Pontos de apoio</b>: lidos de um arquivo do próprio site (dados do OpenStreetMap, © colaboradores, ODbL), só no Espírito Santo. <b>Abrir um GPX</b>: o arquivo é lido só no seu navegador. <b>Minhas rotas</b>: ficam guardadas neste navegador, e nada é enviado.</p>
+    <p class="aviso"><b>Previsão do tempo</b>: só ao clicar no botão, o ponto de saída (arredondado a cerca de 1 km) e a data vão ao Open-Meteo, um serviço público de meteorologia. <b>Buscar um lugar</b>: só quando você envia a busca, o texto digitado vai ao Nominatim (OpenStreetMap), que recebe o seu endereço IP. <b>Pontos de interesse</b>: lidos de um arquivo do próprio site (OpenStreetMap), só no Espírito Santo; a foto e o texto, quando existem, vêm da Wikipédia e do Wikimedia Commons e só são pedidos ao abrir o ponto (eles recebem o seu endereço IP). <b>Roadbook e imagem da rota</b>: montados no seu navegador, nada é enviado. <b>Evitar rodovias</b> usa o mesmo serviço de rotas do Grudar nas ruas. <b>Pontos de apoio</b>: lidos de um arquivo do próprio site (dados do OpenStreetMap, © colaboradores, ODbL), só no Espírito Santo. <b>Abrir GPX</b>: o arquivo é lido só no seu navegador. <b>Minhas rotas</b>: ficam guardadas neste navegador, e nada é enviado.</p>
     <p class="aviso"><b>Mostrar o terreno</b>: dentro do Espírito Santo, o terreno vem de arquivos do próprio site e nada sai do navegador. Fora dele, uma amostra da rota (um ponto a cada 200 m) é enviada ao Overpass, o serviço público do OpenStreetMap, para saber o tipo de cada via. Desligado, nada é enviado. Dados das vias: © colaboradores do OpenStreetMap (ODbL).</p>
     <p class="aviso">Com <b>Grudar nas ruas</b> desligado, nada do que você desenha sai do seu navegador. Ligado, os pontos de cada trecho (dois a dois) são enviados a um serviço público de rotas do OpenStreetMap
       (Valhalla, da FOSSGIS, e, se ele não responder, BRouter e o OSRM da FOSSGIS) para seguir as ruas e trilhas; se nenhum responder, o trecho fica em linha reta. O mapa e a altitude vêm de servidores abertos (OpenTopoMap ou OpenStreetMap, conforme o estilo, e Amazon Web Services),
@@ -397,7 +398,7 @@
     <p class="aviso" id="luz-aviso"></p>
     <p class="nota" style="margin-top:8px">O tempo vem de um modelo simples (peso, velocidade no plano e inclinação de cada trecho), ajustado com os pedais do canal: erra em média uns 8 a 10%. Não conta paradas. O nascer e o pôr do sol são aproximados (diferença de poucos minutos), no horário de Brasília.</p>
     <h2>Previsão do tempo</h2>
-    <div class="acoes" style="margin-top:8px"><button class="sec" type="button" id="b-previsao"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a4 4 0 0 1 .5-8A5.5 5.5 0 0 1 18 11.5 3.3 3.3 0 0 1 17.5 18z"/></svg>Ver a previsão para a saída</button></div>
+    <div class="acoes" style="margin-top:8px"><button class="sec" type="button" id="b-previsao" title="Ver a previsão do tempo para a saída"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a4 4 0 0 1 .5-8A5.5 5.5 0 0 1 18 11.5 3.3 3.3 0 0 1 17.5 18z"/></svg>Ver previsão</button></div>
     <p class="nota" id="status-previsao" aria-live="polite" hidden></p>
     <div class="previsao-grafico" id="previsao-grafico" hidden><svg id="grafico-tempo" viewBox="0 0 1000 372" role="img" aria-label="Gráfico da temperatura, do vento e da chuva previstos para as horas do pedal"></svg></div>
     <p class="nota" id="resumo-previsao" hidden style="margin-top:10px"></p>
@@ -410,7 +411,7 @@
     <h2>Subidas da rota</h2>
     <div class="tabela"><table id="tabela"></table></div>
   </div>
-  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="rot">Copiar link da rota</span></button><button class="sec" type="button" id="b-subidas" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19l6-10 4 6 3-4 5 8z"/></svg>Ver no “Subidas do seu GPX”</button><button class="sec" type="button" id="b-roadbook" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Roadbook para imprimir</button><button class="sec" type="button" id="b-imagem" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 3.5 3L16 12l4.5 4.5"/></svg>Salvar imagem</button></div>
+  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled title="Copiar o link da rota"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="rot">Copiar link</span></button><button class="sec" type="button" id="b-subidas" disabled title="Ver no Subidas do seu GPX"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19l6-10 4 6 3-4 5 8z"/></svg>Ver subidas</button><button class="sec" type="button" id="b-roadbook" disabled title="Roadbook para imprimir"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Roadbook</button><button class="sec" type="button" id="b-imagem" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 3.5 3L16 12l4.5 4.5"/></svg>Salvar imagem</button></div>
   <p class="nota">A altitude vem do relevo do mapa (SRTM), a cada 25 m ao longo da linha, e pode diferir da de um aparelho de GPS. O ganho total ignora oscilações de até 12 m, ajustado com os pedais do canal contra o Strava (erro médio de uns 12%). O GPX baixado traz só o traçado e a altitude. Com “Grudar nas ruas” desligado as linhas são retas entre os pontos: para seguir uma curva, clique com mais frequência.</p>
   <p class="nota">O link guarda a rota no próprio endereço, depois do “#”: o navegador não envia essa parte a nenhum servidor. Quem abrir o link vê a mesma rota; o “Grudar nas ruas” é ligado por cada pessoa. Um pedal aberto do canal vai simplificado no link (só os pontos, sem o caminho inteiro).</p>
 </main>
@@ -1403,7 +1404,7 @@
     function atualizarEndereco() { try { history.replaceState(null, "", location.pathname + hashDaRota()); } catch (x) { /* sem história, o link só não acompanha */ } }
     document.getElementById("b-link").addEventListener("click", function () {
       var url = location.origin + location.pathname + hashDaRota(), botao = this, msg = document.getElementById("msg-pedal");
-      function pronto() { var rotulo = botao.querySelector(".rot"); rotulo.textContent = "Link copiado"; setTimeout(function () { rotulo.textContent = "Copiar link da rota"; }, 2000); }
+      function pronto() { var rotulo = botao.querySelector(".rot"); rotulo.textContent = "Link copiado"; setTimeout(function () { rotulo.textContent = "Copiar link"; }, 2000); }
       function avisar() { msg.textContent = "Não consegui copiar sozinho. Copie o endereço desta página: " + url; msg.hidden = false; }
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(pronto, avisar); else avisar();
     });
