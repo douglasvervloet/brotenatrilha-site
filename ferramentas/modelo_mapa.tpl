@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="max-image-preview:large">
 <title>Mapa dos pedais | Brote na Trilha</title>
 <meta name="description" content="Todos os percursos do canal Brote na Trilha num mapa de relevo, com zoom: por onde o canal mais pedala no Espírito Santo.">
 <link rel="canonical" href="https://brotenatrilha.com.br/pedais/mapa/">

@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="max-image-preview:large">
 <title>Análises | Brote na Trilha</title>
 <meta name="description" content="As análises do canal Brote na Trilha: reviews de quadros, peças e equipamentos de bike, com o vídeo de cada uma.">
 <link rel="canonical" href="https://brotenatrilha.com.br/analises/">
