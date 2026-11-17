@@ -813,6 +813,16 @@
         .then(function (r) { clearTimeout(tempo); if (!r.ok) throw new Error("http " + r.status); return r.json(); })
         .then(function (d) { return decodificar(d.trip.legs[0].shape, 1e6); });
     }
+    function viaValhallaVarios(pontos) {                           // um pedido com vários pontos seguidos: uma linha para cada trecho
+      var ctl = new AbortController(), tempo = setTimeout(function () { ctl.abort(); }, 20000);
+      var corpo = { locations: pontos.map(function (p) { return { lat: p.lat, lon: p.lon }; }), costing: "bicycle", costing_options: { bicycle: { bicycle_type: "Hybrid", use_roads: 0.8 } } };
+      return fetch(URL_VALHALLA, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo), signal: ctl.signal })
+        .then(function (r) { clearTimeout(tempo); if (!r.ok) throw new Error("http " + r.status); return r.json(); })
+        .then(function (d) {
+          if (!d.trip || d.trip.legs.length !== pontos.length - 1) throw new Error("trechos a menos");
+          return d.trip.legs.map(function (l) { return decodificar(l.shape, 1e6); });
+        });
+    }
     function viaBrouter(a, b) {
       return buscarJson(URL_BROUTER.replace("{a}", a.lon.toFixed(6) + "," + a.lat.toFixed(6)).replace("{b}", b.lon.toFixed(6) + "," + b.lat.toFixed(6))).then(function (d) {
         return d.features[0].geometry.coordinates.map(function (p) { return { lat: p[1], lon: p[0] }; });
@@ -825,6 +835,15 @@
     }
     function caminhoPelasRuas(a, b) {                                // [{lat, lon}] ou null se nenhum serviço respondeu
       return viaValhalla(a, b).catch(function () { return viaBrouter(a, b); }).catch(function () { return viaOsrm(a, b); }).catch(function () { return null; });
+    }
+    function caminhosPelasRuas(pontos) {                           // uma lista de caminhos, um por trecho (null onde nenhum serviço respondeu)
+      function umAUm() {                                           // se o pedido de vários pontos falhar: trecho a trecho, com os três serviços
+        var saida = [];
+        return pontos.slice(1).reduce(function (cadeia, b, k) {
+          return cadeia.then(function () { return caminhoPelasRuas(pontos[k], b).then(function (c) { saida.push(c); }); });
+        }, Promise.resolve()).then(function () { return saida; });
+      }
+      return pontos.length < 3 ? umAUm() : viaValhallaVarios(pontos).catch(umAUm);
     }
     function chaveDoTrecho(a, b) { return [a.lat, a.lon, b.lat, b.lon].map(function (v) { return v.toFixed(5); }).join(","); }
     function pedirPendentes() {                                      // pede o caminho de cada trecho que ainda não tem (só com "Grudar nas ruas" ligado)
@@ -842,25 +861,30 @@
     }
     function andarFila() {
       if (emCurso) return;
+      var vale = function (x) { return grudar && !x.b.livre && rota.indexOf(x.b) >= 1 && rota[rota.indexOf(x.b) - 1] === x.a; };      // o que já não vale é descartado
       var t = fila.shift();
-      while (t && (!grudar || t.b.livre || rota.indexOf(t.b) < 1 || rota[rota.indexOf(t.b) - 1] !== t.a)) t = fila.shift();      // descarta o que já não vale
+      while (t && !vale(t)) t = fila.shift();
       if (!t) { estado(); desenharRota(); agendar(); return; }
+      var lote = [t];
+      while (fila.length && lote.length < 9 && fila[0].a === lote[lote.length - 1].b && vale(fila[0])) lote.push(fila.shift());      // até 9 trechos seguidos num pedido só
       emCurso = true;
       estado();
-      caminhoPelasRuas(t.a, t.b).then(function (c) {
-        var ib = rota.indexOf(t.b);
-        if (ib >= 1 && rota[ib - 1] === t.a) {
-          if (c) { t.b.caminho = c; cacheRotas[chaveDoTrecho(t.a, t.b)] = c; } else { t.b.reta = true; }
-        }
+      caminhosPelasRuas([lote[0].a].concat(lote.map(function (x) { return x.b; }))).then(function (caminhos) {
+        lote.forEach(function (x, k) {
+          var ib = rota.indexOf(x.b);
+          if (ib >= 1 && rota[ib - 1] === x.a) {
+            if (caminhos[k]) { x.b.caminho = caminhos[k]; cacheRotas[chaveDoTrecho(x.a, x.b)] = caminhos[k]; } else { x.b.reta = true; }
+          }
+        });
         emCurso = false;
         desenharRota(); agendar();
-        setTimeout(andarFila, 150);                                   // sem pressa: o serviço é comunitário
+        setTimeout(andarFila, 60);                                  // sem pressa: o serviço é comunitário
       });
     }
     function estado() {                                              // a frase de situação abaixo do aviso
       var e = document.getElementById("status-grudar"), retas = 0;
       for (var i = 1; i < rota.length; i++) if (rota[i].reta) retas++;
-      if (grudar && (emCurso || fila.length)) { e.textContent = "Seguindo as ruas e trilhas do OpenStreetMap…"; e.hidden = false; }
+      if (grudar && (emCurso || fila.length)) { e.textContent = "Seguindo as ruas e trilhas do OpenStreetMap…" + (fila.length ? " (faltam " + fila.length + " trechos)" : ""); e.hidden = false; }
       else if (grudar && retas) { e.textContent = "Não consegui seguir as ruas em " + retas + (retas === 1 ? " trecho" : " trechos") + ": ficaram em linha reta. Mexa num ponto para tentar de novo."; e.hidden = false; }
       else e.hidden = true;
     }
