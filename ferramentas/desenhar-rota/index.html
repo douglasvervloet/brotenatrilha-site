@@ -69,6 +69,17 @@
   .toast { position: absolute; left: 50%; bottom: 74px; transform: translateX(-50%); background: rgba(12, 23, 17, .92); color: #fff; border: 1px solid rgba(255, 255, 255, .3);
            border-radius: 999px; padding: 8px 18px; font-size: .85rem; font-weight: 700; max-width: 92%; text-align: center; pointer-events: none; }
   .toast[hidden] { display: none; }
+  .piso-resumo { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; padding: 10px 14px; }
+  .piso-resumo[hidden] { display: none; }
+  .piso-resumo ul { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 18px; font-variant-numeric: tabular-nums; }
+  .piso-resumo li { display: inline-flex; align-items: center; gap: 8px; }
+  .amostra { display: inline-block; width: 22px; height: 5px; border-radius: 3px; outline: 1px solid rgba(128, 128, 128, .55); }
+  .leg-terreno { position: absolute; right: 68px; top: 12px; background: rgba(12, 23, 17, .9); color: #fff; border-radius: 12px; padding: 8px 14px; font-size: .82rem; line-height: 1.55; pointer-events: none; }
+  .leg-terreno[hidden] { display: none; }
+  .leg-terreno b { font-size: .8rem; }
+  .leg-terreno .amostra { width: 24px; margin-right: 8px; vertical-align: middle; outline-color: rgba(255, 255, 255, .7); }
+  .leg-terreno small { display: block; opacity: .8; font-size: .74rem; }
+  @media (max-width: 560px) { .leg-terreno { top: auto; bottom: 62px; right: 12px; } }
   .zoom { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; }
   .zoom .bt { width: 44px; padding: 0; font-size: 1.4rem; line-height: 1; }
   .dica { position: absolute; left: 12px; bottom: 12px; background: rgba(12, 23, 17, .85); color: #fff; border-radius: 12px; padding: 8px 14px; font-size: .85rem; max-width: 62%; pointer-events: none; }
@@ -126,19 +137,24 @@
         <button class="bt" type="button" id="b-desfazer" disabled>Desfazer</button>
         <button class="bt" type="button" id="b-refazer" disabled>Refazer</button>
         <button class="bt" type="button" id="b-limpar" disabled>Limpar</button>
+        <button class="bt" type="button" id="b-ida-volta" aria-pressed="false" title="Repete a ida ao contrário, de volta ao início">⇄ Ida e volta</button>
       </div>
       <button class="grudar" type="button" id="b-grudar" aria-pressed="false"><i></i>Grudar nas ruas <small>BETA</small></button>
+      <button class="grudar" type="button" id="b-terreno" aria-pressed="false"><i></i>Mostrar o terreno <small>BETA</small></button>
     </div>
     <div class="zoom"><button class="bt" type="button" id="b-mais" aria-label="Aproximar">+</button><button class="bt" type="button" id="b-menos" aria-label="Afastar">&minus;</button><button class="bt" type="button" id="b-local" aria-label="Minha localização" title="Minha localização"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button><button class="bt" type="button" id="b-estilo" aria-label="Estilo do mapa" aria-expanded="false" title="Estilo do mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="m2 13 10 5 10-5"/></svg></button></div>
     <div class="estilos" id="painel-estilos" role="group" aria-label="Estilo do mapa" hidden><h4>Estilo do mapa</h4><div class="grade"><button type="button" class="op" data-estilo="relevo" aria-pressed="true"><img src="estilo-relevo.webp" width="150" height="100" alt="">Relevo</button><button type="button" class="op" data-estilo="ruas" aria-pressed="false"><img src="estilo-ruas.webp" width="150" height="100" alt="">Ruas</button><button type="button" class="op" data-estilo="escuro" aria-pressed="false"><img src="estilo-escuro.webp" width="150" height="100" alt="">Escuro</button></div><small>Cada estilo pede os quadros do mapa a um servidor aberto diferente.</small></div>
     <div class="toast" id="aviso-local" role="status" aria-live="polite" hidden></div>
+    <div class="leg-terreno" id="leg-terreno" hidden></div>
     <div class="dica" id="dica">Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para remover.</div>
     <div class="credito-mapa" id="credito">© OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA)</div>
   </div>
+  <p class="aviso" style="margin-bottom:0"><b>Mostrar o terreno</b> ligado: uma amostra da rota (um ponto a cada 200 m) é enviada ao Overpass, o serviço público do OpenStreetMap, para saber o tipo de cada via; desligado, nada sai do navegador. Num pedal do canal aberto sem alterações, o terreno vem do que o site já calculou.</p>
   <p class="aviso">Com <b>Grudar nas ruas</b> desligado, nada do que você desenha sai do seu navegador. Ligado, os pontos de cada trecho (dois a dois) são enviados a um serviço público de rotas do OpenStreetMap
     (BRouter, com o da FOSSGIS como reserva) para seguir as ruas e trilhas; se nenhum responder, o trecho fica em linha reta. O mapa e a altitude vêm de servidores abertos (OpenTopoMap ou OpenStreetMap, conforme o estilo, e Amazon Web Services),
     que só recebem o pedido dos quadros do mapa que você vê. A sua localização, se você usar o botão, é lida só no seu navegador.</p>
   <p class="nota" id="status-grudar" aria-live="polite" hidden></p>
+  <p class="nota" id="status-terreno" aria-live="polite" hidden></p>
   <p class="nota" id="vazio">Clique no mapa para começar. Com pelo menos 1 km desenhado, aparecem os números e as subidas.</p>
   <p class="nota" id="erro" hidden></p>
   <p class="nota" id="msg-pedal" hidden></p>
@@ -148,6 +164,7 @@
       <div><span>Ganho de altitude</span><b id="n-ganho"></b></div>
       <div><span>Subidas com categoria</span><b id="n-cat"></b></div>
     </div>
+    <div class="piso-resumo" id="piso-resumo" hidden></div>
     <h2>Tempo e luz do dia</h2>
     <div class="campos">
       <div><label for="luz-data">Data</label><input id="luz-data" type="date"></div>
@@ -314,7 +331,7 @@
     var URL_ALTITUDE = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";   // metros = R·256 + G + B/256 − 32768
     var Z_ALTITUDE = 12, Z_MIN = 8, Z_MAX = 17, PASSO_AMOSTRA = 25;                                  // altitude lida no zoom 12; um ponto a cada 25 m
     var caixa = document.getElementById("mapa"), camada = document.getElementById("quadros"), desenho = document.getElementById("rota");
-    var z = 11, rota = [], antes = [], depois = [], modoDesenhar = true, pontosGpx = null, grudar = false, calculo = null, marcador = null, ultimoTotal = 0;
+    var z = 11, rota = [], antes = [], depois = [], modoDesenhar = true, pontosGpx = null, grudar = false, calculo = null, marcador = null, ultimoTotal = 0, idaEVolta = false, terrenoLigado = false, terreno = null, deUmPedal = null;
 
     function mundo(lat, lon, nivel) {                              // coordenadas -> pixels do mapa mundial no zoom `nivel`
       var n = 256 * Math.pow(2, nivel), s = Math.sin(lat * Math.PI / 180);
@@ -357,7 +374,7 @@
 
     // ---- a rota em cima do mapa ----
     function metrosEntre(a, b) { return metros([a.lat, a.lon], [b.lat, b.lon]); }
-    function linhaCompleta() {                                     // a linha da rota: os pontos clicados e, com "Grudar nas ruas", o caminho pelas ruas entre eles
+    function linhaDaIda() {                                        // a linha da rota (a ida): os pontos clicados e, com "Grudar nas ruas", o caminho pelas ruas entre eles
       if (!rota.length) return [];
       var linha = [rota[0]];
       for (var i = 1; i < rota.length; i++) {
@@ -366,33 +383,63 @@
       }
       return linha;
     }
+    function linhaCompleta() {                                     // com "Ida e volta", a ida seguida dela mesma ao contrário
+      var ida = linhaDaIda();
+      return idaEVolta && ida.length > 1 ? ida.concat(ida.slice(0, -1).reverse()) : ida;
+    }
     function comprimento(pts) { var t = 0; for (var i = 1; i < pts.length; i++) t += metrosEntre(pts[i - 1], pts[i]); return t; }
+    var CORES_TERRENO = { "Asfalto": "#d6004f", "Terra": "#141414", "Calçamento": "#6b2fa8", "Sem informação": "#8f897c" };
+    function tipoEm(km) {                                          // o terreno no quilômetro km da ida (a volta repete a ida ao contrário)
+      if (!terreno) return null;
+      return terreno.tipos[Math.min(terreno.tipos.length - 1, Math.max(0, Math.floor(km / 0.2)))];
+    }
+    function tracado(tela, kms, largura) {                         // a linha: por tipo de terreno (com contorno claro) ou, sem terreno, numa cor só
+      var f = function (lista) { return lista.map(function (q) { return q.x.toFixed(1) + "," + q.y.toFixed(1); }).join(" "); };
+      var base = function (pontos, cor, w, extra) { return '<polyline points="' + f(pontos) + '" fill="none" stroke="' + cor + '" stroke-width="' + w + '"' + (extra || "") + ' stroke-linejoin="round" stroke-linecap="round"/>'; };
+      if (!terreno) return base(tela, "#0c1711", largura + 5, ' stroke-opacity=".55"') + base(tela, "#f4f0e6", largura);
+      var s = base(tela, "#fff", largura + 4, ' stroke-opacity=".92"'), ini = 0, atual = tipoEm(kms[0]);
+      for (var i = 1; i <= tela.length; i++) {
+        var tipo = i < tela.length ? tipoEm(kms[i]) : null;
+        if (tipo !== atual) {
+          s += base(tela.slice(ini, Math.min(i + 1, tela.length)), CORES_TERRENO[atual], largura, atual === "Sem informação" ? ' stroke-dasharray="7 6"' : "");
+          ini = i; atual = tipo;
+        }
+      }
+      return s;
+    }
+    function kmsDaLinha(linha) { var d = [0]; for (var i = 1; i < linha.length; i++) d.push(d[i - 1] + metrosEntre(linha[i - 1], linha[i]) / 1000); return d; }
+    function ladoDireito(tela, d) {                                // a linha paralela, d pixels à direita do sentido do traçado (a volta ao lado da ida)
+      return tela.map(function (q, i) {
+        var a = tela[Math.max(0, i - 3)], b = tela[Math.min(tela.length - 1, i + 3)], dx = b.x - a.x, dy = b.y - a.y, n = Math.hypot(dx, dy) || 1;
+        return { x: q.x + dy / n * d, y: q.y - dx / n * d };
+      });
+    }
     function desenharRota() {
       desenho.setAttribute("viewBox", "0 0 " + L() + " " + A());
       if (!rota.length) { desenho.innerHTML = ""; desenharLocalizacao(); return; }
-      var p = rota.map(paraTela), pontos = function (lista) { return lista.map(function (q) { return q.x.toFixed(1) + "," + q.y.toFixed(1); }).join(" "); };
-      var linha = pontos(linhaCompleta().map(paraTela));
-      var svg = '<polyline points="' + linha + '" fill="none" stroke="#0c1711" stroke-opacity=".55" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"/>' +
-        '<polyline points="' + linha + '" fill="none" stroke="#f4f0e6" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>';
-      if (calculo && pontosGpx) {                                  // as subidas, na cor da categoria, por cima da linha
-        calculo.subidas.forEach(function (s) {
-          var de = s.ini * PASSO / 1000, ate = s.topo * PASSO / 1000, trecho = [];
-          for (var i = 0; i < calculo.perfil.length; i++) {
-            var k = calculo.perfil[i][0];
-            if (k >= de && k <= ate) trecho.push(paraTela({ lat: pontosGpx[i][0], lon: pontosGpx[i][1] }));
-          }
-          if (trecho.length > 1) svg += '<polyline points="' + pontos(trecho) + '" fill="none" stroke="' + CORES[s.categoria][0] + '" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>';
-        });
-      }
+      var p = rota.map(paraTela), idaLinha = linhaDaIda(), idaTela = idaLinha.map(paraTela), kms = kmsDaLinha(idaLinha), kmIda = kms[kms.length - 1];
+      var svg = tracado(idaTela, kms, 4);
+      if (idaEVolta && idaTela.length > 1) svg += tracado(ladoDireito(idaTela, 7), kms, 2.6);
+      var comRetorno = idaEVolta && p.length > 1;
       p.forEach(function (q, i) {
         var ehUltimo = i === p.length - 1 && p.length > 1, primeiro = i === 0;
-        var cor = primeiro ? "#2d7046" : ehUltimo ? "#c8452c" : "#fff", raio = primeiro || ehUltimo ? 9 : 6, borda = primeiro || ehUltimo ? "#fff" : "#1c2a22";
+        var cor = primeiro ? "#2d7046" : ehUltimo ? (comRetorno ? "#e8873a" : "#c8452c") : "#fff", raio = primeiro || ehUltimo ? 9 : 6, borda = primeiro || ehUltimo ? "#fff" : "#1c2a22";
+        if (primeiro && comRetorno) svg += '<circle cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="14" fill="none" stroke="#c8452c" stroke-width="4" pointer-events="none"/>';
         svg += '<circle class="ponto" data-i="' + i + '" cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="' + raio + '" fill="' + cor + '" stroke="' + borda + '" stroke-width="' + (primeiro || ehUltimo ? 3 : 2) + '"/>';
       });
+      var etiqueta = function (x, y, largura, texto, borda) {
+        return '<g transform="translate(' + x.toFixed(1) + "," + y.toFixed(1) + ')" pointer-events="none"><rect width="' + largura + '" height="30" rx="15" fill="rgba(12,23,17,.9)" stroke="' + borda + '" stroke-opacity="' + (borda === "#fff" ? ".4" : "1") + '"' + (borda === "#fff" ? "" : ' stroke-width="2"') + '/>' +
+          '<text x="' + (largura / 2) + '" y="20" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">' + texto + "</text></g>";
+      };
       if (p.length > 1) {
-        var f = p[p.length - 1], km = fmt(comprimento(linhaCompleta()) / 1000, 1) + " km";
-        svg += '<g transform="translate(' + (f.x + 14).toFixed(1) + "," + (f.y - 34).toFixed(1) + ')"><rect width="92" height="30" rx="15" fill="rgba(12,23,17,.88)" stroke="#fff" stroke-opacity=".4"/>' +
-          '<text x="46" y="20" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">' + km + "</text></g>";
+        var f = p[p.length - 1];
+        if (comRetorno) {
+          svg += '<path d="M' + (f.x - 3).toFixed(1) + " " + (f.y + 6).toFixed(1) + " V" + (f.y - 6).toFixed(1) + " L" + (f.x + 6).toFixed(1) + " " + (f.y - 3).toFixed(1) + " L" + (f.x - 3).toFixed(1) + " " + f.y.toFixed(1) + '" fill="#fff" stroke="#fff" stroke-width="1.5" stroke-linejoin="round" pointer-events="none"/>';
+          svg += etiqueta(f.x + 16, f.y - 38, 142, "Retorno · km " + fmt(kmIda, 1), "#e8873a");
+          svg += etiqueta(p[0].x + 20, p[0].y - 12, 118, "Início e fim", "#fff");
+        } else {
+          svg += etiqueta(f.x + 14, f.y - 34, 92, fmt(comprimento(linhaCompleta()) / 1000, 1) + " km", "#fff");
+        }
       }
       desenho.innerHTML = svg;
       desenharLocalizacao();
@@ -413,8 +460,8 @@
 
     // ---- histórico (desfazer e refazer) ----
     function copia() { return rota.map(function (p) { return { lat: p.lat, lon: p.lon, caminho: p.caminho, reta: p.reta, fixo: p.fixo }; }); }
-    function guardar() { antes.push(copia()); if (antes.length > 100) antes.shift(); depois = []; }
-    function mudou() { calculo = null; marcador = null; botoes(); agendar(); desenharRota(); }
+    function guardar() { antes.push(copia()); if (antes.length > 100) antes.shift(); depois = []; deUmPedal = null; }          // mexer na rota: já não é o pedal do canal como veio
+    function mudou() { calculo = null; marcador = null; terreno = null; botoes(); agendar(); desenharRota(); atualizarTerrenoNaTela(); }
     function botoes() {
       document.getElementById("b-desfazer").disabled = !antes.length;
       document.getElementById("b-refazer").disabled = !depois.length;
@@ -573,12 +620,13 @@
       });
       return alturas[chave];
     }
-    function amostrar(pts) {                                       // um ponto a cada PASSO_AMOSTRA metros ao longo da linha
-      var saida = [{ lat: pts[0].lat, lon: pts[0].lon }], falta = PASSO_AMOSTRA;
+    function amostrar(pts, passo) {                                // um ponto a cada `passo` metros (25 por padrão) ao longo da linha
+      passo = passo || PASSO_AMOSTRA;
+      var saida = [{ lat: pts[0].lat, lon: pts[0].lon }], falta = passo;
       for (var i = 1; i < pts.length; i++) {
         var a = pts[i - 1], b = pts[i], seg = metrosEntre(a, b), pos = 0;
         while (seg - pos >= falta) {
-          pos += falta; falta = PASSO_AMOSTRA;
+          pos += falta; falta = passo;
           saida.push({ lat: a.lat + (b.lat - a.lat) * pos / seg, lon: a.lon + (b.lon - a.lon) * pos / seg });
         }
         falta -= seg - pos;
@@ -692,7 +740,9 @@
         ultimoTotal = total;
         document.getElementById("n-ganho").textContent = fmt(ganhoComLimiar(alt, 4), 0) + " m";     // o ganho de altitude sem o ruído do relevo
         atualizarLuz();
+        if (idaEVolta) ajustarParaIdaEVolta(total / 1000, comprimento(linhaDaIda()) / 1000);
         desenharRota();
+        agendarTerreno();
       }, function () {                                              // só a falha de rede ao baixar a altitude cai aqui
         if (minha === versao) vazio("Não consegui baixar a altitude deste trecho. Confira a conexão e mexa na rota para tentar de novo.", true);
       }).catch(function (erro) { if (window.console) console.error(erro); });
@@ -816,7 +866,7 @@
       while (i < s.length) { la += proximo(); lo += proximo(); saida.push({ lat: la / 1e5, lon: lo / 1e5 }); }
       return saida;
     }
-    function hashDaRota() { return rota.length ? "#r=" + encodeURIComponent(codificar(rota)) : ""; }
+    function hashDaRota() { return rota.length ? "#r=" + encodeURIComponent(codificar(rota)) + (idaEVolta ? "&iv=1" : "") : ""; }
     function atualizarEndereco() { try { history.replaceState(null, "", location.pathname + hashDaRota()); } catch (x) { /* sem história, o link só não acompanha */ } }
     document.getElementById("b-link").addEventListener("click", function () {
       var url = location.origin + location.pathname + hashDaRota(), botao = this, msg = document.getElementById("msg-pedal");
@@ -866,19 +916,151 @@
           return ponto;
         });
         guardar(); antes = [];
+        deUmPedal = { id: id };
         enquadrarRota(); mudou();
         msg.textContent = "Percurso do pedal aberto e simplificado em " + rota.length + " pontos para você ajustar. A altitude vem do relevo do mapa, e não do GPX original.";
         msg.hidden = false;
       }).catch(function () { msg.textContent = "Não consegui abrir o percurso deste pedal."; msg.hidden = false; });
     }
-    var doPedal = location.search.match(/[?&]pedal=(\d+)(&|$)/), doLink = location.hash.match(/^#r=(.+)$/);
+    var doPedal = location.search.match(/[?&]pedal=(\d+)(&|$)/), doLink = location.hash.match(/^#r=([^&]+)(&iv=1)?$/);
     if (doPedal) carregarPedal(doPedal[1]);
     else if (doLink) {
       try {
         var lidos = decodificar(decodeURIComponent(doLink[1])).slice(0, 500);
-        if (lidos.length && lidos.every(function (p) { return isFinite(p.lat) && isFinite(p.lon) && Math.abs(p.lat) <= 85 && Math.abs(p.lon) <= 180; })) { rota = lidos; enquadrarRota(); mudou(); }
+        if (lidos.length && lidos.every(function (p) { return isFinite(p.lat) && isFinite(p.lon) && Math.abs(p.lat) <= 85 && Math.abs(p.lon) <= 180; })) { rota = lidos; if (doLink[2]) { idaEVolta = true; document.getElementById("b-ida-volta").setAttribute("aria-pressed", "true"); } enquadrarRota(); mudou(); }
       } catch (x) { /* um link que não é nosso: ignora */ }
     }
+
+    // ---- ida e volta: a rota desenhada, repetida ao contrário até o início ----
+    function ajustarParaIdaEVolta(totalKm, kmRetorno) {
+      var alt = calculo.alt, n = alt.length, cx = 46 + 940 * Math.round(kmRetorno * 1000 / PASSO) / (n - 1), g = document.getElementById("grafico");
+      document.getElementById("n-dist").innerHTML = fmt(totalKm, 1) + ' km <small style="font-size:.8rem;color:var(--suave);font-weight:600">ida e volta</small>';
+      g.insertAdjacentHTML("beforeend", '<line x1="' + cx.toFixed(1) + '" y1="30" x2="' + cx.toFixed(1) + '" y2="272" stroke="#e8873a" stroke-width="2.5" stroke-dasharray="6 5" pointer-events="none"/>' +
+        '<g transform="translate(' + (cx - 62).toFixed(1) + ',236)" pointer-events="none"><rect width="124" height="24" rx="12" fill="#e8873a"/><text x="62" y="17" text-anchor="middle" style="fill:#2e1600;font-weight:800">Retorno · km ' + fmt(kmRetorno, 1) + '</text></g>' +
+        '<text x="54" y="24" style="fill:#e9f0ea;font-weight:700;font-size:15px" pointer-events="none">Ida</text><text x="986" y="24" text-anchor="end" style="fill:#e9f0ea;font-weight:700;font-size:15px" pointer-events="none">Volta</text>');
+      var html = "<tr><th>#</th><th>Categoria</th><th>Sentido</th><th>Do km ao km</th><th>Extensão</th><th>Ganho</th><th>Média</th><th>Máxima</th></tr>";
+      if (!calculo.subidas.length) html += '<tr><td colspan="8" style="text-align:center;color:var(--suave)">Nenhuma subida de pelo menos 500 m, 3% de média e 3.500 pontos.</td></tr>';
+      calculo.subidas.forEach(function (s, k) {
+        var cor = CORES[s.categoria], sentido = (s.ini + s.topo) / 2 * PASSO / 1000 < totalKm / 2 ? "Ida" : "Volta";
+        html += "<tr><td>" + (k + 1) + '</td><td><span class="cat" style="background:' + cor[0] + ";color:" + cor[1] + '">' + s.categoria + '</span></td><td style="text-align:left">' + sentido + "</td><td>" +
+          fmt(s.ini * PASSO / 1000, 1) + " a " + fmt(s.topo * PASSO / 1000, 1) + "</td><td>" + fmt(s.comp / 1000, 2) + " km</td><td>" + fmt(s.ganho, 0) + " m</td><td>" + fmt(s.media, 1) + "%</td><td>" + fmt(s.maxima, 1) + "%</td></tr>";
+      });
+      document.getElementById("tabela").innerHTML = html;
+    }
+    document.getElementById("b-ida-volta").addEventListener("click", function () {
+      idaEVolta = !idaEVolta;
+      this.setAttribute("aria-pressed", String(idaEVolta));
+      calculo = null; marcador = null;
+      desenharRota(); atualizarTerrenoNaTela(); agendar();
+    });
+
+    // ---- o terreno: o tipo de cada via, do OpenStreetMap, só com "Mostrar o terreno" ligado ----
+    var SERVIDORES_VIAS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter", "https://overpass.private.coffee/api/interpreter"];     // o primeiro, e os outros se ele estiver ocupado
+    var PASSO_TERRENO = 200, DISTANCIA_TERRENO = 25, cacheVias = {}, esperaTerreno = null, versaoTerreno = 0;
+    function tipoDoPiso(superficie, via) {                         // as mesmas regras do site e do BNT Editor; null se as marcas não dizem
+      var s = (superficie || "").toLowerCase(), v = (via || "").toLowerCase();
+      if (["asphalt", "paved", "concrete", "concrete:plates", "concrete:lanes", "chipseal"].indexOf(s) >= 0) return "Asfalto";
+      if (["paving_stones", "sett", "bricks", "brick", "unhewn_cobblestone", "cobblestone", "grass_paver"].indexOf(s) >= 0) return "Calçamento";
+      if (["compacted", "fine_gravel", "pebblestone", "gravel", "unpaved", "ground", "dirt", "earth", "mud", "clay", "rock", "sand", "grass"].indexOf(s) >= 0) return "Terra";
+      if (!s && ["track", "path", "bridleway"].indexOf(v) >= 0) return "Terra";
+      return null;
+    }
+    function distanciaAoSegmento(lat, lon, s) {                    // metros do ponto ao segmento [lat1, lon1, lat2, lon2, tipo]
+      var mx = 111320 * Math.cos(lat * Math.PI / 180), ax = (s[1] - lon) * mx, ay = (s[0] - lat) * 111320, bx = (s[3] - lon) * mx, by = (s[2] - lat) * 111320;
+      var dx = bx - ax, dy = by - ay, t = (dx === 0 && dy === 0) ? 0 : Math.max(0, Math.min(1, -(ax * dx + ay * dy) / (dx * dx + dy * dy)));
+      return Math.hypot(ax + t * dx, ay + t * dy);
+    }
+    function consultaVias(pontos) {                                // só as vias a 25 m da rota (e não a tela inteira)
+      var c = pontos.map(function (p) { return p.lat.toFixed(5) + "," + p.lon.toFixed(5); }).join(","), perto = "(around:" + DISTANCIA_TERRENO + "," + c + ")";
+      return '[out:json][timeout:50];(way["highway"]["highway"!~"^(footway|steps|pedestrian|corridor)$"]["surface"]' + perto + ';way["highway"~"^(track|path|bridleway)$"][!"surface"]' + perto + ';);out tags geom;';
+    }
+    function buscarVias(consulta) {                                // as vias de uma consulta, tentando um servidor depois do outro
+      var corpo = "data=" + encodeURIComponent(consulta);
+      function tentar(i) {
+        if (i >= SERVIDORES_VIAS.length) return Promise.reject(new Error("sem servidor"));
+        var ctl = new AbortController(), tempo = setTimeout(function () { ctl.abort(); }, 45000);
+        return fetch(SERVIDORES_VIAS[i], { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: corpo, signal: ctl.signal })
+          .then(function (r) { clearTimeout(tempo); if (!r.ok) throw new Error("http " + r.status); return r.json(); })
+          .then(function (d) { if (!d || !d.elements) throw new Error("resposta sem vias"); return d; })
+          .catch(function () { clearTimeout(tempo); return tentar(i + 1); });
+      }
+      return tentar(0).then(function (d) {
+        var segs = [];
+        d.elements.forEach(function (el) {
+          var g = el.geometry, tags = el.tags || {};
+          if (!g) return;
+          var tipo = tipoDoPiso(tags.surface, tags.highway);
+          for (var i = 0; i + 1 < g.length; i++) segs.push([g[i].lat, g[i].lon, g[i + 1].lat, g[i + 1].lon, tipo]);
+        });
+        return segs;
+      });
+    }
+    function classificarTerreno(amostras, segmentos) {             // o tipo de via mais perto de cada ponto (a 25 m ou menos); senão "Sem informação"
+      var grade = {};
+      segmentos.forEach(function (s) {
+        var x0 = Math.floor(Math.min(s[1], s[3]) / 0.0005), x1 = Math.floor(Math.max(s[1], s[3]) / 0.0005), y0 = Math.floor(Math.min(s[0], s[2]) / 0.0005), y1 = Math.floor(Math.max(s[0], s[2]) / 0.0005);
+        for (var cx = x0; cx <= x1; cx++) for (var cy = y0; cy <= y1; cy++) { var k = cx + "," + cy; (grade[k] = grade[k] || []).push(s); }
+      });
+      return amostras.map(function (p) {
+        var cx = Math.floor(p.lon / 0.0005), cy = Math.floor(p.lat / 0.0005), melhor = null, dm = Infinity;
+        for (var dx = -1; dx <= 1; dx++) for (var dy = -1; dy <= 1; dy++) (grade[(cx + dx) + "," + (cy + dy)] || []).forEach(function (s) { var d = distanciaAoSegmento(p.lat, p.lon, s); if (d < dm) { dm = d; melhor = s; } });
+        return (melhor && dm <= DISTANCIA_TERRENO && melhor[4]) || "Sem informação";
+      });
+    }
+    function estadoDoTerreno(texto) { var e = document.getElementById("status-terreno"); e.textContent = texto || ""; e.hidden = !texto; }
+    function agendarTerreno() { clearTimeout(esperaTerreno); if (terrenoLigado) esperaTerreno = setTimeout(buscarTerreno, 1200); }
+    function buscarTerreno() {
+      if (!terrenoLigado || rota.length < 2) return;
+      var ida = linhaDaIda(), comp = comprimento(ida);
+      if (comp < 1000) return;
+      var amostras = amostrar(ida, PASSO_TERRENO), chave = amostras.map(function (p) { return p.lat.toFixed(5) + "," + p.lon.toFixed(5); }).join(";");
+      if (terreno && terreno.chave === chave) return;
+      var minha = ++versaoTerreno;
+      function pronto(tipos) { if (minha !== versaoTerreno || !terrenoLigado) return; terreno = { tipos: tipos, chave: chave }; estadoDoTerreno(""); desenharRota(); atualizarTerrenoNaTela(); }
+      function falhou() {
+        if (minha !== versaoTerreno || !terrenoLigado) return;
+        estadoDoTerreno("Não consegui ver o terreno agora: o serviço do OpenStreetMap está ocupado. A linha fica numa cor só. Desligue e ligue “Mostrar o terreno”, ou mexa na rota, para tentar de novo.");
+      }
+      estadoDoTerreno("Vendo o terreno no OpenStreetMap…");
+      var daPlanilha = deUmPedal ? deUmPedal.id : null;            // um pedal do canal aberto sem alterações: o terreno que o site já calculou
+      var atalho = daPlanilha ? fetch("/ferramentas/cache_piso.json").then(function (r) { if (!r.ok) throw new Error("sem cache"); return r.json(); }).then(function (c) {
+        if (!c[daPlanilha]) throw new Error("pedal fora do cache");
+        var tipos = []; c[daPlanilha].forEach(function (par) { for (var k = 0; k < par[1]; k++) tipos.push(par[0]); });
+        return tipos;
+      }) : Promise.reject(new Error("não é um pedal aberto"));
+      atalho.then(pronto, function () {
+        var blocos = [];
+        for (var i = 0; i < amostras.length; i += 79) blocos.push(amostras.slice(i, i + 80));
+        var todas = [], seguinte = blocos.reduce(function (anterior, bloco) {
+          return anterior.then(function () {
+            if (minha !== versaoTerreno || !terrenoLigado) throw new Error("cancelado");
+            var consulta = consultaVias(bloco);
+            if (cacheVias[consulta]) { todas = todas.concat(cacheVias[consulta]); return null; }
+            return buscarVias(consulta).then(function (segs) { cacheVias[consulta] = segs; todas = todas.concat(segs); return new Promise(function (ok) { setTimeout(ok, 400); }); });      // sem pressa: o serviço é comunitário
+          });
+        }, Promise.resolve());
+        return seguinte.then(function () { pronto(classificarTerreno(amostras, todas)); });
+      }).catch(function (erro) { if (erro && erro.message !== "cancelado") falhou(); });
+    }
+    function atualizarTerrenoNaTela() {                            // a legenda no mapa e o resumo abaixo (só quando o terreno está disponível)
+      var leg = document.getElementById("leg-terreno"), resumo = document.getElementById("piso-resumo");
+      if (!terreno || !terrenoLigado) { leg.hidden = true; resumo.hidden = true; return; }
+      var cont = {}, mult = idaEVolta ? 2 : 1, ordem = ["Asfalto", "Terra", "Calçamento", "Sem informação"];
+      terreno.tipos.forEach(function (t) { cont[t] = (cont[t] || 0) + 1; });
+      var total = terreno.tipos.length;
+      var amostra = function (t) { return '<span class="amostra" style="background:' + (t === "Sem informação" ? "repeating-linear-gradient(90deg,#8f897c 0 5px,transparent 5px 9px)" : CORES_TERRENO[t]) + '"></span>'; };
+      leg.innerHTML = "<b>Terreno</b><br>" + ordem.map(function (t) { return amostra(t) + t; }).join("<br>") + (idaEVolta ? "<small>Linha grossa: ida · fina ao lado: volta</small>" : "");
+      leg.hidden = false;
+      resumo.innerHTML = "<b>Terreno</b><ul>" + ordem.filter(function (t) { return cont[t]; }).map(function (t) {
+        return "<li>" + amostra(t) + Math.round(cont[t] / total * 100) + "% " + t.toLowerCase() + " (" + fmt(cont[t] * 0.2 * mult, 1) + " km)</li>";
+      }).join("") + "</ul>";
+      resumo.hidden = false;
+    }
+    document.getElementById("b-terreno").addEventListener("click", function () {
+      terrenoLigado = !terrenoLigado;
+      this.setAttribute("aria-pressed", String(terrenoLigado));
+      if (terrenoLigado) agendarTerreno(); else { versaoTerreno++; terreno = null; estadoDoTerreno(""); desenharRota(); atualizarTerrenoNaTela(); }
+    });
 
     // ---- o estilo do mapa ----
     var painel = document.getElementById("painel-estilos"), botaoEstilo = document.getElementById("b-estilo");
