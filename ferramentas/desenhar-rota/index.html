@@ -1577,7 +1577,8 @@
       if (indices[indices.length - 1] !== n - 1) indices.push(n - 1);
       function tipoDoIndice(k) { var km = k * PASSO / 1000; if (idaEVolta && km > kmIda) km = 2 * kmIda - km; return tipoEm(Math.max(0, km)); }      // a volta repete o terreno da ida ao contrário
       var ponto = function (k) { return x(k).toFixed(1) + "," + y(alt[k]).toFixed(1); }, saida = "", trecho = [ponto(indices[0])], atual = null;
-      function fechar() { if (trecho.length > 1) saida += '<polyline points="' + trecho.join(" ") + '" fill="none" stroke="' + CORES_TERRENO[atual] + '" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"' + (atual === "Sem informação" ? ' stroke-dasharray="6 5"' : "") + "/>"; }
+      function fechar() { if (trecho.length > 1) saida += '<polyline points="' + trecho.join(" ") + '" fill="none" stroke="#fff" stroke-width="4.4" stroke-opacity=".9" stroke-linejoin="round" stroke-linecap="round"/>' +
+        '<polyline points="' + trecho.join(" ") + '" fill="none" stroke="' + CORES_TERRENO[atual] + '" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"' + (atual === "Sem informação" ? ' stroke-dasharray="6 5"' : "") + "/>"; }
       for (var j = 1; j < indices.length; j++) {
         var tipo = tipoDoIndice(indices[j]);
         if (atual === null) atual = tipo;
