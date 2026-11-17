@@ -11,6 +11,7 @@ Os dados são do OpenStreetMap (ODbL, © colaboradores do OpenStreetMap).
 """
 import json
 import os
+import re
 import sys
 
 import osmium
@@ -19,9 +20,14 @@ ESCALA = 100000
 COBERTURA = {"sul": -21.35, "norte": -18.0, "oeste": -41.95, "leste": -39.55}      # a mesma área das vias
 
 
+PADARIA = re.compile(r"padaria|panificadora|padoca|confeitaria|\bp[ãa]es\b", re.I)
+
+
 def tipo_do_lugar(tags):
     """O tipo (1 a 6) do lugar, ou None se não interessa."""
     amenidade, loja = tags.get("amenity"), tags.get("shop")
+    if amenidade != "fuel" and (loja == "bakery" or "bakery" in (tags.get("cuisine") or "") or PADARIA.search(tags.get("name") or "")):
+        return 2          # padaria: no mapa vem como shop=bakery, mas muitas estão como café ou lanchonete (com "padaria" no nome ou na cozinha)
     if amenidade in ("drinking_water", "water_point") or (tags.get("man_made") == "water_tap" and tags.get("drinking_water") != "no"):
         return 1
     if loja in ("supermarket", "convenience", "bakery", "general", "kiosk", "greengrocer") or amenidade == "marketplace":
@@ -64,7 +70,11 @@ def gerar(pbf, pasta):
             continue
         nome = (objeto.tags.get("name") or objeto.tags.get("brand") or "").strip()[:40]
         pontos.add((round(lat * ESCALA), round(lon * ESCALA), tipo, nome))
-    lista = [[tipo, lat, lon, nome] for lat, lon, tipo, nome in sorted(pontos)]
+    lista = []
+    for lat, lon, tipo, nome in sorted(pontos):
+        if nome and any(p[3].lower() == nome.lower() and abs(p[1] - lat) <= 60 and abs(p[2] - lon) <= 60 for p in lista[-40:]):
+            continue          # o mesmo lugar mapeado duas vezes (por exemplo, como loja e como café): fica um só
+        lista.append([tipo, lat, lon, nome])
     os.makedirs(pasta, exist_ok=True)
     with open(os.path.join(pasta, "apoios.json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump({"cobertura": COBERTURA, "escala": ESCALA, "p": lista}, f, ensure_ascii=False, separators=(",", ":"))
