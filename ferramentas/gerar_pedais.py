@@ -49,7 +49,7 @@ MAX_PONTOS = 260
 CORRECOES = {"estradrões": "estradões"}              # erros de digitação nos nomes do Strava
 MAPA_PREENCHE = 0.92                               # quanto da imagem o traçado ocupa (o resto é margem)
 MAPA_L, MAPA_A = 800, 480                           # tamanho da imagem do mapa (5:3)
-URL_TILE = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"   # o mapa de ruas, o mesmo padrão da ferramenta Desenhar rota
+URL_TILE = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"   # o mapa de ruas, o mesmo padrão da Planejar pedal
 AGENTE = "brotenatrilha.com.br (contato@brotenatrilha.com.br)"
 MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro",
          "novembro", "dezembro"]
@@ -472,7 +472,7 @@ def gerar_mapa(pedal_id, pontos, pasta_mapas, pasta_cache):
                 if 0 <= tx < 2 ** z and 0 <= ty < 2 ** z:
                     tela.paste(baixar_tile(z, tx, ty, pasta_cache), (tx * 256 - ox, ty * 256 - oy))
         tela = tela.crop((0, 0, int(larg_z), int(alt_z))).resize((MAPA_L, MAPA_A), Image.LANCZOS)
-        tela = ImageEnhance.Color(ImageEnhance.Brightness(tela).enhance(0.74)).enhance(0.85)      # o mesmo tom do mapa de ruas do Desenhar rota
+        tela = ImageEnhance.Color(ImageEnhance.Brightness(tela).enhance(0.74)).enhance(0.85)      # o mesmo tom do mapa de ruas do Planejar pedal
         os.makedirs(pasta_mapas, exist_ok=True)
         tela.save(arquivo, "WEBP", quality=80, method=6)
     if len(pontos) > MAX_PONTOS:
@@ -495,7 +495,7 @@ ESTATICAS = [("https://brotenatrilha.com.br/privacidade/", "2026-10-12"), ("http
             ("https://brotenatrilha.com.br/ferramentas/calculadora-de-raios/", "2026-11-16"),
             ("https://brotenatrilha.com.br/ferramentas/pressao-dos-pneus/", "2026-11-17"),
             ("https://brotenatrilha.com.br/ferramentas/subidas-do-gpx/", "2026-11-16"),
-            ("https://brotenatrilha.com.br/ferramentas/desenhar-rota/", "2026-11-16")]
+            ("https://brotenatrilha.com.br/planejar-pedal/", "2026-11-17")]
 
 
 # ----------------------------------------------------------------------------- cidades por onde o pedal passa
@@ -1217,7 +1217,7 @@ def bloco_gpx(p):
         return ""
     nome = f'{p["_slug"]}.gpx'
     return (f'<a class="botao claro" href="/pedais/gpx/{p["id"]}.gpx" download="{html.escape(nome)}">Baixar GPX</a> '
-            f'<a class="botao claro" href="/ferramentas/desenhar-rota/?pedal={p["id"]}">Abrir no Desenhar rota</a>')
+            f'<a class="botao claro" href="/planejar-pedal/?pedal={p["id"]}">Planejar a partir deste pedal</a>')
 
 
 # ----------------------------------------------------------------------------- bairros e localidades (OpenStreetMap)
@@ -1861,7 +1861,7 @@ def escrever_mapa_geral(pedais, base, pasta_gpx, pasta_cache):
 
 
 def codificar_polilinha(pontos):
-    """A linha no formato de polilinha do Google (5 casas decimais): o mesmo que o link do Desenhar rota usa."""
+    """A linha no formato de polilinha do Google (5 casas decimais): o mesmo que o link do Planejar pedal usa."""
     saida, ultima = [], (0, 0)
     for lat, lon in pontos:
         atual = (round(lat * 1e5), round(lon * 1e5))
@@ -1876,7 +1876,7 @@ def codificar_polilinha(pontos):
 
 
 def escrever_tracos(pedais, pasta_gpx):
-    """ferramentas/tracos_pedais.json: o traçado reduzido de cada pedal (o do mapa geral, sem 1,5 km de cada ponta), para a camada "Pedais do canal" do Desenhar rota."""
+    """ferramentas/tracos_pedais.json: o traçado reduzido de cada pedal (o do mapa geral, sem 1,5 km de cada ponta), para a camada "Pedais do canal" do Planejar pedal."""
     lista = []
     for p in pedais:
         if not p["_gpx"]:

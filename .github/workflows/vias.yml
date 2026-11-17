@@ -1,4 +1,4 @@
-# Atualiza todo mês os arquivos do Espírito Santo que a ferramenta "Desenhar rota" lê: as vias (ferramentas/vias/, para o terreno: asfalto, terra,
+# Atualiza todo mês os arquivos do Espírito Santo que a ferramenta "Planejar pedal" lê: as vias (ferramentas/vias/, para o terreno: asfalto, terra,
 # calçamento, sem depender do Overpass) os pontos de apoio (ferramentas/apoios/) e os pontos de interesse (ferramentas/interesses/). Baixa o mapa do Sudeste na Geofabrik (uns 900 MB), roda ferramentas/gerar_vias.py
 # e grava só se algo mudou. Não usa segredos. Pode ser rodado na mão em "Actions".
 name: Atualizar vias e pontos de apoio do Espírito Santo

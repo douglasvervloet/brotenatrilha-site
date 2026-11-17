@@ -1,4 +1,4 @@
-"""Gera os arquivos de vias do Espírito Santo (ferramentas/vias/) para a ferramenta "Desenhar rota".
+"""Gera os arquivos de vias do Espírito Santo (ferramentas/vias/) para a ferramenta "Planejar pedal".
 
 Para saber o terreno de uma rota (asfalto, terra, calçamento), a página precisa das vias do OpenStreetMap com o tipo de piso.
 Em vez de perguntar a um serviço público (o Overpass, que vive ocupado), a página lê quadradinhos de 0,05 grau (uns 5 km)

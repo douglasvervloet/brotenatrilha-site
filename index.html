@@ -100,6 +100,12 @@
   }
   .botao svg { width: 22px; height: 22px; flex: none; }
   .botao:hover { transform: translateY(-2px); }
+  .novidade { display: flex; align-items: center; gap: 14px; max-width: 560px; margin: 22px auto 0; padding: 12px 18px; text-align: left; text-decoration: none; color: #fff; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.4); border-radius: 16px; backdrop-filter: blur(2px); transition: background .2s, transform .2s; }
+  .novidade:hover { background: rgba(255,255,255,.2); transform: translateY(-2px); }
+  .novidade .selo { flex: none; background: var(--ambar); color: #1b2a1f; font-weight: 800; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
+  .novidade .texto { font-size: .95rem; line-height: 1.4; }
+  .novidade .texto b { display: block; font-size: 1.05rem; }
+  .novidade .seta { flex: none; margin-left: auto; font-size: 1.4rem; }
   .botao.principal { background: var(--ambar); color: #1b2a1f; }
   .botao.principal:hover { background: #f0b255; }
   .botao.contorno { border-color: rgba(255,255,255,.55); color: #fff; }
@@ -150,6 +156,13 @@
   .escolha + .player { margin-top: 18px; }
 
   /* último pedal (preenchido pelo robô diário) */
+  .planejar { display: grid; grid-template-columns: 1.3fr 1fr; gap: 28px; align-items: center; margin-top: 26px; }
+  .planejar-print { display: block; border-radius: 16px; overflow: hidden; box-shadow: 0 14px 36px rgba(20, 50, 30, .22); transition: transform .2s; }
+  .planejar-print:hover { transform: translateY(-3px); }
+  .planejar-print img { display: block; width: 100%; height: auto; }
+  .planejar-texto ul { margin: 0; padding-left: 20px; display: grid; gap: 10px; }
+  .planejar-texto .links { margin: 22px 0 0; }
+  @media (max-width: 760px) { .planejar { grid-template-columns: 1fr; gap: 20px; } }
   .ultimo { display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; align-items: center; margin-top: 26px; }
   .ultimo-mapa { display: block; text-decoration: none; }
   .ultimo .mapa { display: block; position: relative; aspect-ratio: 5 / 3; border-radius: 16px; overflow: hidden; background: #cfe0c4; box-shadow: 0 14px 36px rgba(20, 50, 30, .22); }
@@ -255,12 +268,10 @@
       <a href="#videos">Vídeos</a>
       <a href="#playlists">Playlists</a>
       <a href="pedais/">Pedais</a>
+      <a href="planejar-pedal/">Planejar pedal</a>
       <a href="analises/">Análises</a>
       <a href="ferramentas/">Ferramentas</a>
       <a href="#sobre">Sobre</a>
-      <a href="#brote">O brote</a>
-      <a href="#redes">Redes</a>
-      <a href="#contato">Contato</a>
     </nav>
   </div>
 </header>
@@ -281,6 +292,11 @@
           Instagram
         </a>
       </div>
+      <a class="novidade" href="planejar-pedal/">
+        <span class="selo">Novo</span>
+        <span class="texto"><b>Planejar pedal</b>Desenhe a rota no mapa e veja subidas, terreno, vento e a previsão do tempo. Dá para imprimir o roadbook.</span>
+        <span class="seta" aria-hidden="true">&rarr;</span>
+      </a>
       <ul class="numeros" id="numeros" hidden aria-label="Números do canal no YouTube">
         <li><strong id="n-inscritos"></strong><span>inscritos</span></li>
         <li><strong id="n-visualizacoes"></strong><span>visualizações</span></li>
@@ -311,6 +327,26 @@
       <p class="mais">
         <a class="botao verde" href="https://www.youtube.com/@BroteNaTrilha/videos" target="_blank" rel="noopener">Ver todos os vídeos no YouTube</a>
       </p>
+    </div>
+  </section>
+
+  <section id="planejar">
+    <div class="miolo">
+      <h2 class="titulo">Planejar pedal</h2>
+      <p class="lead">Desenhe a rota do seu próximo pedal direto no mapa.</p>
+      <div class="planejar">
+        <a class="planejar-print" href="planejar-pedal/" aria-label="Abrir o Planejar pedal"><img src="planejar-pedal/previa.webp" width="1080" height="798" loading="lazy" alt="Mapa do Planejar pedal com uma rota de 50 km colorida pelo tipo de terreno e o painel de camadas aberto"></a>
+        <div class="planejar-texto">
+          <ul>
+            <li>Clique no mapa e a rota gruda nas ruas</li>
+            <li>Distância, ganho de altitude e subidas com categoria</li>
+            <li>Terreno, pontos de apoio e pontos de interesse com foto</li>
+            <li>Vento e previsão do tempo para a hora da saída</li>
+            <li>Roadbook para imprimir e GPX para baixar</li>
+          </ul>
+          <p class="links"><a class="botao verde" href="planejar-pedal/">Planejar o meu pedal</a></p>
+        </div>
+      </div>
     </div>
   </section>
 

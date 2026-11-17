@@ -1,4 +1,4 @@
-"""Gera o arquivo de pontos de apoio do Espírito Santo (ferramentas/apoios/apoios.json) para a ferramenta "Desenhar rota".
+"""Gera o arquivo de pontos de apoio do Espírito Santo (ferramentas/apoios/apoios.json) para a ferramenta "Planejar pedal".
 
 Os pontos (água, mercado e padaria, posto, lanchonete e restaurante, loja ou reparo de bike, banheiro) vêm de um arquivo .osm.pbf do
 OpenStreetMap (o mesmo do gerar_vias.py). Lugares mapeados como prédio entram pelo centro do contorno.

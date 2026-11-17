@@ -245,7 +245,7 @@
   ["dragenter", "dragover"].forEach(function (ev) { zona.addEventListener(ev, function (e) { e.preventDefault(); zona.classList.add("arrastando"); }); });
   ["dragleave", "drop"].forEach(function (ev) { zona.addEventListener(ev, function (e) { e.preventDefault(); zona.classList.remove("arrastando"); }); });
   zona.addEventListener("drop", function (e) { if (e.dataTransfer.files[0]) abrir(e.dataTransfer.files[0]); });
-  var desenhado = null;                                                  // a rota vinda do "Desenhar rota", guardada só nesta aba do navegador
+  var desenhado = null;                                                  // a rota vinda do "Planejar pedal", guardada só nesta aba do navegador
   try { if (location.search.indexOf("de=rota") !== -1) desenhado = sessionStorage.getItem("gpx-desenhado"); } catch (x) { desenhado = null; }
   if (desenhado) { try { mostrar(ler(desenhado)); document.getElementById("exemplo").hidden = true; } catch (x) { erro(x.message); } } else { mostrar(EXEMPLO); }
 </script>

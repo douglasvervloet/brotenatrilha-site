@@ -1,4 +1,4 @@
-"""Gera o arquivo de pontos de interesse do Espírito Santo (ferramentas/interesses/interesses.json) para a ferramenta "Desenhar rota".
+"""Gera o arquivo de pontos de interesse do Espírito Santo (ferramentas/interesses/interesses.json) para a ferramenta "Planejar pedal".
 
 Os pontos (mirantes, cachoeiras, praias, atrações e museus, locais históricos, cavernas, parques e reservas, e os picos que têm artigo na Wikipédia)
 vêm de um arquivo .osm.pbf do OpenStreetMap (o mesmo do gerar_vias.py). A foto e o resumo, quando existem, vêm da Wikipédia ou do Wikidata, pelas
