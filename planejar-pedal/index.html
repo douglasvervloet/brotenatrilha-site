@@ -115,6 +115,17 @@
   .apoio-filtro:hover { border-color: var(--verde); }
   .popup { position: absolute; z-index: 6; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(420px, calc(100% - 32px)); background: rgba(12, 23, 17, .97); color: #fff; border: 1px solid rgba(255, 255, 255, .35); border-radius: 16px; padding: 16px 18px; box-shadow: 0 10px 30px rgba(0, 0, 0, .5); }
   .popup[hidden] { display: none; }
+  .passeio { position: fixed; z-index: 60; left: 50%; bottom: 16px; transform: translateX(-50%); width: min(440px, calc(100% - 24px)); background: rgba(12, 23, 17, .98); color: #fff; border: 1px solid rgba(255, 255, 255, .25); border-radius: 16px; padding: 14px 16px; box-shadow: 0 12px 40px rgba(0, 0, 0, .55); }
+  .passeio[hidden] { display: none; }
+  .passeio small { color: var(--ambar); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: .7rem; }
+  .passeio b { display: block; margin-top: 2px; font-size: 1.05rem; }
+  .passeio p { margin: 6px 0 12px; color: #dcebe0; font-size: .92rem; line-height: 1.45; }
+  .passeio-botoes { display: flex; align-items: center; gap: 8px; }
+  .passeio-botoes span { flex: 1; }
+  .passeio-botoes button { font: inherit; font-weight: 700; padding: 7px 16px; border-radius: 999px; cursor: pointer; border: 2px solid var(--verde); background: var(--verde); color: #fff; }
+  .passeio-botoes button.sem-fundo { background: transparent; border-color: rgba(255, 255, 255, .35); }
+  .passeio-botoes button[hidden] { display: none; }
+  .passo-alvo { outline: 3px solid var(--ambar); outline-offset: 4px; border-radius: 14px; }
   .popup b { display: flex; align-items: center; gap: 10px; font-size: 1rem; }
   .popup b i { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--ambar); color: #2a1a00; font-style: normal; font-weight: 800; }
   .popup p { margin: 8px 0 12px; color: #dcebe0; font-size: .92rem; line-height: 1.45; }
@@ -294,6 +305,13 @@
     <button class="sec" type="button" id="b-abrir-gpx">Abrir um GPX</button>
     <input type="file" id="arq-gpx" accept=".gpx,application/gpx+xml,text/xml" hidden>
     <button class="sec" type="button" id="b-minhas" aria-expanded="false">Minhas rotas<span class="contagem" id="n-minhas">0</span></button>
+    <button class="sec" type="button" id="b-passeio">Como usar</button>
+  </div>
+  <div class="passeio" id="passeio" role="dialog" aria-labelledby="passeio-titulo" hidden>
+    <small id="passeio-n"></small>
+    <b id="passeio-titulo"></b>
+    <p id="passeio-texto"></p>
+    <div class="passeio-botoes"><button type="button" id="passeio-pular" class="sem-fundo">Pular</button><span></span><button type="button" id="passeio-volta" class="sem-fundo">Anterior</button><button type="button" id="passeio-segue">Próximo</button></div>
   </div>
   <div class="minhas" id="painel-minhas" hidden>
     <div class="salvar"><input id="nome-rota" type="text" maxlength="60" placeholder="Nome da rota" aria-label="Nome da rota"><button type="button" id="b-salvar" disabled>Salvar esta rota</button></div>
@@ -2145,6 +2163,58 @@
         janela.document.open(); janela.document.write(montarRoadbook(r[0], r[1])); janela.document.close();
       });
     });
+
+    // ---- o passeio guiado: cada passo explica uma parte da tela; o alvo ganha contorno e o cartão fica fixo embaixo ----
+    var PASSOS_DO_PASSEIO = [
+      { alvo: "#mapa", titulo: "Clique no mapa", texto: "Cada clique põe um ponto da rota. Clique na linha para inserir um ponto no meio, arraste um ponto para ajustar e clique nele para mais opções." },
+      { alvo: "#b-grupo-desenho", titulo: "Grudar nas ruas", texto: "Com a chave ligada, a rota segue as ruas entre os pontos. Dá para evitar rodovias ou ligar em linha reta (Trecho livre)." },
+      { alvo: "#b-grupo-camadas", titulo: "Camadas do mapa", texto: "Terreno (asfalto, terra e calçamento), pontos de apoio, marcos de km, piso das ruas, pedais do canal e pontos de interesse com foto." },
+      { alvo: ".linha1", titulo: "Desfazer, refazer e ida e volta", texto: "Errou um ponto? Desfaça. A ida e volta repete a rota ao contrário, de volta ao início." },
+      { alvo: "#resultado", titulo: "Os números", texto: "Depois de desenhar, abaixo do mapa aparecem a distância, o ganho de altitude, as subidas com categoria, a luz do dia, o vento e a previsão do tempo." },
+      { alvo: "#b-gpx", titulo: "Roadbook e GPX", texto: "Com a rota pronta, imprima o roadbook, baixe o GPX para o GPS ou copie o link para mandar a um amigo." },
+      { alvo: "#b-minhas", titulo: "Minhas rotas", texto: "Salve a rota neste navegador para voltar nela depois, ou abra um GPX seu para ver as subidas." }
+    ], CHAVE_PASSEIO = "bnt-planejar-passeio", passoAtual = -1;
+    function marcarPasseioVisto() { try { localStorage.setItem(CHAVE_PASSEIO, "1"); } catch (x) { /* sem armazenamento: o passeio só abre pelo botão */ } }
+    function limparAlvoDoPasseio() { var a = document.querySelector(".passo-alvo"); if (a) a.classList.remove("passo-alvo"); }
+    function fecharPasseio() {
+      passoAtual = -1;
+      document.getElementById("passeio").hidden = true;
+      limparAlvoDoPasseio();
+    }
+    function mostrarPasso(n) {
+      if (n < 0) return;
+      if (n >= PASSOS_DO_PASSEIO.length) { fecharPasseio(); return; }
+      passoAtual = n;
+      var p = PASSOS_DO_PASSEIO[n], alvo = document.querySelector(p.alvo), cartao = document.getElementById("passeio");
+      limparAlvoDoPasseio();
+      if (alvo && alvo.getClientRects().length) {                  // o alvo escondido (a rota ainda não foi desenhada) só é explicado no cartão
+        alvo.classList.add("passo-alvo");
+        if (p.alvo !== "#mapa" && alvo.closest(".barra") === null) alvo.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+      document.getElementById("passeio-n").textContent = "Passo " + (n + 1) + " de " + PASSOS_DO_PASSEIO.length;
+      document.getElementById("passeio-titulo").textContent = p.titulo;
+      document.getElementById("passeio-texto").textContent = p.texto;
+      document.getElementById("passeio-volta").hidden = n === 0;
+      document.getElementById("passeio-pular").hidden = n === PASSOS_DO_PASSEIO.length - 1;
+      document.getElementById("passeio-segue").textContent = n === PASSOS_DO_PASSEIO.length - 1 ? "Concluir" : "Próximo";
+      cartao.hidden = false;
+    }
+    function abrirPasseio() {
+      fecharGrupos(); fecharPopup();
+      marcarPasseioVisto();
+      document.getElementById("mapa").scrollIntoView({ block: "start", behavior: "smooth" });
+      mostrarPasso(0);
+    }
+    document.getElementById("b-passeio").addEventListener("click", abrirPasseio);
+    document.getElementById("passeio-segue").addEventListener("click", function () { mostrarPasso(passoAtual + 1); });
+    document.getElementById("passeio-volta").addEventListener("click", function () { mostrarPasso(passoAtual - 1); });
+    document.getElementById("passeio-pular").addEventListener("click", fecharPasseio);
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && passoAtual >= 0) fecharPasseio(); });
+    (function () {                                                 // na primeira visita (sem vir de um pedal ou de um link de rota), abre sozinho
+      var jaVisto = false;
+      try { jaVisto = localStorage.getItem(CHAVE_PASSEIO) === "1"; } catch (x) { jaVisto = true; }
+      if (!jaVisto && !/[?&]pedal=/.test(location.search) && !/^#r=/.test(location.hash)) setTimeout(abrirPasseio, 1500);
+    })();
 
     // ---- o estilo do mapa ----
     var painel = document.getElementById("painel-estilos"), botaoEstilo = document.getElementById("b-estilo");
