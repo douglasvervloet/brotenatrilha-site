@@ -117,7 +117,7 @@
       <button class="grudar" type="button" id="b-grudar" aria-pressed="false"><i></i>Grudar nas ruas <small>BETA</small></button>
     </div>
     <div class="zoom"><button class="bt" type="button" id="b-mais" aria-label="Aproximar">+</button><button class="bt" type="button" id="b-menos" aria-label="Afastar">&minus;</button></div>
-    <div class="dica" id="dica">Clique para adicionar um ponto. Arraste um ponto para ajustar; clique nele para remover.</div>
+    <div class="dica" id="dica">Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para remover.</div>
     <div class="credito-mapa">© OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA)</div>
   </div>
   <p class="aviso">Com <b>Grudar nas ruas</b> desligado, nada do que você desenha sai do seu navegador. Ligado, os pontos de cada trecho (dois a dois) são enviados a um serviço público de rotas do OpenStreetMap
@@ -404,6 +404,34 @@
     function refazer() { if (!depois.length) return; antes.push(copia()); rota = depois.pop(); mudou(); pedirPendentes(); }
     function limpar() { if (!rota.length) return; guardar(); rota = []; mudou(); pedirPendentes(); }
 
+    // ---- clicar na linha insere um ponto ali, no meio da rota ----
+    function trechoDe(i) {                                         // os pontos do trecho entre o ponto i-1 e o ponto i, como a linha os mostra
+      var b = rota[i], meio = (grudar || b.fixo) && b.caminho ? b.caminho : [];
+      return [rota[i - 1]].concat(meio, [b]);
+    }
+    function pontoNaLinha(clique, tolerancia) {                    // o ponto da linha mais perto do clique (em pixels da tela), se estiver a menos de `tolerancia`; senão null
+      var melhor = null;
+      for (var i = 1; i < rota.length; i++) {
+        var seg = trechoDe(i).map(paraTela);
+        for (var j = 0; j < seg.length - 1; j++) {
+          var a = seg[j], b = seg[j + 1], dx = b.x - a.x, dy = b.y - a.y, c2 = dx * dx + dy * dy;
+          var u = c2 ? Math.min(1, Math.max(0, ((clique.x - a.x) * dx + (clique.y - a.y) * dy) / c2)) : 0;
+          var px = a.x + dx * u, py = a.y + dy * u, d = Math.hypot(clique.x - px, clique.y - py);
+          if (d <= tolerancia && (!melhor || d < melhor.d)) melhor = { d: d, i: i, j: j, x: px, y: py };
+        }
+      }
+      return melhor;
+    }
+    function inserirNaLinha(achado) {                              // o ponto novo fica sobre a linha; o caminho do trecho (se houver) se divide nele
+      var onde = daTela({ x: achado.x, y: achado.y }), b = rota[achado.i], novo = { lat: onde.lat, lon: onde.lon };
+      if ((grudar || b.fixo) && b.caminho) {
+        novo.caminho = b.caminho.slice(0, achado.j);
+        novo.fixo = b.fixo;
+        b.caminho = b.caminho.slice(achado.j);
+      }
+      rota.splice(achado.i, 0, novo);
+    }
+
     // ---- as ações do mapa: arrastar, desenhar, ajustar, zoom ----
     function dar_zoom(d, p) {
       var nz = Math.min(Z_MAX, Math.max(Z_MIN, z + d));
@@ -464,7 +492,12 @@
         guardar(); rota.splice(g.i, 1);
         if (rota[g.i]) { rota[g.i].caminho = null; rota[g.i].reta = false; rota[g.i].fixo = false; }
         mudou(); pedirPendentes();
-      } else if (modoDesenhar && e.type === "pointerup") { guardar(); rota.push(daTela(local(e))); mudou(); pedirPendentes(); }   // clicar no mapa acrescenta
+      } else if (modoDesenhar && e.type === "pointerup") {                                        // clicar no mapa: na linha, insere um ponto ali; fora dela, acrescenta no fim
+        var clique = local(e), achado = pontoNaLinha(clique, e.pointerType === "touch" ? 16 : 9);
+        guardar();
+        if (achado) inserirNaLinha(achado); else rota.push(daTela(clique));
+        mudou(); pedirPendentes();
+      }
     }
     caixa.addEventListener("pointerup", soltar);
     caixa.addEventListener("pointercancel", soltar);
@@ -489,7 +522,7 @@
       modoDesenhar = !modoDesenhar;
       this.setAttribute("aria-pressed", String(modoDesenhar));
       caixa.classList.toggle("mover", !modoDesenhar);
-      document.getElementById("dica").textContent = modoDesenhar ? "Clique para adicionar um ponto. Arraste um ponto para ajustar; clique nele para remover." : "Modo de mover: arraste o mapa. Ligue “Desenhar” para acrescentar pontos.";
+      document.getElementById("dica").textContent = modoDesenhar ? "Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para remover." : "Modo de mover: arraste o mapa. Ligue “Desenhar” para acrescentar pontos.";
     });
     document.addEventListener("keydown", function (e) {
       if (!(e.ctrlKey || e.metaKey) || /input|select|textarea/i.test((e.target.tagName || ""))) return;
