@@ -159,14 +159,21 @@
   .selecao span { color: var(--suave); }
   .selecao span strong { color: var(--texto); }
   .selecao button { font: inherit; font-weight: 700; padding: 5px 14px; border-radius: 999px; cursor: pointer; border: 2px solid var(--linha); background: transparent; color: var(--texto); margin-left: auto; }
-  .grupo-chaves { display: flex; flex-direction: column; gap: 5px; }
-  .titulo-grupo { font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #fff; opacity: .85; text-shadow: 0 1px 3px rgba(0, 0, 0, .8); padding-left: 4px; }
-  .chaves { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chaves .grudar { min-height: 34px; padding: 0 12px 0 7px; gap: 7px; font-size: .82rem; }
-  .chaves .grudar i { width: 30px; height: 18px; }
-  .chaves .grudar i::after { width: 12px; height: 12px; top: 3px; left: 3px; }
-  .chaves .grudar[aria-pressed="true"] i::after { left: 15px; }
-  .chaves .grudar svg.ic { width: 15px; height: 15px; }
+  .linha2 { display: flex; flex-wrap: wrap; gap: 8px; }
+  .bt.ativo { border-color: var(--ambar); }
+  .contagem-grupo { display: inline-block; min-width: 20px; margin-left: 8px; padding: 0 6px; border-radius: 999px; background: var(--verde); color: #fff; font-size: .75rem; line-height: 20px; text-align: center; }
+  .contagem-grupo[hidden] { display: none; }
+  .painel-chaves { align-self: flex-start; width: 248px; display: flex; flex-direction: column; gap: 2px; padding: 10px 10px 8px; background: rgba(12, 23, 17, .93); border: 1px solid rgba(255, 255, 255, .3); border-radius: 16px; color: #fff; box-shadow: 0 8px 22px rgba(0, 0, 0, .35); }
+  .painel-chaves[hidden] { display: none; }
+  .painel-chaves h4 { margin: 0 0 4px 6px; font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; opacity: .8; }
+  .painel-chaves .grudar { width: 100%; min-height: 36px; padding: 0 8px; gap: 9px; font-size: .86rem; background: transparent; border: 0; border-radius: 10px; color: #fff; }
+  .painel-chaves .grudar:hover { background: rgba(255, 255, 255, .08); }
+  .painel-chaves .grudar[aria-pressed="true"] { background: rgba(45, 112, 70, .32); }
+  .painel-chaves .grudar i { width: 30px; height: 18px; }
+  .painel-chaves .grudar i::after { width: 12px; height: 12px; top: 3px; left: 3px; }
+  .painel-chaves .grudar[aria-pressed="true"] i::after { left: 15px; }
+  .painel-chaves .grudar svg.ic { width: 16px; height: 16px; }
+  .painel-chaves .grudar small { margin-left: auto; }
   .zoom { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; }
   .zoom .bt { width: 44px; padding: 0; font-size: 1.4rem; line-height: 1; }
   .dica[hidden] { display: none; }
@@ -228,17 +235,23 @@
         <button class="bt" type="button" id="b-limpar" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 3h4M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>Limpar</button>
         <button class="bt" type="button" id="b-ida-volta" aria-pressed="false" title="Repete a ida ao contrário, de volta ao início"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h14M14 4l4 4-4 4"/><path d="M20 16H6M10 12l-4 4 4 4"/></svg>Ida e volta</button>
       </div>
-      <div class="grupo-chaves"><span class="titulo-grupo">Desenho</span><div class="chaves">
+      <div class="linha2">
+        <button class="bt" type="button" id="b-grupo-desenho" aria-expanded="false" aria-controls="painel-desenho" title="Grudar nas ruas e Trecho livre"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Desenho<span class="contagem-grupo" hidden>0</span></button>
+        <button class="bt" type="button" id="b-grupo-camadas" aria-expanded="false" aria-controls="painel-camadas" title="Terreno, apoios, marcos de km, piso das ruas e pedais do canal"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l9-5 9 5-9 5z"/><path d="M3 12.5l9 5 9-5M3 17l9 5 9-5"/></svg>Camadas<span class="contagem-grupo" hidden>0</span></button>
+      </div>
+      <div class="painel-chaves" id="painel-desenho" hidden>
+        <h4>Desenho</h4>
         <button class="grudar" type="button" id="b-grudar" aria-pressed="false"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v8a6 6 0 0 0 12 0V3h-4v8a2 2 0 0 1-4 0V3z"/><path d="M6 7h4M14 7h4"/></svg>Grudar nas ruas <small>BETA</small></button>
         <button class="grudar" type="button" id="b-livre" aria-pressed="false" title="Os próximos pontos ligam em linha reta, sem seguir as ruas"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><path d="M6.5 17.5l11-11" stroke-dasharray="2 3"/></svg>Trecho livre</button>
-      </div></div>
-      <div class="grupo-chaves"><span class="titulo-grupo">Camadas</span><div class="chaves">
+      </div>
+      <div class="painel-chaves" id="painel-camadas" hidden>
+        <h4>Camadas</h4>
         <button class="grudar" type="button" id="b-terreno" aria-pressed="false" title="Mostrar o terreno: a linha da rota na cor do tipo de terreno" aria-label="Mostrar o terreno"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19l6-10 4 6 3-4 5 8z"/></svg>Terreno <small>BETA</small></button>
         <button class="grudar" type="button" id="b-apoios" aria-pressed="false" title="Água, mercado, posto, lanchonete, bike e banheiro até 300 m da rota"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>Apoios</button>
         <button class="grudar" type="button" id="b-km" aria-pressed="false" title="Um rótulo de quilômetro de tempos em tempos ao longo da rota"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 21V4M6 5h11l-2.5 3.5L17 12H6"/></svg>Marcos de km</button>
         <button class="grudar" type="button" id="b-piso" aria-pressed="false" title="O piso das ruas do OpenStreetMap: asfalto, terra e calçamento (zoom 12 ou mais, só no Espírito Santo)"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3L4 21M16 3l4 18M12 4v3M12 10.5v3M12 17v3"/></svg>Piso das ruas</button>
         <button class="grudar" type="button" id="b-pedais" aria-pressed="false" title="Os percursos dos pedais do canal: clique num para abrir"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l3.5-8h5l3.5 8M9.5 9L13 17M9 6h2.5"/></svg>Pedais do canal</button>
-      </div></div>
+      </div>
     </div>
     <div class="zoom"><button class="bt" type="button" id="b-mais" aria-label="Aproximar" title="Aproximar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button class="bt" type="button" id="b-menos" aria-label="Afastar" title="Afastar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button><button class="bt" type="button" id="b-local" aria-label="Minha localização" title="Minha localização"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button><button class="bt" type="button" id="b-info" aria-label="Como usar o mapa" aria-expanded="false" title="Como usar o mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.2M12 7.6v.01"/></svg></button><button class="bt" type="button" id="b-estilo" aria-label="Estilo do mapa" aria-expanded="false" title="Estilo do mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="m2 13 10 5 10-5"/></svg></button></div>
     <div class="estilos" id="painel-estilos" role="group" aria-label="Estilo do mapa" hidden><h4>Estilo do mapa</h4><div class="grade"><button type="button" class="op" data-estilo="relevo" aria-pressed="true"><img src="estilo-relevo.webp" width="150" height="100" alt="">Relevo</button><button type="button" class="op" data-estilo="ruas" aria-pressed="false"><img src="estilo-ruas.webp" width="150" height="100" alt="">Ruas</button><button type="button" class="op" data-estilo="escuro" aria-pressed="false"><img src="estilo-escuro.webp" width="150" height="100" alt="">Escuro</button></div><small>Cada estilo pede os quadros do mapa a um servidor aberto diferente.</small></div>
@@ -714,6 +727,7 @@
       if (!painel.hidden && !e.target.closest(".estilos, #b-estilo")) abrirPainel(false);
       if (e.target.closest(".menu-ponto, .popup")) return;
       fecharMenuDoPonto(); fecharMenuDoTraco();
+      if (!e.target.closest(".barra")) fecharGrupos();
       if (e.target.closest(".barra, .zoom, .estilos")) return;
       caixa.setPointerCapture(e.pointerId);
       dedos[e.pointerId] = { x: e.clientX, y: e.clientY };
@@ -798,7 +812,7 @@
       document.getElementById("dica").textContent = modoDesenhar ? "Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para mais opções." : "Modo de mover: arraste o mapa. Ligue “Desenhar” para acrescentar pontos.";
     });
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") { fecharMenuDoPonto(); fecharMenuDoTraco(); fecharPopup(); mostrarDica(false); limparSelecaoDoGrafico(); }
+      if (e.key === "Escape") { fecharMenuDoPonto(); fecharMenuDoTraco(); fecharPopup(); mostrarDica(false); limparSelecaoDoGrafico(); fecharGrupos(); }
       if (!(e.ctrlKey || e.metaKey) || /input|select|textarea/i.test((e.target.tagName || ""))) return;
       if (e.key === "z" || e.key === "Z") { e.preventDefault(); if (e.shiftKey) refazer(); else desfazer(); }
       if (e.key === "y" || e.key === "Y") { e.preventDefault(); refazer(); }
@@ -1934,6 +1948,33 @@
       if (pisoLigado) avisarSoNoEs("piso");
       desenharPiso();
     });
+
+    // ---- os grupos de chaves do mapa: ficam escondidos; o botão do grupo abre a lista e mostra quantas chaves estão ligadas ----
+    var GRUPOS = [["b-grupo-desenho", "painel-desenho"], ["b-grupo-camadas", "painel-camadas"]];
+    function fecharGrupos(exceto) {
+      GRUPOS.forEach(function (g) {
+        if (g[0] === exceto) return;
+        document.getElementById(g[1]).hidden = true;
+        document.getElementById(g[0]).setAttribute("aria-expanded", "false");
+      });
+    }
+    GRUPOS.forEach(function (g) {
+      document.getElementById(g[0]).addEventListener("click", function () {
+        var painel = document.getElementById(g[1]), abrir = painel.hidden;
+        fecharGrupos(g[0]);                                        // um grupo aberto de cada vez
+        painel.hidden = !abrir;
+        this.setAttribute("aria-expanded", String(abrir));
+      });
+    });
+    function contarChaves() {                                      // quantas chaves de cada grupo estão ligadas
+      GRUPOS.forEach(function (g) {
+        var n = document.querySelectorAll("#" + g[1] + ' [aria-pressed="true"]').length, botao = document.getElementById(g[0]), c = botao.querySelector(".contagem-grupo");
+        c.textContent = String(n); c.hidden = !n;
+        botao.classList.toggle("ativo", n > 0);
+      });
+    }
+    document.querySelector(".barra").addEventListener("click", contarChaves);      // depois do clique numa chave (que muda o aria-pressed)
+    contarChaves();
 
     // ---- o estilo do mapa ----
     var painel = document.getElementById("painel-estilos"), botaoEstilo = document.getElementById("b-estilo");
