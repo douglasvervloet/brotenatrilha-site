@@ -153,7 +153,7 @@ def montar(videos, modelo):
     tem_afiliado = any(eh_afiliado(u) for v in videos for _, u in partes_da_descricao(v["descricao"])[0])
     troca = {"{{AVISO_AFILIADO}}": AVISO_AFILIADO if tem_afiliado else "", "{{CONTEUDO}}": '<div class="lista">\n' + "\n".join(cartao(v) for v in videos) + "\n</div>",
              "{{RESUMO}}": resumo, "{{PLAYLIST}}": PLAYLIST,
-             "{{OG_IMAGE}}": f"https://i.ytimg.com/vi/{videos[0]['id']}/hqdefault.jpg",
+             "{{OG_IMAGE}}": "https://brotenatrilha.com.br/analises/compartilhar.jpg",      # imagem fixa e grande (a capa do vídeo, em 480 px, ficava em baixa resolução no WhatsApp)
              "{{JSONLD}}": '<script type="application/ld+json">' + json.dumps(ld, ensure_ascii=False) + "</script>\n"}
     for k, val in troca.items():
         modelo = modelo.replace(k, val)

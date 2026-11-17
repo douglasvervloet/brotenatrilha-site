@@ -14,8 +14,12 @@
 <meta property="og:description" content="Percurso, distância, subida e o vídeo de cada pedal do canal.">
 <meta property="og:url" content="https://brotenatrilha.com.br/pedais/">
 <meta property="og:image" content="https://brotenatrilha.com.br/compartilhar.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" sizes="48x48" href="../favicon.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icone-512.png">
+<link rel="shortcut icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <style>
   :root { --verde: #2d7046; --verde-escuro: #1e5434; --verde-fundo: #163d27; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; --mapa: #1b4a30; --barra: #2d7046; }

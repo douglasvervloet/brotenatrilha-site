@@ -14,8 +14,12 @@
 <meta property="og:description" content="Reviews de quadros, peças e equipamentos de bike do canal Brote na Trilha.">
 <meta property="og:url" content="https://brotenatrilha.com.br/analises/">
 <meta property="og:image" content="{{OG_IMAGE}}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" sizes="48x48" href="../favicon.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icone-512.png">
+<link rel="shortcut icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 {{JSONLD}}<style>
   :root { --verde: #2d7046; --verde-escuro: #1e5434; --verde-fundo: #163d27; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; }

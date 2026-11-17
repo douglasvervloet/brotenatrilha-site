@@ -13,9 +13,13 @@
 <meta property="og:title" content="Planejar pedal | Brote na Trilha">
 <meta property="og:description" content="Desenhe a rota do seu pedal e veja subidas, terreno, vento e a previsão do tempo.">
 <meta property="og:url" content="https://brotenatrilha.com.br/planejar-pedal/">
-<meta property="og:image" content="https://brotenatrilha.com.br/compartilhar.jpg">
+<meta property="og:image" content="https://brotenatrilha.com.br/planejar-pedal/compartilhar.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" sizes="48x48" href="../favicon.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icone-512.png">
+<link rel="shortcut icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-title" content="Planejar pedal">
@@ -46,7 +50,7 @@
   #rota { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   #rota circle.ponto { pointer-events: auto; cursor: pointer; }
   #rota text { font-family: inherit; }
-  .barra { position: absolute; left: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; max-width: calc(100% - 80px); }
+  .barra { z-index: 4; position: absolute; left: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; max-width: calc(100% - 80px); }
   .linha1 { display: flex; gap: 8px; flex-wrap: wrap; }
   .bt { font: inherit; font-weight: 700; font-size: .9rem; min-height: 40px; padding: 0 16px; border-radius: 999px; border: 2px solid rgba(255, 255, 255, .35); background: rgba(12, 23, 17, .85); color: #fff; cursor: pointer; }
   @media (hover: hover) { .bt:hover:not(:disabled) { border-color: var(--ambar); } }      /* no toque o :hover fica preso depois do toque e parecia "ligado" */
@@ -87,8 +91,13 @@
   .leg-terreno b { font-size: .8rem; }
   .leg-terreno .amostra { width: 24px; margin-right: 8px; vertical-align: middle; outline-color: rgba(255, 255, 255, .7); }
   .leg-terreno small { display: block; opacity: .8; font-size: .74rem; }
-  @media (max-width: 560px) { .leg-terreno { top: auto; bottom: 62px; right: 12px; } }
-  @media (max-width: 760px) and (pointer: coarse) { .mapa { height: min(56vh, 520px); height: min(56dvh, 520px); min-height: 340px; } }      /* celular: o mapa não toma a tela inteira, sobra página para rolar com o dedo (no mapa o dedo move o mapa) */
+  @media (max-width: 900px) { .leg-terreno { top: auto; left: 12px; right: 12px; bottom: 36px; padding: 6px 10px; font-size: .74rem; line-height: 1.5; } .leg-terreno br { display: none; } .leg-terreno b { margin-right: 8px; } .leg-terreno .amostra { width: 18px; margin: 0 4px 0 10px; } .leg-terreno small { display: inline; margin-left: 8px; } .leg-piso { bottom: 84px; }
+    .mapa .pilha-baixo { display: flex; flex-direction: column; align-items: stretch; gap: 6px; position: absolute; left: 12px; right: 64px; bottom: 30px; z-index: 1; pointer-events: none; }
+    .mapa .pilha-baixo > * { position: static !important; width: auto; }
+    .mapa .pilha-baixo .vento-mapa { font-size: .78rem; padding: 6px 12px; }
+    .mapa .pilha-baixo .vento-mapa svg { width: 26px; height: 26px; flex: none; } }      /* celular: a legenda do terreno vira uma faixa embaixo e não cobre a coluna de botões da direita */
+  @media (max-width: 760px) and (pointer: coarse) { .mapa { height: var(--altura-mapa, min(56vh, 520px)); min-height: 340px; } }
+  @media (pointer: coarse) and (max-height: 520px) { .mapa { height: 88vh; min-height: 260px; } }      /* celular deitado: o mapa cabe na altura da tela */      /* svh: a altura "pequena" da tela não muda quando a barra do navegador some ao rolar (dvh mudava e o mapa crescia e encolhia) */      /* celular: o mapa não toma a tela inteira, sobra página para rolar com o dedo (no mapa o dedo move o mapa) */
   @media (max-width: 560px) {                                       /* celular: a primeira linha da barra só com ícones (cabe em uma linha) e os botões de baixo, dois por linha */
     .linha1 .bt { display: inline-flex; align-items: center; justify-content: center; width: 40px; padding: 0; font-size: 0; }
     .linha1 .bt svg.ic { margin: 0; width: 18px; height: 18px; }
@@ -151,9 +160,9 @@
   .passeio small { color: var(--ambar); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: .7rem; }
   .passeio b { display: block; margin-top: 2px; font-size: 1.05rem; }
   .passeio p { margin: 6px 0 12px; color: #dcebe0; font-size: .92rem; line-height: 1.45; }
-  .passeio-botoes { display: flex; align-items: center; gap: 8px; }
-  .passeio-botoes span { flex: 1; }
-  .passeio-botoes button { display: inline-flex; align-items: center; gap: 7px; font: inherit; font-weight: 700; padding: 7px 16px; border-radius: 999px; cursor: pointer; border: 2px solid var(--verde); background: var(--verde); color: #fff; }
+  .passeio-botoes { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
+  .passeio-botoes span { flex: 1 1 0; min-width: 0; }
+  .passeio-botoes button { display: inline-flex; align-items: center; gap: 7px; font: inherit; font-weight: 700; font-size: .92rem; padding: 7px 14px; border-radius: 999px; cursor: pointer; border: 2px solid var(--verde); background: var(--verde); color: #fff; }
   .passeio-botoes button.sem-fundo { background: transparent; border-color: rgba(255, 255, 255, .35); }
   .passeio-botoes button[hidden] { display: none; }
   .menu-ponto button svg.ic, .passeio-botoes button svg.ic, .popup button svg.ic { width: 15px; height: 15px; flex: none; }
@@ -176,6 +185,7 @@
   .previsao-grafico [data-i] { cursor: pointer; }
   .vento-mapa { position: absolute; right: 12px; bottom: 34px; display: flex; align-items: center; gap: 10px; background: rgba(12, 23, 17, .9); color: #fff; border-radius: 14px; padding: 8px 14px; font-size: .85rem; pointer-events: none; }
   .vento-mapa[hidden] { display: none; }
+  .pilha-baixo { display: contents; }
   .sobre-dados { margin-top: 12px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 0 18px; }
   .sobre-dados summary { cursor: pointer; font-weight: 700; padding: 13px 0; list-style: none; display: flex; align-items: center; justify-content: space-between; }
   .sobre-dados summary::-webkit-details-marker { display: none; }
@@ -232,7 +242,7 @@
   body.sem-rolagem { overflow: hidden; }
   .dica-gestos { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 7; max-width: 80%; padding: 10px 16px; border-radius: 14px; background: rgba(12, 23, 17, .92); color: #fff; font-weight: 700; font-size: .9rem; text-align: center; pointer-events: none; opacity: 0; transition: opacity .2s; }
   .dica-gestos.ativa { opacity: 1; }
-  .zoom { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .zoom { z-index: 4; position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; }
   .zoom .bt { width: 44px; padding: 0; font-size: 1.4rem; line-height: 1; }
   .dica[hidden] { display: none; }
   .dica { position: absolute; left: 12px; bottom: 12px; background: rgba(12, 23, 17, .85); color: #fff; border-radius: 12px; padding: 8px 14px; font-size: .85rem; max-width: 62%; pointer-events: none; }
@@ -285,7 +295,7 @@
 <main class="miolo">
   <div class="campos-do-topo">
   <form class="busca" id="busca" role="search">
-    <input type="search" id="busca-q" placeholder="Buscar cidade ou lugar" aria-label="Buscar cidade ou lugar" maxlength="80" autocomplete="off" enterkeyhint="search">
+    <input type="search" id="busca-q" placeholder="Buscar lugar" aria-label="Buscar cidade ou lugar" maxlength="80" autocomplete="off" enterkeyhint="search">
     <button class="sec" type="submit" id="busca-ok"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Buscar</button>
   </form>
   <div class="nome-da-rota"><input id="nome-rota" type="text" maxlength="60" placeholder="Nome da rota" aria-label="Nome da rota" title="O nome sai na imagem e no roadbook" autocomplete="off"></div>
@@ -327,9 +337,11 @@
     <div class="dica-gestos" id="dica-gestos" aria-hidden="true">Use dois dedos para mover o mapa</div>
     <div class="estilos" id="painel-estilos" role="group" aria-label="Estilo do mapa" hidden><h4>Estilo do mapa</h4><div class="grade"><button type="button" class="op" data-estilo="relevo" aria-pressed="true"><img src="estilo-relevo.webp" width="150" height="100" alt="">Relevo</button><button type="button" class="op" data-estilo="ruas" aria-pressed="false"><img src="estilo-ruas.webp" width="150" height="100" alt="">Ruas</button><button type="button" class="op" data-estilo="escuro" aria-pressed="false"><img src="estilo-escuro.webp" width="150" height="100" alt="">Escuro</button></div><small>Cada estilo pede os quadros do mapa a um servidor aberto diferente.</small></div>
     <div class="toast" id="aviso-local" role="status" aria-live="polite" hidden></div>
+    <div class="pilha-baixo">
+        <div class="leg-piso" id="leg-piso" hidden></div>
     <div class="leg-terreno" id="leg-terreno" hidden></div>
-    <div class="leg-piso" id="leg-piso" hidden></div>
     <div class="vento-mapa" id="vento-mapa" hidden><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><g id="vento-seta"><path d="M17 3L27 29L17 23L7 29Z" fill="#9fd3ff" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></g></svg><span id="vento-texto"></span></div>
+    </div>
     <div class="popup" id="popup" role="dialog" aria-labelledby="popup-titulo" hidden><b id="popup-titulo"></b><p id="popup-texto"></p><button type="button" id="popup-ok"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Entendi</button></div>
     <div class="menu-ponto" id="menu-ponto" hidden>
       <div class="trecho" id="menu-trecho"><span>Trecho até aqui</span><button type="button" data-modo="ruas"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="6" r="2.3"/><path d="M8.3 18H14a3.5 3.5 0 0 0 0-7h-4a3.5 3.5 0 0 1 0-7h5.7"/></svg>Ruas</button><button type="button" data-modo="livre"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20L20 4"/></svg>Livre</button></div>
@@ -2222,14 +2234,18 @@
 
     // ---- o passeio guiado: cada passo explica uma parte da tela; o alvo ganha contorno e o cartão fica fixo embaixo ----
     var PASSOS_DO_PASSEIO = [
-      { alvo: "#mapa", titulo: "Clique no mapa", texto: "Cada clique põe um ponto da rota. Clique na linha para inserir um ponto no meio, arraste um ponto para ajustar e clique nele para mais opções. No celular, dois dedos movem o mapa e o botão de tela cheia o amplia." },
+      { alvo: "#mapa", titulo: "Clique no mapa", texto: "Cada clique põe um ponto da rota. Clique na linha para inserir um ponto no meio, arraste um ponto para ajustar e clique nele para mais opções." },
       { alvo: ".campos-do-topo", titulo: "Buscar um lugar e dar nome", texto: "Digite uma cidade ou um lugar e escolha na lista: o mapa vai direto até lá. O nome da rota sai na imagem e no roadbook." },
+      { alvo: "#b-max", titulo: "Tela cheia e dois dedos", texto: "No celular, um dedo rola a página e dois dedos movem o mapa. Este botão amplia o mapa para a tela toda (um dedo move); toque nele de novo para sair." },
       { alvo: "#b-grupo-desenho", titulo: "Grudar nas ruas", texto: "Com a chave ligada, a rota segue as ruas entre os pontos. Dá para evitar rodovias ou ligar em linha reta (Trecho livre)." },
-      { alvo: "#b-grupo-camadas", titulo: "Camadas do mapa", texto: "Terreno (asfalto, terra e calçamento), pontos de apoio, marcos de km, piso das ruas, pedais do canal e pontos de interesse com foto." },
+      { alvo: "#b-grupo-camadas", titulo: "Camadas do mapa", texto: "Terreno (asfalto, terra e calçamento), apoios (água, mercado, posto), marcos de km, piso das ruas, pedais do canal e pontos de interesse com foto." },
       { alvo: ".linha1", titulo: "Desfazer, refazer e ida e volta", texto: "Errou um ponto? Desfaça. A ida e volta repete a rota ao contrário, de volta ao início." },
-      { alvo: "#resultado", titulo: "Os números", texto: "Depois de desenhar, abaixo do mapa aparecem a distância, o ganho de altitude, as subidas com categoria, a luz do dia, o vento e a previsão do tempo." },
-      { alvo: "#b-gpx", titulo: "Roadbook e GPX", texto: "Com a rota pronta, imprima o roadbook, salve a imagem para compartilhar, baixe o GPX para o GPS ou copie o link para mandar a um amigo." },
-      { alvo: "#b-minhas", titulo: "Minhas rotas", texto: "Salve a rota neste navegador para voltar nela depois, ou abra um GPX seu para ver as subidas." }
+      { alvo: "#resultado", titulo: "Os números", texto: "Depois de desenhar, abaixo do mapa aparecem a distância, o ganho de altitude, as subidas com categoria e a luz do dia (nascer e pôr do sol)." },
+      { alvo: "#grafico", titulo: "Altimetria", texto: "Arraste no gráfico para escolher um trecho: a extensão, o ganho e a inclinação dele aparecem logo abaixo." },
+      { alvo: "#b-previsao", titulo: "Previsão do tempo", texto: "Ligue para ver temperatura, vento e chuva nas horas do pedal. O vento aparece no mapa, e o percurso mostra quanto é a favor, de lado e contra." },
+      { alvo: "#b-gpx", titulo: "Roadbook, imagem e GPX", texto: "Com a rota pronta, imprima o roadbook, salve a imagem para compartilhar, baixe o GPX para o GPS ou copie o link para mandar a um amigo." },
+      { alvo: "#b-minhas", titulo: "Minhas rotas e Abrir GPX", texto: "Salve a rota neste navegador para voltar nela depois. Abrir GPX traz um arquivo seu para ver as subidas, o terreno e o resto." },
+      { alvo: "#b-exemplo", titulo: "Exemplo", texto: "Quer ver tudo funcionando? Toque em Exemplo: ele abre um pedal do canal com terreno, apoios e pontos de interesse já ligados." }
     ], passoAtual = -1;
     function limparAlvoDoPasseio() { var a = document.querySelector(".passo-alvo"); if (a) a.classList.remove("passo-alvo"); }
     function fecharPasseio() {
@@ -2416,6 +2432,13 @@
         document.body.appendChild(link); link.click(); link.remove(); setTimeout(function () { URL.revokeObjectURL(link.href); }, 5000);
       }).catch(function () { msg.textContent = "Não consegui montar a imagem agora. Tente de novo."; msg.hidden = false; }).then(function () { botao.disabled = !calculo; });
     });
+
+    // ---- a altura do mapa no celular é fixa, em pixels, pela altura da tela do aparelho: em vh/dvh ela mudava quando a barra do navegador some ao rolar ----
+    (function () {
+      function fixarAlturaDoMapa() { document.documentElement.style.setProperty("--altura-mapa", Math.min(520, Math.max(340, Math.round(screen.height * 0.56))) + "px"); }
+      fixarAlturaDoMapa();
+      if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener("change", function () { fixarAlturaDoMapa(); redesenhar(); });
+    })();
 
     // ---- gestos no celular e mapa em tela cheia ----
     var tempoDaDica = null;
