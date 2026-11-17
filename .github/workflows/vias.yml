@@ -1,0 +1,47 @@
+# Atualiza todo mês os arquivos de vias do Espírito Santo (ferramentas/vias/), que a ferramenta "Desenhar rota" lê para mostrar o terreno
+# (asfalto, terra, calçamento) sem depender do Overpass. Baixa o mapa do Sudeste na Geofabrik (uns 900 MB), roda ferramentas/gerar_vias.py
+# e grava só se algo mudou. Não usa segredos. Pode ser rodado na mão em "Actions".
+name: Atualizar vias do Espírito Santo
+
+on:
+  schedule:
+    - cron: "0 6 3 * *"   # dia 3 de cada mês às 06:00 UTC (3:00 em Brasília)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vias
+  cancel-in-progress: false
+
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar osmium (lê o mapa) e Pillow (o gerador importa o código dos pedais)
+        run: pip install osmium pillow
+
+      - name: Baixar o mapa do Sudeste (Geofabrik)
+        run: curl -fL --retry 3 --retry-delay 20 -o "$RUNNER_TEMP/sudeste.osm.pbf" https://download.geofabrik.de/south-america/brazil/sudeste-latest.osm.pbf
+
+      - name: Gerar os arquivos de vias
+        run: |
+          python ferramentas/gerar_vias.py "$RUNNER_TEMP/sudeste.osm.pbf" ferramentas/vias
+          # um mapa quebrado não pode apagar as vias do site: o estado inteiro dá uns 2.800 arquivos
+          n=$(ls ferramentas/vias | wc -l)
+          if [ "$n" -lt 2000 ]; then echo "::error::Só $n arquivos de vias: algo deu errado, nada foi gravado."; exit 1; fi
+
+      - name: Gravar se mudou
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A ferramentas/vias
+          git diff --cached --quiet || (git commit -m "Atualiza as vias do Espírito Santo" && git pull --rebase origin main && git push)
