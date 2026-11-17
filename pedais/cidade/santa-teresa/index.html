@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pedais de bike em Santa Teresa, ES | Brote na Trilha</title>
+<meta name="description" content="3 pedais de bike que passam por Santa Teresa, no Espírito Santo, com o mapa, a altimetria, as subidas e o vídeo de cada um. 184 km e 3.276 m de subida.">
+<link rel="canonical" href="https://brotenatrilha.com.br/pedais/cidade/santa-teresa/">
+<meta name="theme-color" content="#2d7046">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Brote na Trilha">
+<meta property="og:title" content="Pedais de bike em Santa Teresa, ES | Brote na Trilha">
+<meta property="og:description" content="3 pedais de bike que passam por Santa Teresa, no Espírito Santo, com o mapa, a altimetria, as subidas e o vídeo de cada um. 184 km e 3.276 m de subida.">
+<meta property="og:url" content="https://brotenatrilha.com.br/pedais/cidade/santa-teresa/">
+<meta property="og:image" content="https://brotenatrilha.com.br/compartilhar.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icone-512.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+  :root { --verde: #2d7046; --verde-escuro: #1e5434; --verde-fundo: #163d27; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; --mapa: #1b4a30; --barra: #2d7046; }
+  @media (prefers-color-scheme: dark) { :root { --fundo: #0f1a13; --cartao: #172a1e; --texto: #e9f0ea; --suave: #a9bbae; --linha: #284534; --mapa: #12331f; --barra: #4fa56f; } }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--ambar); outline-offset: 3px; border-radius: 4px; }
+  .miolo { width: min(1080px, 100% - 32px); margin-inline: auto; }
+  header { background: linear-gradient(180deg, var(--verde), var(--verde-fundo)); color: #fff; padding: 18px 0 38px; }
+  header a { color: #fff; text-decoration: none; font-weight: 600; opacity: .9; }
+  header a:hover { opacity: 1; text-decoration: underline; }
+  h1 { margin: 22px 0 0; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; letter-spacing: -.5px; }
+  header p { margin: 10px 0 0; color: #dcebe0; max-width: 60ch; }
+  .resumo { margin-top: 14px !important; color: var(--ambar) !important; font-weight: 700; font-variant-numeric: tabular-nums; }
+  main { padding: 10px 0 56px; }
+  .ano { margin: 38px 0 14px; font-size: 1.6rem; }
+  .ano::after { content: ""; display: block; width: 52px; height: 4px; border-radius: 2px; background: var(--ambar); margin-top: 8px; }
+
+  /* busca e filtros */
+  .filtros { margin: 34px 0 0; display: grid; gap: 12px; }
+  .filtros input { width: 100%; font: inherit; padding: 12px 18px; border-radius: 999px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); }
+  .filtros input:focus { border-color: var(--verde); outline: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font: inherit; font-weight: 600; font-size: .9rem; cursor: pointer; padding: 7px 15px; border-radius: 999px; background: var(--cartao); color: var(--texto); border: 2px solid var(--linha); }
+  .chip:hover { border-color: var(--verde); }
+  .chip[aria-pressed="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
+  #contagem { margin: 0; color: var(--suave); font-size: .9rem; }
+
+  .seletores { display: flex; flex-wrap: wrap; gap: 10px 18px; }
+  .seletores label { display: flex; align-items: center; gap: 8px; font-size: .9rem; color: var(--suave); }
+  .seletores select { font: inherit; padding: 8px 14px; border-radius: 999px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); max-width: 70vw; }
+  .seletores select:focus { border-color: var(--verde); outline: none; }
+  .cidades { margin: 2px 0 0; color: var(--suave); font-size: .85rem; line-height: 1.4; }
+  .cidades b { color: var(--texto); }
+
+  .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 18px; }
+  .pedal[hidden], .bloco-ano[hidden] { display: none; }
+  .pedal { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
+  .mapa-link { display: block; text-decoration: none; }
+  /* a imagem do cartão: a capa do vídeo (padrão) ou o mapa, trocados pelo botão de cada cartão */
+  .imagem { position: relative; }
+  .capa { display: block; aspect-ratio: 16 / 9; background: #1d2a22; overflow: hidden; }   /* a proporção da capa do YouTube: não corta as laterais */
+  .capa img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .pedal:not(.sem-capa) .mapa-link .mapa { display: none; aspect-ratio: 16 / 9; }   /* o mapa ocupa a mesma caixa da capa: o cartão não muda de altura ao trocar */
+  .pedal.ver-mapa .capa { display: none; }
+  .pedal.ver-mapa .mapa-link .mapa { display: block; }
+  .pedal.ver-mapa .mapa-link .mapa.vazio { display: grid; }
+  .alterna { position: absolute; right: 10px; top: 50%; transform: translateY(-50%);   /* no meio, à direita: o texto das capas costuma ficar em cima e embaixo */ font: inherit; font-weight: 600; font-size: .78rem; cursor: pointer; padding: 5px 12px; display: inline-flex; align-items: center; gap: 6px; border-radius: 999px;
+    background: rgba(12, 22, 16, .78); color: #fff; border: 1px solid rgba(255, 255, 255, .35); backdrop-filter: blur(4px); }
+  .alterna svg { width: 14px; height: 14px; flex: none; }
+  .alterna:hover { background: rgba(12, 22, 16, .92); border-color: #fff; }
+  .alterna:focus-visible { outline: 2px solid var(--ambar, #e8a33d); outline-offset: 2px; }
+  .alterna[hidden] { display: none; }
+  .mapa { display: block; width: 100%; aspect-ratio: 400 / 240; background: var(--mapa); }
+  .mapa path { fill: none; stroke: #d6004f; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .mapa.com-fundo { position: relative; aspect-ratio: 5 / 3; background: #cfe0c4; overflow: hidden; }
+  .mapa.com-fundo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .mapa.com-fundo svg { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; background: none; }
+  .mapa.com-fundo .halo { stroke: #ffffff; stroke-width: 8; opacity: .9; }
+  .mapa.com-fundo .linha { stroke: #d6004f; stroke-width: 4.5; }
+  .mapa.vazio { display: grid; place-items: center; color: #7fa68d; font-size: .9rem; }
+  .corpo { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  h3 { margin: 0; font-size: 1.12rem; line-height: 1.3; }
+  h3 a { text-decoration: none; }
+  h3 a:hover { text-decoration: underline; }
+  .data { margin: 0; color: var(--suave); font-size: .9rem; }
+  .por-cidade { margin: 14px 0 0; line-height: 1.9; }
+  .por-cidade a { color: inherit; }
+  .planejar-atalho { align-self: flex-start; display: inline-flex; align-items: center; gap: 7px; margin-top: 10px; padding: 6px 14px; border: 2px solid var(--linha); border-radius: 999px; font-size: .85rem; font-weight: 700; color: var(--texto); text-decoration: none; }
+  .planejar-atalho:hover { border-color: var(--verde); }
+  .planejar-atalho svg { width: 15px; height: 15px; flex: none; }
+  dl { margin: 10px 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  dl div { text-align: center; }
+  dt { font-size: .68rem; letter-spacing: .5px; text-transform: uppercase; color: var(--suave); }
+  dd { margin: 2px 0 0; font-weight: 700; font-size: .95rem; font-variant-numeric: tabular-nums; }
+  .links { margin: auto 0 0; padding-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .botao { display: inline-block; padding: 8px 16px; border-radius: 999px; background: var(--verde); color: #fff; font-weight: 700; font-size: .9rem; text-decoration: none; transition: background .15s ease; }
+  .botao:hover { background: var(--verde-escuro); }
+  .botao.claro { background: transparent; color: var(--texto); border: 2px solid var(--linha); padding: 6px 14px; }
+  .botao.claro:hover { border-color: var(--verde); }
+  .nota { margin-top: 36px; color: var(--suave); font-size: .88rem; }
+  footer { background: var(--verde-fundo); color: #cfe0d3; padding: 28px 0; font-size: .92rem; }
+  footer .miolo { display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: space-between; }
+  footer a { color: #fff; }
+  footer .strava { display: inline-block; background: #fff; border-radius: 6px; padding: 6px 10px; line-height: 0; }
+  footer .strava img { height: 20px; width: auto; display: block; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .botao { transition: none; } }
+</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Brote na Trilha", "item": "https://brotenatrilha.com.br/"}, {"@type": "ListItem", "position": 2, "name": "Pedais", "item": "https://brotenatrilha.com.br/pedais/"}, {"@type": "ListItem", "position": 3, "name": "Santa Teresa", "item": "https://brotenatrilha.com.br/pedais/cidade/santa-teresa/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "CollectionPage", "name": "Pedais de bike em Santa Teresa, ES", "url": "https://brotenatrilha.com.br/pedais/cidade/santa-teresa/", "inLanguage": "pt-BR", "description": "3 pedais de bike que passam por Santa Teresa, no Espírito Santo, com o mapa, a altimetria, as subidas e o vídeo de cada um. 184 km e 3.276 m de subida.", "mainEntity": {"@type": "ItemList", "numberOfItems": 3, "itemListElement": [{"@type": "ListItem", "position": 1, "url": "https://brotenatrilha.com.br/pedais/2026-09-27-5-cicloturismo-santa-teresa-quer-descer-vai-ter-que-subir/", "name": "5° Cicloturismo Santa Teresa - Quer descer? Vai ter que subir!"}, {"@type": "ListItem", "position": 2, "url": "https://brotenatrilha.com.br/pedais/2026-05-01-20-caminho-do-imigrante-3-santas/", "name": "20º Caminho do Imigrante + 3 Santas"}, {"@type": "ListItem", "position": 3, "url": "https://brotenatrilha.com.br/pedais/2025-10-05-4-cicloturismo-santa-teresa-rota-da-uva-e-do-vinho-2025/", "name": "4° Cicloturismo Santa Teresa - Rota da Uva e do Vinho (2025)"}]}}</script>
+</head>
+<body>
+<header>
+  <div class="miolo">
+    <a href="/pedais/">&larr; Pedais</a>
+    <h1>Pedais em Santa Teresa</h1>
+    <p>O Brote na Trilha tem 3 pedais que passam por Santa Teresa, no Espírito Santo: 184 km pedalados e 3.276 m de subida no total. O mais recente é “5° Cicloturismo Santa Teresa - Quer descer? Vai ter que subir!”, de 27 de setembro de 2026; o mais longo, “20º Caminho do Imigrante + 3 Santas”, tem 96,1 km.</p>
+    <p class="resumo">3 pedais · 184 km · 3.276 m de subida</p>
+  </div>
+</header>
+
+<main class="miolo">
+  <div class="grade">
+<article class="pedal" data-ano="2026" data-km="43.7" data-nome="5 cicloturismo santa teresa 5 cicloturismo santa teresa quer descer vai ter que subir santa teresa santa maria de jetiba" data-subida="2" data-terreno="terra" data-sai="santa-teresa" data-chega="santa-teresa" data-passa="|santa-teresa|santa-maria-de-jetiba|">
+        <div class="imagem">
+          <a class="mapa-link" href="/pedais/2026-09-27-5-cicloturismo-santa-teresa-quer-descer-vai-ter-que-subir/" aria-label="Ver o pedal 5° Cicloturismo Santa Teresa - Quer descer? Vai ter que subir!"><div class="capa"><img src="/pedais/capas/mFnyB5BJN98.webp" width="640" height="360" loading="lazy" decoding="async" alt="Capa do vídeo 5° Cicloturismo Santa Teresa - Quer descer? Vai ter que subir!"></div><div class="mapa com-fundo"><img src="/pedais/mapas/20352614990.webp" width="800" height="480" loading="lazy" decoding="async" alt=""><svg preserveAspectRatio="xMidYMid slice" viewBox="0 0 800 480" role="img" aria-label="Traçado do percurso sobre o mapa, sem o começo e o fim"><path class="halo" d="M463.8 95.5 L457.3 88.5 L452.0 86.0 L451.1 84.8 L461.1 49.7 L455.3 49.1 L451.7 44.3 L437.0 47.5 L430.2 47.0 L426.7 45.8 L422.1 28.8 L416.8 26.6 L395.5 26.8 L394.0 38.9 L391.7 40.2 L351.8 31.7 L322.2 24.9 L315.4 21.8 L307.3 21.3 L296.9 23.9 L290.8 20.0 L284.6 19.6 L275.7 21.6 L273.2 27.4 L267.4 29.2 L253.1 24.9 L227.8 27.5 L216.0 34.6 L208.3 37.9 L201.7 36.2 L192.1 37.9 L179.4 46.9 L168.5 45.6 L160.0 45.6 L155.3 47.9 L146.7 59.9 L129.9 66.1 L128.0 69.0 L126.2 82.7 L130.1 93.0 L128.5 99.3 L136.8 103.8 L139.2 110.2 L145.1 110.7 L151.2 119.2 L152.1 121.2 L149.2 122.7 L136.9 115.8 L135.1 116.5 L132.5 120.6 L132.6 122.9 L139.0 134.4 L139.4 136.8 L135.1 138.4 L126.1 152.8 L120.9 157.6 L118.8 166.4 L113.3 186.5 L110.5 194.6 L107.9 198.3 L103.8 224.6 L100.8 233.0 L100.5 241.0 L87.2 270.7 L80.7 280.8 L78.1 290.2 L67.6 304.3 L57.2 312.7 L51.7 324.4 L45.8 334.1 L44.0 337.2 L43.4 342.3 L41.0 343.9 L39.5 352.0 L42.1 357.4 L42.9 363.2 L42.7 373.4 L43.8 376.3 L42.6 380.3 L44.9 397.2 L42.6 407.5 L43.2 412.2 L41.5 424.6 L38.7 431.2 L41.6 440.1 L42.9 460.6 L45.0 461.2 L51.9 455.8 L65.2 454.2 L66.3 451.8 L65.5 443.9 L66.9 429.0 L71.3 423.1 L83.1 422.5 L101.1 422.1 L114.6 416.2 L119.6 418.8 L122.0 422.1 L128.8 424.4 L134.4 421.0 L134.6 424.6 L140.3 417.7 L134.9 414.7 L135.1 413.2 L145.3 410.4 L147.0 408.2 L151.9 407.1 L157.4 406.1 L156.5 395.8 L152.7 385.4 L154.8 370.0 L157.2 362.8 L156.9 359.1 L148.9 353.0 L148.6 352.2 L150.8 350.3 L154.7 336.6 L158.3 333.3 L163.4 330.6 L167.1 324.5 L176.4 314.9 L182.6 312.2 L186.9 314.0 L191.7 324.2 L191.4 332.5 L195.6 336.5 L199.0 347.2 L203.5 348.5 L209.6 353.5 L214.1 379.6 L218.9 385.9 L218.2 387.8 L212.4 398.0 L212.8 412.1 L215.2 409.0 L227.3 410.3 L233.8 410.3 L236.6 411.6 L245.8 404.7 L248.2 402.4 L256.6 399.5 L265.6 404.9 L258.6 405.1 L255.3 410.1 L259.1 413.6 L262.0 416.3 L266.9 418.6 L270.9 427.7 L278.2 437.6 L279.2 437.8 L283.7 430.3 L291.2 427.7 L293.4 423.2 L293.1 419.6 L295.4 405.5 L297.4 401.0 L299.8 398.6 L297.8 393.2 L297.7 389.1 L299.1 385.2 L321.7 368.2 L326.2 368.7 L330.1 367.8 L338.9 367.6 L343.0 368.0 L344.7 363.6 L359.2 353.4 L371.4 345.8 L380.2 341.2 L389.2 329.8 L396.7 318.6 L398.9 315.2 L403.8 315.3 L414.4 319.9 L432.6 304.9 L435.3 300.4 L442.3 302.8 L444.7 303.0 L448.0 300.1 L460.5 297.7 L465.7 296.8 L472.6 291.7 L473.7 280.6 L478.9 277.0 L480.9 271.7 L479.0 259.8 L482.6 258.3 L490.8 258.2 L496.2 252.4 L495.8 245.8 L499.8 240.8 L499.4 237.0 L509.5 218.8 L509.8 214.9 L515.4 210.5 L515.2 202.7 L519.9 200.0 L521.8 200.8 L521.2 206.4 L527.2 217.8 L531.2 219.5 L543.5 228.7 L558.2 238.2 L562.2 239.0 L591.5 235.9 L595.4 239.3 L596.5 243.8 L610.1 247.5 L612.3 246.8 L615.1 248.1 L629.3 248.6 L636.9 247.5 L642.4 249.3 L647.3 248.4 L654.9 249.7 L661.6 256.2 L666.7 263.6 L694.5 278.8 L694.4 283.0 L698.9 289.8 L710.4 297.4 L717.1 307.7 L725.1 312.2 L731.1 312.4 L739.2 324.1 L740.7 324.4 L751.4 321.1 L750.5 315.1 L751.1 293.8 L758.3 279.7 L758.9 277.3 L758.2 272.9 L750.5 263.2 L747.4 259.2 L748.4 252.2 L747.4 229.6 L749.6 228.6 L758.3 230.1 L759.9 227.7 L754.3 208.1 L753.4 198.7 L744.9 184.9 L713.3 172.0 L708.7 171.9 L691.8 175.9 L664.2 166.2 L636.9 150.5 L622.9 145.9 L596.1 119.0 L587.1 111.5 L548.1 92.7 L511.6 89.7 L501.7 85.4 L499.1 83.1 L495.9 87.7 L471.2 88.7 L464.7 92.8 L458.2 89.6 L462.6 94.2 L461.9 95.2 L459.4 95.1"/><path class="linha" d="M463.8 95.5 L457.3 88.5 L452.0 86.0 L451.1 84.8 L461.1 49.7 L455.3 49.1 L451.7 44.3 L437.0 47.5 L430.2 47.0 L426.7 45.8 L422.1 28.8 L416.8 26.6 L395.5 26.8 L394.0 38.9 L391.7 40.2 L351.8 31.7 L322.2 24.9 L315.4 21.8 L307.3 21.3 L296.9 23.9 L290.8 20.0 L284.6 19.6 L275.7 21.6 L273.2 27.4 L267.4 29.2 L253.1 24.9 L227.8 27.5 L216.0 34.6 L208.3 37.9 L201.7 36.2 L192.1 37.9 L179.4 46.9 L168.5 45.6 L160.0 45.6 L155.3 47.9 L146.7 59.9 L129.9 66.1 L128.0 69.0 L126.2 82.7 L130.1 93.0 L128.5 99.3 L136.8 103.8 L139.2 110.2 L145.1 110.7 L151.2 119.2 L152.1 121.2 L149.2 122.7 L136.9 115.8 L135.1 116.5 L132.5 120.6 L132.6 122.9 L139.0 134.4 L139.4 136.8 L135.1 138.4 L126.1 152.8 L120.9 157.6 L118.8 166.4 L113.3 186.5 L110.5 194.6 L107.9 198.3 L103.8 224.6 L100.8 233.0 L100.5 241.0 L87.2 270.7 L80.7 280.8 L78.1 290.2 L67.6 304.3 L57.2 312.7 L51.7 324.4 L45.8 334.1 L44.0 337.2 L43.4 342.3 L41.0 343.9 L39.5 352.0 L42.1 357.4 L42.9 363.2 L42.7 373.4 L43.8 376.3 L42.6 380.3 L44.9 397.2 L42.6 407.5 L43.2 412.2 L41.5 424.6 L38.7 431.2 L41.6 440.1 L42.9 460.6 L45.0 461.2 L51.9 455.8 L65.2 454.2 L66.3 451.8 L65.5 443.9 L66.9 429.0 L71.3 423.1 L83.1 422.5 L101.1 422.1 L114.6 416.2 L119.6 418.8 L122.0 422.1 L128.8 424.4 L134.4 421.0 L134.6 424.6 L140.3 417.7 L134.9 414.7 L135.1 413.2 L145.3 410.4 L147.0 408.2 L151.9 407.1 L157.4 406.1 L156.5 395.8 L152.7 385.4 L154.8 370.0 L157.2 362.8 L156.9 359.1 L148.9 353.0 L148.6 352.2 L150.8 350.3 L154.7 336.6 L158.3 333.3 L163.4 330.6 L167.1 324.5 L176.4 314.9 L182.6 312.2 L186.9 314.0 L191.7 324.2 L191.4 332.5 L195.6 336.5 L199.0 347.2 L203.5 348.5 L209.6 353.5 L214.1 379.6 L218.9 385.9 L218.2 387.8 L212.4 398.0 L212.8 412.1 L215.2 409.0 L227.3 410.3 L233.8 410.3 L236.6 411.6 L245.8 404.7 L248.2 402.4 L256.6 399.5 L265.6 404.9 L258.6 405.1 L255.3 410.1 L259.1 413.6 L262.0 416.3 L266.9 418.6 L270.9 427.7 L278.2 437.6 L279.2 437.8 L283.7 430.3 L291.2 427.7 L293.4 423.2 L293.1 419.6 L295.4 405.5 L297.4 401.0 L299.8 398.6 L297.8 393.2 L297.7 389.1 L299.1 385.2 L321.7 368.2 L326.2 368.7 L330.1 367.8 L338.9 367.6 L343.0 368.0 L344.7 363.6 L359.2 353.4 L371.4 345.8 L380.2 341.2 L389.2 329.8 L396.7 318.6 L398.9 315.2 L403.8 315.3 L414.4 319.9 L432.6 304.9 L435.3 300.4 L442.3 302.8 L444.7 303.0 L448.0 300.1 L460.5 297.7 L465.7 296.8 L472.6 291.7 L473.7 280.6 L478.9 277.0 L480.9 271.7 L479.0 259.8 L482.6 258.3 L490.8 258.2 L496.2 252.4 L495.8 245.8 L499.8 240.8 L499.4 237.0 L509.5 218.8 L509.8 214.9 L515.4 210.5 L515.2 202.7 L519.9 200.0 L521.8 200.8 L521.2 206.4 L527.2 217.8 L531.2 219.5 L543.5 228.7 L558.2 238.2 L562.2 239.0 L591.5 235.9 L595.4 239.3 L596.5 243.8 L610.1 247.5 L612.3 246.8 L615.1 248.1 L629.3 248.6 L636.9 247.5 L642.4 249.3 L647.3 248.4 L654.9 249.7 L661.6 256.2 L666.7 263.6 L694.5 278.8 L694.4 283.0 L698.9 289.8 L710.4 297.4 L717.1 307.7 L725.1 312.2 L731.1 312.4 L739.2 324.1 L740.7 324.4 L751.4 321.1 L750.5 315.1 L751.1 293.8 L758.3 279.7 L758.9 277.3 L758.2 272.9 L750.5 263.2 L747.4 259.2 L748.4 252.2 L747.4 229.6 L749.6 228.6 L758.3 230.1 L759.9 227.7 L754.3 208.1 L753.4 198.7 L744.9 184.9 L713.3 172.0 L708.7 171.9 L691.8 175.9 L664.2 166.2 L636.9 150.5 L622.9 145.9 L596.1 119.0 L587.1 111.5 L548.1 92.7 L511.6 89.7 L501.7 85.4 L499.1 83.1 L495.9 87.7 L471.2 88.7 L464.7 92.8 L458.2 89.6 L462.6 94.2 L461.9 95.2 L459.4 95.1"/></svg></div></a>
+          <button type="button" class="alterna" hidden aria-pressed="false" aria-label="Ver o mapa deste pedal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Ver mapa</button>
+        </div>
+        <div class="corpo">
+          <h3><a href="/pedais/2026-09-27-5-cicloturismo-santa-teresa-quer-descer-vai-ter-que-subir/">5° Cicloturismo Santa Teresa - Quer descer? Vai ter que subir!</a></h3>
+          <p class="data">27 de setembro de 2026</p>
+          <p class="cidades">Sai de <b><a href="/pedais/cidade/santa-teresa/">Santa Teresa</a></b> · passa por <a href="/pedais/cidade/santa-maria-de-jetiba/">Santa Maria de Jetibá</a></p>
+          <dl>
+            <div><dt>Distância</dt><dd>43,7 km</dd></div>
+            <div><dt>Subida</dt><dd>749 m</dd></div>
+            <div><dt>Tempo</dt><dd>2h22</dd></div>
+            <div><dt>Média</dt><dd>18,4 km/h</dd></div>
+          </dl>
+          <a class="planejar-atalho" href="/planejar-pedal/?pedal=20352614990"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="6" r="2.3"/><path d="M8.3 18H14a3.5 3.5 0 0 0 0-7h-4a3.5 3.5 0 0 1 0-7h5.7"/></svg>Planejar este pedal</a>
+        </div>
+      </article>
+<article class="pedal" data-ano="2026" data-km="96.1" data-nome="20 caminho do imigrante 3 santas 20 caminho do imigrante 3 santas santa leopoldina santa teresa santa maria de jetiba" data-subida="3" data-terreno="" data-sai="santa-leopoldina" data-chega="santa-leopoldina" data-passa="|santa-leopoldina|santa-teresa|santa-maria-de-jetiba|">
+        <div class="imagem">
+          <a class="mapa-link" href="/pedais/2026-05-01-20-caminho-do-imigrante-3-santas/" aria-label="Ver o pedal 20º Caminho do Imigrante + 3 Santas"><div class="capa"><img src="/pedais/capas/LTArfzqGJtg.webp" width="640" height="360" loading="lazy" decoding="async" alt="Capa do vídeo 20º Caminho do Imigrante + 3 Santas"></div><div class="mapa com-fundo"><img src="/pedais/mapas/18337202633.webp" width="800" height="480" loading="lazy" decoding="async" alt=""><svg preserveAspectRatio="xMidYMid slice" viewBox="0 0 800 480" role="img" aria-label="Traçado do percurso sobre o mapa, sem o começo e o fim"><path class="halo" d="M689.4 459.1 L693.8 458.5 L694.9 455.1 L684.3 447.9 L680.0 448.0 L676.0 441.0 L677.8 438.2 L669.6 408.7 L666.6 402.0 L668.5 394.8 L665.7 389.6 L663.9 387.7 L660.7 383.6 L657.8 385.0 L657.0 379.3 L662.3 376.5 L663.5 373.9 L661.7 370.1 L658.4 355.4 L661.5 341.6 L665.5 335.5 L663.1 327.9 L668.9 325.9 L670.7 323.7 L676.2 322.0 L682.0 314.5 L683.7 299.5 L685.2 297.8 L678.1 288.2 L676.7 287.4 L681.3 278.2 L681.2 265.2 L664.8 260.1 L661.5 253.4 L663.4 249.2 L657.1 240.9 L652.1 231.1 L651.8 224.4 L652.6 214.1 L652.0 210.5 L654.0 207.9 L652.5 204.1 L646.5 187.1 L646.1 175.7 L641.5 168.1 L634.5 166.1 L641.7 164.5 L645.1 158.7 L641.0 151.6 L639.9 137.3 L634.7 138.0 L631.7 133.5 L623.8 127.7 L619.3 124.6 L617.5 120.5 L607.0 114.7 L602.6 109.3 L585.2 108.5 L580.1 107.0 L566.0 105.1 L556.3 99.9 L553.1 96.7 L548.9 90.5 L547.5 85.3 L540.0 77.9 L534.0 68.1 L534.1 65.8 L537.8 65.8 L539.6 62.4 L540.8 59.9 L534.8 58.2 L532.3 54.0 L524.0 46.0 L528.2 37.2 L527.7 32.3 L525.4 32.5 L518.4 31.4 L514.6 30.7 L512.2 29.0 L507.9 22.0 L502.4 23.4 L501.1 26.2 L501.1 28.6 L468.7 21.4 L464.5 22.3 L460.1 20.7 L453.5 24.5 L443.4 22.2 L430.0 27.9 L420.5 28.5 L415.6 26.4 L403.1 26.1 L393.0 28.2 L375.1 28.5 L362.5 31.0 L359.0 29.0 L351.0 24.8 L342.0 20.1 L335.3 20.7 L330.7 26.1 L322.2 19.5 L316.7 20.2 L311.6 19.2 L302.9 22.0 L300.9 22.9 L300.5 32.2 L298.3 35.6 L292.2 34.7 L284.5 38.7 L281.1 41.5 L272.1 51.6 L270.2 67.2 L267.4 71.0 L263.8 78.9 L263.1 85.8 L244.9 103.5 L245.1 107.9 L226.5 107.4 L218.0 102.8 L214.3 102.8 L200.9 98.1 L193.7 99.3 L178.2 99.2 L176.7 102.1 L173.9 107.8 L169.5 117.5 L166.7 117.7 L162.4 124.6 L165.3 128.9 L164.7 132.0 L164.4 142.9 L167.1 151.6 L165.2 152.9 L165.3 156.9 L163.3 169.1 L160.6 176.9 L155.7 180.0 L162.8 192.5 L164.1 200.3 L169.4 206.7 L160.1 224.5 L159.0 236.2 L157.0 238.8 L150.1 241.4 L151.5 243.9 L152.9 245.6 L154.3 254.9 L153.0 243.9 L148.9 243.5 L141.2 248.1 L134.6 249.5 L119.8 250.5 L105.2 255.9 L119.8 250.6 L140.9 248.4 L148.6 243.7 L151.3 243.8 L153.0 246.0 L156.2 259.6 L160.3 266.8 L166.2 272.4 L172.9 288.0 L177.6 292.4 L182.0 300.4 L196.2 299.9 L196.0 312.5 L208.1 314.9 L224.2 325.6 L238.1 326.3 L256.6 330.1 L270.2 323.0 L272.3 325.7 L282.1 331.6 L283.4 336.8 L286.8 337.2 L292.4 339.1 L294.7 344.5 L298.6 347.6 L309.9 339.2 L312.5 332.8 L309.4 329.8 L309.7 326.9 L314.4 320.6 L326.2 321.1 L331.5 322.9 L339.4 331.0 L350.1 335.9 L354.7 335.4 L358.4 332.5 L370.8 327.7 L373.5 329.1 L375.4 328.1 L378.0 338.0 L375.8 342.7 L381.4 342.9 L388.7 341.3 L389.3 344.4 L393.1 344.9 L396.2 348.4 L390.5 350.9 L394.3 353.4 L399.2 353.8 L397.8 357.5 L404.4 359.5 L406.3 361.5 L405.4 366.2 L411.4 372.1 L408.6 374.9 L411.0 376.1 L416.4 385.0 L413.3 386.5 L413.0 391.3 L414.3 393.3 L420.5 387.8 L424.5 387.4 L427.2 383.3 L441.9 388.6 L448.1 395.2 L453.5 396.1 L463.2 397.9 L467.8 399.3 L470.8 398.4 L472.9 399.9 L473.9 393.0 L477.4 390.6 L483.5 392.3 L493.9 393.0 L489.4 399.5 L494.2 402.3 L493.9 407.7 L506.2 416.7 L511.9 417.3 L520.9 415.7 L525.7 421.1 L541.6 412.9 L549.9 413.7 L552.4 411.6 L559.0 413.0 L563.6 413.3 L569.0 415.0 L575.9 416.9 L579.5 418.1 L585.2 425.8 L593.1 429.9 L597.0 432.4 L599.8 429.7 L603.7 428.8 L615.5 426.9 L612.8 422.9 L613.0 419.1 L628.1 422.7 L636.2 421.3 L635.6 425.6 L637.0 428.7 L650.0 439.4 L656.4 442.2 L659.7 447.1 L680.9 456.8 L684.3 460.8 L685.6 458.6 L691.1 458.9"/><path class="linha" d="M689.4 459.1 L693.8 458.5 L694.9 455.1 L684.3 447.9 L680.0 448.0 L676.0 441.0 L677.8 438.2 L669.6 408.7 L666.6 402.0 L668.5 394.8 L665.7 389.6 L663.9 387.7 L660.7 383.6 L657.8 385.0 L657.0 379.3 L662.3 376.5 L663.5 373.9 L661.7 370.1 L658.4 355.4 L661.5 341.6 L665.5 335.5 L663.1 327.9 L668.9 325.9 L670.7 323.7 L676.2 322.0 L682.0 314.5 L683.7 299.5 L685.2 297.8 L678.1 288.2 L676.7 287.4 L681.3 278.2 L681.2 265.2 L664.8 260.1 L661.5 253.4 L663.4 249.2 L657.1 240.9 L652.1 231.1 L651.8 224.4 L652.6 214.1 L652.0 210.5 L654.0 207.9 L652.5 204.1 L646.5 187.1 L646.1 175.7 L641.5 168.1 L634.5 166.1 L641.7 164.5 L645.1 158.7 L641.0 151.6 L639.9 137.3 L634.7 138.0 L631.7 133.5 L623.8 127.7 L619.3 124.6 L617.5 120.5 L607.0 114.7 L602.6 109.3 L585.2 108.5 L580.1 107.0 L566.0 105.1 L556.3 99.9 L553.1 96.7 L548.9 90.5 L547.5 85.3 L540.0 77.9 L534.0 68.1 L534.1 65.8 L537.8 65.8 L539.6 62.4 L540.8 59.9 L534.8 58.2 L532.3 54.0 L524.0 46.0 L528.2 37.2 L527.7 32.3 L525.4 32.5 L518.4 31.4 L514.6 30.7 L512.2 29.0 L507.9 22.0 L502.4 23.4 L501.1 26.2 L501.1 28.6 L468.7 21.4 L464.5 22.3 L460.1 20.7 L453.5 24.5 L443.4 22.2 L430.0 27.9 L420.5 28.5 L415.6 26.4 L403.1 26.1 L393.0 28.2 L375.1 28.5 L362.5 31.0 L359.0 29.0 L351.0 24.8 L342.0 20.1 L335.3 20.7 L330.7 26.1 L322.2 19.5 L316.7 20.2 L311.6 19.2 L302.9 22.0 L300.9 22.9 L300.5 32.2 L298.3 35.6 L292.2 34.7 L284.5 38.7 L281.1 41.5 L272.1 51.6 L270.2 67.2 L267.4 71.0 L263.8 78.9 L263.1 85.8 L244.9 103.5 L245.1 107.9 L226.5 107.4 L218.0 102.8 L214.3 102.8 L200.9 98.1 L193.7 99.3 L178.2 99.2 L176.7 102.1 L173.9 107.8 L169.5 117.5 L166.7 117.7 L162.4 124.6 L165.3 128.9 L164.7 132.0 L164.4 142.9 L167.1 151.6 L165.2 152.9 L165.3 156.9 L163.3 169.1 L160.6 176.9 L155.7 180.0 L162.8 192.5 L164.1 200.3 L169.4 206.7 L160.1 224.5 L159.0 236.2 L157.0 238.8 L150.1 241.4 L151.5 243.9 L152.9 245.6 L154.3 254.9 L153.0 243.9 L148.9 243.5 L141.2 248.1 L134.6 249.5 L119.8 250.5 L105.2 255.9 L119.8 250.6 L140.9 248.4 L148.6 243.7 L151.3 243.8 L153.0 246.0 L156.2 259.6 L160.3 266.8 L166.2 272.4 L172.9 288.0 L177.6 292.4 L182.0 300.4 L196.2 299.9 L196.0 312.5 L208.1 314.9 L224.2 325.6 L238.1 326.3 L256.6 330.1 L270.2 323.0 L272.3 325.7 L282.1 331.6 L283.4 336.8 L286.8 337.2 L292.4 339.1 L294.7 344.5 L298.6 347.6 L309.9 339.2 L312.5 332.8 L309.4 329.8 L309.7 326.9 L314.4 320.6 L326.2 321.1 L331.5 322.9 L339.4 331.0 L350.1 335.9 L354.7 335.4 L358.4 332.5 L370.8 327.7 L373.5 329.1 L375.4 328.1 L378.0 338.0 L375.8 342.7 L381.4 342.9 L388.7 341.3 L389.3 344.4 L393.1 344.9 L396.2 348.4 L390.5 350.9 L394.3 353.4 L399.2 353.8 L397.8 357.5 L404.4 359.5 L406.3 361.5 L405.4 366.2 L411.4 372.1 L408.6 374.9 L411.0 376.1 L416.4 385.0 L413.3 386.5 L413.0 391.3 L414.3 393.3 L420.5 387.8 L424.5 387.4 L427.2 383.3 L441.9 388.6 L448.1 395.2 L453.5 396.1 L463.2 397.9 L467.8 399.3 L470.8 398.4 L472.9 399.9 L473.9 393.0 L477.4 390.6 L483.5 392.3 L493.9 393.0 L489.4 399.5 L494.2 402.3 L493.9 407.7 L506.2 416.7 L511.9 417.3 L520.9 415.7 L525.7 421.1 L541.6 412.9 L549.9 413.7 L552.4 411.6 L559.0 413.0 L563.6 413.3 L569.0 415.0 L575.9 416.9 L579.5 418.1 L585.2 425.8 L593.1 429.9 L597.0 432.4 L599.8 429.7 L603.7 428.8 L615.5 426.9 L612.8 422.9 L613.0 419.1 L628.1 422.7 L636.2 421.3 L635.6 425.6 L637.0 428.7 L650.0 439.4 L656.4 442.2 L659.7 447.1 L680.9 456.8 L684.3 460.8 L685.6 458.6 L691.1 458.9"/></svg></div></a>
+          <button type="button" class="alterna" hidden aria-pressed="false" aria-label="Ver o mapa deste pedal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Ver mapa</button>
+        </div>
+        <div class="corpo">
+          <h3><a href="/pedais/2026-05-01-20-caminho-do-imigrante-3-santas/">20º Caminho do Imigrante + 3 Santas</a></h3>
+          <p class="data">1 de maio de 2026</p>
+          <p class="cidades">Sai de <b><a href="/pedais/cidade/santa-leopoldina/">Santa Leopoldina</a></b> · passa por <a href="/pedais/cidade/santa-teresa/">Santa Teresa</a>, <a href="/pedais/cidade/santa-maria-de-jetiba/">Santa Maria de Jetibá</a></p>
+          <dl>
+            <div><dt>Distância</dt><dd>96,1 km</dd></div>
+            <div><dt>Subida</dt><dd>1.622 m</dd></div>
+            <div><dt>Tempo</dt><dd>5h02</dd></div>
+            <div><dt>Média</dt><dd>19,1 km/h</dd></div>
+          </dl>
+          <a class="planejar-atalho" href="/planejar-pedal/?pedal=18337202633"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="6" r="2.3"/><path d="M8.3 18H14a3.5 3.5 0 0 0 0-7h-4a3.5 3.5 0 0 1 0-7h5.7"/></svg>Planejar este pedal</a>
+        </div>
+      </article>
+<article class="pedal" data-ano="2025" data-km="44.5" data-nome="4 cicloturismo santa teresa rota pro 4 cicloturismo santa teresa rota da uva e do vinho 2025 santa teresa" data-subida="2" data-terreno="" data-sai="santa-teresa" data-chega="santa-teresa" data-passa="|santa-teresa|">
+        <div class="imagem">
+          <a class="mapa-link" href="/pedais/2025-10-05-4-cicloturismo-santa-teresa-rota-da-uva-e-do-vinho-2025/" aria-label="Ver o pedal 4° Cicloturismo Santa Teresa - Rota da Uva e do Vinho (2025)"><div class="capa"><img src="/pedais/capas/hnnHgAvnCy4.webp" width="640" height="360" loading="lazy" decoding="async" alt="Capa do vídeo 4° Cicloturismo Santa Teresa - Rota da Uva e do Vinho (2025)"></div><div class="mapa com-fundo"><img src="/pedais/mapas/16043131442.webp" width="800" height="480" loading="lazy" decoding="async" alt=""><svg preserveAspectRatio="xMidYMid slice" viewBox="0 0 800 480" role="img" aria-label="Traçado do percurso sobre o mapa, sem o começo e o fim"><path class="halo" d="M709.7 454.8 L720.7 432.6 L719.5 420.8 L713.9 420.2 L695.5 418.8 L685.6 416.8 L681.2 413.5 L683.0 398.1 L668.6 395.2 L657.8 397.4 L652.4 405.4 L654.4 410.2 L613.3 403.5 L599.9 398.2 L585.4 397.0 L571.0 393.5 L567.0 395.9 L560.8 395.8 L555.1 392.1 L540.7 393.7 L537.9 399.4 L533.0 401.2 L518.4 396.8 L494.5 399.3 L482.3 406.8 L474.5 409.7 L460.5 408.2 L454.8 411.1 L450.1 411.2 L438.7 406.1 L415.9 407.1 L407.9 405.2 L394.5 407.7 L388.0 407.6 L363.1 410.6 L361.2 404.4 L355.3 403.5 L351.7 399.4 L347.7 378.9 L340.9 376.4 L332.1 376.4 L325.0 363.8 L325.7 352.1 L322.2 345.9 L322.5 338.5 L322.9 331.8 L323.3 325.7 L319.0 322.7 L320.7 311.8 L313.8 308.4 L313.9 304.4 L310.1 299.6 L308.2 277.7 L314.7 273.3 L322.4 275.0 L327.2 274.1 L331.3 266.2 L335.4 261.6 L332.0 261.0 L329.6 262.2 L330.3 258.2 L332.5 256.8 L330.8 254.9 L330.7 250.0 L334.6 241.0 L337.2 237.4 L334.4 239.0 L328.0 245.2 L325.1 241.9 L319.7 232.1 L318.1 226.2 L316.2 219.0 L315.9 214.1 L318.4 204.6 L316.4 202.0 L310.8 196.7 L308.8 204.1 L307.5 206.7 L299.2 209.1 L298.0 206.2 L298.5 198.1 L295.7 193.8 L293.9 180.8 L286.4 177.1 L279.1 180.5 L282.7 174.6 L280.9 168.7 L277.4 175.1 L276.7 174.0 L279.2 159.1 L284.3 155.3 L287.9 155.8 L285.4 147.3 L292.7 134.8 L297.2 129.9 L298.6 125.9 L300.3 124.5 L310.2 120.5 L311.8 117.7 L312.6 108.9 L321.7 105.3 L333.7 93.9 L332.0 86.0 L336.5 68.3 L333.7 48.1 L330.8 46.4 L336.3 38.1 L337.1 31.9 L323.3 28.2 L321.1 30.5 L318.4 30.8 L315.9 30.8 L304.7 26.0 L297.1 27.5 L293.7 30.6 L283.6 26.4 L273.0 23.6 L270.3 24.4 L268.5 27.2 L254.8 19.6 L254.6 21.9 L258.8 23.2 L262.8 28.8 L256.7 37.7 L242.5 46.9 L241.3 61.5 L236.1 70.0 L221.1 76.7 L215.5 80.5 L210.6 81.3 L195.8 80.3 L190.3 83.6 L186.7 90.0 L176.7 99.3 L160.3 104.3 L158.1 100.1 L154.6 98.4 L144.5 97.3 L131.8 90.1 L125.7 91.7 L117.8 90.6 L114.7 88.6 L108.9 98.2 L108.9 109.0 L104.7 115.6 L103.0 119.9 L101.7 122.2 L103.3 127.9 L101.9 146.4 L103.3 160.2 L100.7 163.7 L87.7 169.4 L86.5 171.1 L86.7 186.7 L88.9 190.9 L86.6 196.2 L92.0 205.4 L91.8 214.5 L89.7 218.9 L83.1 221.4 L82.8 225.7 L88.3 229.0 L88.1 231.6 L85.2 234.4 L92.7 240.4 L96.2 240.5 L103.9 244.0 L94.2 255.5 L102.0 262.3 L103.7 270.3 L105.3 268.5 L103.4 277.8 L103.9 276.3 L106.4 277.0 L111.1 285.5 L106.7 304.1 L108.3 306.0 L111.9 307.3 L109.6 326.5 L115.2 342.2 L109.5 348.0 L107.1 360.6 L101.7 363.2 L102.4 358.0 L96.7 356.4 L89.0 350.8 L79.8 360.6 L84.6 357.0 L88.3 358.1 L90.5 364.2 L89.4 371.4 L87.5 378.0 L89.9 380.1 L99.0 380.9 L114.2 394.4 L119.9 395.0 L124.9 392.4 L132.5 388.0 L142.8 382.6 L143.1 379.8 L140.2 377.0 L146.2 375.2 L150.5 373.2 L152.6 375.8 L155.4 389.8 L164.6 398.7 L168.3 398.1 L177.9 388.6 L203.0 389.0 L210.7 394.4 L217.1 402.0 L226.3 405.6 L237.8 391.9 L246.8 392.6 L254.1 390.7 L259.7 394.9 L276.1 402.2 L285.1 404.3 L294.2 402.5 L295.9 405.7 L302.2 417.3 L305.8 418.2 L323.2 413.4 L338.6 411.5 L351.7 414.0 L360.9 410.8 L382.5 410.5 L395.0 407.7 L407.5 405.4 L416.6 407.4 L425.2 405.4 L450.3 411.4 L455.2 411.2 L460.6 408.4 L474.8 410.0 L483.0 406.6 L494.8 399.4 L508.1 395.7 L534.0 401.4 L538.5 399.3 L540.7 393.7 L550.1 391.8 L561.4 396.3 L567.7 395.9 L572.1 393.5 L579.3 394.3 L599.8 398.2 L613.6 403.7 L653.0 411.5 L652.8 404.6 L657.0 398.1 L665.3 395.7 L676.2 395.6 L681.5 402.0 L681.0 412.8 L677.4 413.9 L679.7 423.8 L720.6 433.1 L709.6 455.1 L715.8 458.5 L717.7 460.9"/><path class="linha" d="M709.7 454.8 L720.7 432.6 L719.5 420.8 L713.9 420.2 L695.5 418.8 L685.6 416.8 L681.2 413.5 L683.0 398.1 L668.6 395.2 L657.8 397.4 L652.4 405.4 L654.4 410.2 L613.3 403.5 L599.9 398.2 L585.4 397.0 L571.0 393.5 L567.0 395.9 L560.8 395.8 L555.1 392.1 L540.7 393.7 L537.9 399.4 L533.0 401.2 L518.4 396.8 L494.5 399.3 L482.3 406.8 L474.5 409.7 L460.5 408.2 L454.8 411.1 L450.1 411.2 L438.7 406.1 L415.9 407.1 L407.9 405.2 L394.5 407.7 L388.0 407.6 L363.1 410.6 L361.2 404.4 L355.3 403.5 L351.7 399.4 L347.7 378.9 L340.9 376.4 L332.1 376.4 L325.0 363.8 L325.7 352.1 L322.2 345.9 L322.5 338.5 L322.9 331.8 L323.3 325.7 L319.0 322.7 L320.7 311.8 L313.8 308.4 L313.9 304.4 L310.1 299.6 L308.2 277.7 L314.7 273.3 L322.4 275.0 L327.2 274.1 L331.3 266.2 L335.4 261.6 L332.0 261.0 L329.6 262.2 L330.3 258.2 L332.5 256.8 L330.8 254.9 L330.7 250.0 L334.6 241.0 L337.2 237.4 L334.4 239.0 L328.0 245.2 L325.1 241.9 L319.7 232.1 L318.1 226.2 L316.2 219.0 L315.9 214.1 L318.4 204.6 L316.4 202.0 L310.8 196.7 L308.8 204.1 L307.5 206.7 L299.2 209.1 L298.0 206.2 L298.5 198.1 L295.7 193.8 L293.9 180.8 L286.4 177.1 L279.1 180.5 L282.7 174.6 L280.9 168.7 L277.4 175.1 L276.7 174.0 L279.2 159.1 L284.3 155.3 L287.9 155.8 L285.4 147.3 L292.7 134.8 L297.2 129.9 L298.6 125.9 L300.3 124.5 L310.2 120.5 L311.8 117.7 L312.6 108.9 L321.7 105.3 L333.7 93.9 L332.0 86.0 L336.5 68.3 L333.7 48.1 L330.8 46.4 L336.3 38.1 L337.1 31.9 L323.3 28.2 L321.1 30.5 L318.4 30.8 L315.9 30.8 L304.7 26.0 L297.1 27.5 L293.7 30.6 L283.6 26.4 L273.0 23.6 L270.3 24.4 L268.5 27.2 L254.8 19.6 L254.6 21.9 L258.8 23.2 L262.8 28.8 L256.7 37.7 L242.5 46.9 L241.3 61.5 L236.1 70.0 L221.1 76.7 L215.5 80.5 L210.6 81.3 L195.8 80.3 L190.3 83.6 L186.7 90.0 L176.7 99.3 L160.3 104.3 L158.1 100.1 L154.6 98.4 L144.5 97.3 L131.8 90.1 L125.7 91.7 L117.8 90.6 L114.7 88.6 L108.9 98.2 L108.9 109.0 L104.7 115.6 L103.0 119.9 L101.7 122.2 L103.3 127.9 L101.9 146.4 L103.3 160.2 L100.7 163.7 L87.7 169.4 L86.5 171.1 L86.7 186.7 L88.9 190.9 L86.6 196.2 L92.0 205.4 L91.8 214.5 L89.7 218.9 L83.1 221.4 L82.8 225.7 L88.3 229.0 L88.1 231.6 L85.2 234.4 L92.7 240.4 L96.2 240.5 L103.9 244.0 L94.2 255.5 L102.0 262.3 L103.7 270.3 L105.3 268.5 L103.4 277.8 L103.9 276.3 L106.4 277.0 L111.1 285.5 L106.7 304.1 L108.3 306.0 L111.9 307.3 L109.6 326.5 L115.2 342.2 L109.5 348.0 L107.1 360.6 L101.7 363.2 L102.4 358.0 L96.7 356.4 L89.0 350.8 L79.8 360.6 L84.6 357.0 L88.3 358.1 L90.5 364.2 L89.4 371.4 L87.5 378.0 L89.9 380.1 L99.0 380.9 L114.2 394.4 L119.9 395.0 L124.9 392.4 L132.5 388.0 L142.8 382.6 L143.1 379.8 L140.2 377.0 L146.2 375.2 L150.5 373.2 L152.6 375.8 L155.4 389.8 L164.6 398.7 L168.3 398.1 L177.9 388.6 L203.0 389.0 L210.7 394.4 L217.1 402.0 L226.3 405.6 L237.8 391.9 L246.8 392.6 L254.1 390.7 L259.7 394.9 L276.1 402.2 L285.1 404.3 L294.2 402.5 L295.9 405.7 L302.2 417.3 L305.8 418.2 L323.2 413.4 L338.6 411.5 L351.7 414.0 L360.9 410.8 L382.5 410.5 L395.0 407.7 L407.5 405.4 L416.6 407.4 L425.2 405.4 L450.3 411.4 L455.2 411.2 L460.6 408.4 L474.8 410.0 L483.0 406.6 L494.8 399.4 L508.1 395.7 L534.0 401.4 L538.5 399.3 L540.7 393.7 L550.1 391.8 L561.4 396.3 L567.7 395.9 L572.1 393.5 L579.3 394.3 L599.8 398.2 L613.6 403.7 L653.0 411.5 L652.8 404.6 L657.0 398.1 L665.3 395.7 L676.2 395.6 L681.5 402.0 L681.0 412.8 L677.4 413.9 L679.7 423.8 L720.6 433.1 L709.6 455.1 L715.8 458.5 L717.7 460.9"/></svg></div></a>
+          <button type="button" class="alterna" hidden aria-pressed="false" aria-label="Ver o mapa deste pedal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Ver mapa</button>
+        </div>
+        <div class="corpo">
+          <h3><a href="/pedais/2025-10-05-4-cicloturismo-santa-teresa-rota-da-uva-e-do-vinho-2025/">4° Cicloturismo Santa Teresa - Rota da Uva e do Vinho (2025)</a></h3>
+          <p class="data">5 de outubro de 2025</p>
+          <p class="cidades">Sai de <b><a href="/pedais/cidade/santa-teresa/">Santa Teresa</a></b></p>
+          <dl>
+            <div><dt>Distância</dt><dd>44,5 km</dd></div>
+            <div><dt>Subida</dt><dd>905 m</dd></div>
+            <div><dt>Tempo</dt><dd>2h42</dd></div>
+            <div><dt>Média</dt><dd>16,4 km/h</dd></div>
+          </dl>
+          <a class="planejar-atalho" href="/planejar-pedal/?pedal=16043131442"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="6" r="2.3"/><path d="M8.3 18H14a3.5 3.5 0 0 0 0-7h-4a3.5 3.5 0 0 1 0-7h5.7"/></svg>Planejar este pedal</a>
+        </div>
+      </article>
+  </div>
+  <h2 class="ano" style="margin-top:34px">Pedais por outras cidades</h2>
+  <p class="links"><a class="botao claro" href="/pedais/cidade/vitoria/">Vitória (35)</a> <a class="botao claro" href="/pedais/cidade/serra/">Serra (30)</a> <a class="botao claro" href="/pedais/cidade/cariacica/">Cariacica (13)</a> <a class="botao claro" href="/pedais/cidade/santa-leopoldina/">Santa Leopoldina (11)</a> <a class="botao claro" href="/pedais/cidade/viana/">Viana (7)</a> <a class="botao claro" href="/pedais/cidade/vila-velha/">Vila Velha (7)</a> <a class="botao claro" href="/pedais/cidade/guarapari/">Guarapari (4)</a> <a class="botao claro" href="/pedais/cidade/fundao/">Fundão (3)</a> <a class="botao claro" href="/pedais/cidade/sao-gabriel-da-palha/">São Gabriel da Palha (3)</a> <a class="botao claro" href="/pedais/cidade/aguia-branca/">Águia Branca (2)</a> <a class="botao claro" href="/pedais/cidade/aracruz/">Aracruz (2)</a> <a class="botao claro" href="/pedais/cidade/domingos-martins/">Domingos Martins (2)</a> <a class="botao claro" href="/pedais/cidade/santa-maria-de-jetiba/">Santa Maria de Jetibá (2)</a></p>
+  <p class="links" style="margin-top:18px"><a class="botao" href="/pedais/">Ver todos os pedais</a> <a class="botao claro" href="/subidas/">Ver as subidas</a></p>
+</main>
+
+<footer>
+  <div class="miolo">
+    <span>© <span id="ano">2026</span> Brote na Trilha</span>
+    <span><a href="/privacidade/">Política de privacidade</a> · <a href="/">Voltar ao site</a></span>
+    <a class="strava" href="https://www.strava.com" target="_blank" rel="noopener"><img src="/strava_powered_by.png" width="197" height="20" alt="Powered by Strava" loading="lazy" decoding="async"></a>
+  </div>
+</footer>
+<script>
+  document.getElementById("ano").textContent = new Date().getFullYear();
+  [].forEach.call(document.querySelectorAll(".pedal .alterna"), function (botao) {
+    botao.hidden = false;
+    botao.addEventListener("click", function () {
+      var cartao = botao.closest(".pedal");
+      var mapa = cartao.classList.toggle("ver-mapa");
+      botao.textContent = mapa ? "Ver capa" : "Ver mapa";
+      botao.setAttribute("aria-pressed", String(mapa));
+    });
+  });
+</script>
+<script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -656,7 +656,8 @@ ESTATICAS = [("https://brotenatrilha.com.br/privacidade/", "2026-10-12"), ("http
             ("https://brotenatrilha.com.br/ferramentas/categoria-de-subida/", "2026-11-16"),
             ("https://brotenatrilha.com.br/ferramentas/calculadora-de-raios/", "2026-11-16"),
             ("https://brotenatrilha.com.br/ferramentas/pressao-dos-pneus/", "2026-11-17"),
-            ("https://brotenatrilha.com.br/planejar-pedal/", "2026-11-17")]
+            ("https://brotenatrilha.com.br/planejar-pedal/", "2026-11-17"),
+            ("https://brotenatrilha.com.br/sobre/", "2026-11-17")]
 
 
 # ----------------------------------------------------------------------------- cidades por onde o pedal passa
@@ -721,18 +722,38 @@ def slug_texto(t):
     return re.sub(r"[^a-z0-9]+", "-", sem_acento(t.lower())).strip("-")
 
 
+MINIMO_PEDAIS_POR_CIDADE = 2                         # a cidade só ganha página (pedais/cidade/...) com 2 pedais ou mais
+CIDADES_COM_PAGINA = set()                           # preenchido no main, antes de escrever as páginas
+
+
+def definir_cidades_com_pagina(pedais):
+    contagem = {}
+    for p in pedais:
+        for c in {c for c in list(p.get("_passa", [])) + [p.get("_sai"), p.get("_chega")] if c}:
+            contagem[c] = contagem.get(c, 0) + 1
+    CIDADES_COM_PAGINA.clear()
+    CIDADES_COM_PAGINA.update(c for c, n in contagem.items() if n >= MINIMO_PEDAIS_POR_CIDADE)
+
+
+def nome_da_cidade(c):
+    """O nome da cidade, com o link para a página dela quando existe."""
+    if c in CIDADES_COM_PAGINA:
+        return f'<a href="/pedais/cidade/{slug_texto(c)}/">{html.escape(c)}</a>'
+    return html.escape(c)
+
+
 def linha_cidades(p, limite=4):
     sai, chega = p.get("_sai"), p.get("_chega")
     passa = [c for c in p.get("_passa", []) if c not in (sai, chega)]
     partes = []
     if sai:
-        partes.append(f"Sai de <b>{html.escape(sai)}</b>")
+        partes.append(f"Sai de <b>{nome_da_cidade(sai)}</b>")
     if chega and chega != sai:
-        partes.append(f"chega em <b>{html.escape(chega)}</b>")
+        partes.append(f"chega em <b>{nome_da_cidade(chega)}</b>")
     if passa:
         mostra = passa[:limite]
         resto = len(passa) - len(mostra)
-        partes.append("passa por " + ", ".join(html.escape(c) for c in mostra) + (f" e mais {resto}" if resto > 0 else ""))
+        partes.append("passa por " + ", ".join(nome_da_cidade(c) for c in mostra) + (f" e mais {resto}" if resto > 0 else ""))
     return f'<p class="cidades">{" · ".join(partes)}</p>' if partes else ""
 
 
@@ -2242,6 +2263,7 @@ def main():
 
     if not args.teste:
         guardar_cache_pedais(pedais, atividades, cache.get("ultima", 0), sem_video)
+    definir_cidades_com_pagina(pedais)
     modelo = open(args.modelo, encoding="utf-8").read()
     modelo_pedal = open(args.modelo_pedal, encoding="utf-8").read()
     os.makedirs(base, exist_ok=True)

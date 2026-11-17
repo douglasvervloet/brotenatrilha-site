@@ -88,6 +88,8 @@
   h3 a { text-decoration: none; }
   h3 a:hover { text-decoration: underline; }
   .data { margin: 0; color: var(--suave); font-size: .9rem; }
+  .por-cidade { margin: 14px 0 0; line-height: 1.9; }
+  .por-cidade a { color: inherit; }
   .planejar-atalho { align-self: flex-start; display: inline-flex; align-items: center; gap: 7px; margin-top: 10px; padding: 6px 14px; border: 2px solid var(--linha); border-radius: 999px; font-size: .85rem; font-weight: 700; color: var(--texto); text-decoration: none; }
   .planejar-atalho:hover { border-color: var(--verde); }
   .planejar-atalho svg { width: 15px; height: 15px; flex: none; }
@@ -117,6 +119,7 @@
     <p>Os passeios do canal, com o percurso, os números e o vídeo de cada um.</p>
     <p class="resumo">{{RESUMO}}</p>
     <p><a href="mapa/">Ver todos os percursos no mapa &rarr;</a></p>
+    <!--CIDADES--><!--/CIDADES-->
   </div>
 </header>
 

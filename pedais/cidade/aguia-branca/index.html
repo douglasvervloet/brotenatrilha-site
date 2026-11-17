@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pedais de bike em Águia Branca, ES | Brote na Trilha</title>
+<meta name="description" content="2 pedais de bike que passam por Águia Branca, no Espírito Santo, com o mapa, a altimetria, as subidas e o vídeo de cada um. 146 km e 2.064 m de subida.">
+<link rel="canonical" href="https://brotenatrilha.com.br/pedais/cidade/aguia-branca/">
+<meta name="theme-color" content="#2d7046">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Brote na Trilha">
+<meta property="og:title" content="Pedais de bike em Águia Branca, ES | Brote na Trilha">
+<meta property="og:description" content="2 pedais de bike que passam por Águia Branca, no Espírito Santo, com o mapa, a altimetria, as subidas e o vídeo de cada um. 146 km e 2.064 m de subida.">
+<meta property="og:url" content="https://brotenatrilha.com.br/pedais/cidade/aguia-branca/">
+<meta property="og:image" content="https://brotenatrilha.com.br/compartilhar.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icone-512.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+  :root { --verde: #2d7046; --verde-escuro: #1e5434; --verde-fundo: #163d27; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; --mapa: #1b4a30; --barra: #2d7046; }
+  @media (prefers-color-scheme: dark) { :root { --fundo: #0f1a13; --cartao: #172a1e; --texto: #e9f0ea; --suave: #a9bbae; --linha: #284534; --mapa: #12331f; --barra: #4fa56f; } }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--ambar); outline-offset: 3px; border-radius: 4px; }
+  .miolo { width: min(1080px, 100% - 32px); margin-inline: auto; }
+  header { background: linear-gradient(180deg, var(--verde), var(--verde-fundo)); color: #fff; padding: 18px 0 38px; }
+  header a { color: #fff; text-decoration: none; font-weight: 600; opacity: .9; }
+  header a:hover { opacity: 1; text-decoration: underline; }
+  h1 { margin: 22px 0 0; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; letter-spacing: -.5px; }
+  header p { margin: 10px 0 0; color: #dcebe0; max-width: 60ch; }
+  .resumo { margin-top: 14px !important; color: var(--ambar) !important; font-weight: 700; font-variant-numeric: tabular-nums; }
+  main { padding: 10px 0 56px; }
+  .ano { margin: 38px 0 14px; font-size: 1.6rem; }
+  .ano::after { content: ""; display: block; width: 52px; height: 4px; border-radius: 2px; background: var(--ambar); margin-top: 8px; }
+
+  /* busca e filtros */
+  .filtros { margin: 34px 0 0; display: grid; gap: 12px; }
+  .filtros input { width: 100%; font: inherit; padding: 12px 18px; border-radius: 999px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); }
+  .filtros input:focus { border-color: var(--verde); outline: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font: inherit; font-weight: 600; font-size: .9rem; cursor: pointer; padding: 7px 15px; border-radius: 999px; background: var(--cartao); color: var(--texto); border: 2px solid var(--linha); }
+  .chip:hover { border-color: var(--verde); }
+  .chip[aria-pressed="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
+  #contagem { margin: 0; color: var(--suave); font-size: .9rem; }
+
+  .seletores { display: flex; flex-wrap: wrap; gap: 10px 18px; }
+  .seletores label { display: flex; align-items: center; gap: 8px; font-size: .9rem; color: var(--suave); }
+  .seletores select { font: inherit; padding: 8px 14px; border-radius: 999px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); max-width: 70vw; }
+  .seletores select:focus { border-color: var(--verde); outline: none; }
+  .cidades { margin: 2px 0 0; color: var(--suave); font-size: .85rem; line-height: 1.4; }
+  .cidades b { color: var(--texto); }
+
+  .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 18px; }
+  .pedal[hidden], .bloco-ano[hidden] { display: none; }
+  .pedal { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
+  .mapa-link { display: block; text-decoration: none; }
+  /* a imagem do cartão: a capa do vídeo (padrão) ou o mapa, trocados pelo botão de cada cartão */
+  .imagem { position: relative; }
+  .capa { display: block; aspect-ratio: 16 / 9; background: #1d2a22; overflow: hidden; }   /* a proporção da capa do YouTube: não corta as laterais */
+  .capa img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .pedal:not(.sem-capa) .mapa-link .mapa { display: none; aspect-ratio: 16 / 9; }   /* o mapa ocupa a mesma caixa da capa: o cartão não muda de altura ao trocar */
+  .pedal.ver-mapa .capa { display: none; }
+  .pedal.ver-mapa .mapa-link .mapa { display: block; }
+  .pedal.ver-mapa .mapa-link .mapa.vazio { display: grid; }
+  .alterna { position: absolute; right: 10px; top: 50%; transform: translateY(-50%);   /* no meio, à direita: o texto das capas costuma ficar em cima e embaixo */ font: inherit; font-weight: 600; font-size: .78rem; cursor: pointer; padding: 5px 12px; display: inline-flex; align-items: center; gap: 6px; border-radius: 999px;
+    background: rgba(12, 22, 16, .78); color: #fff; border: 1px solid rgba(255, 255, 255, .35); backdrop-filter: blur(4px); }
+  .alterna svg { width: 14px; height: 14px; flex: none; }
+  .alterna:hover { background: rgba(12, 22, 16, .92); border-color: #fff; }
+  .alterna:focus-visible { outline: 2px solid var(--ambar, #e8a33d); outline-offset: 2px; }
+  .alterna[hidden] { display: none; }
+  .mapa { display: block; width: 100%; aspect-ratio: 400 / 240; background: var(--mapa); }
+  .mapa path { fill: none; stroke: #d6004f; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .mapa.com-fundo { position: relative; aspect-ratio: 5 / 3; background: #cfe0c4; overflow: hidden; }
+  .mapa.com-fundo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .mapa.com-fundo svg { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; background: none; }
+  .mapa.com-fundo .halo { stroke: #ffffff; stroke-width: 8; opacity: .9; }
+  .mapa.com-fundo .linha { stroke: #d6004f; stroke-width: 4.5; }
+  .mapa.vazio { display: grid; place-items: center; color: #7fa68d; font-size: .9rem; }
+  .corpo { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  h3 { margin: 0; font-size: 1.12rem; line-height: 1.3; }
+  h3 a { text-decoration: none; }
+  h3 a:hover { text-decoration: underline; }
+  .data { margin: 0; color: var(--suave); font-size: .9rem; }
+  .por-cidade { margin: 14px 0 0; line-height: 1.9; }
+  .por-cidade a { color: inherit; }
+  .planejar-atalho { align-self: flex-start; display: inline-flex; align-items: center; gap: 7px; margin-top: 10px; padding: 6px 14px; border: 2px solid var(--linha); border-radius: 999px; font-size: .85rem; font-weight: 700; color: var(--texto); text-decoration: none; }
+  .planejar-atalho:hover { border-color: var(--verde); }
+  .planejar-atalho svg { width: 15px; height: 15px; flex: none; }
+  dl { margin: 10px 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  dl div { text-align: center; }
+  dt { font-size: .68rem; letter-spacing: .5px; text-transform: uppercase; color: var(--suave); }
+  dd { margin: 2px 0 0; font-weight: 700; font-size: .95rem; font-variant-numeric: tabular-nums; }
+  .links { margin: auto 0 0; padding-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .botao { display: inline-block; padding: 8px 16px; border-radius: 999px; background: var(--verde); color: #fff; font-weight: 700; font-size: .9rem; text-decoration: none; transition: background .15s ease; }
+  .botao:hover { background: var(--verde-escuro); }
+  .botao.claro { background: transparent; color: var(--texto); border: 2px solid var(--linha); padding: 6px 14px; }
+  .botao.claro:hover { border-color: var(--verde); }
+  .nota { margin-top: 36px; color: var(--suave); font-size: .88rem; }
+  footer { background: var(--verde-fundo); color: #cfe0d3; padding: 28px 0; font-size: .92rem; }
+  footer .miolo { display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: space-between; }
+  footer a { color: #fff; }
+  footer .strava { display: inline-block; background: #fff; border-radius: 6px; padding: 6px 10px; line-height: 0; }
+  footer .strava img { height: 20px; width: auto; display: block; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .botao { transition: none; } }
+</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Brote na Trilha", "item": "https://brotenatrilha.com.br/"}, {"@type": "ListItem", "position": 2, "name": "Pedais", "item": "https://brotenatrilha.com.br/pedais/"}, {"@type": "ListItem", "position": 3, "name": "Águia Branca", "item": "https://brotenatrilha.com.br/pedais/cidade/aguia-branca/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "CollectionPage", "name": "Pedais de bike em Águia Branca, ES", "url": "https://brotenatrilha.com.br/pedais/cidade/aguia-branca/", "inLanguage": "pt-BR", "description": "2 pedais de bike que passam por Águia Branca, no Espírito Santo, com o mapa, a altimetria, as subidas e o vídeo de cada um. 146 km e 2.064 m de subida.", "mainEntity": {"@type": "ItemList", "numberOfItems": 2, "itemListElement": [{"@type": "ListItem", "position": 1, "url": "https://brotenatrilha.com.br/pedais/2026-08-01-pedal-pelos-pontoes-capixabas/", "name": "Pedal pelos Pontões Capixabas"}, {"@type": "ListItem", "position": 2, "url": "https://brotenatrilha.com.br/pedais/2026-07-25-ate-o-por-do-sol-nos-pontoes-capixabas/", "name": "Até o por do sol nos Pontões Capixabas"}]}}</script>
+</head>
+<body>
+<header>
+  <div class="miolo">
+    <a href="/pedais/">&larr; Pedais</a>
+    <h1>Pedais em Águia Branca</h1>
+    <p>O Brote na Trilha tem 2 pedais que passam por Águia Branca, no Espírito Santo: 146 km pedalados e 2.064 m de subida no total. O mais recente é “Pedal pelos Pontões Capixabas”, de 1 de agosto de 2026; o mais longo, “Pedal pelos Pontões Capixabas”, tem 82,5 km.</p>
+    <p class="resumo">2 pedais · 146 km · 2.064 m de subida</p>
+  </div>
+</header>
+
+<main class="miolo">
+  <div class="grade">
+<article class="pedal" data-ano="2026" data-km="82.5" data-nome="pedal pelos pontoes capixabas pedal pelos pontoes capixabas sao gabriel da palha aguia branca pancas" data-subida="0" data-terreno="terra" data-sai="sao-gabriel-da-palha" data-chega="sao-gabriel-da-palha" data-passa="|sao-gabriel-da-palha|aguia-branca|pancas|">
+        <div class="imagem">
+          <a class="mapa-link" href="/pedais/2026-08-01-pedal-pelos-pontoes-capixabas/" aria-label="Ver o pedal Pedal pelos Pontões Capixabas"><div class="capa"><img src="/pedais/capas/62aVGCh688w.webp" width="640" height="360" loading="lazy" decoding="async" alt="Capa do vídeo Pedal pelos Pontões Capixabas"></div><div class="mapa com-fundo"><img src="/pedais/mapas/19561468503.webp" width="800" height="480" loading="lazy" decoding="async" alt=""><svg preserveAspectRatio="xMidYMid slice" viewBox="0 0 800 480" role="img" aria-label="Traçado do percurso sobre o mapa, sem o começo e o fim"><path class="halo" d="M766.4 260.8 L768.2 263.6 L764.6 269.0 L763.5 279.4 L755.1 295.3 L749.4 309.9 L735.2 308.3 L719.4 299.7 L708.1 291.1 L690.9 292.3 L685.5 297.8 L683.9 301.9 L674.0 304.4 L667.6 306.5 L659.3 306.2 L654.1 308.7 L651.0 307.9 L649.4 310.7 L640.3 316.1 L627.2 318.4 L620.2 328.5 L616.5 349.3 L613.3 357.0 L602.3 362.2 L593.6 362.9 L587.5 358.7 L579.9 360.1 L573.2 351.3 L563.2 344.2 L554.5 342.8 L532.8 340.1 L527.5 333.0 L523.6 332.0 L516.6 331.5 L508.6 334.9 L501.0 346.5 L496.2 360.0 L488.1 361.0 L481.6 361.7 L473.5 363.1 L471.9 364.3 L467.0 368.0 L465.2 369.2 L464.6 374.3 L453.2 374.9 L448.1 376.8 L451.8 384.2 L436.8 389.4 L428.8 387.4 L426.8 388.9 L410.3 400.1 L410.9 402.7 L414.8 407.3 L410.4 420.2 L405.2 421.0 L400.2 419.2 L395.5 402.0 L392.9 392.7 L385.1 390.4 L364.6 391.1 L361.4 387.9 L357.5 380.0 L349.9 376.7 L339.4 366.1 L332.1 364.9 L324.9 355.5 L327.1 348.8 L330.4 345.0 L344.5 329.7 L350.3 327.4 L351.5 323.5 L357.3 316.9 L363.6 313.8 L364.6 305.2 L364.9 279.0 L365.5 270.7 L363.0 272.0 L360.3 266.8 L356.5 263.9 L341.9 265.9 L339.6 267.4 L333.9 266.7 L322.6 270.5 L314.3 266.8 L300.5 266.9 L292.7 266.4 L289.5 263.2 L281.2 261.3 L268.5 259.6 L269.1 260.2 L258.7 246.1 L250.5 246.6 L245.1 249.9 L242.8 256.9 L234.0 263.3 L217.9 270.1 L216.2 274.4 L194.4 279.7 L187.8 275.4 L185.0 275.2 L173.0 279.2 L170.1 281.4 L164.8 277.3 L157.2 282.2 L153.0 278.7 L143.0 276.1 L135.7 279.6 L133.3 279.7 L128.1 277.2 L121.0 267.1 L119.8 259.6 L115.3 252.0 L106.9 247.0 L103.8 244.9 L98.0 238.9 L95.0 238.2 L91.1 239.2 L78.4 243.7 L75.3 244.1 L72.7 242.7 L68.5 239.1 L65.5 236.2 L60.3 236.9 L46.9 231.1 L41.4 225.4 L36.6 223.6 L38.7 206.8 L42.2 197.8 L45.7 194.0 L48.3 165.4 L50.0 163.4 L71.9 159.4 L82.0 155.0 L85.5 157.7 L87.9 157.8 L106.4 149.2 L111.1 150.7 L111.9 149.2 L115.3 148.1 L116.1 149.8 L117.5 149.1 L115.5 147.9 L122.5 145.4 L123.8 157.9 L125.4 142.8 L128.0 140.2 L130.5 141.6 L145.9 133.6 L150.8 133.9 L163.7 136.0 L171.6 133.4 L176.3 134.0 L196.9 126.9 L199.4 127.0 L204.6 121.8 L210.1 122.2 L221.0 121.1 L232.7 117.9 L248.2 114.3 L252.6 114.7 L256.3 113.5 L261.6 110.9 L274.7 109.1 L279.8 109.9 L288.3 93.8 L289.6 88.0 L291.8 91.0 L300.4 106.2 L303.5 102.3 L309.7 100.8 L319.2 95.5 L323.9 87.7 L325.5 87.8 L330.5 89.8 L340.6 86.5 L348.5 81.6 L360.1 77.3 L369.3 76.8 L373.0 74.1 L377.2 74.4 L378.3 71.2 L380.5 69.3 L381.0 59.3 L388.0 61.7 L394.6 60.4 L404.5 60.0 L413.2 62.1 L423.8 70.0 L424.0 72.3 L419.6 82.6 L428.1 93.5 L431.3 100.0 L431.7 104.0 L438.2 110.0 L440.5 110.3 L445.0 107.4 L461.3 102.2 L463.7 101.8 L464.8 103.0 L465.4 111.4 L467.5 115.1 L466.6 123.8 L456.8 146.7 L453.6 147.5 L451.4 152.1 L452.8 160.3 L446.0 174.9 L447.8 178.9 L436.9 194.5 L441.0 191.3 L453.8 188.8 L470.5 186.6 L472.7 190.4 L474.9 199.8 L484.3 228.1 L483.6 233.2 L484.7 238.3 L492.9 256.1 L492.1 263.0 L495.8 264.1 L501.8 261.0 L502.9 264.2 L500.9 268.6 L510.7 271.0 L517.0 269.4 L528.7 255.8 L531.5 254.9 L537.4 261.1 L543.5 268.5 L545.0 271.3 L547.2 271.7 L567.4 272.9 L574.7 269.4 L578.7 269.1 L598.8 268.3 L603.0 268.0 L607.1 276.7 L614.1 286.3 L621.1 294.0 L631.6 294.2 L652.1 301.5 L653.8 305.9 L655.5 307.2 L674.2 304.5 L678.2 307.6 L684.1 301.9 L690.3 292.7 L699.8 292.7 L706.7 291.1 L735.4 308.6 L743.9 310.8 L750.1 309.7 L763.9 279.1 L763.0 267.9 L755.6 262.7 L759.0 255.4 L758.5 256.7 L762.0 256.3 L765.1 258.8 L766.5 258.9 L766.0 261.2"/><path class="linha" d="M766.4 260.8 L768.2 263.6 L764.6 269.0 L763.5 279.4 L755.1 295.3 L749.4 309.9 L735.2 308.3 L719.4 299.7 L708.1 291.1 L690.9 292.3 L685.5 297.8 L683.9 301.9 L674.0 304.4 L667.6 306.5 L659.3 306.2 L654.1 308.7 L651.0 307.9 L649.4 310.7 L640.3 316.1 L627.2 318.4 L620.2 328.5 L616.5 349.3 L613.3 357.0 L602.3 362.2 L593.6 362.9 L587.5 358.7 L579.9 360.1 L573.2 351.3 L563.2 344.2 L554.5 342.8 L532.8 340.1 L527.5 333.0 L523.6 332.0 L516.6 331.5 L508.6 334.9 L501.0 346.5 L496.2 360.0 L488.1 361.0 L481.6 361.7 L473.5 363.1 L471.9 364.3 L467.0 368.0 L465.2 369.2 L464.6 374.3 L453.2 374.9 L448.1 376.8 L451.8 384.2 L436.8 389.4 L428.8 387.4 L426.8 388.9 L410.3 400.1 L410.9 402.7 L414.8 407.3 L410.4 420.2 L405.2 421.0 L400.2 419.2 L395.5 402.0 L392.9 392.7 L385.1 390.4 L364.6 391.1 L361.4 387.9 L357.5 380.0 L349.9 376.7 L339.4 366.1 L332.1 364.9 L324.9 355.5 L327.1 348.8 L330.4 345.0 L344.5 329.7 L350.3 327.4 L351.5 323.5 L357.3 316.9 L363.6 313.8 L364.6 305.2 L364.9 279.0 L365.5 270.7 L363.0 272.0 L360.3 266.8 L356.5 263.9 L341.9 265.9 L339.6 267.4 L333.9 266.7 L322.6 270.5 L314.3 266.8 L300.5 266.9 L292.7 266.4 L289.5 263.2 L281.2 261.3 L268.5 259.6 L269.1 260.2 L258.7 246.1 L250.5 246.6 L245.1 249.9 L242.8 256.9 L234.0 263.3 L217.9 270.1 L216.2 274.4 L194.4 279.7 L187.8 275.4 L185.0 275.2 L173.0 279.2 L170.1 281.4 L164.8 277.3 L157.2 282.2 L153.0 278.7 L143.0 276.1 L135.7 279.6 L133.3 279.7 L128.1 277.2 L121.0 267.1 L119.8 259.6 L115.3 252.0 L106.9 247.0 L103.8 244.9 L98.0 238.9 L95.0 238.2 L91.1 239.2 L78.4 243.7 L75.3 244.1 L72.7 242.7 L68.5 239.1 L65.5 236.2 L60.3 236.9 L46.9 231.1 L41.4 225.4 L36.6 223.6 L38.7 206.8 L42.2 197.8 L45.7 194.0 L48.3 165.4 L50.0 163.4 L71.9 159.4 L82.0 155.0 L85.5 157.7 L87.9 157.8 L106.4 149.2 L111.1 150.7 L111.9 149.2 L115.3 148.1 L116.1 149.8 L117.5 149.1 L115.5 147.9 L122.5 145.4 L123.8 157.9 L125.4 142.8 L128.0 140.2 L130.5 141.6 L145.9 133.6 L150.8 133.9 L163.7 136.0 L171.6 133.4 L176.3 134.0 L196.9 126.9 L199.4 127.0 L204.6 121.8 L210.1 122.2 L221.0 121.1 L232.7 117.9 L248.2 114.3 L252.6 114.7 L256.3 113.5 L261.6 110.9 L274.7 109.1 L279.8 109.9 L288.3 93.8 L289.6 88.0 L291.8 91.0 L300.4 106.2 L303.5 102.3 L309.7 100.8 L319.2 95.5 L323.9 87.7 L325.5 87.8 L330.5 89.8 L340.6 86.5 L348.5 81.6 L360.1 77.3 L369.3 76.8 L373.0 74.1 L377.2 74.4 L378.3 71.2 L380.5 69.3 L381.0 59.3 L388.0 61.7 L394.6 60.4 L404.5 60.0 L413.2 62.1 L423.8 70.0 L424.0 72.3 L419.6 82.6 L428.1 93.5 L431.3 100.0 L431.7 104.0 L438.2 110.0 L440.5 110.3 L445.0 107.4 L461.3 102.2 L463.7 101.8 L464.8 103.0 L465.4 111.4 L467.5 115.1 L466.6 123.8 L456.8 146.7 L453.6 147.5 L451.4 152.1 L452.8 160.3 L446.0 174.9 L447.8 178.9 L436.9 194.5 L441.0 191.3 L453.8 188.8 L470.5 186.6 L472.7 190.4 L474.9 199.8 L484.3 228.1 L483.6 233.2 L484.7 238.3 L492.9 256.1 L492.1 263.0 L495.8 264.1 L501.8 261.0 L502.9 264.2 L500.9 268.6 L510.7 271.0 L517.0 269.4 L528.7 255.8 L531.5 254.9 L537.4 261.1 L543.5 268.5 L545.0 271.3 L547.2 271.7 L567.4 272.9 L574.7 269.4 L578.7 269.1 L598.8 268.3 L603.0 268.0 L607.1 276.7 L614.1 286.3 L621.1 294.0 L631.6 294.2 L652.1 301.5 L653.8 305.9 L655.5 307.2 L674.2 304.5 L678.2 307.6 L684.1 301.9 L690.3 292.7 L699.8 292.7 L706.7 291.1 L735.4 308.6 L743.9 310.8 L750.1 309.7 L763.9 279.1 L763.0 267.9 L755.6 262.7 L759.0 255.4 L758.5 256.7 L762.0 256.3 L765.1 258.8 L766.5 258.9 L766.0 261.2"/></svg></div></a>
+          <button type="button" class="alterna" hidden aria-pressed="false" aria-label="Ver o mapa deste pedal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Ver mapa</button>
+        </div>
+        <div class="corpo">
+          <h3><a href="/pedais/2026-08-01-pedal-pelos-pontoes-capixabas/">Pedal pelos Pontões Capixabas</a></h3>
+          <p class="data">1 de agosto de 2026</p>
+          <p class="cidades">Sai de <b><a href="/pedais/cidade/sao-gabriel-da-palha/">São Gabriel da Palha</a></b> · passa por <a href="/pedais/cidade/aguia-branca/">Águia Branca</a>, Pancas</p>
+          <dl>
+            <div><dt>Distância</dt><dd>82,5 km</dd></div>
+            <div><dt>Subida</dt><dd>1.205 m</dd></div>
+            <div><dt>Tempo</dt><dd>3h55</dd></div>
+            <div><dt>Média</dt><dd>21,1 km/h</dd></div>
+          </dl>
+          <a class="planejar-atalho" href="/planejar-pedal/?pedal=19561468503"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="6" r="2.3"/><path d="M8.3 18H14a3.5 3.5 0 0 0 0-7h-4a3.5 3.5 0 0 1 0-7h5.7"/></svg>Planejar este pedal</a>
+        </div>
+      </article>
+<article class="pedal" data-ano="2026" data-km="63.7" data-nome="pedalando ate o por do sol voltando com as estrelas ate o por do sol nos pontoes capixabas sao gabriel da palha aguia branca" data-subida="0" data-terreno="terra" data-sai="sao-gabriel-da-palha" data-chega="sao-gabriel-da-palha" data-passa="|sao-gabriel-da-palha|aguia-branca|">
+        <div class="imagem">
+          <a class="mapa-link" href="/pedais/2026-07-25-ate-o-por-do-sol-nos-pontoes-capixabas/" aria-label="Ver o pedal Até o por do sol nos Pontões Capixabas"><div class="capa"><img src="/pedais/capas/zVjIx-x7Thg.webp" width="640" height="360" loading="lazy" decoding="async" alt="Capa do vídeo Até o por do sol nos Pontões Capixabas"></div><div class="mapa com-fundo"><img src="/pedais/mapas/19465352514.webp" width="800" height="480" loading="lazy" decoding="async" alt=""><svg preserveAspectRatio="xMidYMid slice" viewBox="0 0 800 480" role="img" aria-label="Traçado do percurso sobre o mapa, sem o começo e o fim"><path class="halo" d="M767.4 327.4 L768.0 329.9 L764.0 336.0 L761.9 335.2 L763.0 345.0 L762.7 348.0 L753.2 365.7 L747.4 382.0 L740.3 383.5 L730.5 380.8 L720.1 375.8 L707.7 367.7 L700.9 361.9 L690.1 362.9 L681.4 362.3 L679.2 362.9 L672.1 373.5 L665.4 379.8 L662.8 377.1 L654.9 378.6 L646.6 379.1 L643.9 378.4 L637.9 377.8 L636.2 373.1 L630.0 367.1 L620.1 365.4 L612.4 364.6 L602.8 364.9 L598.3 360.5 L592.8 355.5 L590.9 350.5 L580.0 334.8 L575.0 335.3 L567.3 338.7 L548.3 336.3 L544.5 338.8 L539.4 340.4 L522.8 337.8 L517.6 339.1 L512.5 338.3 L509.8 334.0 L505.3 326.8 L498.5 320.1 L491.7 327.1 L485.2 334.4 L481.7 336.7 L474.7 338.3 L470.0 336.3 L464.0 335.5 L466.3 330.5 L464.8 327.0 L462.8 327.0 L455.4 330.5 L454.0 329.4 L454.8 321.4 L449.5 313.2 L444.4 295.3 L445.1 289.6 L439.0 277.0 L438.0 271.6 L435.5 266.8 L431.6 250.0 L431.8 246.4 L428.1 241.6 L416.6 241.9 L410.6 244.8 L398.0 247.8 L391.7 250.1 L390.7 251.8 L387.4 252.7 L377.8 258.2 L375.8 265.6 L376.8 274.4 L371.9 283.4 L368.8 285.5 L367.1 288.8 L363.3 295.3 L360.4 299.2 L352.5 302.5 L349.5 314.4 L346.5 313.9 L342.8 317.7 L324.1 328.6 L317.1 330.5 L315.6 329.5 L318.8 326.5 L322.2 318.8 L320.9 312.4 L315.1 304.3 L308.6 304.5 L307.9 303.1 L307.8 296.1 L299.6 291.1 L293.1 289.7 L281.9 275.9 L274.6 262.5 L265.9 254.1 L255.8 235.0 L254.7 231.6 L252.7 230.0 L243.9 231.9 L238.7 232.3 L233.9 230.0 L206.2 226.8 L200.0 226.6 L191.4 221.4 L166.1 221.3 L162.5 222.4 L156.1 221.7 L142.8 217.6 L137.3 214.8 L125.2 215.1 L110.7 211.4 L97.7 201.4 L96.1 200.7 L85.9 201.3 L77.4 200.6 L73.5 198.5 L67.0 191.3 L61.3 190.9 L51.5 194.8 L35.9 195.8 L33.7 196.9 L32.0 191.9 L36.0 208.6 L32.5 191.8 L36.7 192.4 L42.8 191.1 L54.4 187.8 L60.1 182.1 L65.7 182.4 L68.8 186.0 L80.3 184.7 L83.1 183.2 L89.4 181.9 L95.0 182.4 L107.1 179.2 L120.8 174.7 L123.5 170.6 L126.9 168.6 L132.3 169.1 L142.8 168.3 L159.0 164.4 L176.6 160.1 L182.9 160.3 L186.6 158.3 L191.9 156.3 L196.3 154.8 L203.5 155.2 L210.3 155.5 L212.5 155.2 L215.8 150.8 L222.1 136.7 L221.7 133.9 L223.5 130.2 L225.9 137.6 L227.9 139.6 L231.3 146.3 L234.6 150.7 L235.8 151.0 L239.5 146.6 L249.3 141.4 L257.3 138.7 L262.6 129.9 L266.0 132.5 L269.7 132.4 L281.7 128.5 L294.2 123.7 L296.9 123.2 L303.8 118.1 L318.1 114.4 L321.0 115.5 L323.3 114.8 L326.9 109.2 L326.2 102.5 L327.5 97.7 L338.1 100.4 L343.2 98.9 L347.7 100.8 L357.5 99.9 L364.2 100.7 L368.1 103.4 L373.0 106.6 L376.4 110.0 L376.5 112.1 L371.5 123.9 L376.8 132.7 L381.2 136.5 L384.9 144.0 L385.6 148.9 L390.3 150.7 L394.3 155.7 L400.2 152.3 L411.1 149.7 L417.0 147.2 L422.1 146.4 L424.3 152.4 L425.8 160.3 L426.3 164.9 L423.5 173.9 L433.7 171.9 L436.5 169.3 L438.9 168.7 L444.3 177.4 L447.4 178.9 L449.2 184.3 L461.2 195.8 L473.8 198.3 L497.7 200.9 L521.6 193.0 L536.6 192.2 L543.0 188.8 L560.2 192.7 L565.3 194.6 L568.8 194.6 L577.4 198.2 L579.6 200.5 L583.7 208.1 L589.0 215.1 L592.0 219.0 L592.9 226.9 L603.4 230.8 L606.3 232.2 L610.5 239.3 L616.9 232.8 L622.2 229.1 L623.2 227.0 L632.4 216.9 L635.3 214.2 L638.4 214.3 L646.7 215.0 L651.8 215.1 L654.7 222.0 L670.4 223.5 L675.9 226.8 L684.8 228.1 L688.3 238.7 L692.1 248.3 L691.6 252.8 L693.9 263.2 L695.7 266.4 L699.5 268.5 L710.0 263.7 L718.0 265.5 L726.5 265.6 L734.1 271.9 L734.9 276.4 L740.9 282.9 L748.4 319.8 L750.1 323.1 L751.7 325.3 L753.3 321.5 L756.2 320.4 L756.5 322.2 L756.9 322.0 L759.9 321.1 L760.8 321.5 L764.1 325.8 L764.4 324.4 L766.0 324.6 L765.5 327.2"/><path class="linha" d="M767.4 327.4 L768.0 329.9 L764.0 336.0 L761.9 335.2 L763.0 345.0 L762.7 348.0 L753.2 365.7 L747.4 382.0 L740.3 383.5 L730.5 380.8 L720.1 375.8 L707.7 367.7 L700.9 361.9 L690.1 362.9 L681.4 362.3 L679.2 362.9 L672.1 373.5 L665.4 379.8 L662.8 377.1 L654.9 378.6 L646.6 379.1 L643.9 378.4 L637.9 377.8 L636.2 373.1 L630.0 367.1 L620.1 365.4 L612.4 364.6 L602.8 364.9 L598.3 360.5 L592.8 355.5 L590.9 350.5 L580.0 334.8 L575.0 335.3 L567.3 338.7 L548.3 336.3 L544.5 338.8 L539.4 340.4 L522.8 337.8 L517.6 339.1 L512.5 338.3 L509.8 334.0 L505.3 326.8 L498.5 320.1 L491.7 327.1 L485.2 334.4 L481.7 336.7 L474.7 338.3 L470.0 336.3 L464.0 335.5 L466.3 330.5 L464.8 327.0 L462.8 327.0 L455.4 330.5 L454.0 329.4 L454.8 321.4 L449.5 313.2 L444.4 295.3 L445.1 289.6 L439.0 277.0 L438.0 271.6 L435.5 266.8 L431.6 250.0 L431.8 246.4 L428.1 241.6 L416.6 241.9 L410.6 244.8 L398.0 247.8 L391.7 250.1 L390.7 251.8 L387.4 252.7 L377.8 258.2 L375.8 265.6 L376.8 274.4 L371.9 283.4 L368.8 285.5 L367.1 288.8 L363.3 295.3 L360.4 299.2 L352.5 302.5 L349.5 314.4 L346.5 313.9 L342.8 317.7 L324.1 328.6 L317.1 330.5 L315.6 329.5 L318.8 326.5 L322.2 318.8 L320.9 312.4 L315.1 304.3 L308.6 304.5 L307.9 303.1 L307.8 296.1 L299.6 291.1 L293.1 289.7 L281.9 275.9 L274.6 262.5 L265.9 254.1 L255.8 235.0 L254.7 231.6 L252.7 230.0 L243.9 231.9 L238.7 232.3 L233.9 230.0 L206.2 226.8 L200.0 226.6 L191.4 221.4 L166.1 221.3 L162.5 222.4 L156.1 221.7 L142.8 217.6 L137.3 214.8 L125.2 215.1 L110.7 211.4 L97.7 201.4 L96.1 200.7 L85.9 201.3 L77.4 200.6 L73.5 198.5 L67.0 191.3 L61.3 190.9 L51.5 194.8 L35.9 195.8 L33.7 196.9 L32.0 191.9 L36.0 208.6 L32.5 191.8 L36.7 192.4 L42.8 191.1 L54.4 187.8 L60.1 182.1 L65.7 182.4 L68.8 186.0 L80.3 184.7 L83.1 183.2 L89.4 181.9 L95.0 182.4 L107.1 179.2 L120.8 174.7 L123.5 170.6 L126.9 168.6 L132.3 169.1 L142.8 168.3 L159.0 164.4 L176.6 160.1 L182.9 160.3 L186.6 158.3 L191.9 156.3 L196.3 154.8 L203.5 155.2 L210.3 155.5 L212.5 155.2 L215.8 150.8 L222.1 136.7 L221.7 133.9 L223.5 130.2 L225.9 137.6 L227.9 139.6 L231.3 146.3 L234.6 150.7 L235.8 151.0 L239.5 146.6 L249.3 141.4 L257.3 138.7 L262.6 129.9 L266.0 132.5 L269.7 132.4 L281.7 128.5 L294.2 123.7 L296.9 123.2 L303.8 118.1 L318.1 114.4 L321.0 115.5 L323.3 114.8 L326.9 109.2 L326.2 102.5 L327.5 97.7 L338.1 100.4 L343.2 98.9 L347.7 100.8 L357.5 99.9 L364.2 100.7 L368.1 103.4 L373.0 106.6 L376.4 110.0 L376.5 112.1 L371.5 123.9 L376.8 132.7 L381.2 136.5 L384.9 144.0 L385.6 148.9 L390.3 150.7 L394.3 155.7 L400.2 152.3 L411.1 149.7 L417.0 147.2 L422.1 146.4 L424.3 152.4 L425.8 160.3 L426.3 164.9 L423.5 173.9 L433.7 171.9 L436.5 169.3 L438.9 168.7 L444.3 177.4 L447.4 178.9 L449.2 184.3 L461.2 195.8 L473.8 198.3 L497.7 200.9 L521.6 193.0 L536.6 192.2 L543.0 188.8 L560.2 192.7 L565.3 194.6 L568.8 194.6 L577.4 198.2 L579.6 200.5 L583.7 208.1 L589.0 215.1 L592.0 219.0 L592.9 226.9 L603.4 230.8 L606.3 232.2 L610.5 239.3 L616.9 232.8 L622.2 229.1 L623.2 227.0 L632.4 216.9 L635.3 214.2 L638.4 214.3 L646.7 215.0 L651.8 215.1 L654.7 222.0 L670.4 223.5 L675.9 226.8 L684.8 228.1 L688.3 238.7 L692.1 248.3 L691.6 252.8 L693.9 263.2 L695.7 266.4 L699.5 268.5 L710.0 263.7 L718.0 265.5 L726.5 265.6 L734.1 271.9 L734.9 276.4 L740.9 282.9 L748.4 319.8 L750.1 323.1 L751.7 325.3 L753.3 321.5 L756.2 320.4 L756.5 322.2 L756.9 322.0 L759.9 321.1 L760.8 321.5 L764.1 325.8 L764.4 324.4 L766.0 324.6 L765.5 327.2"/></svg></div></a>
+          <button type="button" class="alterna" hidden aria-pressed="false" aria-label="Ver o mapa deste pedal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Ver mapa</button>
+        </div>
+        <div class="corpo">
+          <h3><a href="/pedais/2026-07-25-ate-o-por-do-sol-nos-pontoes-capixabas/">Até o por do sol nos Pontões Capixabas</a></h3>
+          <p class="data">25 de julho de 2026</p>
+          <p class="cidades">Sai de <b><a href="/pedais/cidade/sao-gabriel-da-palha/">São Gabriel da Palha</a></b> · passa por <a href="/pedais/cidade/aguia-branca/">Águia Branca</a></p>
+          <dl>
+            <div><dt>Distância</dt><dd>63,7 km</dd></div>
+            <div><dt>Subida</dt><dd>859 m</dd></div>
+            <div><dt>Tempo</dt><dd>3h03</dd></div>
+            <div><dt>Média</dt><dd>20,9 km/h</dd></div>
+          </dl>
+          <a class="planejar-atalho" href="/planejar-pedal/?pedal=19465352514"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="6" r="2.3"/><path d="M8.3 18H14a3.5 3.5 0 0 0 0-7h-4a3.5 3.5 0 0 1 0-7h5.7"/></svg>Planejar este pedal</a>
+        </div>
+      </article>
+  </div>
+  <h2 class="ano" style="margin-top:34px">Pedais por outras cidades</h2>
+  <p class="links"><a class="botao claro" href="/pedais/cidade/vitoria/">Vitória (35)</a> <a class="botao claro" href="/pedais/cidade/serra/">Serra (30)</a> <a class="botao claro" href="/pedais/cidade/cariacica/">Cariacica (13)</a> <a class="botao claro" href="/pedais/cidade/santa-leopoldina/">Santa Leopoldina (11)</a> <a class="botao claro" href="/pedais/cidade/viana/">Viana (7)</a> <a class="botao claro" href="/pedais/cidade/vila-velha/">Vila Velha (7)</a> <a class="botao claro" href="/pedais/cidade/guarapari/">Guarapari (4)</a> <a class="botao claro" href="/pedais/cidade/fundao/">Fundão (3)</a> <a class="botao claro" href="/pedais/cidade/santa-teresa/">Santa Teresa (3)</a> <a class="botao claro" href="/pedais/cidade/sao-gabriel-da-palha/">São Gabriel da Palha (3)</a> <a class="botao claro" href="/pedais/cidade/aracruz/">Aracruz (2)</a> <a class="botao claro" href="/pedais/cidade/domingos-martins/">Domingos Martins (2)</a> <a class="botao claro" href="/pedais/cidade/santa-maria-de-jetiba/">Santa Maria de Jetibá (2)</a></p>
+  <p class="links" style="margin-top:18px"><a class="botao" href="/pedais/">Ver todos os pedais</a> <a class="botao claro" href="/subidas/">Ver as subidas</a></p>
+</main>
+
+<footer>
+  <div class="miolo">
+    <span>© <span id="ano">2026</span> Brote na Trilha</span>
+    <span><a href="/privacidade/">Política de privacidade</a> · <a href="/">Voltar ao site</a></span>
+    <a class="strava" href="https://www.strava.com" target="_blank" rel="noopener"><img src="/strava_powered_by.png" width="197" height="20" alt="Powered by Strava" loading="lazy" decoding="async"></a>
+  </div>
+</footer>
+<script>
+  document.getElementById("ano").textContent = new Date().getFullYear();
+  [].forEach.call(document.querySelectorAll(".pedal .alterna"), function (botao) {
+    botao.hidden = false;
+    botao.addEventListener("click", function () {
+      var cartao = botao.closest(".pedal");
+      var mapa = cartao.classList.toggle("ver-mapa");
+      botao.textContent = mapa ? "Ver capa" : "Ver mapa";
+      botao.setAttribute("aria-pressed", String(mapa));
+    });
+  });
+</script>
+<script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
