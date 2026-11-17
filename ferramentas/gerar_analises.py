@@ -75,6 +75,12 @@ def resumo_da_descricao(texto):
 
 # Domínios de links de afiliado: vão com rel="sponsored" (o pedido do Google para link pago ou de comissão)
 AFILIADOS = ("s.click.aliexpress.com", "amzn.to", "shope.ee", "mercadolivre.com/sec", "magalu.lu")
+SELO_AFILIADO = '<span class="selo-afiliado" title="Link de afiliado: se você comprar por ele, o canal recebe uma comissão, sem custo extra para você">afiliado</span>'      # o selo ao lado de cada link pago: o aviso tem de estar à vista
+AVISO_AFILIADO = '<aside class="aviso-afiliado" role="note"><strong>Links de afiliado.</strong> Alguns links desta página são de afiliados e vêm marcados com &ldquo;afiliado&rdquo;. Se você comprar por eles, o canal recebe uma comissão, sem custo extra para você.</aside>'
+
+
+def eh_afiliado(url):
+    return any(a in url for a in AFILIADOS)
 
 
 def partes_da_descricao(texto):
@@ -106,7 +112,7 @@ def cartao(v):
     links, pecas, capitulos = partes_da_descricao(v["descricao"])
     extras = ""
     if links:
-        itens = "".join(f'<li><a href="{html.escape(u)}" target="_blank" rel="noopener{" sponsored" if any(a in u for a in AFILIADOS) else ""}">{html.escape(r)}</a></li>'
+        itens = "".join(f'<li><a href="{html.escape(u)}" target="_blank" rel="noopener{" sponsored" if eh_afiliado(u) else ""}">{html.escape(r)}{SELO_AFILIADO if eh_afiliado(u) else ""}</a></li>'
                         for r, u in links)
         extras += f'<ul class="links">{itens}</ul>'
     if capitulos:
@@ -143,7 +149,8 @@ def montar(videos, modelo):
               "thumbnailUrl": [f"https://i.ytimg.com/vi/{v['id']}/hqdefault.jpg"], "uploadDate": v["publicado"],
               "embedUrl": f"https://www.youtube.com/embed/{v['id']}", "contentUrl": f"https://www.youtube.com/watch?v={v['id']}"}}
               for i, v in enumerate(videos)]}
-    troca = {"{{CONTEUDO}}": '<div class="lista">\n' + "\n".join(cartao(v) for v in videos) + "\n</div>",
+    tem_afiliado = any(eh_afiliado(u) for v in videos for _, u in partes_da_descricao(v["descricao"])[0])
+    troca = {"{{AVISO_AFILIADO}}": AVISO_AFILIADO if tem_afiliado else "", "{{CONTEUDO}}": '<div class="lista">\n' + "\n".join(cartao(v) for v in videos) + "\n</div>",
              "{{RESUMO}}": resumo, "{{PLAYLIST}}": PLAYLIST,
              "{{OG_IMAGE}}": f"https://i.ytimg.com/vi/{videos[0]['id']}/hqdefault.jpg",
              "{{JSONLD}}": '<script type="application/ld+json">' + json.dumps(ld, ensure_ascii=False) + "</script>\n"}

@@ -48,6 +48,9 @@
   .abrir { margin-top: auto; padding-top: 8px; font-weight: 700; color: var(--verde-escuro); text-decoration: none; }
   .abrir:hover { text-decoration: underline; }
   @media (prefers-color-scheme: dark) { .abrir { color: #7fcf9d; } }
+  .aviso-afiliado { margin: 0 0 18px; padding: 12px 16px; border: 1px solid var(--linha); border-left: 4px solid var(--ambar); border-radius: 12px; background: var(--cartao); color: var(--texto-suave, var(--suave, inherit)); font-size: .92rem; line-height: 1.45; }
+  .aviso-afiliado strong { color: var(--texto); }
+  .selo-afiliado { margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--ambar); color: #2a1a00; font-size: .7rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
   .links { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
   .links a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--linha); text-decoration: none; font-weight: 600; font-size: .9rem; }
   .links a:hover { border-color: var(--verde); }
@@ -80,6 +83,7 @@
 </header>
 
 <main class="miolo">
+{{AVISO_AFILIADO}}
 {{CONTEUDO}}
 </main>
 
