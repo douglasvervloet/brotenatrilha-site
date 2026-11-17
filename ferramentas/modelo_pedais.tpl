@@ -49,6 +49,21 @@
   .chip:hover { border-color: var(--verde); }
   .chip[aria-pressed="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
   #contagem { margin: 0; color: var(--suave); font-size: .9rem; }
+  .barra-filtros { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .barra-filtros input { flex: 1 1 240px; width: auto; min-width: 0; }
+  .grupo-btn { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-weight: 700; font-size: .92rem; cursor: pointer; padding: 10px 18px; border-radius: 999px; background: var(--cartao); color: var(--texto); border: 2px solid var(--linha); }
+  .grupo-btn svg { width: 17px; height: 17px; flex: none; }
+  .grupo-btn:hover, .grupo-btn[aria-expanded="true"] { border-color: var(--verde); }
+  .grupo-btn .cont { display: inline-block; min-width: 20px; padding: 0 6px; border-radius: 999px; background: var(--verde); color: #fff; font-size: .75rem; line-height: 20px; text-align: center; }
+  .grupo-btn .cont[hidden] { display: none; }
+  .painel-filtros { display: grid; gap: 14px; padding: 16px 18px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; }
+  .painel-filtros[hidden] { display: none; }
+  .painel-filtros h3 { margin: 0 0 6px; font-size: .75rem; letter-spacing: .6px; text-transform: uppercase; color: var(--suave); }
+  .painel-filtros .nota-painel { margin: 0; font-size: .88rem; color: var(--suave); }
+  .linha-contagem { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  .limpar { font: inherit; font-weight: 700; font-size: .85rem; cursor: pointer; padding: 4px 12px; border-radius: 999px; background: transparent; color: var(--texto); border: 1px solid var(--linha); }
+  .limpar[hidden] { display: none; }
+  .limpar:hover { border-color: var(--verde); }
 
   .seletores { display: flex; flex-wrap: wrap; gap: 10px 18px; }
   .seletores label { display: flex; align-items: center; gap: 8px; font-size: .9rem; color: var(--suave); }
@@ -119,31 +134,42 @@
     <p>Os passeios do canal, com o percurso, os números e o vídeo de cada um.</p>
     <p class="resumo">{{RESUMO}}</p>
     <p><a href="mapa/">Ver todos os percursos no mapa &rarr;</a></p>
-    <!--CIDADES--><!--/CIDADES-->
   </div>
 </header>
 
 <main class="miolo">
   <div class="filtros" id="filtros" hidden>
-    <input type="search" id="busca" placeholder="Buscar pelo nome do pedal" aria-label="Buscar pelo nome do pedal" autocomplete="off">
-    <div class="chips" role="group" aria-label="Filtrar por ano">{{CHIPS_ANO}}</div>
-    <div class="chips" role="group" aria-label="Filtrar por distância">
-      <button type="button" class="chip" data-filtro="dist" data-valor="todas" aria-pressed="true">Todas as distâncias</button>
-      <button type="button" class="chip" data-filtro="dist" data-valor="ate50" aria-pressed="false">Até 50 km</button>
-      <button type="button" class="chip" data-filtro="dist" data-valor="50a100" aria-pressed="false">50 a 100 km</button>
-      <button type="button" class="chip" data-filtro="dist" data-valor="mais100" aria-pressed="false">Mais de 100 km</button>
+    <div class="barra-filtros">
+      <input type="search" id="busca" placeholder="Buscar pelo nome do pedal" aria-label="Buscar pelo nome do pedal" autocomplete="off">
+      <button type="button" class="grupo-btn" id="g-mun" aria-expanded="false" aria-controls="p-mun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Municípios<span class="cont" hidden>0</span></button>
+      <button type="button" class="grupo-btn" id="g-outros" aria-expanded="false" aria-controls="p-outros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Filtros<span class="cont" hidden>0</span></button>
     </div>
-    <div class="seletores">
-      <label>Passa por <select id="passa"><option value="">Qualquer cidade</option>{{OPCOES_PASSA}}</select></label>
-      <label>Sai de <select id="sai"><option value="">Qualquer cidade</option>{{OPCOES_SAI}}</select></label>
-      <label>Chega em <select id="chega"><option value="">Qualquer cidade</option>{{OPCOES_CHEGA}}</select></label>
-      <label>Subida <select id="subida"><option value="">Qualquer</option><option value="1">Cat 4 ou mais dura</option><option value="2">Cat 3 ou mais dura</option><option value="3">Cat 2 ou mais dura</option><option value="4">Cat 1 ou HC</option></select></label>
-      <label>Terreno <select id="terreno"><option value="">Qualquer</option><option value="asfalto">Asfalto</option><option value="misto">Misto</option><option value="terra">Terra</option></select></label>
+    <div class="painel-filtros" id="p-mun" hidden>
+      <div class="seletores">
+        <label>Passa por <select id="passa"><option value="">Qualquer cidade</option>{{OPCOES_PASSA}}</select></label>
+        <label>Sai de <select id="sai"><option value="">Qualquer cidade</option>{{OPCOES_SAI}}</select></label>
+        <label>Chega em <select id="chega"><option value="">Qualquer cidade</option>{{OPCOES_CHEGA}}</select></label>
+      </div>
+      <p class="nota-painel"><a href="#por-cidade">Ver a página de cada cidade</a></p>
     </div>
-    <p id="contagem" role="status" aria-live="polite"></p>
+    <div class="painel-filtros" id="p-outros" hidden>
+      <div><h3>Ano</h3><div class="chips" role="group" aria-label="Filtrar por ano">{{CHIPS_ANO}}</div></div>
+      <div><h3>Distância</h3><div class="chips" role="group" aria-label="Filtrar por distância">
+        <button type="button" class="chip" data-filtro="dist" data-valor="todas" aria-pressed="true">Todas</button>
+        <button type="button" class="chip" data-filtro="dist" data-valor="ate50" aria-pressed="false">Até 50 km</button>
+        <button type="button" class="chip" data-filtro="dist" data-valor="50a100" aria-pressed="false">50 a 100 km</button>
+        <button type="button" class="chip" data-filtro="dist" data-valor="mais100" aria-pressed="false">Mais de 100 km</button>
+      </div></div>
+      <div class="seletores">
+        <label>Subida <select id="subida"><option value="">Qualquer</option><option value="1">Cat 4 ou mais dura</option><option value="2">Cat 3 ou mais dura</option><option value="3">Cat 2 ou mais dura</option><option value="4">Cat 1 ou HC</option></select></label>
+        <label>Terreno <select id="terreno"><option value="">Qualquer</option><option value="asfalto">Asfalto</option><option value="misto">Misto</option><option value="terra">Terra</option></select></label>
+      </div>
+    </div>
+    <div class="linha-contagem"><p id="contagem" role="status" aria-live="polite"></p><button type="button" class="limpar" id="limpar" hidden>Limpar filtros</button></div>
   </div>
 
 {{CONTEUDO}}
+  <nav id="por-cidade" aria-label="Pedais por cidade"><!--CIDADES--><!--/CIDADES--></nav>
   <p class="nota">Nos pedais que saem de perto de casa, o traçado não mostra o começo nem o fim. Dados do Strava, atualizados todos os dias. Mapas: © OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA). Última atualização: {{ATUALIZADO}}.</p>
 </main>
 
@@ -176,8 +202,27 @@
     if (!filtros || !busca) return;
     filtros.hidden = false;
     var cartoes = [].slice.call(document.querySelectorAll(".pedal"));
-    var estado = { ano: "todos", dist: "todas", texto: "", passa: "", sai: "", chega: "", subida: "", terreno: "" };
+    var PADRAO = { ano: "todos", dist: "todas", texto: "", passa: "", sai: "", chega: "", subida: "", terreno: "" };
+    var estado = JSON.parse(JSON.stringify(PADRAO));
     function norm(s) { return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
+    // os dois grupos: um painel aberto de cada vez; o botão mostra quantos filtros do grupo estão ligados
+    var GRUPOS = [["g-mun", "p-mun", ["passa", "sai", "chega"]], ["g-outros", "p-outros", ["ano", "dist", "subida", "terreno"]]];
+    function abrirGrupo(id) {
+      GRUPOS.forEach(function (g) {
+        var abrir = g[0] === id && document.getElementById(g[1]).hidden;
+        document.getElementById(g[1]).hidden = !abrir;
+        document.getElementById(g[0]).setAttribute("aria-expanded", String(abrir));
+      });
+    }
+    GRUPOS.forEach(function (g) { document.getElementById(g[0]).addEventListener("click", function () { abrirGrupo(g[0]); }); });
+    function atualizarGrupos() {
+      var total = 0;
+      GRUPOS.forEach(function (g) {
+        var n = g[2].filter(function (k) { return estado[k] !== PADRAO[k]; }).length, c = document.querySelector("#" + g[0] + " .cont");
+        c.textContent = String(n); c.hidden = !n; total += n;
+      });
+      document.getElementById("limpar").hidden = !(total || estado.texto);
+    }
     function aplicar() {
       var visiveis = 0;
       cartoes.forEach(function (c) {
@@ -198,20 +243,23 @@
       });
       [].forEach.call(document.querySelectorAll(".bloco-ano"), function (b) { b.hidden = !b.querySelector(".pedal:not([hidden])"); });
       document.getElementById("contagem").textContent = visiveis + " de " + cartoes.length + " pedais";
+      atualizarGrupos();
     }
     busca.addEventListener("input", function () { estado.texto = norm(busca.value.trim()); aplicar(); });
     ["passa", "sai", "chega", "subida", "terreno"].forEach(function (id) {
       document.getElementById(id).addEventListener("change", function (e) { estado[id] = e.target.value; aplicar(); });
     });
+    function marcarChips(grupo, valor) {
+      [].forEach.call(document.querySelectorAll('.chip[data-filtro="' + grupo + '"]'), function (c) { c.setAttribute("aria-pressed", String(c.dataset.valor === valor)); });
+    }
     [].forEach.call(document.querySelectorAll(".chip"), function (chip) {
-      chip.addEventListener("click", function () {
-        var grupo = chip.dataset.filtro;
-        estado[grupo] = chip.dataset.valor;
-        [].forEach.call(document.querySelectorAll('.chip[data-filtro="' + grupo + '"]'), function (c) {
-          c.setAttribute("aria-pressed", String(c === chip));
-        });
-        aplicar();
-      });
+      chip.addEventListener("click", function () { estado[chip.dataset.filtro] = chip.dataset.valor; marcarChips(chip.dataset.filtro, chip.dataset.valor); aplicar(); });
+    });
+    document.getElementById("limpar").addEventListener("click", function () {
+      estado = JSON.parse(JSON.stringify(PADRAO)); busca.value = "";
+      ["passa", "sai", "chega", "subida", "terreno"].forEach(function (id) { document.getElementById(id).value = ""; });
+      marcarChips("ano", "todos"); marcarChips("dist", "todas");
+      aplicar();
     });
     aplicar();
   })();

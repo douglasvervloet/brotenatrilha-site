@@ -1,5 +1,5 @@
 # Atualiza todo mês os arquivos do Espírito Santo que a ferramenta "Planejar pedal" lê: as vias (ferramentas/vias/, para o terreno: asfalto, terra,
-# calçamento, sem depender do Overpass) os pontos de apoio (ferramentas/apoios/) e os pontos de interesse (ferramentas/interesses/). Baixa o mapa do Sudeste na Geofabrik (uns 900 MB), roda ferramentas/gerar_vias.py
+# calçamento, sem depender do Overpass) os pontos de apoio (ferramentas/apoios/) os pontos de interesse (ferramentas/interesses/) e as ciclovias (ferramentas/ciclovias/). Baixa o mapa do Sudeste na Geofabrik (uns 900 MB), roda ferramentas/gerar_vias.py
 # e grava só se algo mudou. Não usa segredos. Pode ser rodado na mão em "Actions".
 name: Atualizar vias e pontos de apoio do Espírito Santo
 
@@ -51,9 +51,15 @@ jobs:
           n=$(python -c "import json; print(len(json.load(open('ferramentas/interesses/interesses.json', encoding='utf-8'))['p']))")
           if [ "$n" -lt 300 ]; then echo "::error::Só $n pontos de interesse: algo deu errado, nada foi gravado."; exit 1; fi
 
+      - name: Gerar as ciclovias (camada Ciclovias do Planejar pedal)
+        run: |
+          python ferramentas/gerar_ciclovias.py "$RUNNER_TEMP/sudeste.osm.pbf" ferramentas/ciclovias
+          n=$(python -c "import json; print(len(json.load(open('ferramentas/ciclovias/ciclovias.json', encoding='utf-8'))['c']))")
+          if [ "$n" -lt 400 ]; then echo "::error::Só $n trechos de ciclovia: algo deu errado, nada foi gravado."; exit 1; fi
+
       - name: Gravar se mudou
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A ferramentas/vias ferramentas/apoios ferramentas/interesses
+          git add -A ferramentas/vias ferramentas/apoios ferramentas/interesses ferramentas/ciclovias
           git diff --cached --quiet || (git commit -m "Atualiza as vias do Espírito Santo" && git pull --rebase origin main && git push)
