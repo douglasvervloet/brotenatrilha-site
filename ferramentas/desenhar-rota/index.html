@@ -56,6 +56,19 @@
   .grudar[aria-pressed="true"] i { background: #2d7046; }
   .grudar[aria-pressed="true"] i::after { left: 19px; }
   .grudar small { background: var(--ambar); color: #2a1a00; font-weight: 800; border-radius: 999px; padding: 0 8px; font-size: .7rem; letter-spacing: .5px; }
+  .bt svg { width: 22px; height: 22px; display: block; margin: auto; }
+  .estilos { position: absolute; right: 68px; top: 12px; width: 232px; background: rgba(12, 23, 17, .93); border: 1px solid rgba(255, 255, 255, .3); border-radius: 16px; padding: 12px; color: #fff; }
+  .estilos[hidden] { display: none; }
+  .estilos h4 { margin: 0 0 8px; font-size: .9rem; }
+  .estilos .grade { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .estilos .op { font: inherit; color: inherit; cursor: pointer; border: 2px solid transparent; border-radius: 12px; padding: 4px; text-align: center; font-size: .8rem; font-weight: 700; background: rgba(255, 255, 255, .06); }
+  .estilos .op:hover { background: rgba(255, 255, 255, .12); }
+  .estilos .op[aria-pressed="true"] { border-color: var(--ambar); }
+  .estilos .op img { width: 100%; height: auto; border-radius: 8px; display: block; margin-bottom: 4px; }
+  .estilos small { display: block; margin-top: 8px; font-size: .72rem; opacity: .85; line-height: 1.3; }
+  .toast { position: absolute; left: 50%; bottom: 74px; transform: translateX(-50%); background: rgba(12, 23, 17, .92); color: #fff; border: 1px solid rgba(255, 255, 255, .3);
+           border-radius: 999px; padding: 8px 18px; font-size: .85rem; font-weight: 700; max-width: 92%; text-align: center; pointer-events: none; }
+  .toast[hidden] { display: none; }
   .zoom { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; }
   .zoom .bt { width: 44px; padding: 0; font-size: 1.4rem; line-height: 1; }
   .dica { position: absolute; left: 12px; bottom: 12px; background: rgba(12, 23, 17, .85); color: #fff; border-radius: 12px; padding: 8px 14px; font-size: .85rem; max-width: 62%; pointer-events: none; }
@@ -116,13 +129,15 @@
       </div>
       <button class="grudar" type="button" id="b-grudar" aria-pressed="false"><i></i>Grudar nas ruas <small>BETA</small></button>
     </div>
-    <div class="zoom"><button class="bt" type="button" id="b-mais" aria-label="Aproximar">+</button><button class="bt" type="button" id="b-menos" aria-label="Afastar">&minus;</button></div>
+    <div class="zoom"><button class="bt" type="button" id="b-mais" aria-label="Aproximar">+</button><button class="bt" type="button" id="b-menos" aria-label="Afastar">&minus;</button><button class="bt" type="button" id="b-local" aria-label="Minha localização" title="Minha localização"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button><button class="bt" type="button" id="b-estilo" aria-label="Estilo do mapa" aria-expanded="false" title="Estilo do mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="m2 13 10 5 10-5"/></svg></button></div>
+    <div class="estilos" id="painel-estilos" role="group" aria-label="Estilo do mapa" hidden><h4>Estilo do mapa</h4><div class="grade"><button type="button" class="op" data-estilo="relevo" aria-pressed="true"><img src="estilo-relevo.webp" width="150" height="100" alt="">Relevo</button><button type="button" class="op" data-estilo="ruas" aria-pressed="false"><img src="estilo-ruas.webp" width="150" height="100" alt="">Ruas</button><button type="button" class="op" data-estilo="escuro" aria-pressed="false"><img src="estilo-escuro.webp" width="150" height="100" alt="">Escuro</button></div><small>Cada estilo pede os quadros do mapa a um servidor aberto diferente.</small></div>
+    <div class="toast" id="aviso-local" role="status" aria-live="polite" hidden></div>
     <div class="dica" id="dica">Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para remover.</div>
-    <div class="credito-mapa">© OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA)</div>
+    <div class="credito-mapa" id="credito">© OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA)</div>
   </div>
   <p class="aviso">Com <b>Grudar nas ruas</b> desligado, nada do que você desenha sai do seu navegador. Ligado, os pontos de cada trecho (dois a dois) são enviados a um serviço público de rotas do OpenStreetMap
-    (BRouter, com o da FOSSGIS como reserva) para seguir as ruas e trilhas; se nenhum responder, o trecho fica em linha reta. O mapa e a altitude vêm de servidores abertos (OpenTopoMap e Amazon Web Services),
-    que só recebem o pedido dos quadros do mapa que você vê.</p>
+    (BRouter, com o da FOSSGIS como reserva) para seguir as ruas e trilhas; se nenhum responder, o trecho fica em linha reta. O mapa e a altitude vêm de servidores abertos (OpenTopoMap ou OpenStreetMap, conforme o estilo, e Amazon Web Services),
+    que só recebem o pedido dos quadros do mapa que você vê. A sua localização, se você usar o botão, é lida só no seu navegador.</p>
   <p class="nota" id="status-grudar" aria-live="polite" hidden></p>
   <p class="nota" id="vazio">Clique no mapa para começar. Com pelo menos 1 km desenhado, aparecem os números e as subidas.</p>
   <p class="nota" id="erro" hidden></p>
@@ -290,7 +305,12 @@
 
   // ---- o mapa e o desenho da rota (um mapa simples, sem biblioteca de terceiros) ----
   (function () {
-    var URL_MAPA = "https://tile.opentopomap.org/{z}/{x}/{y}.png";
+    var ESTILOS = {                                                // cada estilo: de onde vêm os quadros, o tratamento de cor (para a rota se destacar) e o crédito
+      relevo: { url: "https://tile.opentopomap.org/{z}/{x}/{y}.png", filtro: "brightness(.58) saturate(.62) contrast(1.05)", credito: "© OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA)" },
+      ruas: { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", filtro: "brightness(.74) saturate(.85)", credito: "© OpenStreetMap contributors | altitude: SRTM" },
+      escuro: { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", filtro: "grayscale(1) invert(1) brightness(.62) contrast(1.15)", credito: "© OpenStreetMap contributors | altitude: SRTM" }
+    };
+    var estilo = "relevo";
     var URL_ALTITUDE = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";   // metros = R·256 + G + B/256 − 32768
     var Z_ALTITUDE = 12, Z_MIN = 8, Z_MAX = 17, PASSO_AMOSTRA = 25;                                  // altitude lida no zoom 12; um ponto a cada 25 m
     var caixa = document.getElementById("mapa"), camada = document.getElementById("quadros"), desenho = document.getElementById("rota");
@@ -318,13 +338,13 @@
       for (var tx = Math.floor(x0 / 256); tx <= Math.floor((x0 + L()) / 256); tx++) {
         for (var ty = Math.floor(y0 / 256); ty <= Math.floor((y0 + A()) / 256); ty++) {
           if (ty < 0 || ty >= n) continue;
-          var chave = z + "/" + tx + "/" + ty;
+          var chave = estilo + "/" + z + "/" + tx + "/" + ty;
           vivos[chave] = true;
           if (!quadros[chave]) {
             var img = new Image();
             img.alt = "";
             img.draggable = false;
-            img.src = URL_MAPA.replace("{z}", z).replace("{x}", ((tx % n) + n) % n).replace("{y}", ty);
+            img.src = ESTILOS[estilo].url.replace("{z}", z).replace("{x}", ((tx % n) + n) % n).replace("{y}", ty);
             camada.appendChild(img);
             quadros[chave] = img;
           }
@@ -349,7 +369,7 @@
     function comprimento(pts) { var t = 0; for (var i = 1; i < pts.length; i++) t += metrosEntre(pts[i - 1], pts[i]); return t; }
     function desenharRota() {
       desenho.setAttribute("viewBox", "0 0 " + L() + " " + A());
-      if (!rota.length) { desenho.innerHTML = ""; return; }
+      if (!rota.length) { desenho.innerHTML = ""; desenharLocalizacao(); return; }
       var p = rota.map(paraTela), pontos = function (lista) { return lista.map(function (q) { return q.x.toFixed(1) + "," + q.y.toFixed(1); }).join(" "); };
       var linha = pontos(linhaCompleta().map(paraTela));
       var svg = '<polyline points="' + linha + '" fill="none" stroke="#0c1711" stroke-opacity=".55" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"/>' +
@@ -375,6 +395,7 @@
           '<text x="46" y="20" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">' + km + "</text></g>";
       }
       desenho.innerHTML = svg;
+      desenharLocalizacao();
       desenharMarcadorNoMapa();
     }
     function desenharMarcadorNoMapa() {                            // o anel branco com a altitude e a inclinação, no ponto que o gráfico mostra
@@ -445,7 +466,8 @@
     var dedos = {}, gesto = null, ultimoZoom = 0;
     function distanciaDosDedos() { var k = Object.keys(dedos), a = dedos[k[0]], b = dedos[k[1]]; return Math.hypot(a.x - b.x, a.y - b.y); }
     caixa.addEventListener("pointerdown", function (e) {
-      if (e.target.closest(".barra, .zoom")) return;
+      if (!painel.hidden && !e.target.closest(".estilos, #b-estilo")) abrirPainel(false);
+      if (e.target.closest(".barra, .zoom, .estilos")) return;
       caixa.setPointerCapture(e.pointerId);
       dedos[e.pointerId] = { x: e.clientX, y: e.clientY };
       if (Object.keys(dedos).length === 1) {
@@ -857,6 +879,54 @@
         if (lidos.length && lidos.every(function (p) { return isFinite(p.lat) && isFinite(p.lon) && Math.abs(p.lat) <= 85 && Math.abs(p.lon) <= 180; })) { rota = lidos; enquadrarRota(); mudou(); }
       } catch (x) { /* um link que não é nosso: ignora */ }
     }
+
+    // ---- o estilo do mapa ----
+    var painel = document.getElementById("painel-estilos"), botaoEstilo = document.getElementById("b-estilo");
+    function abrirPainel(abrir) { painel.hidden = !abrir; botaoEstilo.setAttribute("aria-expanded", String(abrir)); }
+    function trocarEstilo(nome, restaurando) {
+      if (!ESTILOS[nome]) return;
+      estilo = nome;
+      camada.style.filter = ESTILOS[nome].filtro;
+      document.getElementById("credito").textContent = ESTILOS[nome].credito;
+      [].forEach.call(painel.querySelectorAll(".op"), function (b) { b.setAttribute("aria-pressed", String(b.dataset.estilo === nome)); });
+      Object.keys(quadros).forEach(function (k) { camada.removeChild(quadros[k]); delete quadros[k]; });
+      if (!restaurando) { try { sessionStorage.setItem("estilo-mapa", nome); } catch (x) { /* sem armazenamento, o estilo só não é lembrado */ } }
+      desenharQuadros();
+    }
+    botaoEstilo.addEventListener("click", function () { abrirPainel(painel.hidden); });
+    [].forEach.call(painel.querySelectorAll(".op"), function (b) { b.addEventListener("click", function () { trocarEstilo(b.dataset.estilo); abrirPainel(false); }); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !painel.hidden) abrirPainel(false); });
+    try { var guardado = sessionStorage.getItem("estilo-mapa"); if (guardado && ESTILOS[guardado] && guardado !== "relevo") trocarEstilo(guardado, true); } catch (x) { /* sem armazenamento */ }
+
+    // ---- minha localização: lida só no navegador, para centralizar o mapa ----
+    var eu = null, tempoDoAviso = null;
+    function avisar(texto) {
+      var e = document.getElementById("aviso-local");
+      e.textContent = texto; e.hidden = false;
+      clearTimeout(tempoDoAviso);
+      tempoDoAviso = setTimeout(function () { e.hidden = true; }, 5000);
+    }
+    function desenharLocalizacao() {                               // o ponto azul com o círculo da precisão, por baixo da rota
+      var antigo = document.getElementById("marc-local");
+      if (antigo) antigo.remove();
+      if (!eu) return;
+      var q = paraTela(eu), mpp = 156543.03392 * Math.cos(eu.lat * Math.PI / 180) / Math.pow(2, z), r = Math.max(10, eu.precisao / mpp);
+      desenho.insertAdjacentHTML("afterbegin", '<g id="marc-local" pointer-events="none"><circle cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="' + r.toFixed(1) + '" fill="rgba(26,115,232,.16)" stroke="rgba(26,115,232,.55)"/>' +
+        '<circle cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="9" fill="#1a73e8" stroke="#fff" stroke-width="3"/></g>');
+    }
+    document.getElementById("b-local").addEventListener("click", function () {
+      if (!navigator.geolocation) { avisar("Este navegador não informa a localização."); return; }
+      avisar("Buscando a sua localização…");
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        eu = { lat: pos.coords.latitude, lon: pos.coords.longitude, precisao: pos.coords.accuracy || 50 };
+        z = Math.min(Z_MAX, Math.max(z, eu.precisao > 300 ? 13 : 15));      // aproxima, sem afastar quem já está perto
+        centro = mundo(eu.lat, eu.lon, z);
+        redesenhar();
+        avisar("Mostrando a sua localização (precisão de uns " + Math.round(eu.precisao) + " m)");
+      }, function (erro) {
+        avisar(erro.code === 1 ? "A permissão de localização foi negada. Libere nas configurações do navegador." : erro.code === 3 ? "A localização demorou demais. Tente de novo." : "Não consegui obter a sua localização.");
+      }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 });
+    });
 
     redesenhar();
     botoes();
