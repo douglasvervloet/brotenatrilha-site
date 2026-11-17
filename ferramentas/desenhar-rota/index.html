@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Desenhar rota | Brote na Trilha</title>
+<meta name="description" content="Desenhe uma rota clicando no mapa de relevo e veja a distância, o ganho de altitude e as subidas com categoria. Depois, baixe o GPX. Nada do que você desenha sai do seu navegador.">
+<link rel="canonical" href="https://brotenatrilha.com.br/ferramentas/desenhar-rota/">
+<meta name="theme-color" content="#2d7046">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Brote na Trilha">
+<meta property="og:title" content="Desenhar rota | Brote na Trilha">
+<meta property="og:description" content="Desenhe uma rota no mapa de relevo e veja a distância, o ganho de altitude e as subidas com categoria.">
+<meta property="og:url" content="https://brotenatrilha.com.br/ferramentas/desenhar-rota/">
+<meta property="og:image" content="https://brotenatrilha.com.br/compartilhar.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="48x48" href="../../favicon.png">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Desenhar rota", "url": "https://brotenatrilha.com.br/ferramentas/desenhar-rota/", "applicationCategory": "SportsApplication", "operatingSystem": "Qualquer navegador", "inLanguage": "pt-BR", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "BRL"}, "publisher": {"@type": "Organization", "name": "Brote na Trilha", "url": "https://brotenatrilha.com.br/"}}</script>
+<style>
+  :root { --verde: #2d7046; --verde-escuro: #1e5434; --verde-fundo: #163d27; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; }
+  @media (prefers-color-scheme: dark) { :root { --fundo: #0f1a13; --cartao: #172a1e; --texto: #e9f0ea; --suave: #a9bbae; --linha: #284534; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--ambar); outline-offset: 3px; border-radius: 4px; }
+  .miolo { width: min(1080px, 100% - 32px); margin-inline: auto; }
+  header { background: linear-gradient(180deg, var(--verde), var(--verde-fundo)); color: #fff; padding: 18px 0 34px; }
+  header a { color: #fff; text-decoration: none; font-weight: 600; opacity: .9; }
+  header a:hover { opacity: 1; text-decoration: underline; }
+  h1 { margin: 20px 0 0; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; letter-spacing: -.5px; }
+  header p { margin: 10px 0 0; color: #dcebe0; max-width: 62ch; }
+  main { padding: 22px 0 40px; }
+  h2 { font-size: 1.2rem; margin: 28px 0 10px; }
+  .mapa { position: relative; width: 100%; height: min(78vh, 800px); min-height: 460px; border-radius: 18px; overflow: hidden; border: 1px solid var(--linha); background: #0c1711;
+          touch-action: none; user-select: none; -webkit-user-select: none; cursor: crosshair; }
+  .mapa.mover { cursor: grab; }
+  .mapa.arrastando { cursor: grabbing; }
+  #quadros { position: absolute; inset: 0; filter: brightness(.58) saturate(.62) contrast(1.05); }
+  #quadros img { position: absolute; width: 256px; height: 256px; max-width: none; pointer-events: none; -webkit-user-drag: none; }
+  #rota { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  #rota circle.ponto { pointer-events: auto; cursor: pointer; }
+  #rota text { font-family: inherit; }
+  .barra { position: absolute; left: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; max-width: calc(100% - 80px); }
+  .linha1 { display: flex; gap: 8px; flex-wrap: wrap; }
+  .bt { font: inherit; font-weight: 700; font-size: .9rem; min-height: 40px; padding: 0 16px; border-radius: 999px; border: 2px solid rgba(255, 255, 255, .35); background: rgba(12, 23, 17, .85); color: #fff; cursor: pointer; }
+  .bt:hover:not(:disabled) { border-color: var(--ambar); }
+  .bt:disabled { opacity: .45; cursor: default; }
+  .bt[aria-pressed="true"] { border-color: var(--ambar); }
+  .zoom { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .zoom .bt { width: 44px; padding: 0; font-size: 1.4rem; line-height: 1; }
+  .dica { position: absolute; left: 12px; bottom: 12px; background: rgba(12, 23, 17, .85); color: #fff; border-radius: 12px; padding: 8px 14px; font-size: .85rem; max-width: 62%; pointer-events: none; }
+  .credito-mapa { position: absolute; right: 8px; bottom: 6px; font-size: .72rem; color: #fff; opacity: .85; text-shadow: 0 1px 2px #000; max-width: 36%; text-align: right; pointer-events: none; }
+  .aviso { margin-top: 12px; padding: 10px 16px; border-radius: 12px; background: rgba(232, 163, 61, .16); font-size: .9rem; }
+  .numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 18px; }
+  .numeros div { background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; padding: 12px 16px; }
+  .numeros span { display: block; font-size: .82rem; color: var(--suave); }
+  .numeros b { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+  .grafico { margin-top: 18px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 14px; }
+  .grafico svg { display: block; width: 100%; height: auto; }
+  .grafico text { font-family: inherit; fill: var(--suave); font-size: 12px; }
+  .legenda { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+  .cat { display: inline-block; padding: 3px 14px; border-radius: 999px; font-weight: 800; font-size: .82rem; }
+  .tabela { overflow-x: auto; background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { padding: 10px 14px; border-bottom: 1px solid var(--linha); text-align: right; white-space: nowrap; }
+  th { font-size: .82rem; color: var(--suave); }
+  th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+  tr:last-child td { border-bottom: 0; }
+  .acoes { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+  .acoes button { font: inherit; font-weight: 700; padding: 11px 24px; border-radius: 999px; cursor: pointer; }
+  .acoes .principal { border: 2px solid var(--verde); background: var(--verde); color: #fff; }
+  .acoes .principal:hover:not(:disabled) { background: var(--verde-escuro); }
+  .acoes .sec { border: 2px solid var(--linha); background: transparent; color: var(--texto); }
+  .acoes .sec:hover:not(:disabled) { border-color: var(--verde); }
+  .acoes button:disabled { opacity: .45; cursor: default; }
+  .nota { color: var(--suave); font-size: .88rem; margin-top: 16px; }
+  footer { background: var(--verde-fundo); color: #cfe0d3; padding: 24px 0; font-size: .92rem; margin-top: 20px; }
+  footer .miolo { display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: space-between; }
+  footer a { color: #fff; }
+  @media (max-width: 560px) { .dica { max-width: calc(100% - 24px); bottom: 34px; } .credito-mapa { max-width: 100%; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="miolo">
+    <a href="../">&larr; Ferramentas</a>
+    <h1>Desenhar rota</h1>
+    <p>Clique no mapa para desenhar o percurso e veja a distância, o ganho de altitude e as subidas com categoria. Depois, baixe o GPX.</p>
+  </div>
+</header>
+<main class="miolo">
+  <div class="mapa" id="mapa" role="application" aria-label="Mapa de relevo para desenhar a rota">
+    <div id="quadros"></div>
+    <svg id="rota" aria-hidden="true"></svg>
+    <div class="barra">
+      <div class="linha1">
+        <button class="bt" type="button" id="b-desenhar" aria-pressed="true">Desenhar</button>
+        <button class="bt" type="button" id="b-desfazer" disabled>Desfazer</button>
+        <button class="bt" type="button" id="b-refazer" disabled>Refazer</button>
+        <button class="bt" type="button" id="b-limpar" disabled>Limpar</button>
+      </div>
+    </div>
+    <div class="zoom"><button class="bt" type="button" id="b-mais" aria-label="Aproximar">+</button><button class="bt" type="button" id="b-menos" aria-label="Afastar">&minus;</button></div>
+    <div class="dica" id="dica">Clique para adicionar um ponto. Arraste um ponto para ajustar; clique nele para remover.</div>
+    <div class="credito-mapa">© OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA)</div>
+  </div>
+  <p class="aviso">Nada do que você desenha sai do seu navegador. O mapa e a altitude vêm de servidores abertos (OpenTopoMap e Amazon Web Services), que só recebem o pedido dos quadros do mapa que você vê.</p>
+  <p class="nota" id="vazio">Clique no mapa para começar. Com pelo menos 1 km desenhado, aparecem os números e as subidas.</p>
+  <p class="nota" id="erro" hidden></p>
+  <div id="resultado" hidden>
+    <div class="numeros">
+      <div><span>Distância</span><b id="n-dist"></b></div>
+      <div><span>Ganho de altitude</span><b id="n-ganho"></b></div>
+      <div><span>Subidas com categoria</span><b id="n-cat"></b></div>
+    </div>
+    <div class="grafico">
+      <svg id="grafico" viewBox="0 0 1000 300" role="img" aria-label="Gráfico de altimetria com as subidas"></svg>
+      <div class="legenda" id="legenda"></div>
+    </div>
+    <h2>Subidas da rota</h2>
+    <div class="tabela"><table id="tabela"></table></div>
+  </div>
+  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled>Baixar GPX</button><button class="sec" type="button" id="b-subidas" disabled>Ver no “Subidas do seu GPX”</button></div>
+  <p class="nota">A altitude vem do relevo do mapa (SRTM), a cada 50 m ao longo da linha, e pode diferir da de um aparelho de GPS. O GPX baixado traz só o traçado e a altitude. Linhas retas entre os pontos: para seguir uma curva, clique com mais frequência.</p>
+</main>
+<footer>
+  <div class="miolo">
+    <span>© <span id="ano">2026</span> Brote na Trilha</span>
+    <span><a href="../../privacidade/">Política de privacidade</a> · <a href="../../">Voltar ao site</a></span>
+  </div>
+</footer>
+<script>
+  document.getElementById("ano").textContent = new Date().getFullYear();
+  // ---- o mesmo cálculo das subidas das páginas de pedais do site, em JavaScript ----
+  var PASSO = 20, TOLERANCIA = 10, FUNDO = 3;                           // metros
+  var CATEGORIAS = [["HC", 80000], ["Cat 1", 64000], ["Cat 2", 32000], ["Cat 3", 16000], ["Cat 4", 8000]];
+  var CORES = { "Sem categoria": ["#7fb07a", "#14301c"], "Cat 4": ["#2d7046", "#fff"], "Cat 3": ["#f2c14e", "#3a2a00"], "Cat 2": ["#e8873a", "#2e1600"], "Cat 1": ["#c8452c", "#fff"], "HC": ["#6e1f2a", "#fff"] };
+
+  function metros(a, b) {
+    var r = Math.PI / 180, dlat = (b[0] - a[0]) * r, dlon = (b[1] - a[1]) * r;
+    var h = Math.sin(dlat / 2) * Math.sin(dlat / 2) + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dlon / 2) * Math.sin(dlon / 2);
+    return 12742000 * Math.asin(Math.sqrt(h));
+  }
+  function perfilDe(pontos) {                                           // [[lat, lon, altitude]] -> [[km, altitude]]
+    var acum = 0, perfil = [];
+    for (var i = 0; i < pontos.length; i++) {
+      if (i) acum += metros(pontos[i - 1], pontos[i]);
+      perfil.push([acum / 1000, pontos[i][2]]);
+    }
+    return perfil;
+  }
+  function altitudes(perfil) {                                          // a altitude a cada 20 m, suavizada em ±2 pontos
+    var total = perfil[perfil.length - 1][0] * 1000, alt = [], j = 0;
+    for (var k = 0; k <= Math.floor(total / PASSO); k++) {
+      var x = k * PASSO / 1000;
+      while (j + 1 < perfil.length - 1 && perfil[j + 1][0] < x) j++;
+      var k0 = perfil[j][0], a0 = perfil[j][1], k1 = perfil[j + 1][0], a1 = perfil[j + 1][1];
+      var f = k1 === k0 ? 0 : Math.min(Math.max((x - k0) / (k1 - k0), 0), 1);
+      alt.push(a0 + (a1 - a0) * f);
+    }
+    return alt.map(function (_, i) {
+      var janela = alt.slice(Math.max(0, i - 2), i + 3);
+      return janela.reduce(function (a, b) { return a + b; }, 0) / janela.length;
+    });
+  }
+  function subidasDe(alt) {
+    var subidas = [], i = 0;
+    while (i < alt.length - 1) {
+      var topo = i, k = i;
+      while (k < alt.length - 1) {
+        k++;
+        if (alt[k] > alt[topo]) topo = k;
+        if (alt[topo] - alt[k] > TOLERANCIA) break;
+      }
+      var validos = [];
+      for (var s = i; s < topo; s++) {
+        if ((topo - s) * PASSO >= 500 && alt[topo] - alt[s] >= 0.03 * (topo - s) * PASSO) validos.push(s);
+      }
+      var fundo = validos.length ? Math.min.apply(null, validos.map(function (s) { return alt[s]; })) : 0;
+      var ini = i;
+      validos.forEach(function (s) { if (alt[s] <= fundo + FUNDO) ini = s; });
+      var comp = (topo - ini) * PASSO, ganho = alt[topo] - alt[ini], media = comp ? ganho / comp * 100 : 0, pontos = comp * media;
+      if (comp >= 500 && media >= 3 && pontos >= 3500) {
+        var maxima = 0;
+        for (var a = ini; a < topo; a += 5) {
+          var b = Math.min(a + 5, topo);
+          maxima = Math.max(maxima, (alt[b] - alt[a]) / ((b - a) * PASSO) * 100);
+        }
+        var cat = "Sem categoria";
+        for (var c = 0; c < CATEGORIAS.length; c++) { if (pontos >= CATEGORIAS[c][1]) { cat = CATEGORIAS[c][0]; break; } }
+        subidas.push({ ini: ini, topo: topo, comp: comp, ganho: ganho, media: media, maxima: maxima, pontos: pontos, categoria: cat });
+        i = topo;
+      } else {
+        i = Math.max(k, i + 1);
+      }
+    }
+    return subidas;
+  }
+
+  // ---- a tela ----
+  function fmt(v, c) { return v.toLocaleString("pt-BR", { minimumFractionDigits: c, maximumFractionDigits: c }); }
+  function mostrar(pontos) {
+    var perfil = perfilDe(pontos);
+    if (perfil.length < 10 || perfil[perfil.length - 1][0] < 1) throw new Error("O percurso é curto demais para procurar subidas.");
+    var alt = altitudes(perfil), subidas = subidasDe(alt);
+    var ganhoTotal = 0;
+    for (var i = 1; i < alt.length; i++) if (alt[i] > alt[i - 1]) ganhoTotal += alt[i] - alt[i - 1];
+    var comCategoria = subidas.filter(function (s) { return s.categoria !== "Sem categoria"; }).length;
+    document.getElementById("n-dist").textContent = fmt(perfil[perfil.length - 1][0], 1) + " km";
+    document.getElementById("n-ganho").textContent = fmt(ganhoTotal, 0) + " m";
+    document.getElementById("n-cat").textContent = comCategoria + (subidas.length > comCategoria ? " (+" + (subidas.length - comCategoria) + " sem categoria)" : "");
+    desenhar(alt, subidas);
+    var html = "<tr><th>#</th><th>Categoria</th><th>Do km ao km</th><th>Extensão</th><th>Ganho</th><th>Média</th><th>Máxima</th></tr>";
+    if (!subidas.length) html += '<tr><td colspan="7" style="text-align:center;color:var(--suave)">Nenhuma subida de pelo menos 500 m, 3% de média e 3.500 pontos.</td></tr>';
+    subidas.forEach(function (s, n) {
+      var cor = CORES[s.categoria];
+      html += "<tr><td>" + (n + 1) + '</td><td><span class="cat" style="background:' + cor[0] + ";color:" + cor[1] + '">' + s.categoria + "</span></td><td>" +
+        fmt(s.ini * PASSO / 1000, 1) + " a " + fmt(s.topo * PASSO / 1000, 1) + "</td><td>" + fmt(s.comp / 1000, 2) + " km</td><td>" + fmt(s.ganho, 0) + " m</td><td>" +
+        fmt(s.media, 1) + "%</td><td>" + fmt(s.maxima, 1) + "%</td></tr>";
+    });
+    document.getElementById("tabela").innerHTML = html;
+    document.getElementById("erro").hidden = true;
+    document.getElementById("resultado").hidden = false;
+  }
+  function desenhar(alt, subidas) {                                     // o gráfico de altimetria, com as subidas na cor da categoria
+    var L = 1000, A = 300, ml = 46, mr = 14, mt = 30, mb = 28, n = alt.length;
+    var min = Math.min.apply(null, alt), max = Math.max.apply(null, alt), folga = (max - min) * 0.08 || 5;
+    min -= folga; max += folga;
+    var x = function (i) { return ml + (L - ml - mr) * i / (n - 1); }, y = function (v) { return mt + (A - mt - mb) * (1 - (v - min) / (max - min)); };
+    var passo = Math.max(1, Math.floor(n / 400)), linha = [], i;
+    for (i = 0; i < n; i += passo) linha.push(x(i).toFixed(1) + "," + y(alt[i]).toFixed(1));
+    var svg = '<polygon points="' + ml + "," + (A - mb) + " " + linha.join(" ") + " " + (L - mr) + "," + (A - mb) + '" fill="#cfd9cc" opacity=".55"/>';
+    subidas.forEach(function (s) {
+      var pts = [x(s.ini).toFixed(1) + "," + (A - mb)];
+      for (var j = s.ini; j <= s.topo; j++) pts.push(x(j).toFixed(1) + "," + y(alt[j]).toFixed(1));
+      pts.push(x(s.topo).toFixed(1) + "," + (A - mb));
+      svg += '<polygon points="' + pts.join(" ") + '" fill="' + CORES[s.categoria][0] + '" opacity=".95"/>';
+    });
+    svg += '<polyline points="' + linha.join(" ") + '" fill="none" stroke="#1c2a22" stroke-width="2" stroke-linejoin="round"/>';
+    subidas.forEach(function (s, k) {
+      var cx = x((s.ini + s.topo) / 2), cy = Math.max(y(alt[s.topo]) - 16, 14), cor = CORES[s.categoria];
+      svg += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="11" fill="' + cor[0] + '" stroke="#fff" stroke-width="2"/><text x="' + cx.toFixed(1) + '" y="' + (cy + 4).toFixed(1) +
+        '" text-anchor="middle" style="fill:' + cor[1] + ';font-weight:800;font-size:12px">' + (k + 1) + "</text>";
+    });
+    var km = (n - 1) * PASSO / 1000, passoKm = km > 80 ? 20 : km > 40 ? 10 : km > 15 ? 5 : 2;
+    for (var t = 0; t <= km; t += passoKm) svg += '<text x="' + x(t * 1000 / PASSO).toFixed(1) + '" y="' + (A - 8) + '" text-anchor="middle">' + t + " km</text>";
+    [min + folga, (min + max) / 2, max - folga].forEach(function (v) { svg += '<text x="' + (ml - 6) + '" y="' + (y(v) + 4).toFixed(1) + '" text-anchor="end">' + Math.round(v) + " m</text>"; });
+    document.getElementById("grafico").innerHTML = svg;
+    document.getElementById("legenda").innerHTML = ["Cat 4", "Cat 3", "Cat 2", "Cat 1", "HC", "Sem categoria"].map(function (c) {
+      return '<span class="cat" style="background:' + CORES[c][0] + ";color:" + CORES[c][1] + '">' + c + "</span>";
+    }).join("");
+  }
+
+
+  // ---- o mapa e o desenho da rota (um mapa simples, sem biblioteca de terceiros) ----
+  (function () {
+    var URL_MAPA = "https://tile.opentopomap.org/{z}/{x}/{y}.png";
+    var URL_ALTITUDE = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";   // metros = R·256 + G + B/256 − 32768
+    var Z_ALTITUDE = 12, Z_MIN = 8, Z_MAX = 17, PASSO_AMOSTRA = 50;                                  // altitude lida no zoom 12; um ponto a cada 50 m
+    var caixa = document.getElementById("mapa"), camada = document.getElementById("quadros"), desenho = document.getElementById("rota");
+    var z = 11, rota = [], antes = [], depois = [], modoDesenhar = true, pontosGpx = null;
+
+    function mundo(lat, lon, nivel) {                              // coordenadas -> pixels do mapa mundial no zoom `nivel`
+      var n = 256 * Math.pow(2, nivel), s = Math.sin(lat * Math.PI / 180);
+      return { x: (lon + 180) / 360 * n, y: (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * n };
+    }
+    function geo(x, y, nivel) {                                    // o contrário
+      var n = 256 * Math.pow(2, nivel);
+      return { lat: 180 / Math.PI * Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))), lon: x / n * 360 - 180 };
+    }
+    var centro = mundo(-20.30, -40.42, z);                          // abre na Grande Vitória
+    function L() { return caixa.clientWidth; }
+    function A() { return caixa.clientHeight; }
+    function local(e) { var r = caixa.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+    function daTela(p) { var g = geo(centro.x - L() / 2 + p.x, centro.y - A() / 2 + p.y, z); return { lat: g.lat, lon: g.lon }; }
+    function paraTela(p) { var w = mundo(p.lat, p.lon, z); return { x: w.x - centro.x + L() / 2, y: w.y - centro.y + A() / 2 }; }
+
+    // ---- os quadros do mapa ----
+    var quadros = {};
+    function desenharQuadros() {
+      var n = Math.pow(2, z), x0 = centro.x - L() / 2, y0 = centro.y - A() / 2, vivos = {};
+      for (var tx = Math.floor(x0 / 256); tx <= Math.floor((x0 + L()) / 256); tx++) {
+        for (var ty = Math.floor(y0 / 256); ty <= Math.floor((y0 + A()) / 256); ty++) {
+          if (ty < 0 || ty >= n) continue;
+          var chave = z + "/" + tx + "/" + ty;
+          vivos[chave] = true;
+          if (!quadros[chave]) {
+            var img = new Image();
+            img.alt = "";
+            img.draggable = false;
+            img.src = URL_MAPA.replace("{z}", z).replace("{x}", ((tx % n) + n) % n).replace("{y}", ty);
+            camada.appendChild(img);
+            quadros[chave] = img;
+          }
+          quadros[chave].style.left = (tx * 256 - x0) + "px";
+          quadros[chave].style.top = (ty * 256 - y0) + "px";
+        }
+      }
+      Object.keys(quadros).forEach(function (k) { if (!vivos[k]) { camada.removeChild(quadros[k]); delete quadros[k]; } });
+    }
+
+    // ---- a rota em cima do mapa ----
+    function metrosEntre(a, b) { return metros([a.lat, a.lon], [b.lat, b.lon]); }
+    function comprimento(pts) { var t = 0; for (var i = 1; i < pts.length; i++) t += metrosEntre(pts[i - 1], pts[i]); return t; }
+    function desenharRota() {
+      desenho.setAttribute("viewBox", "0 0 " + L() + " " + A());
+      if (!rota.length) { desenho.innerHTML = ""; return; }
+      var p = rota.map(paraTela), linha = p.map(function (q) { return q.x.toFixed(1) + "," + q.y.toFixed(1); }).join(" ");
+      var svg = '<polyline points="' + linha + '" fill="none" stroke="#f2c14e" stroke-opacity=".28" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>' +
+        '<polyline points="' + linha + '" fill="none" stroke="#f2c14e" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>';
+      p.forEach(function (q, i) {
+        var ultimo = i === p.length - 1 && p.length > 1, primeiro = i === 0;
+        var cor = primeiro ? "#2d7046" : ultimo ? "#c8452c" : "#fff", raio = primeiro || ultimo ? 9 : 6, borda = primeiro || ultimo ? "#fff" : "#1c2a22";
+        svg += '<circle class="ponto" data-i="' + i + '" cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="' + raio + '" fill="' + cor + '" stroke="' + borda + '" stroke-width="' + (primeiro || ultimo ? 3 : 2) + '"/>';
+      });
+      if (p.length > 1) {
+        var f = p[p.length - 1], km = fmt(comprimento(rota) / 1000, 1) + " km";
+        svg += '<g transform="translate(' + (f.x + 14).toFixed(1) + "," + (f.y - 34).toFixed(1) + ')"><rect width="92" height="30" rx="15" fill="rgba(12,23,17,.88)" stroke="#fff" stroke-opacity=".4"/>' +
+          '<text x="46" y="20" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">' + km + "</text></g>";
+      }
+      desenho.innerHTML = svg;
+    }
+    function redesenhar() { desenharQuadros(); desenharRota(); }
+
+    // ---- histórico (desfazer e refazer) ----
+    function copia() { return rota.map(function (p) { return { lat: p.lat, lon: p.lon }; }); }
+    function guardar() { antes.push(copia()); if (antes.length > 100) antes.shift(); depois = []; }
+    function mudou() { botoes(); agendar(); desenharRota(); }
+    function botoes() {
+      document.getElementById("b-desfazer").disabled = !antes.length;
+      document.getElementById("b-refazer").disabled = !depois.length;
+      document.getElementById("b-limpar").disabled = !rota.length;
+    }
+    function desfazer() { if (!antes.length) return; depois.push(copia()); rota = antes.pop(); mudou(); }
+    function refazer() { if (!depois.length) return; antes.push(copia()); rota = depois.pop(); mudou(); }
+    function limpar() { if (!rota.length) return; guardar(); rota = []; mudou(); }
+
+    // ---- as ações do mapa: arrastar, desenhar, ajustar, zoom ----
+    function dar_zoom(d, p) {
+      var nz = Math.min(Z_MAX, Math.max(Z_MIN, z + d));
+      if (nz === z) return;
+      var g = daTela(p);                                           // o ponto sob o cursor fica parado
+      z = nz;
+      var w = mundo(g.lat, g.lon, z);
+      centro = { x: w.x - p.x + L() / 2, y: w.y - p.y + A() / 2 };
+      redesenhar();
+    }
+    var dedos = {}, gesto = null, ultimoZoom = 0;
+    function distanciaDosDedos() { var k = Object.keys(dedos), a = dedos[k[0]], b = dedos[k[1]]; return Math.hypot(a.x - b.x, a.y - b.y); }
+    caixa.addEventListener("pointerdown", function (e) {
+      if (e.target.closest(".barra, .zoom")) return;
+      caixa.setPointerCapture(e.pointerId);
+      dedos[e.pointerId] = { x: e.clientX, y: e.clientY };
+      if (Object.keys(dedos).length === 1) {
+        var i = e.target.dataset ? e.target.dataset.i : undefined;
+        gesto = { tipo: i !== undefined ? "ponto" : "mapa", i: Number(i), x0: e.clientX, y0: e.clientY, moveu: false };
+      } else if (Object.keys(dedos).length === 2) {
+        gesto = { tipo: "pinca", d0: distanciaDosDedos(), moveu: true };
+      }
+    });
+    caixa.addEventListener("pointermove", function (e) {
+      if (!dedos[e.pointerId] || !gesto) return;
+      var anterior = dedos[e.pointerId];
+      dedos[e.pointerId] = { x: e.clientX, y: e.clientY };
+      if (gesto.tipo === "pinca") {                                // pinça: um nível de zoom a cada 1,5x
+        var d = distanciaDosDedos(), k = Object.keys(dedos), r = caixa.getBoundingClientRect();
+        var meio = { x: (dedos[k[0]].x + dedos[k[1]].x) / 2 - r.left, y: (dedos[k[0]].y + dedos[k[1]].y) / 2 - r.top };
+        if (d > gesto.d0 * 1.5) { dar_zoom(1, meio); gesto.d0 = d; } else if (d < gesto.d0 / 1.5) { dar_zoom(-1, meio); gesto.d0 = d; }
+        return;
+      }
+      if (!gesto.moveu && Math.hypot(e.clientX - gesto.x0, e.clientY - gesto.y0) > 5) {
+        gesto.moveu = true;
+        if (gesto.tipo === "mapa") caixa.classList.add("arrastando");
+        if (gesto.tipo === "ponto") guardar();
+      }
+      if (!gesto.moveu) return;
+      if (gesto.tipo === "mapa") {
+        centro.x -= e.clientX - anterior.x;
+        centro.y -= e.clientY - anterior.y;
+        redesenhar();
+      } else {
+        rota[gesto.i] = daTela(local(e));
+        mudou();
+      }
+    });
+    function soltar(e) {
+      var g = gesto;
+      delete dedos[e.pointerId];
+      caixa.classList.remove("arrastando");
+      if (!g || g.tipo === "pinca") { if (!Object.keys(dedos).length) gesto = null; return; }
+      gesto = null;
+      if (g.moveu) return;
+      if (g.tipo === "ponto") { guardar(); rota.splice(g.i, 1); mudou(); }                       // clicar num ponto remove
+      else if (modoDesenhar && e.type === "pointerup") { guardar(); rota.push(daTela(local(e))); mudou(); }   // clicar no mapa acrescenta
+    }
+    caixa.addEventListener("pointerup", soltar);
+    caixa.addEventListener("pointercancel", soltar);
+    caixa.addEventListener("wheel", function (e) {
+      e.preventDefault();
+      var agora = Date.now();
+      if (agora - ultimoZoom < 220) return;
+      ultimoZoom = agora;
+      dar_zoom(e.deltaY < 0 ? 1 : -1, local(e));
+    }, { passive: false });
+    document.getElementById("b-mais").addEventListener("click", function () { dar_zoom(1, { x: L() / 2, y: A() / 2 }); });
+    document.getElementById("b-menos").addEventListener("click", function () { dar_zoom(-1, { x: L() / 2, y: A() / 2 }); });
+    document.getElementById("b-desfazer").addEventListener("click", desfazer);
+    document.getElementById("b-refazer").addEventListener("click", refazer);
+    document.getElementById("b-limpar").addEventListener("click", limpar);
+    document.getElementById("b-desenhar").addEventListener("click", function () {
+      modoDesenhar = !modoDesenhar;
+      this.setAttribute("aria-pressed", String(modoDesenhar));
+      caixa.classList.toggle("mover", !modoDesenhar);
+      document.getElementById("dica").textContent = modoDesenhar ? "Clique para adicionar um ponto. Arraste um ponto para ajustar; clique nele para remover." : "Modo de mover: arraste o mapa. Ligue “Desenhar” para acrescentar pontos.";
+    });
+    document.addEventListener("keydown", function (e) {
+      if (!(e.ctrlKey || e.metaKey) || /input|select|textarea/i.test((e.target.tagName || ""))) return;
+      if (e.key === "z" || e.key === "Z") { e.preventDefault(); if (e.shiftKey) refazer(); else desfazer(); }
+      if (e.key === "y" || e.key === "Y") { e.preventDefault(); refazer(); }
+    });
+    window.addEventListener("resize", redesenhar);
+
+    // ---- a altitude, lida dos quadros de relevo (terrarium) no próprio navegador ----
+    var alturas = {};
+    function quadroDeAltitude(tx, ty) {                            // Promise de um vetor com 256x256 altitudes
+      var chave = tx + "/" + ty;
+      if (alturas[chave]) return alturas[chave];
+      alturas[chave] = new Promise(function (ok, falha) {
+        var img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = function () {
+          var c = document.createElement("canvas"); c.width = c.height = 256;
+          var ctx = c.getContext("2d"); ctx.drawImage(img, 0, 0);
+          var d = ctx.getImageData(0, 0, 256, 256).data, v = new Float32Array(65536);
+          for (var i = 0; i < 65536; i++) v[i] = d[i * 4] * 256 + d[i * 4 + 1] + d[i * 4 + 2] / 256 - 32768;
+          ok(v);
+        };
+        img.onerror = function () { delete alturas[chave]; falha(new Error("quadro de altitude indisponível")); };
+        img.src = URL_ALTITUDE.replace("{z}", Z_ALTITUDE).replace("{x}", tx).replace("{y}", ty);
+      });
+      return alturas[chave];
+    }
+    function amostrar(pts) {                                       // um ponto a cada PASSO_AMOSTRA metros ao longo da linha
+      var saida = [{ lat: pts[0].lat, lon: pts[0].lon }], falta = PASSO_AMOSTRA;
+      for (var i = 1; i < pts.length; i++) {
+        var a = pts[i - 1], b = pts[i], seg = metrosEntre(a, b), pos = 0;
+        while (seg - pos >= falta) {
+          pos += falta; falta = PASSO_AMOSTRA;
+          saida.push({ lat: a.lat + (b.lat - a.lat) * pos / seg, lon: a.lon + (b.lon - a.lon) * pos / seg });
+        }
+        falta -= seg - pos;
+      }
+      saida.push({ lat: pts[pts.length - 1].lat, lon: pts[pts.length - 1].lon });
+      return saida;
+    }
+    function comAltitude(amostras) {                               // [[lat, lon, altitude]]
+      var ws = amostras.map(function (p) { return mundo(p.lat, p.lon, Z_ALTITUDE); }), pedidos = {};
+      ws.forEach(function (w) { pedidos[Math.floor(w.x / 256) + "/" + Math.floor(w.y / 256)] = true; });
+      var chaves = Object.keys(pedidos);
+      return Promise.all(chaves.map(function (c) { var t = c.split("/"); return quadroDeAltitude(Number(t[0]), Number(t[1])); })).then(function (vetores) {
+        var por = {};
+        chaves.forEach(function (c, i) { por[c] = vetores[i]; });
+        return amostras.map(function (p, k) {
+          var w = ws[k], tx = Math.floor(w.x / 256), ty = Math.floor(w.y / 256), v = por[tx + "/" + ty];
+          var fx = Math.min(Math.max(w.x - tx * 256 - 0.5, 0), 254.999), fy = Math.min(Math.max(w.y - ty * 256 - 0.5, 0), 254.999);
+          var i0 = Math.floor(fx), j0 = Math.floor(fy), dx = fx - i0, dy = fy - j0, at = function (i, j) { return v[j * 256 + i]; };
+          var alt = at(i0, j0) * (1 - dx) * (1 - dy) + at(i0 + 1, j0) * dx * (1 - dy) + at(i0, j0 + 1) * (1 - dx) * dy + at(i0 + 1, j0 + 1) * dx * dy;
+          return [p.lat, p.lon, alt];
+        });
+      });
+    }
+
+    // ---- os números, o gráfico e as subidas ----
+    var espera = null, versao = 0;
+    function agendar() { clearTimeout(espera); espera = setTimeout(calcular, 250); }
+    function vazio(texto, erroDeRede) {
+      document.getElementById("resultado").hidden = true;
+      var v = document.getElementById("vazio"), e = document.getElementById("erro");
+      v.hidden = !!erroDeRede; v.textContent = texto;
+      e.hidden = !erroDeRede; e.textContent = erroDeRede ? texto : "";
+      pontosGpx = null;
+      document.getElementById("b-gpx").disabled = document.getElementById("b-subidas").disabled = true;
+    }
+    function calcular() {
+      var minha = ++versao;
+      if (rota.length < 2) return vazio("Clique no mapa para começar. Com pelo menos 1 km desenhado, aparecem os números e as subidas.");
+      if (comprimento(rota) < 1000) return vazio("Continue desenhando: faltam " + fmt((1000 - comprimento(rota)) / 1000, 1) + " km para os números e as subidas aparecerem.");
+      comAltitude(amostrar(rota)).then(function (pts) {
+        if (minha !== versao) return;
+        pontosGpx = pts;
+        document.getElementById("vazio").hidden = true;
+        mostrar(pts);
+        document.getElementById("b-gpx").disabled = document.getElementById("b-subidas").disabled = false;
+      }).catch(function () {
+        if (minha === versao) vazio("Não consegui baixar a altitude deste trecho. Confira a conexão e mexa na rota para tentar de novo.", true);
+      });
+    }
+
+    // ---- o GPX ----
+    function gpxTexto(pts) {
+      return '<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="brotenatrilha.com.br" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg>' +
+        pts.map(function (p) { return '<trkpt lat="' + p[0].toFixed(6) + '" lon="' + p[1].toFixed(6) + '"><ele>' + p[2].toFixed(1) + "</ele></trkpt>"; }).join("") + "</trkseg></trk></gpx>";
+    }
+    document.getElementById("b-gpx").addEventListener("click", function () {
+      if (!pontosGpx) return;
+      var url = URL.createObjectURL(new Blob([gpxTexto(pontosGpx)], { type: "application/gpx+xml" })), a = document.createElement("a");
+      a.href = url; a.download = "rota-brote-na-trilha.gpx";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+    });
+    document.getElementById("b-subidas").addEventListener("click", function () {      // leva a rota para a página "Subidas do seu GPX" (a página lê do navegador, nada é enviado)
+      if (!pontosGpx) return;
+      try { sessionStorage.setItem("gpx-desenhado", gpxTexto(pontosGpx)); } catch (x) { return; }
+      location.href = "../subidas-do-gpx/?de=rota";
+    });
+
+    redesenhar();
+    botoes();
+  })();
+</script>
+<script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
