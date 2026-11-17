@@ -384,7 +384,7 @@
       ruas: { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", filtro: "brightness(.74) saturate(.85)", credito: "© OpenStreetMap contributors | altitude: SRTM" },
       escuro: { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", filtro: "grayscale(1) invert(1) brightness(.62) contrast(1.15)", credito: "© OpenStreetMap contributors | altitude: SRTM" }
     };
-    var estilo = "relevo";
+    var estilo = "ruas";
     var URL_ALTITUDE = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";   // metros = R·256 + G + B/256 − 32768
     var Z_ALTITUDE = 12, Z_MIN = 8, Z_MAX = 17, PASSO_AMOSTRA = 25;                                  // altitude lida no zoom 12; um ponto a cada 25 m
     var caixa = document.getElementById("mapa"), camada = document.getElementById("quadros"), desenho = document.getElementById("rota");
@@ -818,6 +818,7 @@
         atualizarLuz();
         if (idaEVolta) ajustarParaIdaEVolta(total / 1000, comprimento(linhaDaIda()) / 1000);
         desenharRota();
+        colorirGraficoPeloTerreno();
         agendarTerreno();
         agendarApoios();
       }, function () {                                              // só a falha de rede ao baixar a altitude cai aqui
@@ -1164,7 +1165,7 @@
       var amostras = amostrar(ida, PASSO_TERRENO), chave = amostras.map(function (p) { return p.lat.toFixed(5) + "," + p.lon.toFixed(5); }).join(";");
       if (terreno && terreno.chave === chave) return;
       var minha = ++versaoTerreno;
-      function pronto(tipos) { if (minha !== versaoTerreno || !terrenoLigado) return; terreno = { tipos: tipos, chave: chave }; estadoDoTerreno(""); desenharRota(); atualizarTerrenoNaTela(); }
+      function pronto(tipos) { if (minha !== versaoTerreno || !terrenoLigado) return; terreno = { tipos: tipos, chave: chave }; estadoDoTerreno(""); desenharRota(); atualizarTerrenoNaTela(); colorirGraficoPeloTerreno(); }
       function falhou() {
         if (minha !== versaoTerreno || !terrenoLigado) return;
         estadoDoTerreno("Não consegui ver o terreno agora: o serviço do OpenStreetMap está ocupado. A linha fica numa cor só. Desligue e ligue “Mostrar o terreno”, ou mexa na rota, para tentar de novo.");
@@ -1193,6 +1194,32 @@
         return seguinte.then(function () { pronto(classificarTerreno(amostras, todas)); });
       }
     }
+    function colorirGraficoPeloTerreno() {                         // a linha do perfil na altimetria, na cor do terreno de cada trecho
+      var g = document.getElementById("grafico"), antigo = document.getElementById("g-terreno"), legenda = document.getElementById("legenda"), leg = document.getElementById("leg-g-terreno");
+      if (antigo) antigo.remove();
+      if (leg) leg.remove();
+      if (!terreno || !terrenoLigado || !calculo || !g) return;
+      var alt = calculo.alt, n = alt.length, L = 1000, A = 300, ml = 46, mr = 14, mt = 30, mb = 28;      // as mesmas medidas do gráfico
+      var min = Math.min.apply(null, alt), max = Math.max.apply(null, alt), folga = (max - min) * 0.08 || 5;
+      min -= folga; max += folga;
+      var x = function (i) { return ml + (L - ml - mr) * i / (n - 1); }, y = function (v) { return mt + (A - mt - mb) * (1 - (v - min) / (max - min)); };
+      var kmIda = comprimento(linhaDaIda()) / 1000, passo = Math.max(1, Math.floor(n / 400)), indices = [];
+      for (var i = 0; i < n; i += passo) indices.push(i);
+      if (indices[indices.length - 1] !== n - 1) indices.push(n - 1);
+      function tipoDoIndice(k) { var km = k * PASSO / 1000; if (idaEVolta && km > kmIda) km = 2 * kmIda - km; return tipoEm(Math.max(0, km)); }      // a volta repete o terreno da ida ao contrário
+      var ponto = function (k) { return x(k).toFixed(1) + "," + y(alt[k]).toFixed(1); }, saida = "", trecho = [ponto(indices[0])], atual = null;
+      function fechar() { if (trecho.length > 1) saida += '<polyline points="' + trecho.join(" ") + '" fill="none" stroke="' + CORES_TERRENO[atual] + '" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"' + (atual === "Sem informação" ? ' stroke-dasharray="7 6"' : "") + "/>"; }
+      for (var j = 1; j < indices.length; j++) {
+        var tipo = tipoDoIndice(indices[j]);
+        if (atual === null) atual = tipo;
+        if (tipo !== atual) { fechar(); trecho = [ponto(indices[j - 1])]; atual = tipo; }
+        trecho.push(ponto(indices[j]));
+      }
+      fechar();
+      g.insertAdjacentHTML("beforeend", '<g id="g-terreno" pointer-events="none">' + saida + "</g>");
+      var amostra = function (nome) { return '<span class="amostra" style="margin-right:6px;background:' + (nome === "Sem informação" ? "repeating-linear-gradient(90deg,#8f897c 0 5px,transparent 5px 9px)" : CORES_TERRENO[nome]) + '"></span>' + nome; };
+      legenda.insertAdjacentHTML("beforeend", '<span id="leg-g-terreno" style="display:inline-flex;flex-wrap:wrap;gap:4px 16px;margin-left:12px;font-size:.85rem;color:var(--suave);align-items:center">Linha do perfil: ' + ["Asfalto", "Terra", "Calçamento", "Sem informação"].map(amostra).join("") + "</span>");
+    }
     function atualizarTerrenoNaTela() {                            // a legenda no mapa e o resumo abaixo (só quando o terreno está disponível)
       var leg = document.getElementById("leg-terreno"), resumo = document.getElementById("piso-resumo");
       if (!terreno || !terrenoLigado) { leg.hidden = true; resumo.hidden = true; return; }
@@ -1210,7 +1237,7 @@
     document.getElementById("b-terreno").addEventListener("click", function () {
       terrenoLigado = !terrenoLigado;
       this.setAttribute("aria-pressed", String(terrenoLigado));
-      if (terrenoLigado) { avisarSoNoEs("terreno"); agendarTerreno(); } else { versaoTerreno++; terreno = null; estadoDoTerreno(""); desenharRota(); atualizarTerrenoNaTela(); }
+      if (terrenoLigado) { avisarSoNoEs("terreno"); agendarTerreno(); } else { versaoTerreno++; terreno = null; estadoDoTerreno(""); desenharRota(); atualizarTerrenoNaTela(); colorirGraficoPeloTerreno(); }
     });
 
     function rotaDoHash(h, caminhos) {                                       // abre a rota de um endereço "#r=..."; false se não é uma rota nossa
@@ -1427,7 +1454,9 @@
     botaoEstilo.addEventListener("click", function () { abrirPainel(painel.hidden); });
     [].forEach.call(painel.querySelectorAll(".op"), function (b) { b.addEventListener("click", function () { trocarEstilo(b.dataset.estilo); abrirPainel(false); }); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !painel.hidden) abrirPainel(false); });
-    try { var guardado = sessionStorage.getItem("estilo-mapa"); if (guardado && ESTILOS[guardado] && guardado !== "relevo") trocarEstilo(guardado, true); } catch (x) { /* sem armazenamento */ }
+    var guardado = null;
+    try { guardado = sessionStorage.getItem("estilo-mapa"); } catch (x) { /* sem armazenamento: fica o padrão */ }
+    trocarEstilo(guardado && ESTILOS[guardado] ? guardado : "ruas", true);      // o padrão é o mapa de ruas; a escolha da pessoa vale até fechar a aba
 
     // ---- minha localização: lida só no navegador, para centralizar o mapa ----
     var eu = null, tempoDoAviso = null;
