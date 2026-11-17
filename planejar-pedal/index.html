@@ -97,7 +97,7 @@
   .minhas .salvar { display: flex; gap: 10px; flex-wrap: wrap; }
   .minhas input[type="text"] { flex: 1 1 220px; min-width: 0; font: inherit; padding: 10px 14px; border-radius: 12px; border: 2px solid var(--linha); background: var(--fundo); color: var(--texto); }
   .minhas input[type="text"]:focus { border-color: var(--verde); outline: none; }
-  .minhas .salvar button { font: inherit; font-weight: 700; padding: 10px 22px; border-radius: 999px; cursor: pointer; border: 2px solid var(--verde); background: var(--verde); color: #fff; }
+  .minhas .salvar button { font: inherit; font-weight: 700; padding: 10px 22px; border-radius: 999px; cursor: pointer; border: 2px solid var(--verde); background: var(--verde); color: #fff; display: inline-flex; align-items: center; gap: 8px; }
   .minhas .salvar button:disabled { opacity: .45; cursor: default; }
   .minhas ul { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
   .minhas li { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; border: 1px solid var(--linha); border-radius: 12px; }
@@ -215,7 +215,8 @@
   th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
   tr:last-child td { border-bottom: 0; }
   .acoes { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
-  .acoes button { font: inherit; font-weight: 700; padding: 11px 24px; border-radius: 999px; cursor: pointer; }
+  .acoes button { font: inherit; font-weight: 700; padding: 11px 24px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+  .acoes button svg.ic, .salvar button svg.ic { width: 17px; height: 17px; flex: none; }
   .acoes .principal { border: 2px solid var(--verde); background: var(--verde); color: #fff; }
   .acoes .principal:hover:not(:disabled) { background: var(--verde-escuro); }
   .acoes .sec { border: 2px solid var(--linha); background: transparent; color: var(--texto); }
@@ -302,10 +303,11 @@
     <div class="credito-mapa" id="credito">© OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA)</div>
   </div>
   <div class="acoes">
-    <button class="sec" type="button" id="b-abrir-gpx">Abrir um GPX</button>
+    <button class="sec" type="button" id="b-abrir-gpx"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Abrir um GPX</button>
     <input type="file" id="arq-gpx" accept=".gpx,application/gpx+xml,text/xml" hidden>
-    <button class="sec" type="button" id="b-minhas" aria-expanded="false">Minhas rotas<span class="contagem" id="n-minhas">0</span></button>
-    <button class="sec" type="button" id="b-passeio">Como usar</button>
+    <button class="sec" type="button" id="b-minhas" aria-expanded="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4z"/></svg>Minhas rotas<span class="contagem" id="n-minhas">0</span></button>
+    <button class="sec" type="button" id="b-passeio"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg>Como usar</button>
+    <button class="sec" type="button" id="b-exemplo" title="Abre o pedal de Queimados (Serra) para você ver como a ferramenta funciona"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l3.5-8h5l3.5 8M9.5 9L13 17M9 6h2.5"/></svg>Pedal de exemplo</button>
   </div>
   <div class="passeio" id="passeio" role="dialog" aria-labelledby="passeio-titulo" hidden>
     <small id="passeio-n"></small>
@@ -314,7 +316,7 @@
     <div class="passeio-botoes"><button type="button" id="passeio-pular" class="sem-fundo">Pular</button><span></span><button type="button" id="passeio-volta" class="sem-fundo">Anterior</button><button type="button" id="passeio-segue">Próximo</button></div>
   </div>
   <div class="minhas" id="painel-minhas" hidden>
-    <div class="salvar"><input id="nome-rota" type="text" maxlength="60" placeholder="Nome da rota" aria-label="Nome da rota"><button type="button" id="b-salvar" disabled>Salvar esta rota</button></div>
+    <div class="salvar"><input id="nome-rota" type="text" maxlength="60" placeholder="Nome da rota" aria-label="Nome da rota"><button type="button" id="b-salvar" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg>Salvar esta rota</button></div>
     <ul id="lista-minhas"></ul>
     <p class="nota" id="msg-minhas" aria-live="polite" style="margin-top:12px"></p>
   </div>
@@ -357,7 +359,7 @@
     <p class="aviso" id="luz-aviso"></p>
     <p class="nota" style="margin-top:8px">O tempo vem de um modelo simples (peso, velocidade no plano e inclinação de cada trecho), ajustado com os pedais do canal: erra em média uns 8 a 10%. Não conta paradas. O nascer e o pôr do sol são aproximados (diferença de poucos minutos), no horário de Brasília.</p>
     <h2>Previsão do tempo</h2>
-    <div class="acoes" style="margin-top:8px"><button class="sec" type="button" id="b-previsao">Ver a previsão para a saída</button></div>
+    <div class="acoes" style="margin-top:8px"><button class="sec" type="button" id="b-previsao"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a4 4 0 0 1 .5-8A5.5 5.5 0 0 1 18 11.5 3.3 3.3 0 0 1 17.5 18z"/></svg>Ver a previsão para a saída</button></div>
     <p class="nota" id="status-previsao" aria-live="polite" hidden></p>
     <div class="previsao-grafico" id="previsao-grafico" hidden><svg id="grafico-tempo" viewBox="0 0 1000 372" role="img" aria-label="Gráfico da temperatura, do vento e da chuva previstos para as horas do pedal"></svg></div>
     <p class="nota" id="resumo-previsao" hidden style="margin-top:10px"></p>
@@ -370,7 +372,7 @@
     <h2>Subidas da rota</h2>
     <div class="tabela"><table id="tabela"></table></div>
   </div>
-  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled>Copiar link da rota</button><button class="sec" type="button" id="b-subidas" disabled>Ver no “Subidas do seu GPX”</button><button class="sec" type="button" id="b-roadbook" disabled>Roadbook para imprimir</button></div>
+  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="rot">Copiar link da rota</span></button><button class="sec" type="button" id="b-subidas" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19l6-10 4 6 3-4 5 8z"/></svg>Ver no “Subidas do seu GPX”</button><button class="sec" type="button" id="b-roadbook" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Roadbook para imprimir</button></div>
   <p class="nota">A altitude vem do relevo do mapa (SRTM), a cada 25 m ao longo da linha, e pode diferir da de um aparelho de GPS. O ganho total ignora oscilações de até 12 m, ajustado com os pedais do canal contra o Strava (erro médio de uns 12%). O GPX baixado traz só o traçado e a altitude. Com “Grudar nas ruas” desligado as linhas são retas entre os pontos: para seguir uma curva, clique com mais frequência.</p>
   <p class="nota">O link guarda a rota no próprio endereço, depois do “#”: o navegador não envia essa parte a nenhum servidor. Quem abrir o link vê a mesma rota; o “Grudar nas ruas” é ligado por cada pessoa. Um pedal aberto do canal vai simplificado no link (só os pontos, sem o caminho inteiro).</p>
 </main>
@@ -1363,7 +1365,7 @@
     function atualizarEndereco() { try { history.replaceState(null, "", location.pathname + hashDaRota()); } catch (x) { /* sem história, o link só não acompanha */ } }
     document.getElementById("b-link").addEventListener("click", function () {
       var url = location.origin + location.pathname + hashDaRota(), botao = this, msg = document.getElementById("msg-pedal");
-      function pronto() { botao.textContent = "Link copiado"; setTimeout(function () { botao.textContent = "Copiar link da rota"; }, 2000); }
+      function pronto() { var rotulo = botao.querySelector(".rot"); rotulo.textContent = "Link copiado"; setTimeout(function () { rotulo.textContent = "Copiar link da rota"; }, 2000); }
       function avisar() { msg.textContent = "Não consegui copiar sozinho. Copie o endereço desta página: " + url; msg.hidden = false; }
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(pronto, avisar); else avisar();
     });
@@ -2173,8 +2175,7 @@
       { alvo: "#resultado", titulo: "Os números", texto: "Depois de desenhar, abaixo do mapa aparecem a distância, o ganho de altitude, as subidas com categoria, a luz do dia, o vento e a previsão do tempo." },
       { alvo: "#b-gpx", titulo: "Roadbook e GPX", texto: "Com a rota pronta, imprima o roadbook, baixe o GPX para o GPS ou copie o link para mandar a um amigo." },
       { alvo: "#b-minhas", titulo: "Minhas rotas", texto: "Salve a rota neste navegador para voltar nela depois, ou abra um GPX seu para ver as subidas." }
-    ], CHAVE_PASSEIO = "bnt-planejar-passeio", passoAtual = -1;
-    function marcarPasseioVisto() { try { localStorage.setItem(CHAVE_PASSEIO, "1"); } catch (x) { /* sem armazenamento: o passeio só abre pelo botão */ } }
+    ], passoAtual = -1;
     function limparAlvoDoPasseio() { var a = document.querySelector(".passo-alvo"); if (a) a.classList.remove("passo-alvo"); }
     function fecharPasseio() {
       passoAtual = -1;
@@ -2201,20 +2202,20 @@
     }
     function abrirPasseio() {
       fecharGrupos(); fecharPopup();
-      marcarPasseioVisto();
       document.getElementById("mapa").scrollIntoView({ block: "start", behavior: "smooth" });
       mostrarPasso(0);
     }
     document.getElementById("b-passeio").addEventListener("click", abrirPasseio);
+    document.getElementById("b-exemplo").addEventListener("click", function () {      // o pedal de Queimados, na Serra, com as chaves principais já ligadas
+      fecharPasseio(); fecharGrupos();                              // as listas de chaves ficam recolhidas (o botão só mostra quantas estão ligadas)
+      ["b-grudar", "b-terreno", "b-apoios", "b-interesses"].forEach(function (id) { var b = document.getElementById(id); if (b.getAttribute("aria-pressed") !== "true") b.click(); });
+      fecharPopup();                                               // os avisos "só no Espírito Santo" não valem aqui: o exemplo é no ES
+      carregarPedal("13334280521");
+    });
     document.getElementById("passeio-segue").addEventListener("click", function () { mostrarPasso(passoAtual + 1); });
     document.getElementById("passeio-volta").addEventListener("click", function () { mostrarPasso(passoAtual - 1); });
     document.getElementById("passeio-pular").addEventListener("click", fecharPasseio);
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && passoAtual >= 0) fecharPasseio(); });
-    (function () {                                                 // na primeira visita (sem vir de um pedal ou de um link de rota), abre sozinho
-      var jaVisto = false;
-      try { jaVisto = localStorage.getItem(CHAVE_PASSEIO) === "1"; } catch (x) { jaVisto = true; }
-      if (!jaVisto && !/[?&]pedal=/.test(location.search) && !/^#r=/.test(location.hash)) setTimeout(abrirPasseio, 1500);
-    })();
 
     // ---- o estilo do mapa ----
     var painel = document.getElementById("painel-estilos"), botaoEstilo = document.getElementById("b-estilo");
