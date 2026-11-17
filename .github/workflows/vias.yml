@@ -1,7 +1,7 @@
-# Atualiza todo mês os arquivos de vias do Espírito Santo (ferramentas/vias/), que a ferramenta "Desenhar rota" lê para mostrar o terreno
-# (asfalto, terra, calçamento) sem depender do Overpass. Baixa o mapa do Sudeste na Geofabrik (uns 900 MB), roda ferramentas/gerar_vias.py
+# Atualiza todo mês os arquivos do Espírito Santo que a ferramenta "Desenhar rota" lê: as vias (ferramentas/vias/, para o terreno: asfalto, terra,
+# calçamento, sem depender do Overpass) e os pontos de apoio (ferramentas/apoios/). Baixa o mapa do Sudeste na Geofabrik (uns 900 MB), roda ferramentas/gerar_vias.py
 # e grava só se algo mudou. Não usa segredos. Pode ser rodado na mão em "Actions".
-name: Atualizar vias do Espírito Santo
+name: Atualizar vias e pontos de apoio do Espírito Santo
 
 on:
   schedule:
@@ -39,9 +39,15 @@ jobs:
           n=$(ls ferramentas/vias | wc -l)
           if [ "$n" -lt 2000 ]; then echo "::error::Só $n arquivos de vias: algo deu errado, nada foi gravado."; exit 1; fi
 
+      - name: Gerar os pontos de apoio (água, mercado, posto, lanchonete, bike, banheiro)
+        run: |
+          python ferramentas/gerar_apoios.py "$RUNNER_TEMP/sudeste.osm.pbf" ferramentas/apoios
+          n=$(python -c "import json; print(len(json.load(open('ferramentas/apoios/apoios.json', encoding='utf-8'))['p']))")
+          if [ "$n" -lt 2000 ]; then echo "::error::Só $n pontos de apoio: algo deu errado, nada foi gravado."; exit 1; fi
+
       - name: Gravar se mudou
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A ferramentas/vias
+          git add -A ferramentas/vias ferramentas/apoios
           git diff --cached --quiet || (git commit -m "Atualiza as vias do Espírito Santo" && git pull --rebase origin main && git push)

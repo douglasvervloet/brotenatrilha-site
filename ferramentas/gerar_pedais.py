@@ -491,6 +491,7 @@ ESTATICAS = [("https://brotenatrilha.com.br/privacidade/", "2026-10-12"), ("http
             ("https://brotenatrilha.com.br/ferramentas/relacao-de-marchas/", "2026-11-16"),
             ("https://brotenatrilha.com.br/ferramentas/categoria-de-subida/", "2026-11-16"),
             ("https://brotenatrilha.com.br/ferramentas/calculadora-de-raios/", "2026-11-16"),
+            ("https://brotenatrilha.com.br/ferramentas/pressao-dos-pneus/", "2026-11-17"),
             ("https://brotenatrilha.com.br/ferramentas/subidas-do-gpx/", "2026-11-16"),
             ("https://brotenatrilha.com.br/ferramentas/desenhar-rota/", "2026-11-16")]
 

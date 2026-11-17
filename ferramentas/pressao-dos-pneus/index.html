@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pressão dos pneus | Brote na Trilha</title>
+<meta name="description" content="Descubra a pressão dos pneus da sua bike com a calculadora da SILCA: o que ela pede, como medir cada dado e quanto pesa o conjunto, em português.">
+<link rel="canonical" href="https://brotenatrilha.com.br/ferramentas/pressao-dos-pneus/">
+<meta name="theme-color" content="#2d7046">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Brote na Trilha">
+<meta property="og:title" content="Pressão dos pneus | Brote na Trilha">
+<meta property="og:description" content="Descubra a pressão dos pneus da sua bike com a calculadora da SILCA: o que ela pede, como medir cada dado e quanto pesa o conjunto, em português.">
+<meta property="og:url" content="https://brotenatrilha.com.br/ferramentas/pressao-dos-pneus/">
+<meta property="og:image" content="https://brotenatrilha.com.br/compartilhar.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="48x48" href="../../favicon.png">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "Pressão dos pneus", "url": "https://brotenatrilha.com.br/ferramentas/pressao-dos-pneus/", "inLanguage": "pt-BR", "description": "Descubra a pressão dos pneus da sua bike com a calculadora da SILCA: o que ela pede, como medir cada dado e quanto pesa o conjunto, em português.", "isPartOf": {"@type": "WebSite", "name": "Brote na Trilha", "url": "https://brotenatrilha.com.br/"}}</script>
+<style>
+  :root { --verde: #2d7046; --verde-escuro: #1e5434; --verde-fundo: #163d27; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; }
+  @media (prefers-color-scheme: dark) { :root { --fundo: #0f1a13; --cartao: #172a1e; --texto: #e9f0ea; --suave: #a9bbae; --linha: #284534; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--ambar); outline-offset: 3px; border-radius: 4px; }
+  .miolo { width: min(1080px, 100% - 32px); margin-inline: auto; }
+  header { background: linear-gradient(180deg, var(--verde), var(--verde-fundo)); color: #fff; padding: 18px 0 38px; }
+  header a { color: #fff; text-decoration: none; font-weight: 600; opacity: .9; }
+  header a:hover { opacity: 1; text-decoration: underline; }
+  h1 { margin: 22px 0 0; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; letter-spacing: -.5px; }
+  header h1 { display: flex; align-items: center; gap: 14px; }
+  header h1 .icone { flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: rgba(255, 255, 255, .16); color: #fff; }
+  header p { margin: 10px 0 0; color: #dcebe0; max-width: 62ch; }
+  main { padding: 30px 0 56px; }
+  h2 { font-size: 1.3rem; margin: 34px 0 10px; }
+  .painel { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 20px 22px; }
+  .campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
+  label { display: block; font-weight: 700; font-size: .92rem; margin-bottom: 4px; }
+  input, select { width: 100%; font: inherit; padding: 10px 14px; border-radius: 12px; border: 2px solid var(--linha); background: var(--fundo); color: var(--texto); }
+  input:focus, select:focus { border-color: var(--verde); outline: none; }
+  .dica { color: var(--suave); font-size: .85rem; margin: 4px 0 0; }
+  .resultado { margin-top: 20px; }
+  .tabela-rolavel { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { padding: 8px 12px; border-bottom: 1px solid var(--linha); text-align: right; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { font-size: .85rem; color: var(--suave); }
+  td small { display: block; color: var(--suave); font-size: .78rem; }
+  .leve td, .leve th { }
+  .destaque { background: rgba(232, 163, 61, .16); }
+  .selo { display: inline-block; padding: 6px 18px; border-radius: 999px; font-weight: 800; font-size: 1.1rem; }
+  .numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 14px; }
+  .numeros div { background: var(--fundo); border-radius: 12px; padding: 10px 14px; }
+  .numeros span { display: block; font-size: .8rem; color: var(--suave); }
+  .numeros b { font-size: 1.3rem; }
+  .cartoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+  .cartao { display: block; background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 20px 22px; text-decoration: none; }
+  .cartao:hover { border-color: var(--verde); }
+  .cartao b { font-size: 1.15rem; display: block; margin-bottom: 4px; }
+  .cartao span { color: var(--suave); }
+  .nota { color: var(--suave); font-size: .9rem; margin-top: 22px; }
+  footer { background: var(--verde-fundo); color: #cfe0d3; padding: 28px 0; font-size: .92rem; margin-top: 20px; }
+  footer .miolo { display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: space-between; }
+  footer a { color: #fff; }
+  .passos { display: grid; gap: 12px; margin: 18px 0 0; padding: 0; list-style: none; counter-reset: p; }
+  .passos li { counter-increment: p; display: flex; gap: 14px; align-items: flex-start; }
+  .passos li::before { content: counter(p); flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--verde); color: #fff; font-weight: 800; }
+  .passos b { display: block; }
+  .passos span { color: var(--suave); font-size: .95rem; }
+  .botao-silca { display: inline-block; margin-top: 8px; padding: 13px 28px; border-radius: 999px; background: var(--verde); border: 2px solid var(--verde); color: #fff; font-weight: 800; text-decoration: none; }
+  .botao-silca:hover { background: var(--verde-escuro); }
+  .peso { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-top: 12px; }
+  .aviso-seguranca { border-left: 4px solid var(--ambar); padding: 10px 16px; background: var(--cartao); border-radius: 0 12px 12px 0; margin-top: 22px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="miolo">
+    <a href="../../">&larr; Brote na Trilha</a>
+    <h1><span class="icone"><svg class="icone-svg" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 17.5a8.5 8.5 0 1 1 15 0"/><path d="M12 14.2l4.2-5.2"/><circle cx="12" cy="14.2" r="1.3"/><path d="M6.5 20.8h11"/></svg></span>Pressão dos pneus</h1>
+    <p>Peso, superfície e pneu: a calculadora da SILCA, com o passo a passo em português.</p>
+  </div>
+</header>
+<main class="miolo">
+  <div class="painel">
+    <p style="margin:0 0 6px">A SILCA, marca de acessórios para bicicleta, oferece uma calculadora de pressão para ciclistas. O cálculo é feito no site deles: aqui você vê o que ela pede e como achar cada dado.</p>
+    <a class="botao-silca" href="https://silca.cc/pages/pro-tire-pressure-calculator" target="_blank" rel="noopener noreferrer">Abrir a calculadora da SILCA</a>
+    <p class="nota" style="margin-top:10px">Abre em outra aba, em inglês. O que você preencher vai para a SILCA, e não para este site.</p>
+  </div>
+
+  <h2>O que ela pede</h2>
+  <div class="painel">
+    <ol class="passos">
+      <li><div><b>Peso total do sistema</b><span>Ciclista, bike e equipamento (água, mochila, ferramentas). Aceita quilos ou libras: use a conta logo abaixo.</span></div></li>
+      <li><div><b>Superfície</b><span>De pista e asfalto novo até asfalto ruim, paralelepípedo e cascalho (categorias 1 a 4, do mais liso ao mais difícil).</span></div></li>
+      <li><div><b>Largura medida do pneu</b><span>A que você mede com o pneu montado e calibrado, com um paquímetro, e não a que vem escrita na lateral.</span></div></li>
+      <li><div><b>Diâmetro da roda</b><span>700C ou 29", 650B ou 27,5", 650C e 26".</span></div></li>
+      <li><div><b>Tipo de pneu</b><span>A carcaça (de corrida, de alto desempenho, intermediária ou reforçada) e se é tubeless ou com câmara de látex ou de butil.</span></div></li>
+      <li><div><b>Velocidade média</b><span>O seu ritmo: de passeio, em pelotão moderado ou rápido, até corrida.</span></div></li>
+      <li><div><b>Distribuição de peso</b><span>Quanto do peso vai na roda da frente: 48/52 em bike de estrada, 47/53 em gravel e 46,5/53,5 em mountain bike.</span></div></li>
+    </ol>
+  </div>
+
+  <h2>Quanto pesa o conjunto?</h2>
+  <div class="painel">
+    <div class="peso">
+      <div class="campos" style="display:block"><label for="p-ciclista">Ciclista (kg)</label><input id="p-ciclista" inputmode="decimal" value="75"></div>
+      <div class="campos" style="display:block"><label for="p-bike">Bike (kg)</label><input id="p-bike" inputmode="decimal" value="10"></div>
+      <div class="campos" style="display:block"><label for="p-equip">Equipamento (kg)</label><input id="p-equip" inputmode="decimal" value="3"></div>
+    </div>
+    <div class="numeros">
+      <div><span>Total em quilos</span><b id="t-kg">–</b></div>
+      <div><span>Total em libras</span><b id="t-lb">–</b></div>
+    </div>
+  </div>
+
+  <div class="aviso-seguranca"><b>Segurança primeiro.</b> A pressão calculada é uma estimativa. Nunca passe do limite que o fabricante da roda e do pneu indicam: em tubeless, e principalmente em roda hookless, o excesso de pressão pode soltar o pneu e causar acidente.</div>
+  <p class="nota">A SILCA é uma marca de acessórios para bicicleta. Este site não tem ligação com ela e não recebe nada por esse link.</p>
+</main>
+<footer>
+  <div class="miolo">
+    <span>© <span id="ano">2026</span> Brote na Trilha</span>
+    <span><a href="../../privacidade/">Política de privacidade</a> · <a href="../../">Voltar ao site</a></span>
+  </div>
+</footer>
+<script>
+  document.getElementById("ano").textContent = new Date().getFullYear();
+  function numero(id) { var v = parseFloat(String(document.getElementById(id).value).replace(",", ".")); return isFinite(v) && v >= 0 ? v : 0; }
+  function formatar(v, casas) { return v.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas }); }
+  function somar() {
+    var kg = numero("p-ciclista") + numero("p-bike") + numero("p-equip");
+    document.getElementById("t-kg").textContent = formatar(kg, 1) + " kg";
+    document.getElementById("t-lb").textContent = formatar(kg * 2.2046226, 1) + " lb";
+  }
+  ["p-ciclista", "p-bike", "p-equip"].forEach(function (id) { document.getElementById(id).addEventListener("input", somar); });
+  somar();
+</script>
+<script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
