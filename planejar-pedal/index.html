@@ -69,7 +69,7 @@
   .bt svg { width: 22px; height: 22px; display: block; margin: auto; }
   .bt svg.ic { display: inline-block; width: 17px; height: 17px; margin: 0 7px 0 0; vertical-align: -3px; }
   .grudar svg.ic { flex: none; width: 17px; height: 17px; }
-  .estilos { position: absolute; right: 68px; top: 12px; width: 232px; background: rgba(12, 23, 17, .93); border: 1px solid rgba(255, 255, 255, .3); border-radius: 16px; padding: 12px; color: #fff; }
+  .estilos { z-index: 4; position: absolute; right: 68px; top: 12px; width: 232px; background: rgba(12, 23, 17, .93); border: 1px solid rgba(255, 255, 255, .3); border-radius: 16px; padding: 12px; color: #fff; }
   .estilos[hidden] { display: none; }
   .estilos h4 { margin: 0 0 8px; font-size: .9rem; }
   .estilos .grade { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -78,7 +78,7 @@
   .estilos .op[aria-pressed="true"] { border-color: var(--ambar); }
   .estilos .op img { width: 100%; height: auto; border-radius: 8px; display: block; margin-bottom: 4px; }
   .estilos small { display: block; margin-top: 8px; font-size: .72rem; opacity: .85; line-height: 1.3; }
-  .toast { position: absolute; left: 50%; bottom: 74px; transform: translateX(-50%); background: rgba(12, 23, 17, .92); color: #fff; border: 1px solid rgba(255, 255, 255, .3);
+  .toast { z-index: 4; position: absolute; left: 50%; bottom: 74px; transform: translateX(-50%); background: rgba(12, 23, 17, .92); color: #fff; border: 1px solid rgba(255, 255, 255, .3);
            border-radius: 999px; padding: 8px 18px; font-size: .85rem; font-weight: 700; max-width: 92%; text-align: center; pointer-events: none; }
   .toast[hidden] { display: none; }
   .piso-resumo { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; background: var(--cartao); border: 1px solid var(--linha); border-radius: 14px; padding: 10px 14px; }
@@ -95,6 +95,8 @@
     .mapa .pilha-baixo { display: flex; flex-direction: column; align-items: stretch; gap: 6px; position: absolute; left: 12px; right: 64px; bottom: 30px; z-index: 1; pointer-events: none; }
     .mapa .pilha-baixo > * { position: static !important; width: auto; }
     .mapa .pilha-baixo .vento-mapa { font-size: .78rem; padding: 6px 12px; }
+    .mapa .pilha-baixo .dica { max-width: none; font-size: .8rem; padding: 6px 12px; order: -1; }
+    .mapa.com-dica .leg-terreno, .mapa.com-dica .vento-mapa, .mapa.com-dica .leg-piso { display: none; }      /* com a dica aberta (ela é temporária) as legendas saem da frente */
     .mapa .pilha-baixo .vento-mapa svg { width: 26px; height: 26px; flex: none; } }      /* celular: a legenda do terreno vira uma faixa embaixo e não cobre a coluna de botões da direita */
   @media (max-width: 760px) and (pointer: coarse) { .mapa { height: var(--altura-mapa, min(56vh, 520px)); min-height: 340px; } }
   @media (pointer: coarse) and (max-height: 520px) { .mapa { height: 88vh; min-height: 260px; } }      /* celular deitado: o mapa cabe na altura da tela */      /* svh: a altura "pequena" da tela não muda quando a barra do navegador some ao rolar (dvh mudava e o mapa crescia e encolhia) */      /* celular: o mapa não toma a tela inteira, sobra página para rolar com o dedo (no mapa o dedo move o mapa) */
@@ -159,10 +161,12 @@
   .passeio[hidden] { display: none; }
   .passeio small { color: var(--ambar); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: .7rem; }
   .passeio b { display: block; margin-top: 2px; font-size: 1.05rem; }
-  .passeio p { margin: 6px 0 12px; color: #dcebe0; font-size: .92rem; line-height: 1.45; }
-  .passeio-botoes { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
-  .passeio-botoes span { flex: 1 1 0; min-width: 0; }
-  .passeio-botoes button { display: inline-flex; align-items: center; gap: 7px; font: inherit; font-weight: 700; font-size: .92rem; padding: 7px 14px; border-radius: 999px; cursor: pointer; border: 2px solid var(--verde); background: var(--verde); color: #fff; }
+  .passeio p { margin: 5px 0 11px; color: #dcebe0; font-size: .9rem; line-height: 1.42; }
+  .passeio-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .passeio-botoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; }
+  .passeio-botoes button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; font: inherit; font-weight: 700; font-size: .92rem; padding: 9px 12px; border-radius: 999px; cursor: pointer; border: 2px solid var(--verde); background: var(--verde); color: #fff; }
+  .passeio-topo button.pequeno { display: inline-flex; align-items: center; gap: 5px; font: inherit; font-weight: 700; font-size: .8rem; padding: 3px 10px; border-radius: 999px; cursor: pointer; color: #fff; border: 1px solid rgba(255, 255, 255, .35); background: transparent; }
+  .passeio-topo button.pequeno svg.ic { width: 12px; height: 12px; flex: none; }
   .passeio-botoes button.sem-fundo { background: transparent; border-color: rgba(255, 255, 255, .35); }
   .passeio-botoes button[hidden] { display: none; }
   .menu-ponto button svg.ic, .passeio-botoes button svg.ic, .popup button svg.ic { width: 15px; height: 15px; flex: none; }
@@ -245,7 +249,7 @@
   .zoom { z-index: 4; position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; }
   .zoom .bt { width: 44px; padding: 0; font-size: 1.4rem; line-height: 1; }
   .dica[hidden] { display: none; }
-  .dica { position: absolute; left: 12px; bottom: 12px; background: rgba(12, 23, 17, .85); color: #fff; border-radius: 12px; padding: 8px 14px; font-size: .85rem; max-width: 62%; pointer-events: none; }
+  .dica { z-index: 3; position: absolute; left: 12px; bottom: 12px; background: rgba(12, 23, 17, .93); color: #fff; border-radius: 12px; padding: 8px 14px; font-size: .85rem; max-width: 62%; pointer-events: none; }
   .credito-mapa { position: absolute; right: 8px; bottom: 6px; font-size: .72rem; color: #fff; opacity: .85; text-shadow: 0 1px 2px #000; max-width: 36%; text-align: right; pointer-events: none; }
   .aviso { margin-top: 12px; padding: 10px 16px; border-radius: 12px; background: rgba(232, 163, 61, .16); font-size: .9rem; }
   .numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 18px; }
@@ -338,6 +342,7 @@
     <div class="estilos" id="painel-estilos" role="group" aria-label="Estilo do mapa" hidden><h4>Estilo do mapa</h4><div class="grade"><button type="button" class="op" data-estilo="relevo" aria-pressed="true"><img src="estilo-relevo.webp" width="150" height="100" alt="">Relevo</button><button type="button" class="op" data-estilo="ruas" aria-pressed="false"><img src="estilo-ruas.webp" width="150" height="100" alt="">Ruas</button><button type="button" class="op" data-estilo="escuro" aria-pressed="false"><img src="estilo-escuro.webp" width="150" height="100" alt="">Escuro</button></div><small>Cada estilo pede os quadros do mapa a um servidor aberto diferente.</small></div>
     <div class="toast" id="aviso-local" role="status" aria-live="polite" hidden></div>
     <div class="pilha-baixo">
+    <div class="dica" id="dica" hidden>Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para mais opções.</div>
         <div class="leg-piso" id="leg-piso" hidden></div>
     <div class="leg-terreno" id="leg-terreno" hidden></div>
     <div class="vento-mapa" id="vento-mapa" hidden><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><g id="vento-seta"><path d="M17 3L27 29L17 23L7 29Z" fill="#9fd3ff" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></g></svg><span id="vento-texto"></span></div>
@@ -360,7 +365,6 @@
       <p id="interesse-resumo"></p>
       <a id="interesse-link" href="#" target="_blank" rel="noopener" hidden>Ver a página da foto e do texto</a>
     </div>
-    <div class="dica" id="dica" hidden>Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para mais opções.</div>
     <div class="credito-mapa" id="credito">© OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA)</div>
   </div>
   <div class="acoes">
@@ -371,10 +375,10 @@
     <button class="sec" type="button" id="b-exemplo" title="Pedal de exemplo: abre o pedal de Queimados (Serra) para você ver como a ferramenta funciona"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l3.5-8h5l3.5 8M9.5 9L13 17M9 6h2.5"/></svg>Exemplo</button>
   </div>
   <div class="passeio" id="passeio" role="dialog" aria-labelledby="passeio-titulo" hidden>
-    <small id="passeio-n"></small>
+    <div class="passeio-topo"><small id="passeio-n"></small><button type="button" id="passeio-pular" class="sem-fundo pequeno"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5l9 7-9 7z"/><path d="M18 5v14"/></svg>Pular</button></div>
     <b id="passeio-titulo"></b>
     <p id="passeio-texto"></p>
-    <div class="passeio-botoes"><button type="button" id="passeio-pular" class="sem-fundo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5l9 7-9 7z"/><path d="M18 5v14"/></svg>Pular</button><span></span><button type="button" id="passeio-volta" class="sem-fundo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Anterior</button><button type="button" id="passeio-segue">Próximo<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
+    <div class="passeio-botoes"><button type="button" id="passeio-volta" class="sem-fundo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Anterior</button><button type="button" id="passeio-segue">Próximo<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
   </div>
   <div class="minhas" id="painel-minhas" hidden>
     <div class="salvar"><button type="button" id="b-salvar" disabled title="Salvar esta rota neste navegador"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg>Salvar rota</button></div>
@@ -899,7 +903,7 @@
       ultimoZoom = agora;
       dar_zoom(e.deltaY < 0 ? 1 : -1, local(e));
     }, { passive: false });
-    function mostrarDica(mostrar) { var d = document.getElementById("dica"); d.hidden = !mostrar; document.getElementById("b-info").setAttribute("aria-expanded", String(mostrar)); }
+    function mostrarDica(mostrar) { var d = document.getElementById("dica"); d.hidden = !mostrar; caixa.classList.toggle("com-dica", mostrar); document.getElementById("b-info").setAttribute("aria-expanded", String(mostrar)); }
     document.getElementById("b-info").addEventListener("click", function () { mostrarDica(document.getElementById("dica").hidden); });
     document.getElementById("b-mais").addEventListener("click", function () { dar_zoom(1, { x: L() / 2, y: A() / 2 }); });
     document.getElementById("b-menos").addEventListener("click", function () { dar_zoom(-1, { x: L() / 2, y: A() / 2 }); });
