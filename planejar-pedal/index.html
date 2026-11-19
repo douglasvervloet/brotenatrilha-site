@@ -112,7 +112,8 @@
   .menu-ponto { position: absolute; z-index: 5; display: flex; flex-direction: column; gap: 8px; background: rgba(12, 23, 17, .95); border: 1px solid rgba(255, 255, 255, .3); border-radius: 14px; padding: 10px 12px; color: #fff; font-size: .85rem; box-shadow: 0 6px 18px rgba(0, 0, 0, .4); }
   .menu-ponto[hidden] { display: none; }
   .menu-ponto .trecho { display: flex; align-items: center; gap: 6px; }
-  .menu-ponto .trecho span { opacity: .85; margin-right: 4px; }
+  .menu-ponto .trecho[hidden] { display: none; }
+  .menu-ponto .trecho span { opacity: .85; margin-right: 4px; min-width: 96px; }
   .menu-ponto button { display: inline-flex; align-items: center; gap: 7px; font: inherit; font-weight: 700; min-height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .35); background: transparent; color: #fff; cursor: pointer; }
   .menu-ponto button[aria-pressed="true"] { background: #2d7046; border-color: #fff; }
   .menu-ponto .remover { border-color: rgba(232, 135, 58, .8); color: #ffd2b0; }
@@ -335,6 +336,7 @@
         <button class="grudar" type="button" id="b-grudar" aria-pressed="false"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v8a6 6 0 0 0 12 0V3h-4v8a2 2 0 0 1-4 0V3z"/><path d="M6 7h4M14 7h4"/></svg>Grudar nas ruas <small>BETA</small></button>
         <button class="grudar" type="button" id="b-livre" aria-pressed="false" title="Os próximos pontos ligam em linha reta, sem seguir as ruas"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><path d="M6.5 17.5l11-11" stroke-dasharray="2 3"/></svg>Trecho livre</button>
         <button class="grudar" type="button" id="b-evitar" aria-pressed="false" title="Com Grudar nas ruas: a rota prefere ciclovias e caminhos e foge de rodovias e vias principais, quando há outro caminho"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3L4 21M16 3l4 18M12 4v3M12 10.5v3M12 17v3"/><path d="M3 3l18 18"/></svg>Usar ciclovia / evitar rodovia</button>
+        <button class="grudar" type="button" id="b-mao" aria-pressed="false" title="Com Grudar nas ruas: a rota ignora a mão única, inclusive a contramão. Perigoso e proibido no trânsito; só o serviço Valhalla faz isso"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/><path d="M4 4l16 16"/></svg>Ignorar mão única</button>
       </div>
       <div class="painel-chaves" id="painel-camadas" hidden>
         <h4>Camadas</h4>
@@ -360,7 +362,8 @@
     </div>
     <div class="popup" id="popup" role="dialog" aria-labelledby="popup-titulo" hidden><b id="popup-titulo"></b><p id="popup-texto"></p><button type="button" id="popup-ok"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Entendi</button></div>
     <div class="menu-ponto" id="menu-ponto" hidden>
-      <div class="trecho" id="menu-trecho"><span>Trecho até aqui</span><button type="button" data-modo="ruas"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="6" r="2.3"/><path d="M8.3 18H14a3.5 3.5 0 0 0 0-7h-4a3.5 3.5 0 0 1 0-7h5.7"/></svg>Ruas</button><button type="button" data-modo="livre"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20L20 4"/></svg>Livre</button></div>
+      <div class="trecho" id="menu-trecho" data-trecho="aqui"><span>Até aqui</span><button type="button" data-modo="ruas"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="6" r="2.3"/><path d="M8.3 18H14a3.5 3.5 0 0 0 0-7h-4a3.5 3.5 0 0 1 0-7h5.7"/></svg>Ruas</button><button type="button" data-modo="livre"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20L20 4"/></svg>Livre</button></div>
+      <div class="trecho" id="menu-proximo" data-trecho="proximo"><span>Até o próximo</span><button type="button" data-modo="ruas"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="6" r="2.3"/><path d="M8.3 18H14a3.5 3.5 0 0 0 0-7h-4a3.5 3.5 0 0 1 0-7h5.7"/></svg>Ruas</button><button type="button" data-modo="livre"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20L20 4"/></svg>Livre</button></div>
       <button type="button" class="remover" id="menu-remover"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>Remover ponto</button>
     </div>
     <div class="menu-ponto" id="menu-traco" hidden>
@@ -592,7 +595,7 @@
     var URL_ALTITUDE = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";   // metros = R·256 + G + B/256 − 32768
     var Z_ALTITUDE = 12, Z_MIN = 8, Z_MAX = 17, PASSO_AMOSTRA = 25;                                  // altitude lida no zoom 12; um ponto a cada 25 m
     var caixa = document.getElementById("mapa"), camada = document.getElementById("quadros"), desenho = document.getElementById("rota");
-    var z = 11, rota = [], antes = [], depois = [], modoDesenhar = true, pontosGpx = null, grudar = false, calculo = null, marcador = null, ultimoTotal = 0, idaEVolta = false, terrenoLigado = false, terreno = null, deUmPedal = null, livre = false, menuDoPonto = null, apoiosLigado = false, apoios = null, apoioAberto = null, kmLigado = false, ventoNoMapa = null, horaDoVento = 0, horasPrevistas = [], temposDoPercurso = null, pisoLigado = false, versaoPiso = 0, quadroPiso = null, pedaisLista = null, pedaisLigado = false, selecaoDoGrafico = null, evitarRodovias = false, versaoDoEstilo = 0, interessesLigado = false, interesses = null, interesseAberto = null, versaoInteresses = 0, chaveInteresses = "", dadosInteresses = null, esperaInteresses = null;
+    var z = 11, rota = [], antes = [], depois = [], modoDesenhar = true, pontosGpx = null, grudar = false, calculo = null, marcador = null, ultimoTotal = 0, idaEVolta = false, terrenoLigado = false, terreno = null, deUmPedal = null, livre = false, menuDoPonto = null, apoiosLigado = false, apoios = null, apoioAberto = null, kmLigado = false, ventoNoMapa = null, horaDoVento = 0, horasPrevistas = [], temposDoPercurso = null, pisoLigado = false, versaoPiso = 0, quadroPiso = null, pedaisLista = null, pedaisLigado = false, selecaoDoGrafico = null, evitarRodovias = false, ignorarMao = false, versaoDoEstilo = 0, interessesLigado = false, interesses = null, interesseAberto = null, versaoInteresses = 0, chaveInteresses = "", dadosInteresses = null, esperaInteresses = null;
 
     function mundo(lat, lon, nivel) {                              // coordenadas -> pixels do mapa mundial no zoom `nivel`
       var n = 256 * Math.pow(2, nivel), s = Math.sin(lat * Math.PI / 180);
@@ -1000,16 +1003,21 @@
       var ctl = new AbortController(), tempo = setTimeout(function () { ctl.abort(); }, 9000);
       return fetch(url, { signal: ctl.signal }).then(function (r) { clearTimeout(tempo); if (!r.ok) throw new Error("http " + r.status); return r.json(); });
     }
+    function opcoesDaBicicleta() {                                 // "Ignorar mão única" só existe no Valhalla; o BRouter e o OSRM sempre respeitam a mão
+      var o = { bicycle_type: "Hybrid", use_roads: evitarRodovias ? 0 : 0.8 };
+      if (ignorarMao) o.ignore_oneways = true;
+      return o;
+    }
     function viaValhalla(a, b) {
       var ctl = new AbortController(), tempo = setTimeout(function () { ctl.abort(); }, 9000);
-      var corpo = { locations: [{ lat: a.lat, lon: a.lon }, { lat: b.lat, lon: b.lon }], costing: "bicycle", costing_options: { bicycle: { bicycle_type: "Hybrid", use_roads: evitarRodovias ? 0 : 0.8 } } };
+      var corpo = { locations: [{ lat: a.lat, lon: a.lon }, { lat: b.lat, lon: b.lon }], costing: "bicycle", costing_options: { bicycle: opcoesDaBicicleta() } };
       return fetch(URL_VALHALLA, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo), signal: ctl.signal })
         .then(function (r) { clearTimeout(tempo); if (!r.ok) throw new Error("http " + r.status); return r.json(); })
         .then(function (d) { return decodificar(d.trip.legs[0].shape, 1e6); });
     }
     function viaValhallaVarios(pontos) {                           // um pedido com vários pontos seguidos: uma linha para cada trecho
       var ctl = new AbortController(), tempo = setTimeout(function () { ctl.abort(); }, 20000);
-      var corpo = { locations: pontos.map(function (p) { return { lat: p.lat, lon: p.lon }; }), costing: "bicycle", costing_options: { bicycle: { bicycle_type: "Hybrid", use_roads: evitarRodovias ? 0 : 0.8 } } };
+      var corpo = { locations: pontos.map(function (p) { return { lat: p.lat, lon: p.lon }; }), costing: "bicycle", costing_options: { bicycle: opcoesDaBicicleta() } };
       return fetch(URL_VALHALLA, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo), signal: ctl.signal })
         .then(function (r) { clearTimeout(tempo); if (!r.ok) throw new Error("http " + r.status); return r.json(); })
         .then(function (d) {
@@ -1028,7 +1036,8 @@
       });
     }
     function caminhoPelasRuas(a, b) {                                // [{lat, lon}] ou null se nenhum serviço respondeu
-      return viaValhalla(a, b).catch(function () { return viaBrouter(a, b); }).catch(function () { return viaOsrm(a, b); }).catch(function () { return null; });
+      function respeitaMao(caminho) { caminho.respeitaMao = true; return caminho; }                // veio de um serviço que não ignora a mão única
+      return viaValhalla(a, b).catch(function () { return viaBrouter(a, b).then(respeitaMao); }).catch(function () { return viaOsrm(a, b).then(respeitaMao); }).catch(function () { return null; });
     }
     function caminhosPelasRuas(pontos) {                           // uma lista de caminhos, um por trecho (null onde nenhum serviço respondeu)
       function umAUm() {                                           // se o pedido de vários pontos falhar: trecho a trecho, com os três serviços
@@ -1039,7 +1048,7 @@
       }
       return pontos.length < 3 ? umAUm() : viaValhallaVarios(pontos).catch(umAUm);
     }
-    function chaveDoTrecho(a, b) { return [a.lat, a.lon, b.lat, b.lon].map(function (v) { return v.toFixed(5); }).join(",") + (evitarRodovias ? "|evitar" : ""); }      // a opção entra na chave: o cache não mistura os dois jeitos
+    function chaveDoTrecho(a, b) { return [a.lat, a.lon, b.lat, b.lon].map(function (v) { return v.toFixed(5); }).join(",") + (evitarRodovias ? "|evitar" : "") + (ignorarMao ? "|mao" : ""); }      // a opção entra na chave: o cache não mistura os dois jeitos
     function pedirPendentes() {                                      // pede o caminho de cada trecho que ainda não tem (só com "Grudar nas ruas" ligado)
       if (grudar) {
         for (var i = 1; i < rota.length; i++) {
@@ -1079,9 +1088,11 @@
     }
     function estado() {                                              // a frase de situação abaixo do aviso
       var e = document.getElementById("status-grudar"), retas = 0;
-      for (var i = 1; i < rota.length; i++) if (rota[i].reta) retas++;
+      var comMao = 0;
+      for (var i = 1; i < rota.length; i++) { if (rota[i].reta) retas++; if (ignorarMao && rota[i].caminho && rota[i].caminho.respeitaMao) comMao++; }
       if (grudar && (emCurso || fila.length)) { e.textContent = "Seguindo as ruas e trilhas do OpenStreetMap…" + (fila.length ? " (faltam " + fila.length + " trechos)" : ""); e.hidden = false; }
       else if (grudar && retas) { e.textContent = "Não consegui seguir as ruas em " + retas + (retas === 1 ? " trecho" : " trechos") + ": ficaram em linha reta. Mexa num ponto para tentar de novo."; e.hidden = false; }
+      else if (grudar && comMao) { e.textContent = (comMao === 1 ? "1 trecho respeitou" : comMao + " trechos respeitaram") + " a mão única: o serviço que ignora a mão não respondeu."; e.hidden = false; }
       else e.hidden = true;
     }
 
@@ -1508,20 +1519,24 @@
     if (doPedal) carregarPedal(doPedal[1]);
     else if (doLink) rotaDoHash(location.hash);
 
-    // ---- as opções de um ponto: o trecho até ele segue as ruas ou fica livre (linha reta), ou remover o ponto ----
+    // ---- as opções de um ponto: o trecho até ele e o trecho dele até o próximo seguem as ruas ou ficam livres (linha reta), ou remover o ponto ----
     var menu = document.getElementById("menu-ponto");
     function fecharMenuDoPonto() { menu.hidden = true; menuDoPonto = null; }
+    function trechoDoMenu(qual, i) { return qual === "aqui" ? i : i + 1; }                         // o trecho é guardado no ponto onde ele termina (livre, caminho)
     function abrirMenuDoPonto(i, onde) {
       menuDoPonto = i;
-      document.getElementById("menu-trecho").hidden = i === 0;                                    // o primeiro ponto não tem trecho até ele
-      [].forEach.call(menu.querySelectorAll("[data-modo]"), function (b) { b.setAttribute("aria-pressed", String((b.dataset.modo === "livre") === !!rota[i].livre)); });
+      [].forEach.call(menu.querySelectorAll("[data-trecho]"), function (linha) {                  // cada linha manda num trecho: o que chega ao ponto ou o que sai dele
+        var j = trechoDoMenu(linha.dataset.trecho, i), existe = j >= 1 && j < rota.length;         // o primeiro ponto não tem trecho até ele; o último não tem trecho para o próximo
+        linha.hidden = !existe;
+        if (existe) [].forEach.call(linha.querySelectorAll("[data-modo]"), function (b) { b.setAttribute("aria-pressed", String((b.dataset.modo === "livre") === !!rota[j].livre)); });
+      });
       menu.hidden = false;
       menu.style.left = Math.max(8, Math.min(onde.x + 14, L() - menu.offsetWidth - 8)) + "px";
       menu.style.top = Math.max(8, Math.min(onde.y + 14, A() - menu.offsetHeight - 8)) + "px";
     }
     [].forEach.call(menu.querySelectorAll("[data-modo]"), function (b) {
       b.addEventListener("click", function () {
-        var p = rota[menuDoPonto], quer = b.dataset.modo === "livre";
+        var p = rota[trechoDoMenu(b.parentNode.dataset.trecho, menuDoPonto)], quer = b.dataset.modo === "livre";
         fecharMenuDoPonto();
         if (!p || !!p.livre === quer) return;
         guardar();
@@ -2163,14 +2178,23 @@
     contarChaves();
 
     // ---- "Evitar rodovias": os trechos pelas ruas são pedidos de novo com o Valhalla evitando as vias principais ----
-    document.getElementById("b-evitar").addEventListener("click", function () {
-      evitarRodovias = !evitarRodovias; versaoDoEstilo++;
-      this.setAttribute("aria-pressed", String(evitarRodovias));
+    function refazerTrechosPelasRuas() {
+      versaoDoEstilo++;
       for (var i = 1; i < rota.length; i++) {                      // os trechos que vieram de um serviço de rotas (não o caminho original de um GPX, nem os livres) são refeitos
         if (!rota[i].fixo && !rota[i].livre) { rota[i].caminho = null; rota[i].reta = false; rota[i].pedidoPara = null; }
       }
       fila = [];
       desenharRota(); agendar(); pedirPendentes();
+    }
+    document.getElementById("b-evitar").addEventListener("click", function () {
+      evitarRodovias = !evitarRodovias;
+      this.setAttribute("aria-pressed", String(evitarRodovias));
+      refazerTrechosPelasRuas();
+    });
+    document.getElementById("b-mao").addEventListener("click", function () {                      // ignora a mão única (só o Valhalla faz; ver opcoesDaBicicleta)
+      ignorarMao = !ignorarMao;
+      this.setAttribute("aria-pressed", String(ignorarMao));
+      refazerTrechosPelasRuas();
     });
 
     // ---- camada "Pontos de interesse": mirantes, praias, cachoeiras, locais históricos... a até 1 km da rota; a foto e o texto vêm da Wikipédia, só ao abrir o ponto ----
