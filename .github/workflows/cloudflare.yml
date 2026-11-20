@@ -10,7 +10,7 @@ on:
   push:
     branches: [main]
   workflow_run:
-    workflows: ["Atualizar números do canal", "Atualizar página de pedais", "Atualizar vias e pontos de apoio do Espírito Santo", "Links dos pedais no YouTube"]
+    workflows: ["Atualizar números do canal", "Atualizar página de pedais", "Links dos pedais no YouTube"]
     types: [completed]
   workflow_dispatch:
 

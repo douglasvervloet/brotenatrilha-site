@@ -1,9 +1,10 @@
-# Atualiza todo mês os arquivos do Espírito Santo que a ferramenta "Planejar pedal" lê: as vias (ferramentas/vias/, para o terreno: asfalto, terra,
-# calçamento, sem depender do Overpass) os pontos de apoio (ferramentas/apoios/) os pontos de interesse (ferramentas/interesses/) e as ciclovias (ferramentas/ciclovias/). Baixa o mapa do Sudeste na Geofabrik (uns 900 MB), roda ferramentas/gerar_vias.py
-# e grava só se algo mudou. Depois envia as vias ao R2 da Cloudflare (bucket brotenatrilha-dados, servido em dados.brotenatrilha.com.br),
-# com os segredos R2_ACCESS_KEY_ID e R2_SECRET_ACCESS_KEY. As vias não vão mais para o repositório (2.800 arquivos): só para o R2.
-# Pode ser rodado na mão em "Actions".
-name: Atualizar vias e pontos de apoio do Espírito Santo
+# Atualiza todo mês os dados do Brasil que a ferramenta "Planejar pedal" lê do R2 da Cloudflare (bucket brotenatrilha-dados,
+# servido em dados.brotenatrilha.com.br/br/): as vias (br/vias/, o terreno e o piso das ruas), os pontos de apoio (br/apoios/),
+# os pontos de interesse (br/interesses/) e as ciclovias (br/ciclovias/). Baixa o mapa do Brasil na Geofabrik (uns 2 GB) e roda os
+# geradores de ferramentas/ (gerar_vias.py, gerar_apoios.py, gerar_interesses.py, gerar_ciclovias.py). Nada vai para o repositório.
+# Os pontos de interesse guardam no R2 um cache das fotos e textos da Wikipédia (br/_cache_interesses.json): só os novos são consultados.
+# Segredos: R2_ACCESS_KEY_ID e R2_SECRET_ACCESS_KEY. Pode ser rodado na mão em "Actions".
+name: Atualizar os dados do mapa (Brasil)
 
 on:
   schedule:
@@ -11,71 +12,73 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: vias
   cancel-in-progress: false
 
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: auto
+  AWS_REQUEST_CHECKSUM_CALCULATION: when_required      # o aws novo manda uma checagem que o R2 não aceita
+  AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+  R2: https://a31fab7247d8f39a21d0f52f1261a8d1.r2.cloudflarestorage.com
+  BUCKET: s3://brotenatrilha-dados/br
+
 jobs:
   gerar:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 330
     steps:
+      - name: Conferir os segredos do R2
+        run: |
+          if [ -z "$AWS_ACCESS_KEY_ID" ]; then echo "::error::Sem R2_ACCESS_KEY_ID nos segredos: os dados não podem ser publicados."; exit 1; fi
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Instalar osmium (lê o mapa) e Pillow (o gerador importa o código dos pedais)
+      - name: Instalar osmium (lê o mapa) e Pillow (o gerador de vias importa o código dos pedais)
         run: pip install osmium pillow
 
-      - name: Baixar o mapa do Sudeste (Geofabrik)
-        run: curl -fL --retry 3 --retry-delay 20 -o "$RUNNER_TEMP/sudeste.osm.pbf" https://download.geofabrik.de/south-america/brazil/sudeste-latest.osm.pbf
-
-      - name: Gerar os arquivos de vias
+      - name: Baixar o mapa do Brasil (Geofabrik)
         run: |
-          python ferramentas/gerar_vias.py "$RUNNER_TEMP/sudeste.osm.pbf" ferramentas/vias
-          # um mapa quebrado não pode apagar as vias do site: o estado inteiro dá uns 2.800 arquivos
-          n=$(ls ferramentas/vias | wc -l)
-          if [ "$n" -lt 2000 ]; then echo "::error::Só $n arquivos de vias: algo deu errado, nada foi gravado."; exit 1; fi
+          curl -fL --retry 3 --retry-delay 20 -o "$RUNNER_TEMP/brasil.osm.pbf" https://download.geofabrik.de/south-america/brazil-latest.osm.pbf
+          ls -lh "$RUNNER_TEMP/brasil.osm.pbf"
+
+      - name: Gerar as vias (terreno e piso das ruas)
+        run: |
+          python ferramentas/gerar_vias.py "$RUNNER_TEMP/brasil.osm.pbf" "$RUNNER_TEMP/br/vias"
+          # um mapa quebrado não pode apagar as vias do R2
+          n=$(ls "$RUNNER_TEMP/br/vias" | wc -l)
+          if [ "$n" -lt 30000 ]; then echo "::error::Só $n arquivos de vias: algo deu errado, nada foi enviado."; exit 1; fi
 
       - name: Gerar os pontos de apoio (água, mercado, posto, lanchonete, bike, banheiro)
         run: |
-          python ferramentas/gerar_apoios.py "$RUNNER_TEMP/sudeste.osm.pbf" ferramentas/apoios
-          n=$(python -c "import json; print(len(json.load(open('ferramentas/apoios/apoios.json', encoding='utf-8'))['p']))")
-          if [ "$n" -lt 2000 ]; then echo "::error::Só $n pontos de apoio: algo deu errado, nada foi gravado."; exit 1; fi
+          python ferramentas/gerar_apoios.py "$RUNNER_TEMP/brasil.osm.pbf" "$RUNNER_TEMP/br/apoios"
+          python ferramentas/contar_quadrados.py "$RUNNER_TEMP/br/apoios" p 50000
 
-      - name: Gerar os pontos de interesse (com foto da Wikipédia)
+      - name: Gerar os pontos de interesse (com foto da Wikipédia, pelo cache)
         run: |
-          python ferramentas/gerar_interesses.py "$RUNNER_TEMP/sudeste.osm.pbf" ferramentas/interesses
-          n=$(python -c "import json; print(len(json.load(open('ferramentas/interesses/interesses.json', encoding='utf-8'))['p']))")
-          if [ "$n" -lt 300 ]; then echo "::error::Só $n pontos de interesse: algo deu errado, nada foi gravado."; exit 1; fi
+          aws s3 cp "$BUCKET/_cache_interesses.json" "$RUNNER_TEMP/cache_interesses.json" --endpoint-url "$R2" --only-show-errors || echo "Sem cache ainda: todas as consultas são novas."
+          python ferramentas/gerar_interesses.py "$RUNNER_TEMP/brasil.osm.pbf" "$RUNNER_TEMP/br/interesses" "$RUNNER_TEMP/cache_interesses.json"
+          python ferramentas/contar_quadrados.py "$RUNNER_TEMP/br/interesses" p 5000
 
-      - name: Gerar as ciclovias (camada Ciclovias do Planejar pedal)
+      - name: Gerar as ciclovias (camada Ciclovias)
         run: |
-          python ferramentas/gerar_ciclovias.py "$RUNNER_TEMP/sudeste.osm.pbf" ferramentas/ciclovias
-          n=$(python -c "import json; print(len(json.load(open('ferramentas/ciclovias/ciclovias.json', encoding='utf-8'))['c']))")
-          if [ "$n" -lt 400 ]; then echo "::error::Só $n trechos de ciclovia: algo deu errado, nada foi gravado."; exit 1; fi
+          python ferramentas/gerar_ciclovias.py "$RUNNER_TEMP/brasil.osm.pbf" "$RUNNER_TEMP/br/ciclovias"
+          python ferramentas/contar_quadrados.py "$RUNNER_TEMP/br/ciclovias" c 3000
 
-      - name: Gravar se mudou
+      - name: Enviar ao R2 (dados.brotenatrilha.com.br/br/)
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A ferramentas/apoios ferramentas/interesses ferramentas/ciclovias
-          git diff --cached --quiet || (git commit -m "Atualiza as vias do Espírito Santo" && git pull --rebase origin main && git push)
-
-      - name: Enviar as vias ao R2 (dados.brotenatrilha.com.br/vias/)
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: auto
-          AWS_REQUEST_CHECKSUM_CALCULATION: when_required      # o aws novo manda uma checagem que o R2 não aceita
-          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
-        run: |
-          if [ -z "$AWS_ACCESS_KEY_ID" ]; then echo "::error::Sem R2_ACCESS_KEY_ID nos segredos: as vias não foram publicadas."; exit 1; fi
-          n=$(ls ferramentas/vias | wc -l)
-          if [ "$n" -lt 2000 ]; then echo "::error::Só $n arquivos de vias: nada foi enviado ao R2."; exit 1; fi
-          aws s3 sync ferramentas/vias s3://brotenatrilha-dados/vias --delete --only-show-errors             --endpoint-url https://a31fab7247d8f39a21d0f52f1261a8d1.r2.cloudflarestorage.com             --content-type application/json --cache-control "public, max-age=86400"
-          echo "Vias no R2: $n arquivos"
+          for pasta in vias apoios interesses ciclovias; do
+            aws s3 sync "$RUNNER_TEMP/br/$pasta" "$BUCKET/$pasta" --delete --size-only --only-show-errors --endpoint-url "$R2" \
+              --content-type application/json --cache-control "public, max-age=86400"
+            echo "$pasta: $(ls "$RUNNER_TEMP/br/$pasta" | wc -l) arquivos"
+          done
+          aws s3 cp "$RUNNER_TEMP/cache_interesses.json" "$BUCKET/_cache_interesses.json" --endpoint-url "$R2" --only-show-errors \
+            --content-type application/json

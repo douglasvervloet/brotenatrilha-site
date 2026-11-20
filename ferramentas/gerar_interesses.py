@@ -1,12 +1,17 @@
-"""Gera o arquivo de pontos de interesse do Espírito Santo (ferramentas/interesses/interesses.json) para a ferramenta "Planejar pedal".
+"""Gera os pontos de interesse do Brasil para a ferramenta "Planejar pedal" (dados.brotenatrilha.com.br/br/interesses/, no R2 da Cloudflare).
 
 Os pontos (mirantes, cachoeiras, praias, atrações e museus, locais históricos, cavernas, parques e reservas, e os picos que têm artigo na Wikipédia)
 vêm de um arquivo .osm.pbf do OpenStreetMap (o mesmo do gerar_vias.py). A foto e o resumo, quando existem, vêm da Wikipédia ou do Wikidata, pelas
 marcas "wikipedia" e "wikidata" do próprio ponto: o OpenStreetMap quase não guarda foto. Só entram pontos com nome.
 
-Uso:  python gerar_interesses.py ARQUIVO.osm.pbf [PASTA_DE_SAIDA]        (precisa do pacote "osmium": pip install osmium)
+Uso:  python gerar_interesses.py ARQUIVO.osm.pbf [PASTA_DE_SAIDA] [CACHE.json]        (precisa do pacote "osmium": pip install osmium)
 
-O arquivo é {"cobertura": {...}, "escala": 100000, "p": [[tipo, lat, lon, nome, foto, pagina, resumo], ...]}, com lat e lon em inteiros de 1e-5 grau.
+O CACHE guarda a foto, a página e o resumo já consultados (por marca "wikipedia" e "wikidata"): de um mês para o outro só os pontos
+novos são consultados. Cada rodada faz no máximo LIMITE_DE_CONSULTAS consultas novas (variável de ambiente; o padrão é 5000); os
+pontos que passarem disso ficam sem foto até a próxima rodada.
+
+Um arquivo por quadrado de 1 grau (ver brasil.py): {"escala": 100000, "p": [[tipo, lat, lon, nome, foto, pagina, resumo], ...]},
+com lat e lon em inteiros de 1e-5 grau.
 Tipo: 1 mirante, 2 cachoeira, 3 praia, 4 atração ou museu, 5 histórico ou igreja notável, 6 caverna, 7 parque ou reserva, 8 pico.
 "foto" é o endereço de uma miniatura, "pagina" o artigo (ou a página da foto no Commons, onde estão o autor e a licença) e "resumo" uma frase do artigo.
 Os dados são do OpenStreetMap (ODbL, © colaboradores) e as fotos e textos, da Wikipédia e do Wikimedia Commons (cada um com a sua licença, na página indicada).
@@ -20,8 +25,10 @@ import urllib.request
 
 import osmium
 
-ESCALA = 100000
-COBERTURA = {"sul": -21.35, "norte": -18.0, "oeste": -41.95, "leste": -39.55}      # a mesma área das vias e dos apoios
+import brasil
+
+ESCALA = brasil.ESCALA
+LIMITE_DE_CONSULTAS = int(os.environ.get("LIMITE_DE_CONSULTAS", "5000"))     # consultas novas à Wikipédia por rodada
 AGENTE = "brotenatrilha.com.br (contato@brotenatrilha.com.br)"
 
 
@@ -47,10 +54,6 @@ def tipo_do_interesse(tags):
     if natural == "peak" and tem_artigo:
         return 8
     return None
-
-
-def dentro(lat, lon):
-    return COBERTURA["sul"] <= lat <= COBERTURA["norte"] and COBERTURA["oeste"] <= lon <= COBERTURA["leste"]
 
 
 def pegar_json(url):
@@ -89,8 +92,21 @@ def foto_do_wikidata(codigo):
     return f"https://commons.wikimedia.org/wiki/Special:FilePath/{nome}?width=480", f"https://commons.wikimedia.org/wiki/File:{nome}"
 
 
-def gerar(pbf, pasta):
-    achados = {}
+def consultar(artigo, codigo):
+    """Foto, página e resumo (sem a checagem do nome) de um ponto com marca da Wikipédia ou do Wikidata."""
+    f, p, r = foto_do_artigo(artigo) if artigo else (None, None, None)
+    if not f and codigo:
+        f, p2 = foto_do_wikidata(codigo)
+        p = p or p2
+    time.sleep(0.15)                              # sem pressa: os servidores da Wikipédia são comunitários
+    return [f or "", p or "", r or ""]
+
+
+def gerar(pbf, pasta, arquivo_cache=None):
+    cache = {}
+    if arquivo_cache and os.path.exists(arquivo_cache):
+        cache = json.load(open(arquivo_cache, encoding="utf-8"))
+    achados, consultas = {}, 0
     leitor = osmium.FileProcessor(pbf, osmium.osm.NODE | osmium.osm.WAY).with_locations().with_filter(
         osmium.filter.KeyFilter("tourism", "natural", "historic", "leisure", "amenity", "boundary"))
     for objeto in leitor:
@@ -111,7 +127,7 @@ def gerar(pbf, pasta):
             if not locais:
                 continue
             lat, lon = sum(p[0] for p in locais) / len(locais), sum(p[1] for p in locais) / len(locais)
-        if dentro(lat, lon):
+        if brasil.dentro(lat, lon):
             achados[(round(lat * ESCALA), round(lon * ESCALA), tipo, nome[:50])] = (tags.get("wikipedia"), tags.get("wikidata"))
     lista, com_foto = [], 0
     for (lat, lon, tipo, nome), (artigo, codigo) in sorted(achados.items()):
@@ -119,27 +135,34 @@ def gerar(pbf, pasta):
             continue                                  # o mesmo lugar mapeado duas vezes (ponto e contorno): fica um só
         foto = pagina = resumo = ""
         if artigo or codigo:
-            f, p, r = foto_do_artigo(artigo) if artigo else (None, None, None)
-            if not f and codigo:
-                f, p2 = foto_do_wikidata(codigo)
-                p = p or p2
-            foto, pagina, resumo = f or "", p or "", r or ""
+            marca = f"{artigo or ''}|{codigo or ''}"
+            if marca not in cache and consultas < LIMITE_DE_CONSULTAS:
+                cache[marca] = consultar(artigo, codigo)
+                consultas += 1
+                if consultas % 500 == 0:
+                    print(f"  {consultas} consultas à Wikipédia...", flush=True)
+            foto, pagina, resumo = cache.get(marca, ["", "", ""])
             palavras = [w for w in nome.lower().replace(",", " ").split() if len(w) >= 5]
             if resumo and not any(w in resumo.lower()[:200] for w in palavras):
                 resumo = ""                                # o artigo é de outra coisa (por exemplo, a diocese no lugar da catedral): fica só a foto
             com_foto += bool(foto)
-            time.sleep(0.15)                          # sem pressa: os servidores da Wikipédia são comunitários
         lista.append([tipo, lat, lon, nome, foto, pagina, resumo])
-    os.makedirs(pasta, exist_ok=True)
-    with open(os.path.join(pasta, "interesses.json"), "w", encoding="utf-8", newline="\n") as f:
-        json.dump({"cobertura": COBERTURA, "escala": ESCALA, "p": lista}, f, ensure_ascii=False, separators=(",", ":"))
+    por_quadrado = {}
+    for item in lista:
+        por_quadrado.setdefault(brasil.chave(item[1] / ESCALA, item[2] / ESCALA), []).append(item)
+    brasil.gravar_quadrados(pasta, "p", por_quadrado)
+    if arquivo_cache:
+        with open(arquivo_cache, "w", encoding="utf-8", newline="\n") as f:
+            json.dump(cache, f, ensure_ascii=False, separators=(",", ":"))
+    print(f"  {consultas} consultas novas à Wikipédia (limite {LIMITE_DE_CONSULTAS}); {len(cache)} marcas no cache")
     por_tipo = {}
     for item in lista:
         por_tipo[item[0]] = por_tipo.get(item[0], 0) + 1
-    print(f"{len(lista)} pontos de interesse ({com_foto} com foto) em {pasta}: {dict(sorted(por_tipo.items()))}")
+    print(f"{len(lista)} pontos de interesse ({com_foto} com foto) em {len(por_quadrado)} quadrados, em {pasta}: {dict(sorted(por_tipo.items()))}")
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         sys.exit(__doc__)
-    gerar(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else os.path.join(os.path.dirname(os.path.abspath(__file__)), "interesses"))
+    gerar(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else os.path.join(os.path.dirname(os.path.abspath(__file__)), "interesses"),
+          sys.argv[3] if len(sys.argv) > 3 else None)

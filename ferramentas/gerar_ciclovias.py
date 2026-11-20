@@ -1,4 +1,4 @@
-"""Gera o arquivo das ciclovias do Espírito Santo (ferramentas/ciclovias/ciclovias.json) para a camada "Ciclovias" do Planejar pedal.
+"""Gera as ciclovias do Brasil para a camada "Ciclovias" do Planejar pedal (dados.brotenatrilha.com.br/br/ciclovias/, no R2 da Cloudflare).
 
 As ciclovias vêm de um arquivo .osm.pbf do OpenStreetMap (o mesmo do gerar_vias.py). Entram:
 - tipo 1, ciclovia (pista separada): vias highway=cycleway, caminhos com bicicleta designada (bicycle=designated) e ruas com cycleway=track
@@ -8,7 +8,8 @@ Ficam de fora o que está em obra ou proposto e o que é privado ou proibido par
 
 Uso:  python gerar_ciclovias.py ARQUIVO.osm.pbf [PASTA_DE_SAIDA]        (precisa do pacote "osmium": pip install osmium)
 
-O arquivo é {"cobertura": {...}, "escala": 100000, "c": [[tipo, [lat0, lon0, dlat1, dlon1, ...]], ...]}, com as coordenadas em inteiros de 1e-5 grau
+Um arquivo por quadrado de 1 grau (ver brasil.py; o trecho que passa por mais de um quadrado vai em todos):
+{"escala": 100000, "c": [[tipo, [lat0, lon0, dlat1, dlon1, ...]], ...]}, com as coordenadas em inteiros de 1e-5 grau
 (a primeira em valor absoluto, as outras como diferença da anterior); as linhas já saem simplificadas (até uns 2 m de diferença).
 Os dados são do OpenStreetMap (ODbL, © colaboradores do OpenStreetMap).
 """
@@ -19,8 +20,9 @@ import sys
 
 import osmium
 
-ESCALA = 100000
-COBERTURA = {"sul": -21.35, "norte": -18.0, "oeste": -41.95, "leste": -39.55}      # a mesma área das vias, dos apoios e dos pontos de interesse
+import brasil
+
+ESCALA = brasil.ESCALA
 TOLERANCIA = 2                                                                      # em unidades de 1e-5 grau: uns 2 m
 LADOS = ("cycleway", "cycleway:both", "cycleway:left", "cycleway:right")
 
@@ -69,10 +71,6 @@ def simplificar(pontos, tolerancia):
     return simplificar(pontos[:indice + 1], tolerancia)[:-1] + simplificar(pontos[indice:], tolerancia)
 
 
-def dentro(lat, lon):
-    return COBERTURA["sul"] - 0.1 <= lat <= COBERTURA["norte"] + 0.1 and COBERTURA["oeste"] - 0.1 <= lon <= COBERTURA["leste"] + 0.1
-
-
 def gerar(pbf, pasta):
     linhas = []
     leitor = osmium.FileProcessor(pbf, osmium.osm.NODE | osmium.osm.WAY).with_locations().with_filter(osmium.filter.KeyFilter("highway"))
@@ -87,7 +85,7 @@ def gerar(pbf, pasta):
             pontos = [(round(n.lat * ESCALA), round(n.lon * ESCALA)) for n in via.nodes if n.location.valid()]
         except osmium.InvalidLocationError:
             continue
-        if len(pontos) < 2 or not dentro(pontos[0][0] / ESCALA, pontos[0][1] / ESCALA):
+        if len(pontos) < 2 or not brasil.dentro(pontos[0][0] / ESCALA, pontos[0][1] / ESCALA, 0.1):
             continue
         pontos = simplificar(pontos, TOLERANCIA)
         plano = [pontos[0][0], pontos[0][1]]
@@ -95,13 +93,22 @@ def gerar(pbf, pasta):
             plano += [c - a, d - b]
         linhas.append([tipo, plano])
     linhas.sort(key=lambda x: (x[0], x[1][0], x[1][1]))
-    os.makedirs(pasta, exist_ok=True)
-    with open(os.path.join(pasta, "ciclovias.json"), "w", encoding="utf-8", newline="\n") as f:
-        json.dump({"cobertura": COBERTURA, "escala": ESCALA, "c": linhas}, f, separators=(",", ":"))
+    por_quadrado = {}
+    for linha in linhas:                                  # cada trecho vai para todos os quadrados por onde passa
+        p = linha[1]
+        lat, lon = p[0], p[1]
+        chaves = {brasil.chave(lat / ESCALA, lon / ESCALA)}
+        for i in range(2, len(p), 2):
+            lat += p[i]
+            lon += p[i + 1]
+            chaves.add(brasil.chave(lat / ESCALA, lon / ESCALA))
+        for k in chaves:
+            por_quadrado.setdefault(k, []).append(linha)
+    brasil.gravar_quadrados(pasta, "c", por_quadrado)
     por_tipo = {1: 0, 2: 0}
     for t, _ in linhas:
         por_tipo[t] += 1
-    print(f"{len(linhas)} trechos de ciclovia em {pasta}: {por_tipo[1]} ciclovias e {por_tipo[2]} ciclofaixas")
+    print(f"{len(linhas)} trechos de ciclovia em {len(por_quadrado)} quadrados, em {pasta}: {por_tipo[1]} ciclovias e {por_tipo[2]} ciclofaixas")
 
 
 if __name__ == "__main__":
