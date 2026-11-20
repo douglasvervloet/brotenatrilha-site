@@ -590,6 +590,7 @@
       escuro: { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", filtro: "grayscale(1) invert(1) brightness(.62) contrast(1.15)", credito: "© OpenStreetMap contributors | altitude: SRTM" }
     };
     var estilo = "ruas";
+    var URL_VIAS = "https://dados.brotenatrilha.com.br/vias/";                                       // as vias do terreno e do piso, no R2 da Cloudflare (o workflow vias.yml envia)
     var URL_ALTITUDE = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";   // metros = R·256 + G + B/256 − 32768
     var Z_ALTITUDE = 12, Z_MIN = 8, Z_MAX = 17, PASSO_AMOSTRA = 25;                                  // altitude lida no zoom 12; um ponto a cada 25 m
     var caixa = document.getElementById("mapa"), camada = document.getElementById("quadros"), desenho = document.getElementById("rota");
@@ -1677,7 +1678,7 @@
     function agendarTerreno() { clearTimeout(esperaTerreno); if (terrenoLigado) esperaTerreno = setTimeout(buscarTerreno, 1200); }
     var indiceDeVias = null, telasDeVias = {};
     function viasDoSite(amostras) {                                // as vias do Espírito Santo, lidas dos arquivos do site (nada sai do navegador); rejeita se a rota sai da área coberta
-      if (!indiceDeVias) indiceDeVias = fetch("/ferramentas/vias/indice.json").then(function (r) { if (!r.ok) throw new Error("sem vias do site"); return r.json(); }).catch(function (e) { indiceDeVias = null; throw e; });
+      if (!indiceDeVias) indiceDeVias = fetch(URL_VIAS + "indice.json").then(function (r) { if (!r.ok) throw new Error("sem vias do site"); return r.json(); }).catch(function (e) { indiceDeVias = null; throw e; });
       return indiceDeVias.then(function (ind) {
         var c = ind.cobertura, precisa = {};
         amostras.forEach(function (p) {
@@ -1689,7 +1690,7 @@
       });
     }
     function telaDeVias(chave, escala) {                           // os segmentos [lat1, lon1, lat2, lon2, tipo] de um quadradinho
-      if (!telasDeVias[chave]) telasDeVias[chave] = fetch("/ferramentas/vias/" + chave + ".json").then(function (r) { if (!r.ok) throw new Error("tela " + chave); return r.json(); }).then(function (d) {
+      if (!telasDeVias[chave]) telasDeVias[chave] = fetch(URL_VIAS + chave + ".json").then(function (r) { if (!r.ok) throw new Error("tela " + chave); return r.json(); }).then(function (d) {
         var segs = [];
         d.w.forEach(function (via) {
           var tipo = via[0] === 1 ? "Asfalto" : via[0] === 2 ? "Terra" : via[0] === 3 ? "Calçamento" : null, v = via[1], lat = 0, lon = 0, antes = null;
@@ -2086,7 +2087,7 @@
     AVISOS_ES.piso = ["Piso das ruas: só no Espírito Santo", "Mostra o piso das ruas que o OpenStreetMap descreve, só no Espírito Santo e a partir do zoom 12. Ruas sem o piso informado não aparecem."];
     function agendarPiso() { if (quadroPiso) return; quadroPiso = requestAnimationFrame(function () { quadroPiso = null; desenharPiso(); }); }
     function indiceDoPiso() {
-      if (!indiceDeVias) indiceDeVias = fetch("/ferramentas/vias/indice.json").then(function (r) { if (!r.ok) throw new Error("sem vias do site"); return r.json(); }).catch(function (e) { indiceDeVias = null; throw e; });
+      if (!indiceDeVias) indiceDeVias = fetch(URL_VIAS + "indice.json").then(function (r) { if (!r.ok) throw new Error("sem vias do site"); return r.json(); }).catch(function (e) { indiceDeVias = null; throw e; });
       return indiceDeVias;
     }
     function legendaDoPiso(aviso) {
