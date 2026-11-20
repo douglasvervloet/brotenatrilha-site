@@ -1849,14 +1849,16 @@ def botoes(p, claro_assistir=False, extra="", strava=True):
     return " ".join(links) + extra
 
 
-def cartao(p):
+def cartao(p, primeiro=False):
     km, media = numeros(p)
     titulo = html.escape(titulo_exibido(p))
     mapa = mapa_html(p, "/pedais/mapas/")
+    # a capa do primeiro cartão é a maior imagem da tela ao abrir: vem logo, sem esperar a rolagem (Lighthouse: LCP)
+    carregar = 'fetchpriority="high"' if primeiro else 'loading="lazy"'
     capa = (f'<div class="capa"><img src="/pedais/capas/{p["_video"]["id"]}.webp" width="{CAPA_L}" height="{CAPA_L * 9 // 16}" '
-            f'loading="lazy" decoding="async" alt="Capa do vídeo {titulo}"></div>') if p.get("_capa") else ""
+            f'{carregar} decoding="async" alt="Capa do vídeo {titulo}"></div>') if p.get("_capa") else ""
     # O botão de trocar a imagem só deste cartão (aparece com JavaScript; sem ele fica a capa); fora do link, que não pode ter botão dentro
-    alterna = ('<button type="button" class="alterna" hidden aria-pressed="false" aria-label="Ver o mapa deste pedal">' + ICONE_MAPA + 'Ver mapa</button>'
+    alterna = ('<button type="button" class="alterna" hidden aria-pressed="false" aria-label="Ver mapa deste pedal">' + ICONE_MAPA + 'Ver mapa</button>'
                if capa else "")
     return f"""      <article class="pedal{"" if capa else " sem-capa"}" data-ano="{p["start_date_local"][:4]}" data-km="{km:.1f}" data-nome="{html.escape(normalizar(p["name"] + " " + titulo_exibido(p) + " " + " ".join(p.get("_passa", []))))}" data-subida="{nivel_da_subida(p)}" data-terreno="{terreno_do_pedal(p)}" data-sai="{slug_texto(p.get("_sai") or "")}" data-chega="{slug_texto(p.get("_chega") or "")}" data-passa="|{"|".join(slug_texto(c) for c in p.get("_passa", []))}|">
         <div class="imagem">
@@ -1893,7 +1895,7 @@ def montar_pagina(todos, modelo, ano):
     anos = anos_dos_pedais(todos)
     pedais = [p for p in todos if p["start_date_local"][:4] == ano]
     blocos = [f'    <div class="bloco-ano">\n    <h2 class="ano">{ano}</h2>\n    <div class="grade">\n'
-              + "\n".join(cartao(p) for p in pedais) + "\n    </div>\n    </div>"]
+              + "\n".join(cartao(p, i == 0) for i, p in enumerate(pedais)) + "\n    </div>\n    </div>"]
     nav_anos = "".join(f'<a href="{endereco_da_lista(a, anos)}"' + (' aria-current="page"' if a == ano else "")
                        + f'>{a}<small>{sum(1 for p in todos if p["start_date_local"][:4] == a)}</small></a>' for a in anos)
     titulo = "Pedais" if ano == anos[0] else f"Pedais de {ano}"
@@ -2293,6 +2295,7 @@ def main():
             with open(os.path.join(pasta, "index.html"), "w", encoding="utf-8", newline="\n") as f:
                 f.write(pagina_de_redirecionamento(p))
             slugs.add(antigo)
+    slugs.update(anos_dos_pedais(pedais)[1:])           # as listas dos anos anteriores (/pedais/2025/) também ficam
     limpar_paginas_antigas(base, slugs)
     if pedais:
         escrever_mapa_geral(pedais, base, pasta_gpx, pasta_cache)

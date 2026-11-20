@@ -54,6 +54,7 @@
   .anos a:hover { border-color: var(--verde); }
   .anos a[aria-current="page"] { background: var(--verde); border-color: var(--verde); color: #fff; }
   .anos small { opacity: .75; font-weight: 400; margin-left: 4px; }
+  .anos a[aria-current="page"] small { opacity: 1; }
   #contagem { margin: 0; color: var(--suave); font-size: .9rem; }
   .barra-filtros { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
   .barra-filtros input { flex: 1 1 240px; width: auto; min-width: 0; }
@@ -198,7 +199,7 @@
       var mapa = cartao.classList.toggle("ver-mapa");
       botao.innerHTML = mapa ? ICONE_CAPA_JS + "Ver capa" : ICONE_MAPA_JS + "Ver mapa";
       botao.setAttribute("aria-pressed", String(mapa));
-      botao.setAttribute("aria-label", mapa ? "Ver a capa do vídeo deste pedal" : "Ver o mapa deste pedal");
+      botao.setAttribute("aria-label", mapa ? "Ver capa do vídeo deste pedal" : "Ver mapa deste pedal");
     });
   });
 

@@ -1,0 +1,20 @@
+# Cabeçalhos do Cloudflare Pages. Imagens que quase nunca mudam ficam 7 dias no navegador de quem visita
+# (o padrão era 4 horas): quem volta ao site não baixa tudo de novo. As páginas HTML continuam sem cache (sempre a versão nova).
+/pedais/capas/*
+  Cache-Control: public, max-age=604800
+/pedais/mapas/*
+  Cache-Control: public, max-age=604800
+/capas-playlists/*
+  Cache-Control: public, max-age=604800
+/logo.webp
+  Cache-Control: public, max-age=604800
+/logo.png
+  Cache-Control: public, max-age=604800
+/brote-*
+  Cache-Control: public, max-age=604800
+/favicon.*
+  Cache-Control: public, max-age=604800
+/apple-touch-icon.png
+  Cache-Control: public, max-age=604800
+/icone-*
+  Cache-Control: public, max-age=604800
