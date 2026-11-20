@@ -1,0 +1,54 @@
+# Publica o site no Cloudflare Pages (projeto "brotenatrilha"), em paralelo com o GitHub Pages até a troca do domínio.
+# Os robôs fazem commit com o token padrão do Actions, e esse push não dispara outro workflow: por isso, além do push,
+# o deploy roda quando cada robô que grava no repositório termina bem (workflow_run).
+# Segredos: CLOUDFLARE_API_TOKEN (permissão "Cloudflare Pages: Edit") e CLOUDFLARE_ACCOUNT_ID.
+# Sem os segredos o deploy é pulado (o workflow não falha): dá para deixar este arquivo no repositório antes de criar a conta.
+# Passo a passo da migração: .github/MIGRACAO_CLOUDFLARE.md
+name: Publicar na Cloudflare
+
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: ["Atualizar números do canal", "Atualizar página de pedais", "Atualizar vias e pontos de apoio do Espírito Santo", "Links dos pedais no YouTube"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:                       # dois deploys seguidos: o mais novo vale (ele já leva o último commit)
+  group: cloudflare-pages
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - name: Avisar se faltam os segredos
+        if: env.CF_TOKEN == ''
+        run: echo "::notice::Sem CLOUDFLARE_API_TOKEN nos segredos do repositório; o deploy foi pulado."
+
+      - uses: actions/checkout@v4
+        if: env.CF_TOKEN != ''
+        with:
+          ref: main                # no workflow_run, o último commit do main (o do robô)
+
+      - name: Separar o que vai para o ar (o repositório inteiro, menos .git e .github, como no GitHub Pages)
+        if: env.CF_TOKEN != ''
+        run: |
+          mkdir -p "$RUNNER_TEMP/site"
+          rsync -a --exclude '.git' --exclude '.github' ./ "$RUNNER_TEMP/site/"
+          echo "Arquivos: $(find "$RUNNER_TEMP/site" -type f | wc -l) (limite do plano grátis: 20000)"
+
+      - name: Publicar no Cloudflare Pages
+        if: env.CF_TOKEN != ''
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ${{ runner.temp }}/site --project-name=brotenatrilha --branch=main --commit-hash=${{ github.sha }}
