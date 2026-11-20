@@ -1,3 +1,5 @@
 __pycache__/
 *.pyc
 novo_refresh.txt
+# as vias do Planejar ficam só no R2 (dados.brotenatrilha.com.br/vias/), enviadas pelo workflow vias.yml
+ferramentas/vias/

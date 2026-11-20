@@ -37,6 +37,8 @@ A ordem abaixo não deixa o site fora do ar: o GitHub Pages só é desligado dep
 
 16. Criar o bucket R2 `brotenatrilha-dados`, ligar o domínio `dados.brotenatrilha.com.br` e liberar o CORS para `https://brotenatrilha.com.br`.
 17. Criar um token do R2 e guardar nos segredos do GitHub; aí o `vias.yml` passa a enviar os quadradinhos ao R2 e o Planejar a lê-los de lá.
+    **Feito em 2026-11-20**: bucket `brotenatrilha-dados` em `dados.brotenatrilha.com.br`, CORS para o site, segredos `R2_ACCESS_KEY_ID` e `R2_SECRET_ACCESS_KEY`;
+    as vias saíram do repositório e o Planejar as lê do R2.
 
 ## O que fica igual
 

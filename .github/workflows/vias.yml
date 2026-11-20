@@ -1,19 +1,14 @@
 # Atualiza todo mês os arquivos do Espírito Santo que a ferramenta "Planejar pedal" lê: as vias (ferramentas/vias/, para o terreno: asfalto, terra,
 # calçamento, sem depender do Overpass) os pontos de apoio (ferramentas/apoios/) os pontos de interesse (ferramentas/interesses/) e as ciclovias (ferramentas/ciclovias/). Baixa o mapa do Sudeste na Geofabrik (uns 900 MB), roda ferramentas/gerar_vias.py
 # e grava só se algo mudou. Depois envia as vias ao R2 da Cloudflare (bucket brotenatrilha-dados, servido em dados.brotenatrilha.com.br),
-# com os segredos R2_ACCESS_KEY_ID e R2_SECRET_ACCESS_KEY (sem eles, o envio é pulado). Pode ser rodado na mão em "Actions";
-# "só enviar" manda ao R2 os arquivos que já estão no repositório, sem baixar o mapa.
+# com os segredos R2_ACCESS_KEY_ID e R2_SECRET_ACCESS_KEY. As vias não vão mais para o repositório (2.800 arquivos): só para o R2.
+# Pode ser rodado na mão em "Actions".
 name: Atualizar vias e pontos de apoio do Espírito Santo
 
 on:
   schedule:
     - cron: "0 6 3 * *"   # dia 3 de cada mês às 06:00 UTC (3:00 em Brasília)
   workflow_dispatch:
-    inputs:
-      so_enviar:
-        description: "Só enviar ao R2 as vias que já estão no repositório (não baixa o mapa)"
-        type: boolean
-        default: false
 
 permissions:
   contents: write
@@ -30,20 +25,16 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
-        if: ${{ !inputs.so_enviar }}
         with:
           python-version: "3.12"
 
       - name: Instalar osmium (lê o mapa) e Pillow (o gerador importa o código dos pedais)
-        if: ${{ !inputs.so_enviar }}
         run: pip install osmium pillow
 
       - name: Baixar o mapa do Sudeste (Geofabrik)
-        if: ${{ !inputs.so_enviar }}
         run: curl -fL --retry 3 --retry-delay 20 -o "$RUNNER_TEMP/sudeste.osm.pbf" https://download.geofabrik.de/south-america/brazil/sudeste-latest.osm.pbf
 
       - name: Gerar os arquivos de vias
-        if: ${{ !inputs.so_enviar }}
         run: |
           python ferramentas/gerar_vias.py "$RUNNER_TEMP/sudeste.osm.pbf" ferramentas/vias
           # um mapa quebrado não pode apagar as vias do site: o estado inteiro dá uns 2.800 arquivos
@@ -51,32 +42,28 @@ jobs:
           if [ "$n" -lt 2000 ]; then echo "::error::Só $n arquivos de vias: algo deu errado, nada foi gravado."; exit 1; fi
 
       - name: Gerar os pontos de apoio (água, mercado, posto, lanchonete, bike, banheiro)
-        if: ${{ !inputs.so_enviar }}
         run: |
           python ferramentas/gerar_apoios.py "$RUNNER_TEMP/sudeste.osm.pbf" ferramentas/apoios
           n=$(python -c "import json; print(len(json.load(open('ferramentas/apoios/apoios.json', encoding='utf-8'))['p']))")
           if [ "$n" -lt 2000 ]; then echo "::error::Só $n pontos de apoio: algo deu errado, nada foi gravado."; exit 1; fi
 
       - name: Gerar os pontos de interesse (com foto da Wikipédia)
-        if: ${{ !inputs.so_enviar }}
         run: |
           python ferramentas/gerar_interesses.py "$RUNNER_TEMP/sudeste.osm.pbf" ferramentas/interesses
           n=$(python -c "import json; print(len(json.load(open('ferramentas/interesses/interesses.json', encoding='utf-8'))['p']))")
           if [ "$n" -lt 300 ]; then echo "::error::Só $n pontos de interesse: algo deu errado, nada foi gravado."; exit 1; fi
 
       - name: Gerar as ciclovias (camada Ciclovias do Planejar pedal)
-        if: ${{ !inputs.so_enviar }}
         run: |
           python ferramentas/gerar_ciclovias.py "$RUNNER_TEMP/sudeste.osm.pbf" ferramentas/ciclovias
           n=$(python -c "import json; print(len(json.load(open('ferramentas/ciclovias/ciclovias.json', encoding='utf-8'))['c']))")
           if [ "$n" -lt 400 ]; then echo "::error::Só $n trechos de ciclovia: algo deu errado, nada foi gravado."; exit 1; fi
 
       - name: Gravar se mudou
-        if: ${{ !inputs.so_enviar }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A ferramentas/vias ferramentas/apoios ferramentas/interesses ferramentas/ciclovias
+          git add -A ferramentas/apoios ferramentas/interesses ferramentas/ciclovias
           git diff --cached --quiet || (git commit -m "Atualiza as vias do Espírito Santo" && git pull --rebase origin main && git push)
 
       - name: Enviar as vias ao R2 (dados.brotenatrilha.com.br/vias/)
@@ -87,7 +74,7 @@ jobs:
           AWS_REQUEST_CHECKSUM_CALCULATION: when_required      # o aws novo manda uma checagem que o R2 não aceita
           AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
         run: |
-          if [ -z "$AWS_ACCESS_KEY_ID" ]; then echo "::notice::Sem R2_ACCESS_KEY_ID nos segredos; o envio ao R2 foi pulado."; exit 0; fi
+          if [ -z "$AWS_ACCESS_KEY_ID" ]; then echo "::error::Sem R2_ACCESS_KEY_ID nos segredos: as vias não foram publicadas."; exit 1; fi
           n=$(ls ferramentas/vias | wc -l)
           if [ "$n" -lt 2000 ]; then echo "::error::Só $n arquivos de vias: nada foi enviado ao R2."; exit 1; fi
           aws s3 sync ferramentas/vias s3://brotenatrilha-dados/vias --delete --only-show-errors             --endpoint-url https://a31fab7247d8f39a21d0f52f1261a8d1.r2.cloudflarestorage.com             --content-type application/json --cache-control "public, max-age=86400"
