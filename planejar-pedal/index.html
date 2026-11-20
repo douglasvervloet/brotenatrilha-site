@@ -440,7 +440,7 @@
     <h2>Previsão do tempo</h2>
     <div class="acoes" style="margin-top:8px"><button class="sec" type="button" id="b-previsao" title="Ver a previsão do tempo para a saída"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a4 4 0 0 1 .5-8A5.5 5.5 0 0 1 18 11.5 3.3 3.3 0 0 1 17.5 18z"/></svg>Ver previsão</button></div>
     <p class="nota" id="status-previsao" aria-live="polite" hidden></p>
-    <div class="previsao-grafico" id="previsao-grafico" hidden><svg id="grafico-tempo" viewBox="0 0 1000 372" role="img" aria-label="Gráfico da temperatura, do vento e da chuva previstos para as horas do pedal"></svg></div>
+    <div class="previsao-grafico" id="previsao-grafico" hidden><svg id="grafico-tempo" viewBox="0 0 1000 372" role="img" aria-label="Gráfico da temperatura, da sensação térmica, do vento e da chuva previstos para as horas do pedal"></svg></div>
     <p class="nota" id="resumo-previsao" hidden style="margin-top:10px"></p>
     <div class="vento-percurso" id="vento-percurso" hidden></div>
     <div class="grafico">
@@ -453,7 +453,7 @@
   </div>
   <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled title="Copiar o link da rota"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="rot">Copiar link</span></button><button class="sec" type="button" id="b-roadbook" disabled title="Roadbook para imprimir"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Roadbook</button><button class="sec" type="button" id="b-imagem" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 3.5 3L16 12l4.5 4.5"/></svg>Salvar imagem</button></div>
   <p class="nota">A altitude vem do relevo do mapa (SRTM), a cada 25 m ao longo da linha, e pode diferir da de um aparelho de GPS. O ganho total ignora oscilações de até 12 m, ajustado com os pedais do canal contra o Strava (erro médio de uns 12%). O GPX baixado traz só o traçado e a altitude. Com “Grudar nas ruas” desligado as linhas são retas entre os pontos: para seguir uma curva, clique com mais frequência.</p>
-  <p class="nota">O link guarda a rota no próprio endereço, depois do “#”: o navegador não envia essa parte a nenhum servidor. Quem abrir o link vê a mesma rota; o “Grudar nas ruas” é ligado por cada pessoa. Um pedal aberto do canal vai simplificado no link (só os pontos, sem o caminho inteiro).</p>
+  <p class="nota">O link guarda a rota no próprio endereço, depois do “#”: o navegador não envia essa parte a nenhum servidor. Quem abrir o link vê a mesma rota, com as chaves do mapa que estavam ligadas (Grudar nas ruas, terreno e camadas): elas ligam sozinhas ao abrir e fazem os mesmos pedidos de quando a pessoa as liga. Um pedal aberto do canal vai simplificado no link (só os pontos, sem o caminho inteiro).</p>
 </main>
 <footer>
   <div class="miolo">
@@ -758,14 +758,32 @@
         return '<g transform="translate(' + x.toFixed(1) + "," + y.toFixed(1) + ')" pointer-events="none"><rect width="' + largura + '" height="30" rx="15" fill="rgba(12,23,17,.9)" stroke="' + borda + '" stroke-opacity="' + (borda === "#fff" ? ".4" : "1") + '"' + (borda === "#fff" ? "" : ' stroke-width="2"') + '/>' +
           '<text x="' + (largura / 2) + '" y="20" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">' + texto + "</text></g>";
       };
+      var tocaNaRota = function (x, y, w, h) {                       // quanto da rota (pontos pesam mais) cai dentro do retângulo, com uma folga
+        var folga = 10, n = 0, dentro = function (q) { return q.x > x - folga && q.x < x + w + folga && q.y > y - folga && q.y < y + h + folga; };
+        p.forEach(function (q) { if (dentro(q)) n += 5; });
+        for (var k = 1; k < idaTela.length; k++) {
+          var a = idaTela[k - 1], b = idaTela[k], passos = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / 6));
+          for (var s = 0; s <= passos; s++) if (dentro({ x: a.x + (b.x - a.x) * s / passos, y: a.y + (b.y - a.y) * s / passos })) n++;
+        }
+        return n;
+      };
+      var etiquetaLivre = function (ponto, dx, dy, largura, texto, borda) {   // a etiqueta vai para o canto do ponto que menos cobre a rota; o canto de sempre vence os empates
+        var cantos = [[dx, dy], [dx, 8], [-largura - dx, dy], [-largura - dx, 8], [-largura / 2, -46], [-largura / 2, 18]], melhor = null;
+        cantos.forEach(function (c) {
+          var x = ponto.x + c[0], y = ponto.y + c[1], n = tocaNaRota(x, y, largura, 30);
+          if (x < 4 || y < 4 || x + largura > L() - 4 || y + 30 > A() - 4) n += 1000;                  // fora da tela só se não houver outro lugar
+          if (!melhor || n < melhor.n) melhor = { n: n, x: x, y: y };
+        });
+        return etiqueta(melhor.x, melhor.y, largura, texto, borda);
+      };
       if (p.length > 1) {
         var f = p[p.length - 1];
         if (comRetorno) {
           svg += '<path d="M' + (f.x - 3).toFixed(1) + " " + (f.y + 6).toFixed(1) + " V" + (f.y - 6).toFixed(1) + " L" + (f.x + 6).toFixed(1) + " " + (f.y - 3).toFixed(1) + " L" + (f.x - 3).toFixed(1) + " " + f.y.toFixed(1) + '" fill="#fff" stroke="#fff" stroke-width="1.5" stroke-linejoin="round" pointer-events="none"/>';
-          svg += etiqueta(f.x + 16, f.y - 38, 142, "Retorno · km " + fmt(kmIda, 1), "#e8873a");
-          svg += etiqueta(p[0].x + 20, p[0].y - 12, 118, "Início e fim", "#fff");
+          svg += etiquetaLivre(f, 16, -38, 142, "Retorno · km " + fmt(kmIda, 1), "#e8873a");
+          svg += etiquetaLivre(p[0], 20, -12, 118, "Início e fim", "#fff");
         } else {
-          svg += etiqueta(f.x + 14, f.y - 34, 92, fmt(comprimento(linhaCompleta()) / 1000, 1) + " km", "#fff");
+          svg += etiquetaLivre(f, 14, -34, 92, fmt(comprimento(linhaCompleta()) / 1000, 1) + " km", "#fff");
         }
       }
       svg += dicaDoApoio();
@@ -1299,7 +1317,9 @@
       }
       var chuva = horas.filter(function (q) { return (q.prob !== null && q.prob >= 50) || q.mm >= 1; });
       var rajada = Math.round(Math.max.apply(null, horas.map(function (q) { return q.raj; })));
-      return "Céu " + partes.join(", ") + ". Rajadas de até " + rajada + " km/h. " + (chuva.length ? "Chuva provável " + (chuva.length > 1 ? "das " + hh(chuva[0]) + " às " + hh(chuva[chuva.length - 1]) : "às " + hh(chuva[0])) + "." : "Chuva improvável.");
+      var sens = horas.map(function (q) { return q.sens; }).filter(function (v) { return v !== null && v !== undefined; });
+      var faixaSens = sens.length ? ". Sensação de " + Math.round(Math.min.apply(null, sens)) + (Math.round(Math.max.apply(null, sens)) === Math.round(Math.min.apply(null, sens)) ? "" : " a " + Math.round(Math.max.apply(null, sens))) + " °C" : "";
+      return "Céu " + partes.join(", ") + faixaSens + ". Rajadas de até " + rajada + " km/h. " + (chuva.length ? "Chuva provável " + (chuva.length > 1 ? "das " + hh(chuva[0]) + " às " + hh(chuva[chuva.length - 1]) : "às " + hh(chuva[0])) + "." : "Chuva improvável.");
     }
     function buscarPrevisao() {
       var data = document.getElementById("luz-data").value;
@@ -1308,7 +1328,7 @@
       if (dias > 15) { esconderPrevisao(); estadoDaPrevisao("A previsão só vai até 16 dias à frente. Escolha uma data mais perto."); return; }
       var fim = ultimaChegadaMin >= 1440 ? somarDias(data, 1) : data, lat = rota[0].lat.toFixed(2), lon = rota[0].lon.toFixed(2), minha = ++versaoPrevisao;
       var base = dias < -5 ? "https://archive-api.open-meteo.com/v1/archive" : "https://api.open-meteo.com/v1/forecast";
-      var variaveis = "temperature_2m,precipitation,wind_speed_10m,wind_gusts_10m,wind_direction_10m,cloud_cover" + (dias < -5 ? "" : ",precipitation_probability");
+      var variaveis = "temperature_2m,apparent_temperature,precipitation,wind_speed_10m,wind_gusts_10m,wind_direction_10m,cloud_cover" + (dias < -5 ? "" : ",precipitation_probability");
       var url = base + "?latitude=" + lat + "&longitude=" + lon + "&hourly=" + variaveis + "&timezone=America%2FSao_Paulo&wind_speed_unit=kmh&start_date=" + data + "&end_date=" + fim;
       estadoDaPrevisao("Buscando a previsão…");
       (cachePrevisao[url] ? Promise.resolve(cachePrevisao[url]) : fetch(url).then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })).then(function (d) {
@@ -1318,7 +1338,7 @@
         cachePrevisao[url] = d;
         var primeira = Math.floor(ultimaSaidaMin / 60), ultima = Math.min(h.time.length - 1, Math.floor(ultimaChegadaMin / 60));
         horasPrevistas = [];
-        for (var k = primeira; k <= ultima && k - primeira < 16; k++) horasPrevistas.push({ h: k, temp: h.temperature_2m[k], prob: h.precipitation_probability ? h.precipitation_probability[k] : null, mm: h.precipitation[k], vel: h.wind_speed_10m[k], raj: Math.max(h.wind_gusts_10m[k], h.wind_speed_10m[k]), dir: h.wind_direction_10m[k], nuvens: h.cloud_cover[k] });
+        for (var k = primeira; k <= ultima && k - primeira < 16; k++) horasPrevistas.push({ h: k, temp: h.temperature_2m[k], sens: h.apparent_temperature ? h.apparent_temperature[k] : null, prob: h.precipitation_probability ? h.precipitation_probability[k] : null, mm: h.precipitation[k], vel: h.wind_speed_10m[k], raj: Math.max(h.wind_gusts_10m[k], h.wind_speed_10m[k]), dir: h.wind_direction_10m[k], nuvens: h.cloud_cover[k] });
         if (!horasPrevistas.length) throw new Error("sem horas");
         estadoDaPrevisao("");
         document.getElementById("previsao-grafico").hidden = false;
@@ -1375,10 +1395,19 @@
       var faixa = function (y1, titulo, meio) { return '<line x1="' + ml + '" y1="' + y1 + '" x2="' + (ml + W) + '" y2="' + y1 + '" stroke="var(--linha)"/><text class="eixo" x="' + (ml - 12) + '" y="' + meio + '" text-anchor="end">' + titulo + "</text>"; };
       s += '<rect x="' + (ml + passo * horaDoVento).toFixed(1) + '" y="12" width="' + passo.toFixed(1) + '" height="330" rx="10" fill="var(--verde)" opacity=".16"/>';
       s += faixa(92, estreito ? "Temp." : "Temp. (°C)", 62) + faixa(190, estreito ? "Vento" : "Vento (km/h)", 156) + '<text class="eixo" x="' + (ml - 12) + '" y="172" text-anchor="end" style="font-size:11px">' + (estreito ? "vel.–raj." : "velocidade–rajada") + '</text>' + faixa(262, estreito ? "Céu" : "Céu (nuvens)", 242) + faixa(334, estreito ? "Chuva" : "Chuva (%)", 314);
-      var temps = horas.map(function (q) { return q.temp; }), tmin = Math.min.apply(null, temps) - 2, tmax = Math.max.apply(null, temps) + 2;
+      var comSens = horas.every(function (q) { return q.sens !== null && q.sens !== undefined; });      // a sensação térmica, quando o serviço manda
+      var temps = horas.map(function (q) { return q.temp; }).concat(comSens ? horas.map(function (q) { return q.sens; }) : []), tmin = Math.min.apply(null, temps) - 2, tmax = Math.max.apply(null, temps) + 2;
       var yT = function (v) { return 92 - (v - tmin) / (tmax - tmin) * 50; };
+      if (comSens) {
+        s += '<text class="eixo" x="' + (ml - 12) + '" y="78" text-anchor="end" style="fill:#f2c14e;font-size:11px">' + (estreito ? "sens." : "sensação") + "</text>";
+        s += '<polyline points="' + horas.map(function (q, i) { return x(i).toFixed(1) + "," + yT(q.sens).toFixed(1); }).join(" ") + '" fill="none" stroke="#f2c14e" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round" stroke-linecap="round"/>';
+      }
       s += '<polyline points="' + horas.map(function (q, i) { return x(i).toFixed(1) + "," + yT(q.temp).toFixed(1); }).join(" ") + '" fill="none" stroke="#e8873a" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>';
-      horas.forEach(function (q, i) { s += '<circle cx="' + x(i).toFixed(1) + '" cy="' + yT(q.temp).toFixed(1) + '" r="4.5" fill="#e8873a" stroke="#fff" stroke-width="1.5"/><text x="' + x(i).toFixed(1) + '" y="' + (yT(q.temp) - 10).toFixed(1) + '" text-anchor="middle">' + Math.round(q.temp) + "°</text>"; });
+      horas.forEach(function (q, i) {                                // o valor mais alto vai acima do seu ponto e o mais baixo abaixo, para os dois números não se cruzarem
+        var sobe = !comSens || q.temp >= q.sens;
+        if (comSens) s += '<circle cx="' + x(i).toFixed(1) + '" cy="' + yT(q.sens).toFixed(1) + '" r="3.6" fill="var(--cartao)" stroke="#f2c14e" stroke-width="1.8"/><text x="' + x(i).toFixed(1) + '" y="' + (yT(q.sens) + (sobe ? 16 : -10)).toFixed(1) + '" text-anchor="middle" style="fill:#f2c14e;font-size:' + fonte + 'px">' + Math.round(q.sens) + "°</text>";
+        s += '<circle cx="' + x(i).toFixed(1) + '" cy="' + yT(q.temp).toFixed(1) + '" r="4.5" fill="#e8873a" stroke="#fff" stroke-width="1.5"/><text x="' + x(i).toFixed(1) + '" y="' + (yT(q.temp) + (sobe ? -10 : 18)).toFixed(1) + '" text-anchor="middle">' + Math.round(q.temp) + "°</text>";
+      });
       var vmax = Math.max(10, Math.max.apply(null, horas.map(function (q) { return q.raj; })) * 1.2), yV = function (v) { return 190 - v / vmax * 44; };
       s += '<polyline points="' + horas.map(function (q, i) { return x(i).toFixed(1) + "," + yV(q.vel).toFixed(1); }).join(" ") + '" fill="none" stroke="#3a9ad9" stroke-width="2.2" opacity=".6" stroke-linejoin="round"/>';
       horas.forEach(function (q, i) {                                // o ponto cheio é a velocidade; o vazado, acima, é a rajada; o texto diz velocidade–rajada e de onde o vento vem (N, NE, L, SE, S, SO, O, NO)
@@ -1448,12 +1477,27 @@
       while (i < s.length) { la += proximo(); lo += proximo(); saida.push({ lat: la / (escala || 1e5), lon: lo / (escala || 1e5) }); }
       return saida;
     }
+    var OPCOES_DO_LINK = { "b-grudar": "g", "b-evitar": "e", "b-mao": "m", "b-terreno": "t", "b-apoios": "a", "b-km": "k", "b-piso": "p", "b-ciclovias": "c", "b-pedais": "d", "b-interesses": "i" };      // as chaves do mapa que o link leva, só as ligadas
+    function opcoesDoLink() {
+      return Object.keys(OPCOES_DO_LINK).filter(function (id) { return document.getElementById(id).getAttribute("aria-pressed") === "true"; }).map(function (id) { return OPCOES_DO_LINK[id]; }).join("");
+    }
+    function ligarOpcoesDoLink(resto) {                                      // liga as chaves que o link traz (nunca desliga uma que a pessoa já ligou)
+      var o = resto.match(/&o=([a-z]+)/);
+      if (!o) return;
+      Object.keys(OPCOES_DO_LINK).forEach(function (id) {
+        var b = document.getElementById(id);
+        if (o[1].indexOf(OPCOES_DO_LINK[id]) >= 0 && b.getAttribute("aria-pressed") !== "true") b.click();
+      });
+    }
     function hashDaRota() {
       if (!rota.length) return "";
-      var livres = [];
+      var livres = [], opcoes = opcoesDoLink();
       rota.forEach(function (p, i) { if (p.livre) livres.push(i); });
-      return "#r=" + encodeURIComponent(codificar(rota)) + (livres.length ? "&l=" + livres.join(".") : "") + (idaEVolta ? "&iv=1" : "");
+      return "#r=" + encodeURIComponent(codificar(rota)) + (livres.length ? "&l=" + livres.join(".") : "") + (idaEVolta ? "&iv=1" : "") + (opcoes ? "&o=" + opcoes : "");
     }
+    Object.keys(OPCOES_DO_LINK).forEach(function (id) {                      // ligar ou desligar uma chave do mapa muda o link (e o endereço)
+      document.getElementById(id).addEventListener("click", function () { setTimeout(atualizarEndereco, 0); });
+    });
     function atualizarEndereco() { try { history.replaceState(null, "", location.pathname + hashDaRota()); } catch (x) { /* sem história, o link só não acompanha */ } }
     document.getElementById("b-link").addEventListener("click", function () {
       var url = location.origin + location.pathname + hashDaRota(), botao = this, msg = document.getElementById("msg-pedal");
@@ -1515,7 +1559,7 @@
         abrirPercurso(pts, { id: id }, "Percurso do pedal aberto e simplificado em ");
       }).catch(function () { msg.textContent = "Não consegui abrir o percurso deste pedal."; msg.hidden = false; });
     }
-    var doPedal = location.search.match(/[?&]pedal=(\d+)(&|$)/), doLink = location.hash.match(/^#r=([^&]+)((?:&[a-z]+=[\d.]*)*)$/);
+    var doPedal = location.search.match(/[?&]pedal=(\d+)(&|$)/), doLink = location.hash.match(/^#r=([^&]+)((?:&[a-z]+=[\w.]*)*)$/);
     if (doPedal) carregarPedal(doPedal[1]);
     else if (doLink) rotaDoHash(location.hash);
 
@@ -1750,7 +1794,7 @@
     });
 
     function rotaDoHash(h, caminhos) {                                       // abre a rota de um endereço "#r=..."; false se não é uma rota nossa
-      var m = h.match(/^#r=([^&]+)((?:&[a-z]+=[\d.]*)*)$/);
+      var m = h.match(/^#r=([^&]+)((?:&[a-z]+=[\w.]*)*)$/);
       if (!m) return false;
       try {
         var lidos = decodificar(decodeURIComponent(m[1])).slice(0, 500);
@@ -1762,6 +1806,7 @@
         idaEVolta = /&iv=1/.test(m[2]);
         document.getElementById("b-ida-volta").setAttribute("aria-pressed", String(idaEVolta));
         enquadrarRota(); mudou();
+        setTimeout(function () { ligarOpcoesDoLink(m[2]); }, 0);      // depois do resto da página carregar: as chaves só têm efeito quando os botões já estão prontos
         return true;
       } catch (x) { return false; }                                // um link que não é nosso: ignora
     }
@@ -2304,15 +2349,16 @@
         h.push("<h2>Terreno</h2><p>" + nomes.filter(function (x) { return cont[x]; }).map(function (x) { return "<b>" + Math.round(cont[x] / terreno.tipos.length * 100) + "%</b> " + x.toLowerCase() + " (" + fmt(cont[x] * 0.2 * (idaEVolta ? 2 : 1), 1) + " km)"; }).join(" · ") + "</p>");
       }
       if (horasPrevistas.length) {
-        h.push("<h2>Previsão do tempo</h2><p>" + htmlSeguro(el("resumo-previsao").textContent) + "</p><table><tr><th>Hora</th><th>Temperatura</th><th>Céu</th><th>Chuva</th><th>Vento</th></tr>" + horasPrevistas.map(function (q) {
-          return "<tr><td>" + dois(q.h % 24) + "h</td><td>" + Math.round(q.temp) + " °C</td><td>" + ceuDe(q.nuvens) + "</td><td>" + (q.prob !== null ? q.prob + "%" : fmt(q.mm, 1) + " mm") + "</td><td>de " + pontoCardeal(q.dir) + " · " + Math.round(q.vel) + " km/h (rajadas de " + Math.round(q.raj) + ")</td></tr>";
+        var diaSeguinte = somarDias(el("luz-data").value, 1).split("-").reverse().slice(0, 2).join("/");      // as horas depois da meia-noite são do dia seguinte
+        h.push("<h2>Previsão do tempo · " + data + "</h2><p>" + htmlSeguro(el("resumo-previsao").textContent) + "</p><table><tr><th>Hora</th><th>Temperatura</th><th>Sensação</th><th>Céu</th><th>Chuva</th><th>Vento</th></tr>" + horasPrevistas.map(function (q) {
+          return "<tr><td>" + (q.h >= 24 ? diaSeguinte + " " : "") + dois(q.h % 24) + "h</td><td>" + Math.round(q.temp) + " °C</td><td>" + (q.sens !== null && q.sens !== undefined ? Math.round(q.sens) + " °C" : "–") + "</td><td>" + ceuDe(q.nuvens) + "</td><td>" + (q.prob !== null ? q.prob + "%" : fmt(q.mm, 1) + " mm") + "</td><td>de " + pontoCardeal(q.dir) + " · " + Math.round(q.vel) + " km/h (rajadas de " + Math.round(q.raj) + ")</td></tr>";
         }).join("") + "</table>" + (el("vento-percurso").hidden ? "" : "<p>" + htmlSeguro(el("vento-percurso").innerText.replace(/\s+/g, " ")) + "</p>"));
       }
       h.push('<p class="nota">Gerado em brotenatrilha.com.br/planejar-pedal/ em ' + new Date().toLocaleString("pt-BR") + ". Mapa e vias: © colaboradores do OpenStreetMap (ODbL). Altitude: SRTM, e pode diferir da de um aparelho de GPS. Tempo e ganho são estimativas.</p>");
       var css = "body{font-family:system-ui,sans-serif;color:#1c2a22;max-width:900px;margin:0 auto;padding:24px}h1{margin:0}h2{margin:22px 0 8px;font-size:1.1rem;border-bottom:2px solid #2d7046;padding-bottom:3px}.sub{margin:4px 0 14px;color:#4d5e53}" +
         ".numeros{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.numeros div{border:1px solid #dcd8c9;border-radius:10px;padding:8px 12px}.numeros span{display:block;font-size:.78rem;color:#4d5e53}.numeros b{font-size:1.2rem}" +
         "table{border-collapse:collapse;width:100%;font-size:.88rem}th,td{border-bottom:1px solid #dcd8c9;padding:5px 8px;text-align:left}th{background:#f2efe6}svg{width:100%;height:auto;max-height:430px;display:block}svg text{font-family:inherit;fill:#4d5e53;font-size:12px}" +
-        ".nota{font-size:.8rem;color:#4d5e53}.imprimir{margin:12px 0;padding:10px 22px;border-radius:999px;border:0;background:#2d7046;color:#fff;font-weight:700;font-size:1rem;cursor:pointer}@page{size:A4;margin:12mm}@media print{.imprimir{display:none}h2,table,svg{break-inside:avoid}body{padding:0}}";
+        ".nota{font-size:.8rem;color:#4d5e53}.imprimir{margin:12px 0;padding:10px 22px;border-radius:999px;border:0;background:#2d7046;color:#fff;font-weight:700;font-size:1rem;cursor:pointer}.imprimir svg{display:inline-block;width:18px;height:18px;max-height:none}@page{size:A4;margin:12mm}@media print{.imprimir{display:none}h2,table,svg{break-inside:avoid}body{padding:0}}";
       return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Roadbook · ' + htmlSeguro(nome) + "</title><style>" + css + '</style></head><body><button class="imprimir" onclick="window.print()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-3px;margin-right:8px"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Imprimir ou salvar em PDF</button>' + h.join("") + "</body></html>";
     }
     document.getElementById("b-roadbook").addEventListener("click", function () {
@@ -2337,7 +2383,7 @@
       { alvo: ".linha1", titulo: "Desfazer, refazer e ida e volta", texto: "Errou um ponto? Desfaça. A ida e volta repete a rota ao contrário, de volta ao início." },
       { alvo: "#resultado", titulo: "Os números", texto: "Depois de desenhar, abaixo do mapa aparecem a distância, o ganho de altitude, as subidas com categoria e a luz do dia (nascer e pôr do sol)." },
       { alvo: "#grafico", titulo: "Altimetria", texto: "Arraste no gráfico para escolher um trecho: a extensão, o ganho e a inclinação dele aparecem logo abaixo." },
-      { alvo: "#b-previsao", titulo: "Previsão do tempo", texto: "Ligue para ver temperatura, vento e chuva nas horas do pedal. O vento aparece no mapa, e o percurso mostra quanto é a favor, de lado e contra." },
+      { alvo: "#b-previsao", titulo: "Previsão do tempo", texto: "Ligue para ver temperatura, sensação térmica, vento e chuva nas horas do pedal. O vento aparece no mapa, e o percurso mostra quanto é a favor, de lado e contra." },
       { alvo: "#b-gpx", titulo: "Roadbook, imagem e GPX", texto: "Com a rota pronta, imprima o roadbook, salve a imagem para compartilhar, baixe o GPX para o GPS ou copie o link para mandar a um amigo." },
       { alvo: "#b-minhas", titulo: "Minhas rotas e Abrir GPX", texto: "Salve a rota neste navegador para voltar nela depois. Abrir GPX traz um arquivo seu para ver as subidas, o terreno e o resto." },
       { alvo: "#b-exemplo", titulo: "Exemplo", texto: "Quer ver tudo funcionando? Toque em Exemplo: ele abre um pedal do canal com terreno, apoios e pontos de interesse já ligados." }
