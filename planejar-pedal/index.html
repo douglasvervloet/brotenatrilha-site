@@ -1561,7 +1561,7 @@
     }
     var doPedal = location.search.match(/[?&]pedal=(\d+)(&|$)/), doLink = location.hash.match(/^#r=([^&]+)((?:&[a-z]+=[\w.]*)*)$/);
     if (doPedal) carregarPedal(doPedal[1]);
-    else if (doLink) rotaDoHash(location.hash);
+    else if (doLink && rotaDoHash(location.hash) && modoDesenhar) document.getElementById("b-desenhar").click();      // rota recebida por link: abre só para ver, com o Desenhar desligado
 
     // ---- as opções de um ponto: o trecho até ele e o trecho dele até o próximo seguem as ruas ou ficam livres (linha reta), ou remover o ponto ----
     var menu = document.getElementById("menu-ponto");
