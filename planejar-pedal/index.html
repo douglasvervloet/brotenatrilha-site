@@ -150,6 +150,16 @@
   .apoio-filtro { display: inline-flex; align-items: center; gap: 8px; font: inherit; color: inherit; background: transparent; border: 1px solid var(--linha); border-radius: 999px; padding: 3px 12px 3px 4px; cursor: pointer; }
   .apoio-filtro[aria-pressed="false"] { opacity: .45; }
   .apoio-filtro:hover { border-color: var(--verde); }
+  .lista-apoios { margin-top: 10px; flex-basis: 100%; }
+  .lista-apoios summary { cursor: pointer; font-weight: 700; }
+  .lista-apoios .tabela-rolavel { max-height: 360px; overflow: auto; margin-top: 8px; }
+  .lista-apoios table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .lista-apoios th, .lista-apoios td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--linha); vertical-align: middle; }
+  .lista-apoios th { position: sticky; top: 0; background: var(--cartao); color: var(--suave); font-weight: 600; }
+  .lista-apoios td:first-child { white-space: nowrap; }
+  .lista-apoios .sem-nome { color: var(--suave); }
+  .lista-apoios .sit-aberto { color: #5fc27e; font-weight: 700; }
+  .lista-apoios .sit-fechado { color: #e07a5f; font-weight: 700; }
   .popup { position: absolute; z-index: 6; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(420px, calc(100% - 32px)); background: rgba(12, 23, 17, .97); color: #fff; border: 1px solid rgba(255, 255, 255, .35); border-radius: 16px; padding: 16px 18px; box-shadow: 0 10px 30px rgba(0, 0, 0, .5); }
   .popup[hidden] { display: none; }
   .campos-do-topo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin: 0 0 10px; }
@@ -453,7 +463,7 @@
   </div>
   <details class="sobre-dados">
     <summary>Privacidade e fontes dos dados</summary>
-    <p class="aviso"><b>Previsão do tempo</b>: só ao clicar no botão, o ponto de saída (arredondado a cerca de 1 km) e a data vão ao Open-Meteo, um serviço público de meteorologia. <b>Buscar um lugar</b>: só quando você envia a busca, o texto digitado vai ao Nominatim (OpenStreetMap), que recebe o seu endereço IP. <b>Pontos de interesse</b>: lidos dos arquivos do próprio site (OpenStreetMap), no Brasil; a foto e o texto, quando existem, vêm da Wikipédia e do Wikimedia Commons e ficam guardados no próprio site, com o autor e a licença de cada foto; só o link “Mais informações” leva à Wikipédia. <b>Contagem de usos</b>: o site conta quantas vezes cada botão é usado (só o nome do botão, sem cookies e sem o que você desenha, digita ou escolhe). <b>Roadbook e imagem da rota</b>: montados no seu navegador, nada é enviado. <b>Usar ciclovia / evitar rodovia</b> usa o mesmo serviço de rotas do Grudar nas ruas. <b>Ciclovias</b>: lidas dos arquivos do próprio site (dados do OpenStreetMap), no Brasil, sem enviar nada. <b>Pontos de apoio</b>: lidos dos arquivos do próprio site (dados do OpenStreetMap, © colaboradores, ODbL), no Brasil. <b>Abrir GPX</b>: o arquivo é lido só no seu navegador. <b>Minhas rotas</b>: ficam guardadas neste navegador; só com um código de sincronização elas vão também ao banco de dados do site (Cloudflare), ligadas ao código e a nada mais. <b>Copiar link</b>: a rota é guardada no banco do site para o link ficar curto.</p>
+    <p class="aviso"><b>Previsão do tempo</b>: só ao clicar no botão, o ponto de saída (arredondado a cerca de 1 km) e a data vão ao Open-Meteo, um serviço público de meteorologia. <b>Buscar um lugar</b>: só quando você envia a busca, o texto digitado vai ao Nominatim (OpenStreetMap), que recebe o seu endereço IP. <b>Pontos de interesse</b>: lidos dos arquivos do próprio site (OpenStreetMap), no Brasil; a foto e o texto, quando existem, vêm da Wikipédia e do Wikimedia Commons e ficam guardados no próprio site, com o autor e a licença de cada foto; só o link “Mais informações” leva à Wikipédia. <b>Contagem de usos</b>: o site conta quantas vezes cada botão é usado (só o nome do botão, sem cookies e sem o que você desenha, digita ou escolhe). <b>Roadbook e imagem da rota</b>: montados no seu navegador, nada é enviado. <b>Usar ciclovia / evitar rodovia</b> usa o mesmo serviço de rotas do Grudar nas ruas. <b>Ciclovias</b>: lidas dos arquivos do próprio site (dados do OpenStreetMap), no Brasil, sem enviar nada. <b>Pontos de apoio</b>: lidos dos arquivos do próprio site (dados do OpenStreetMap, © colaboradores, ODbL), no Brasil. <b>Abrir GPX</b>: o arquivo é lido só no seu navegador. <b>Minhas rotas</b>: ficam guardadas neste navegador; só com um código de sincronização elas vão também ao banco de dados do site (Cloudflare), ligadas ao código e a nada mais. <b>Copiar link</b>: a rota, o nome dela e a imagem da rota são guardados no site para o link ficar curto e mostrar a prévia nos apps de mensagem.</p>
     <p class="aviso"><b>Mostrar o terreno</b>: o terreno vem dos arquivos do próprio site e nada sai do navegador.<span class="so-fora"> Fora do Brasil, uma amostra da rota (um ponto a cada 200 m) é enviada ao Overpass, o serviço público do OpenStreetMap, para saber o tipo de cada via.</span> Desligado, nada é enviado. Dados das vias: © colaboradores do OpenStreetMap (ODbL).</p>
     <p class="aviso"><b>Grudar nas ruas</b> vem ligado: os pontos de cada trecho (dois a dois) são enviados a um serviço público de rotas do OpenStreetMap
       (Valhalla, da FOSSGIS, e, se ele não responder, BRouter e o OSRM da FOSSGIS) para seguir as ruas e trilhas; se nenhum responder, o trecho fica em linha reta. Desligado (no painel Desenho), nada do que você desenha sai do seu navegador. O mapa e a altitude vêm de servidores abertos (OpenTopoMap ou OpenStreetMap, conforme o estilo, e Amazon Web Services),
@@ -1563,12 +1573,29 @@
       document.getElementById(id).addEventListener("click", function () { setTimeout(atualizarEndereco, 0); });
     });
     function atualizarEndereco() { try { history.replaceState(null, "", location.pathname + hashDaRota()); } catch (x) { /* sem história, o link só não acompanha */ } }
-    function linkCurto(hash) {                                       // /r/<código> guardado no banco do site (functions/api/link.js); sem ele, o link longo
-      var longo = location.origin + location.pathname + hash;
-      if (!window.fetch || !hash || (location.protocol !== "https:" && !/^(localhost|127.0.0.1)$/.test(location.hostname))) return Promise.resolve(longo);
-      var parar = window.AbortController ? new AbortController() : null;
-      if (parar) setTimeout(function () { parar.abort(); }, 4000);
-      return fetch("/api/link", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ h: hash }), signal: parar ? parar.signal : undefined })
+    var MAX_IMAGEM_DO_LINK = 150 * 1024;                            // o limite do servidor (functions/api/link.js), decisão do usuário
+    function imagemDoLink() {                                       // a imagem do "Salvar imagem" em JPEG até 150 KB (a qualidade desce até caber); null sem ela
+      if (!calculo) return Promise.resolve(null);
+      function jpeg(tela, q) { return new Promise(function (ok) { try { tela.toBlob(function (b) { ok(b); }, "image/jpeg", q); } catch (x) { ok(null); } }); }
+      function caber(tela, q) {
+        return jpeg(tela, q).then(function (b) { return !b ? null : b.size <= MAX_IMAGEM_DO_LINK ? b : q > 0.45 ? caber(tela, q - 0.1) : null; });
+      }
+      var pronta = montarImagemDaRota(true).catch(function () { return montarImagemDaRota(false); }).then(function (tela) { return caber(tela, 0.9); });
+      var espera = new Promise(function (ok) { setTimeout(function () { ok(null); }, 6000); });      // sem a imagem a tempo, o link sai sem ela
+      return Promise.race([pronta, espera]).catch(function () { return null; });
+    }
+    function linkCurto(hash) {                                       // /r/<código> guardado no banco do site (functions/api/link.js), com o nome e a
+      var longo = location.origin + location.pathname + hash;        // imagem da rota para a prévia nos apps de mensagem; sem ele, o link longo
+      if (!window.fetch || !window.FormData || !hash || (location.protocol !== "https:" && !/^(localhost|127.0.0.1)$/.test(location.hostname))) return Promise.resolve(longo);
+      var nome = (document.getElementById("nome-rota").value || "").trim();
+      var descricao = calculo ? document.getElementById("n-dist").textContent + " · " + document.getElementById("n-ganho").textContent + " de ganho de altitude" : "";
+      return imagemDoLink().then(function (imagem) {
+        var dados = new FormData(), parar = window.AbortController ? new AbortController() : null;
+        dados.append("h", hash); dados.append("n", nome); dados.append("d", descricao);
+        if (imagem) dados.append("imagem", imagem, "rota.jpg");
+        if (parar) setTimeout(function () { parar.abort(); }, 8000);
+        return fetch("/api/link", { method: "POST", body: dados, signal: parar ? parar.signal : undefined });
+      })
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (d) { return d && d.id ? location.origin + "/r/" + d.id : longo; })
         .catch(function () { return longo; });
@@ -2209,9 +2236,33 @@
       var pontos = [0].concat(comida, [total]), maior = 0, de = 0;
       for (var i = 1; i < pontos.length; i++) if (pontos[i] - pontos[i - 1] > maior) { maior = pontos[i] - pontos[i - 1]; de = pontos[i - 1]; }
       resumo.innerHTML = "<b>Pontos de apoio</b><ul>" + [1, 2, 3, 4, 5, 6, 7, 8].filter(function (t) { return cont[t]; }).map(function (t) { return '<li><button type="button" class="apoio-filtro" data-t="' + t + '" aria-pressed="' + visiveis[t] + '" title="Mostrar ou esconder no mapa">' + chip(t) + cont[t] + " " + TIPOS_APOIO[t].nome.toLowerCase() + "</button></li>"; }).join("") +
-        "<li><b>Maior trecho sem água ou comida:</b> " + fmt(maior, 1) + " km (do km " + fmt(de, 1) + " ao km " + fmt(de + maior, 1) + ")" + aguaParaOTrecho(de, de + maior) + "</li></ul>";
+        "<li><b>Maior trecho sem água ou comida:</b> " + fmt(maior, 1) + " km (do km " + fmt(de, 1) + " ao km " + fmt(de + maior, 1) + ")" + aguaParaOTrecho(de, de + maior) + "</li></ul>" +
+        listaDeApoios(chip);
       resumo.hidden = false;
     }
+    var DIAS_PT = { Mo: "seg", Tu: "ter", We: "qua", Th: "qui", Fr: "sex", Sa: "sáb", Su: "dom", PH: "feriados" };
+    function horarioLegivel(h) {                                   // "Mo-Sa 06:00-20:00; Su off" vira "seg–sáb 06:00–20:00; dom fechado"
+      if (!h) return "";
+      if (h.trim() === "24/7") return "24 horas";
+      return h.replace(/\b(Mo|Tu|We|Th|Fr|Sa|Su|PH)\b/g, function (d) { return DIAS_PT[d]; })
+        .replace(/\boff\b/g, "fechado").replace(/(\d{2}:\d{2})-(\d{2}:\d{2})/g, "$1–$2").replace(/([a-zá]{3})-([a-zá]{3})/g, "$1–$2").replace(/;\s*/g, "; ");
+    }
+    var listaDeApoiosAberta = false;
+    function listaDeApoios(chip) {                                 // a tabela dos pontos (só dos tipos ligados no resumo), recolhida até a pessoa abrir
+      var lista = apoios.filter(function (a) { return visiveis[a.tipo]; }).sort(function (a, b) { return a.km - b.km; });
+      if (!lista.length) return "";
+      var html = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;"); };
+      var linhas = lista.map(function (a) {
+        var sit = situacaoDoApoio(a);
+        return "<tr><td>" + fmt(a.km, 1) + "</td><td>" + chip(a.tipo) + "</td><td>" + (a.nome ? html(a.nome) : '<span class="sem-nome">' + TIPOS_APOIO[a.tipo].nome + "</span>") +
+          "</td><td>" + html(horarioLegivel(a.horario)) + "</td><td>" + (sit ? '<span class="sit-' + sit + '">' + sit + "</span>" : "") + "</td></tr>";
+      }).join("");
+      return '<details class="lista-apoios"' + (listaDeApoiosAberta ? " open" : "") + "><summary>Lista dos pontos (" + lista.length + ")</summary>" +
+        '<div class="tabela-rolavel"><table><thead><tr><th>Km</th><th></th><th>Nome</th><th>Horário</th><th>Na passagem</th></tr></thead><tbody>' + linhas + "</tbody></table></div></details>";
+    }
+    document.getElementById("apoio-resumo").addEventListener("toggle", function (e) {
+      if (e.target.classList && e.target.classList.contains("lista-apoios")) listaDeApoiosAberta = e.target.open;
+    }, true);
     document.getElementById("apoio-resumo").addEventListener("click", function (e) {
       var b = e.target.closest ? e.target.closest(".apoio-filtro") : null;
       if (!b) return;

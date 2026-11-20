@@ -78,7 +78,7 @@ def gerar(pbf, pasta):
             lat, lon = sum(p[0] for p in locais) / len(locais), sum(p[1] for p in locais) / len(locais)
         if not brasil.dentro(lat, lon):
             continue
-        nome = (objeto.tags.get("name") or objeto.tags.get("brand") or "").strip()[:40]
+        nome = (objeto.tags.get("name") or objeto.tags.get("brand") or "").strip()[:80]
         horario = (objeto.tags.get("opening_hours") or "").strip()[:80]
         pontos.add((round(lat * ESCALA), round(lon * ESCALA), tipo, nome, horario))
     manuais = os.path.join(os.path.dirname(os.path.abspath(__file__)), "apoios_manuais.json")
@@ -86,7 +86,7 @@ def gerar(pbf, pasta):
         for item in json.load(open(manuais, encoding="utf-8")):
             if item["tipo"] not in TIPOS_MANUAIS or not brasil.dentro(item["lat"], item["lon"]):
                 sys.exit(f"apoios_manuais.json: item inválido ou fora do Brasil: {item}")
-            pontos.add((round(item["lat"] * ESCALA), round(item["lon"] * ESCALA), TIPOS_MANUAIS[item["tipo"]], item["nome"].strip()[:40],
+            pontos.add((round(item["lat"] * ESCALA), round(item["lon"] * ESCALA), TIPOS_MANUAIS[item["tipo"]], item["nome"].strip()[:80],
                         (item.get("horario") or "").strip()[:80]))
     lista = []
     for lat, lon, tipo, nome, horario in sorted(pontos):
