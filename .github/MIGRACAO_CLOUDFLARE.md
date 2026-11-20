@@ -31,7 +31,7 @@ A ordem abaixo não deixa o site fora do ar: o GitHub Pages só é desligado dep
     A Cloudflare troca os registros e emite o certificado HTTPS.
 13. Rules → Redirect Rules: `www.brotenatrilha.com.br/*` → `https://brotenatrilha.com.br/$1` (301). O GitHub Pages fazia isso sozinho.
 14. Conferir no domínio, com HTTPS, as mesmas páginas do passo 7.
-15. Desligar o GitHub Pages (Settings → Pages) e apagar o arquivo `CNAME` do repositório.
+15. Desligar o GitHub Pages (Settings → Pages) e apagar o arquivo `CNAME` do repositório. **Feito em 2026-11-20.**
 
 ## Etapa 4 (depois) — R2 para os dados pesados
 
