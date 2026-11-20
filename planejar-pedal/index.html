@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="max-image-preview:large">
 <title>Planejar pedal | Brote na Trilha</title>
-<meta name="description" content="Planeje o seu pedal: desenhe a rota no mapa de ruas e veja a distância, as subidas, o terreno, os pontos de apoio e de interesse, o vento e a previsão do tempo. Nada do que você desenha sai do seu navegador, e dá para imprimir um roadbook.">
+<meta name="description" content="Planeje o seu pedal em qualquer lugar do Brasil: desenhe a rota no mapa de ruas e veja a distância, as subidas, o terreno, os pontos de apoio e de interesse, as porteiras e balsas no caminho, o vento e a previsão do tempo. Dá para imprimir um roadbook e baixar o GPX.">
 <link rel="canonical" href="https://brotenatrilha.com.br/planejar-pedal/">
 <meta name="theme-color" content="#2d7046">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
 <meta property="og:site_name" content="Brote na Trilha">
 <meta property="og:title" content="Planejar pedal | Brote na Trilha">
-<meta property="og:description" content="Desenhe a rota do seu pedal e veja subidas, terreno, vento e a previsão do tempo.">
+<meta property="og:description" content="Desenhe a rota do seu pedal em qualquer lugar do Brasil e veja subidas, terreno, pontos de apoio, vento e a previsão do tempo.">
 <meta property="og:url" content="https://brotenatrilha.com.br/planejar-pedal/">
 <meta property="og:image" content="https://brotenatrilha.com.br/planejar-pedal/compartilhar.jpg">
 <meta property="og:image:width" content="1200">
@@ -133,6 +133,16 @@
   .minhas li button { font: inherit; font-weight: 700; padding: 7px 16px; border-radius: 999px; cursor: pointer; border: 2px solid var(--linha); background: transparent; color: var(--texto); }
   .minhas li button:hover { border-color: var(--verde); }
   .minhas li .apagar:hover { border-color: #c8452c; }
+  .sinc { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--linha); }
+  .sinc > div { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+  .sinc > div[hidden] { display: none; }
+  .sinc form { display: flex; gap: 8px; flex: 1 1 260px; margin: 0; }
+  .sinc input { flex: 1 1 160px; min-width: 0; font: inherit; padding: 7px 12px; border-radius: 12px; border: 2px solid var(--linha); background: var(--fundo); color: var(--texto); }
+  .sinc input:focus { border-color: var(--verde); outline: none; }
+  .sinc button { font: inherit; font-weight: 700; padding: 7px 16px; border-radius: 999px; cursor: pointer; border: 2px solid var(--linha); background: transparent; color: var(--texto); }
+  .sinc button:hover { border-color: var(--verde); }
+  #sinc-codigo { font-family: ui-monospace, Consolas, monospace; letter-spacing: .03em; }
+  #sinc-estado { margin: 8px 0 0; min-height: 1.3em; }
   .contagem { display: inline-block; min-width: 22px; margin-left: 6px; padding: 0 7px; border-radius: 999px; background: var(--verde); color: #fff; font-size: .8rem; }
   .apoio-chip { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; color: #fff; font-size: .62rem; font-weight: 800; }
   .apoio-chip svg { width: 14px; height: 14px; }
@@ -234,6 +244,15 @@
   .contagem-grupo[hidden] { display: none; }
   .painel-chaves { align-self: flex-start; width: 248px; display: flex; flex-direction: column; gap: 2px; padding: 10px 10px 8px; background: rgba(12, 23, 17, .93); border: 1px solid rgba(255, 255, 255, .3); border-radius: 16px; color: #fff; box-shadow: 0 8px 22px rgba(0, 0, 0, .35); }
   .painel-chaves[hidden] { display: none; }
+  .painel-pedal { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 7; display: flex; flex-direction: column; gap: 3px; padding: 10px 14px; border-radius: 14px; background: rgba(12, 23, 17, .94); color: #fff; font-size: .92rem; box-shadow: 0 6px 18px rgba(0, 0, 0, .4); }
+  .painel-pedal[hidden] { display: none; }
+  .painel-pedal b { font-size: 1.15rem; }
+  .painel-pedal .aviso-pedal { color: #f2c14e; font-weight: 700; }
+  .painel-pedal .fora { color: #ffb38a; font-weight: 800; }
+  .painel-pedal .botoes { display: flex; gap: 8px; margin-top: 4px; }
+  .painel-pedal .botoes button[aria-pressed="true"] { background: #2d7046; border-color: #fff; }
+  .painel-pedal .botoes button { font: inherit; font-weight: 700; padding: 6px 16px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .4); background: transparent; color: #fff; cursor: pointer; }
+  .painel-chaves .data-dados { display: block; margin: 6px 8px 0; color: rgba(255, 255, 255, .6); font-size: .74rem; }
   .painel-chaves h4 { margin: 0 0 4px 6px; font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; opacity: .8; }
   .painel-chaves .grudar { width: 100%; min-height: 36px; padding: 0 8px; gap: 9px; font-size: .86rem; background: transparent; border: 0; border-radius: 10px; color: #fff; }
   .painel-chaves .grudar:hover { background: rgba(255, 255, 255, .08); }
@@ -251,6 +270,8 @@
   .cartao-interesse .dados { color: #f2c14e; font-size: .82rem; font-weight: 700; }
   .cartao-interesse p { margin: 0; color: #dcebe0; font-size: .85rem; line-height: 1.4; }
   .cartao-interesse a { color: #9fd3ff; font-size: .82rem; }
+  .cartao-interesse .credito-foto { margin-top: -2px; color: #a9bbae; font-size: .72rem; }
+  .cartao-interesse .credito-foto a { color: #a9bbae; font-size: .72rem; }
   .mapa.maximizado { position: fixed; inset: 0; z-index: 40; width: auto; height: 100vh !important; height: 100dvh !important; min-height: 0 !important; border-radius: 0; border: 0; }
   body.sem-rolagem { overflow: hidden; }
   .dica-gestos { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 7; max-width: 80%; padding: 10px 16px; border-radius: 14px; background: rgba(12, 23, 17, .92); color: #fff; font-weight: 700; font-size: .9rem; text-align: center; pointer-events: none; opacity: 0; transition: opacity .2s; }
@@ -302,7 +323,7 @@
   <div class="miolo">
     <a href="../">&larr; Brote na Trilha</a>
     <h1><span class="icone"><svg class="icone-svg" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="5.5" cy="18.5" r="2.2"/><circle cx="18.5" cy="5.5" r="2.2"/><path d="M7.7 18.5h4.3a3.2 3.2 0 0 0 0-6.4h-1a3.2 3.2 0 0 1 0-6.4h5.3"/></svg></span>Planejar pedal</h1>
-    <p>Clique no mapa para desenhar o percurso e veja a distância, o ganho de altitude e as subidas com categoria. Depois, baixe o GPX.</p>
+    <p>Clique no mapa para desenhar o percurso, em qualquer lugar do Brasil, e veja a distância, o ganho de altitude e as subidas com categoria. Depois, baixe o GPX.</p>
   </div>
 </header>
 <main class="miolo">
@@ -340,18 +361,24 @@
       <div class="painel-chaves" id="painel-camadas" hidden>
         <h4>Camadas</h4>
         <button class="grudar" type="button" id="b-terreno" aria-pressed="false" title="Mostrar o terreno: a linha da rota na cor do tipo de terreno" aria-label="Mostrar o terreno"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19l6-10 4 6 3-4 5 8z"/></svg>Terreno <small>BETA</small></button>
-        <button class="grudar" type="button" id="b-apoios" aria-pressed="false" title="Água, mercado, posto, lanchonete, bike e banheiro até 300 m da rota"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>Apoios</button>
+        <button class="grudar" type="button" id="b-apoios" aria-pressed="false" title="Água, mercado, posto, lanchonete, bike, banheiro, camping e pousada até 300 m da rota"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>Apoios</button>
         <button class="grudar" type="button" id="b-km" aria-pressed="false" title="Um rótulo de quilômetro de tempos em tempos ao longo da rota"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 21V4M6 5h11l-2.5 3.5L17 12H6"/></svg>Marcos de km</button>
-        <button class="grudar" type="button" id="b-piso" aria-pressed="false" title="O piso das ruas do OpenStreetMap: asfalto, terra e calçamento (zoom 12 ou mais, só no Espírito Santo)"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3L4 21M16 3l4 18M12 4v3M12 10.5v3M12 17v3"/></svg>Piso das ruas</button>
-        <button class="grudar" type="button" id="b-ciclovias" aria-pressed="false" title="As ciclovias e ciclofaixas do OpenStreetMap (zoom 11 ou mais, só no Espírito Santo)"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l3.5-8h5l3.5 8M9.5 9L13 17M9 6h2.5"/></svg>Ciclovias</button>
+        <button class="grudar" type="button" id="b-piso" aria-pressed="false" title="O piso das ruas do OpenStreetMap: asfalto, terra e calçamento (zoom 12 ou mais)"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3L4 21M16 3l4 18M12 4v3M12 10.5v3M12 17v3"/></svg>Piso das ruas</button>
+        <button class="grudar" type="button" id="b-ciclovias" aria-pressed="false" title="As ciclovias e ciclofaixas do OpenStreetMap (zoom 11 ou mais)"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l3.5-8h5l3.5 8M9.5 9L13 17M9 6h2.5"/></svg>Ciclovias</button>
         <button class="grudar" type="button" id="b-pedais" aria-pressed="false" title="Os percursos dos pedais do canal: clique num para abrir"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l3.5-8h5l3.5 8M9.5 9L13 17M9 6h2.5"/></svg>Pedais do canal</button>
-        <button class="grudar" type="button" id="b-interesses" aria-pressed="false" title="Mirantes, praias, cachoeiras, locais históricos e outros pontos de interesse a até 1 km da rota (só no Espírito Santo)"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>Pontos de interesse</button>
+        <button class="grudar" type="button" id="b-interesses" aria-pressed="false" title="Mirantes, praias, cachoeiras, locais históricos e outros pontos de interesse a até 1 km da rota"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>Pontos de interesse</button>
+        <button class="grudar" type="button" id="b-avisos" aria-pressed="false" title="Porteiras, vaus, balsas e escadas no caminho da rota"><i></i><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5L2.5 20h19z"/><path d="M12 10v4.5M12 17.5h.01"/></svg>Avisos na rota</button>
+        <small class="data-dados" id="data-dos-dados"></small>
       </div>
     </div>
     <div class="zoom"><button class="bt" type="button" id="b-mais" aria-label="Aproximar" title="Aproximar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button class="bt" type="button" id="b-menos" aria-label="Afastar" title="Afastar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button><button class="bt" type="button" id="b-local" aria-label="Minha localização" title="Minha localização"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button><button class="bt" type="button" id="b-info" aria-label="Como usar o mapa" aria-expanded="false" title="Como usar o mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.2M12 7.6v.01"/></svg></button><button class="bt" type="button" id="b-estilo" aria-label="Estilo do mapa" aria-expanded="false" title="Estilo do mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="m2 13 10 5 10-5"/></svg></button><button class="bt" type="button" id="b-max" aria-label="Mapa em tela cheia" title="Mapa em tela cheia" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>
     <div class="dica-gestos" id="dica-gestos" aria-hidden="true">Use dois dedos para mover o mapa</div>
     <div class="estilos" id="painel-estilos" role="group" aria-label="Estilo do mapa" hidden><h4>Estilo do mapa</h4><div class="grade"><button type="button" class="op" data-estilo="relevo" aria-pressed="true"><img src="estilo-relevo.webp" width="150" height="100" alt="">Relevo</button><button type="button" class="op" data-estilo="ruas" aria-pressed="false"><img src="estilo-ruas.webp" width="150" height="100" alt="">Ruas</button><button type="button" class="op" data-estilo="escuro" aria-pressed="false"><img src="estilo-escuro.webp" width="150" height="100" alt="">Escuro</button></div><small>Cada estilo pede os quadros do mapa a um servidor aberto diferente.</small></div>
     <div class="toast" id="aviso-local" role="status" aria-live="polite" hidden></div>
+    <div class="painel-pedal" id="painel-pedal" role="status" aria-live="polite" hidden>
+      <b id="pedal-km"></b><span id="pedal-falta"></span><span id="pedal-apoio"></span><span class="aviso-pedal" id="pedal-aviso"></span><span class="fora" id="pedal-fora"></span>
+      <div class="botoes"><button type="button" id="pedal-voz" aria-pressed="false">Voz</button><button type="button" id="pedal-centro">Centralizar</button><button type="button" id="pedal-parar">Parar</button></div>
+    </div>
     <div class="pilha-baixo">
     <div class="dica" id="dica" hidden>Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para mais opções.</div>
         <div class="leg-piso" id="leg-piso" hidden></div>
@@ -373,10 +400,12 @@
     <div class="cartao-interesse" id="cartao-interesse" hidden>
       <button type="button" class="fechar" id="interesse-fechar" aria-label="Fechar">&times;</button>
       <img id="interesse-foto" alt="" hidden>
+      <small class="credito-foto" id="interesse-credito" hidden>Foto: <a id="interesse-credito-link" href="#" target="_blank" rel="noopener"></a></small>
       <b id="interesse-nome"></b>
       <span class="dados" id="interesse-dados"></span>
       <p id="interesse-resumo"></p>
-      <a id="interesse-link" href="#" target="_blank" rel="noopener" hidden>Ver a página da foto e do texto</a>
+      <small class="credito-foto" id="interesse-fonte"></small>
+      <a id="interesse-link" href="#" target="_blank" rel="noopener" hidden>Mais informações na Wikipédia</a>
     </div>
     <div class="credito-mapa" id="credito">© OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA)</div>
   </div>
@@ -396,11 +425,24 @@
   <div class="minhas" id="painel-minhas" hidden>
     <ul id="lista-minhas"></ul>
     <p class="nota" id="msg-minhas" aria-live="polite" style="margin-top:12px"></p>
+    <div class="sinc">
+      <b>Sincronizar com outro aparelho</b>
+      <div id="sinc-desligado">
+        <button type="button" id="b-sinc-criar" title="Cria um código para usar no outro aparelho">Criar código</button>
+        <form id="f-sinc-usar"><input type="text" id="sinc-campo" placeholder="Código do outro aparelho" autocomplete="off" spellcheck="false" aria-label="Código de sincronização"><button type="submit">Usar código</button></form>
+      </div>
+      <div id="sinc-ligado" hidden>
+        <span>Código: <b id="sinc-codigo"></b></span>
+        <button type="button" id="b-sinc-copiar">Copiar</button>
+        <button type="button" id="b-sinc-sair" title="Este aparelho deixa de sincronizar (as rotas ficam nele)">Desligar</button>
+      </div>
+      <p class="nota" id="sinc-estado" aria-live="polite"></p>
+    </div>
   </div>
   <details class="sobre-dados">
     <summary>Privacidade e fontes dos dados</summary>
-    <p class="aviso"><b>Previsão do tempo</b>: só ao clicar no botão, o ponto de saída (arredondado a cerca de 1 km) e a data vão ao Open-Meteo, um serviço público de meteorologia. <b>Buscar um lugar</b>: só quando você envia a busca, o texto digitado vai ao Nominatim (OpenStreetMap), que recebe o seu endereço IP. <b>Pontos de interesse</b>: lidos de um arquivo do próprio site (OpenStreetMap), só no Espírito Santo; a foto e o texto, quando existem, vêm da Wikipédia e do Wikimedia Commons e só são pedidos ao abrir o ponto (eles recebem o seu endereço IP). <b>Contagem de usos</b>: o site conta quantas vezes cada botão é usado (só o nome do botão, sem cookies e sem o que você desenha, digita ou escolhe). <b>Roadbook e imagem da rota</b>: montados no seu navegador, nada é enviado. <b>Usar ciclovia / evitar rodovia</b> usa o mesmo serviço de rotas do Grudar nas ruas. <b>Ciclovias</b>: lidas de um arquivo do próprio site (dados do OpenStreetMap), só no Espírito Santo, sem enviar nada. <b>Pontos de apoio</b>: lidos de um arquivo do próprio site (dados do OpenStreetMap, © colaboradores, ODbL), só no Espírito Santo. <b>Abrir GPX</b>: o arquivo é lido só no seu navegador. <b>Minhas rotas</b>: ficam guardadas neste navegador, e nada é enviado.</p>
-    <p class="aviso"><b>Mostrar o terreno</b>: dentro do Espírito Santo, o terreno vem de arquivos do próprio site e nada sai do navegador. Fora dele, uma amostra da rota (um ponto a cada 200 m) é enviada ao Overpass, o serviço público do OpenStreetMap, para saber o tipo de cada via. Desligado, nada é enviado. Dados das vias: © colaboradores do OpenStreetMap (ODbL).</p>
+    <p class="aviso"><b>Previsão do tempo</b>: só ao clicar no botão, o ponto de saída (arredondado a cerca de 1 km) e a data vão ao Open-Meteo, um serviço público de meteorologia. <b>Buscar um lugar</b>: só quando você envia a busca, o texto digitado vai ao Nominatim (OpenStreetMap), que recebe o seu endereço IP. <b>Pontos de interesse</b>: lidos dos arquivos do próprio site (OpenStreetMap), no Brasil; a foto e o texto, quando existem, vêm da Wikipédia e do Wikimedia Commons e ficam guardados no próprio site, com o autor e a licença de cada foto; só o link “Mais informações” leva à Wikipédia. <b>Contagem de usos</b>: o site conta quantas vezes cada botão é usado (só o nome do botão, sem cookies e sem o que você desenha, digita ou escolhe). <b>Roadbook e imagem da rota</b>: montados no seu navegador, nada é enviado. <b>Usar ciclovia / evitar rodovia</b> usa o mesmo serviço de rotas do Grudar nas ruas. <b>Ciclovias</b>: lidas dos arquivos do próprio site (dados do OpenStreetMap), no Brasil, sem enviar nada. <b>Pontos de apoio</b>: lidos dos arquivos do próprio site (dados do OpenStreetMap, © colaboradores, ODbL), no Brasil. <b>Abrir GPX</b>: o arquivo é lido só no seu navegador. <b>Minhas rotas</b>: ficam guardadas neste navegador; só com um código de sincronização elas vão também ao banco de dados do site (Cloudflare), ligadas ao código e a nada mais. <b>Copiar link</b>: a rota é guardada no banco do site para o link ficar curto.</p>
+    <p class="aviso"><b>Mostrar o terreno</b>: no Brasil, o terreno vem dos arquivos do próprio site e nada sai do navegador. Fora do Brasil, uma amostra da rota (um ponto a cada 200 m) é enviada ao Overpass, o serviço público do OpenStreetMap, para saber o tipo de cada via. Desligado, nada é enviado. Dados das vias: © colaboradores do OpenStreetMap (ODbL).</p>
     <p class="aviso"><b>Grudar nas ruas</b> vem ligado: os pontos de cada trecho (dois a dois) são enviados a um serviço público de rotas do OpenStreetMap
       (Valhalla, da FOSSGIS, e, se ele não responder, BRouter e o OSRM da FOSSGIS) para seguir as ruas e trilhas; se nenhum responder, o trecho fica em linha reta. Desligado (no painel Desenho), nada do que você desenha sai do seu navegador. O mapa e a altitude vêm de servidores abertos (OpenTopoMap ou OpenStreetMap, conforme o estilo, e Amazon Web Services),
       que só recebem o pedido dos quadros do mapa que você vê. A sua localização, se você usar o botão, é lida só no seu navegador.</p>
@@ -408,6 +450,7 @@
   <p class="nota" id="status-grudar" aria-live="polite" hidden></p>
   <p class="nota" id="status-terreno" aria-live="polite" hidden></p>
   <p class="nota" id="status-apoios" aria-live="polite" hidden></p>
+  <p class="nota" id="status-avisos" aria-live="polite" hidden></p>
   <p class="nota" id="vazio">Clique no mapa para começar. Com pelo menos 1 km desenhado, aparecem os números e as subidas.</p>
   <p class="nota" id="erro" hidden></p>
   <p class="nota" id="msg-pedal" hidden></p>
@@ -449,9 +492,9 @@
     <h2>Subidas da rota</h2>
     <div class="tabela"><table id="tabela"></table></div>
   </div>
-  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled title="Copiar o link da rota"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="rot">Copiar link</span></button><button class="sec" type="button" id="b-salvar" disabled title="Guardar esta rota neste navegador (fica em Minhas rotas)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg><span class="rot">Salvar rota</span></button><button class="sec" type="button" id="b-roadbook" disabled title="Roadbook para imprimir"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Roadbook</button><button class="sec" type="button" id="b-imagem" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 3.5 3L16 12l4.5 4.5"/></svg>Salvar imagem</button></div>
+  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled title="Copiar o link da rota"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="rot">Copiar link</span></button><button class="sec" type="button" id="b-salvar" disabled title="Guardar esta rota neste navegador (fica em Minhas rotas)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg><span class="rot">Salvar rota</span></button><button class="sec" type="button" id="b-roadbook" disabled title="Roadbook para imprimir"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Roadbook</button><button class="sec" type="button" id="b-imagem" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 3.5 3L16 12l4.5 4.5"/></svg>Salvar imagem</button><button class="sec" type="button" id="b-pedalar" disabled title="Seguir a rota pelo GPS do celular"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l7 18-7-4-7 4z"/></svg>Modo pedal</button></div>
   <p class="nota">A altitude vem do relevo do mapa (SRTM), a cada 25 m ao longo da linha, e pode diferir da de um aparelho de GPS. O ganho total ignora oscilações de até 12 m, ajustado com os pedais do canal contra o Strava (erro médio de uns 12%). O GPX baixado traz só o traçado e a altitude. Com “Grudar nas ruas” desligado as linhas são retas entre os pontos: para seguir uma curva, clique com mais frequência.</p>
-  <p class="nota">O link guarda a rota no próprio endereço, depois do “#”: o navegador não envia essa parte a nenhum servidor. Quem abrir o link vê a mesma rota, com as chaves do mapa que estavam ligadas (Grudar nas ruas, terreno e camadas): elas ligam sozinhas ao abrir e fazem os mesmos pedidos de quando a pessoa as liga. Um pedal aberto do canal vai simplificado no link (só os pontos, sem o caminho inteiro).</p>
+  <p class="nota">O link curto (brotenatrilha.com.br/r/...) leva à rota guardada no banco do site; sem conexão, sai o link longo, com a rota no próprio endereço. Quem abrir o link vê a mesma rota, com as chaves do mapa que estavam ligadas (Grudar nas ruas, terreno e camadas): elas ligam sozinhas ao abrir e fazem os mesmos pedidos de quando a pessoa as liga. Um pedal aberto do canal vai simplificado no link (só os pontos, sem o caminho inteiro).</p>
 </main>
 <footer>
   <div class="miolo">
@@ -590,7 +633,7 @@
       escuro: { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", filtro: "grayscale(1) invert(1) brightness(.62) contrast(1.15)", credito: "© OpenStreetMap contributors | altitude: SRTM" }
     };
     var estilo = "ruas";
-    var URL_VIAS = "https://dados.brotenatrilha.com.br/vias/";                                       // as vias do terreno e do piso, no R2 da Cloudflare (o workflow vias.yml envia)
+    var URL_DADOS = "https://dados.brotenatrilha.com.br/br/", URL_VIAS = URL_DADOS + "vias/";      // os dados do Brasil (vias, apoios, interesses e ciclovias), no R2 da Cloudflare: o workflow vias.yml gera e envia
     var URL_ALTITUDE = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";   // metros = R·256 + G + B/256 − 32768
     var Z_ALTITUDE = 12, Z_MIN = 8, Z_MAX = 17, PASSO_AMOSTRA = 25;                                  // altitude lida no zoom 12; um ponto a cada 25 m
     var caixa = document.getElementById("mapa"), camada = document.getElementById("quadros"), desenho = document.getElementById("rota");
@@ -744,8 +787,10 @@
       svg += setasDaRota(idaTela, false);
       if (voltaTela) svg += setasDaRota(voltaTela.slice().reverse(), false);      // a volta percorre a linha ao contrário
       svg += marcosDeKm(idaTela, kms);
+      svg += linhaDoPedal();
       svg += marcadoresDeInteresse();
       svg += marcadoresDeApoio();
+      svg += marcadoresDeAviso();
       var comRetorno = idaEVolta && p.length > 1;
       p.forEach(function (q, i) {
         var ehUltimo = i === p.length - 1 && p.length > 1, primeiro = i === 0;
@@ -813,6 +858,7 @@
       document.getElementById("b-limpar").disabled = !rota.length;
       document.getElementById("b-link").disabled = rota.length < 2;
       document.getElementById("b-salvar").disabled = rota.length < 2;
+      document.getElementById("b-pedalar").disabled = rota.length < 2 && !pedal;
     }
     function desfazer() { if (!antes.length) return; depois.push(copia()); rota = antes.pop(); mudou(); pedirPendentes(); }
     function refazer() { if (!depois.length) return; antes.push(copia()); rota = depois.pop(); mudou(); pedirPendentes(); }
@@ -888,7 +934,7 @@
       }
       if (!gesto.moveu && Math.hypot(e.clientX - gesto.x0, e.clientY - gesto.y0) > 5) {
         gesto.moveu = true;
-        if (gesto.tipo === "mapa") caixa.classList.add("arrastando");
+        if (gesto.tipo === "mapa") { caixa.classList.add("arrastando"); if (pedal) pedal.seguir = false; }
         if (gesto.tipo === "ponto") guardar();
       }
       if (!gesto.moveu) return;
@@ -1148,6 +1194,7 @@
         agendarTerreno();
         agendarApoios();
         agendarInteresses();
+        agendarAvisos();
       }, function () {                                              // só a falha de rede ao baixar a altitude cai aqui
         if (minha === versao) vazio("Não consegui baixar a altitude deste trecho. Confira a conexão e mexa na rota para tentar de novo.", true);
       }).catch(function (erro) { if (window.console) console.error(erro); });
@@ -1318,8 +1365,12 @@
       var rajada = Math.round(Math.max.apply(null, horas.map(function (q) { return q.raj; })));
       var sens = horas.map(function (q) { return q.sens; }).filter(function (v) { return v !== null && v !== undefined; });
       var faixaSens = sens.length ? ". Sensação de " + Math.round(Math.min.apply(null, sens)) + (Math.round(Math.max.apply(null, sens)) === Math.round(Math.min.apply(null, sens)) ? "" : " a " + Math.round(Math.max.apply(null, sens))) + " °C" : "";
-      return "Céu " + partes.join(", ") + faixaSens + ". Rajadas de até " + rajada + " km/h. " + (chuva.length ? "Chuva provável " + (chuva.length > 1 ? "das " + hh(chuva[0]) + " às " + hh(chuva[chuva.length - 1]) : "às " + hh(chuva[0])) + "." : "Chuva improvável.");
+      var comUv = horas.filter(function (q) { return q.uv !== null && q.uv !== undefined; }), maiorUv = comUv.length ? Math.max.apply(null, comUv.map(function (q) { return q.uv; })) : null;
+      var frasUv = maiorUv === null || maiorUv < 3 ? "" : " Índice UV de até " + Math.round(maiorUv) + " (" + categoriaUv(maiorUv) + ")" +
+        (function () { var altas = comUv.filter(function (q) { return q.uv >= 6; }); return altas.length > 1 ? " das " + hh(altas[0]) + " às " + hh(altas[altas.length - 1]) : altas.length ? " às " + hh(altas[0]) : ""; })() + ".";
+      return "Céu " + partes.join(", ") + faixaSens + ". Rajadas de até " + rajada + " km/h. " + (chuva.length ? "Chuva provável " + (chuva.length > 1 ? "das " + hh(chuva[0]) + " às " + hh(chuva[chuva.length - 1]) : "às " + hh(chuva[0])) + "." : "Chuva improvável.") + frasUv;
     }
+    function categoriaUv(uv) { return uv >= 11 ? "extremo" : uv >= 8 ? "muito alto" : uv >= 6 ? "alto" : uv >= 3 ? "moderado" : "baixo"; }
     function buscarPrevisao() {
       var data = document.getElementById("luz-data").value;
       if (!previsaoLigada || !rota.length || !data || !ultimoTotal) { esconderPrevisao(); return; }
@@ -1327,7 +1378,7 @@
       if (dias > 15) { esconderPrevisao(); estadoDaPrevisao("A previsão só vai até 16 dias à frente. Escolha uma data mais perto."); return; }
       var fim = ultimaChegadaMin >= 1440 ? somarDias(data, 1) : data, lat = rota[0].lat.toFixed(2), lon = rota[0].lon.toFixed(2), minha = ++versaoPrevisao;
       var base = dias < -5 ? "https://archive-api.open-meteo.com/v1/archive" : "https://api.open-meteo.com/v1/forecast";
-      var variaveis = "temperature_2m,apparent_temperature,precipitation,wind_speed_10m,wind_gusts_10m,wind_direction_10m,cloud_cover" + (dias < -5 ? "" : ",precipitation_probability");
+      var variaveis = "temperature_2m,apparent_temperature,precipitation,wind_speed_10m,wind_gusts_10m,wind_direction_10m,cloud_cover" + (dias < -5 ? "" : ",precipitation_probability,uv_index");
       var url = base + "?latitude=" + lat + "&longitude=" + lon + "&hourly=" + variaveis + "&timezone=America%2FSao_Paulo&wind_speed_unit=kmh&start_date=" + data + "&end_date=" + fim;
       estadoDaPrevisao("Buscando a previsão…");
       (cachePrevisao[url] ? Promise.resolve(cachePrevisao[url]) : fetch(url).then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })).then(function (d) {
@@ -1337,7 +1388,7 @@
         cachePrevisao[url] = d;
         var primeira = Math.floor(ultimaSaidaMin / 60), ultima = Math.min(h.time.length - 1, Math.floor(ultimaChegadaMin / 60));
         horasPrevistas = [];
-        for (var k = primeira; k <= ultima && k - primeira < 16; k++) horasPrevistas.push({ h: k, temp: h.temperature_2m[k], sens: h.apparent_temperature ? h.apparent_temperature[k] : null, prob: h.precipitation_probability ? h.precipitation_probability[k] : null, mm: h.precipitation[k], vel: h.wind_speed_10m[k], raj: Math.max(h.wind_gusts_10m[k], h.wind_speed_10m[k]), dir: h.wind_direction_10m[k], nuvens: h.cloud_cover[k] });
+        for (var k = primeira; k <= ultima && k - primeira < 16; k++) horasPrevistas.push({ h: k, temp: h.temperature_2m[k], sens: h.apparent_temperature ? h.apparent_temperature[k] : null, prob: h.precipitation_probability ? h.precipitation_probability[k] : null, uv: h.uv_index ? h.uv_index[k] : null, mm: h.precipitation[k], vel: h.wind_speed_10m[k], raj: Math.max(h.wind_gusts_10m[k], h.wind_speed_10m[k]), dir: h.wind_direction_10m[k], nuvens: h.cloud_cover[k] });
         if (!horasPrevistas.length) throw new Error("sem horas");
         estadoDaPrevisao("");
         document.getElementById("previsao-grafico").hidden = false;
@@ -1476,7 +1527,7 @@
       while (i < s.length) { la += proximo(); lo += proximo(); saida.push({ lat: la / (escala || 1e5), lon: lo / (escala || 1e5) }); }
       return saida;
     }
-    var OPCOES_DO_LINK = { "b-evitar": "e", "b-mao": "m", "b-terreno": "t", "b-apoios": "a", "b-km": "k", "b-piso": "p", "b-ciclovias": "c", "b-pedais": "d", "b-interesses": "i" };      // as chaves do mapa que o link leva, só as ligadas
+    var OPCOES_DO_LINK = { "b-evitar": "e", "b-mao": "m", "b-terreno": "t", "b-apoios": "a", "b-km": "k", "b-piso": "p", "b-ciclovias": "c", "b-pedais": "d", "b-interesses": "i", "b-avisos": "v" };      // as chaves do mapa que o link leva, só as ligadas
     function opcoesDoLink() {
       return (grudar ? "" : "n") + Object.keys(OPCOES_DO_LINK).filter(function (id) { return document.getElementById(id).getAttribute("aria-pressed") === "true"; }).map(function (id) { return OPCOES_DO_LINK[id]; }).join("");      // "n": sem Grudar nas ruas (ele vem ligado)
     }
@@ -1499,11 +1550,28 @@
       document.getElementById(id).addEventListener("click", function () { setTimeout(atualizarEndereco, 0); });
     });
     function atualizarEndereco() { try { history.replaceState(null, "", location.pathname + hashDaRota()); } catch (x) { /* sem história, o link só não acompanha */ } }
+    function linkCurto(hash) {                                       // /r/<código> guardado no banco do site (functions/api/link.js); sem ele, o link longo
+      var longo = location.origin + location.pathname + hash;
+      if (!window.fetch || !hash || (location.protocol !== "https:" && !/^(localhost|127.0.0.1)$/.test(location.hostname))) return Promise.resolve(longo);
+      var parar = window.AbortController ? new AbortController() : null;
+      if (parar) setTimeout(function () { parar.abort(); }, 4000);
+      return fetch("/api/link", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ h: hash }), signal: parar ? parar.signal : undefined })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) { return d && d.id ? location.origin + "/r/" + d.id : longo; })
+        .catch(function () { return longo; });
+    }
     document.getElementById("b-link").addEventListener("click", function () {
-      var url = location.origin + location.pathname + hashDaRota(), botao = this, msg = document.getElementById("msg-pedal");
+      var botao = this, msg = document.getElementById("msg-pedal"), url = linkCurto(hashDaRota()), copiado = null;
       function pronto() { var rotulo = botao.querySelector(".rot"); rotulo.textContent = "Link copiado"; setTimeout(function () { rotulo.textContent = "Copiar link"; }, 2000); }
-      function avisar() { msg.textContent = "Não consegui copiar sozinho. Copie o endereço desta página: " + url; msg.hidden = false; }
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(pronto, avisar); else avisar();
+      function avisar() { url.then(function (u) { msg.textContent = "Não consegui copiar sozinho. Copie este link: " + u; msg.hidden = false; }); }
+      // o Safari só copia dentro do clique: o ClipboardItem recebe a promessa do link e espera por ela; os outros copiam o texto depois
+      if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+        try { copiado = navigator.clipboard.write([new ClipboardItem({ "text/plain": url.then(function (u) { return new Blob([u], { type: "text/plain" }); }) })]); } catch (x) { copiado = null; }
+      }
+      if (!copiado) copiado = url.then(function (u) { return navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(u) : Promise.reject(); });
+      copiado.then(pronto, function () {
+        url.then(function (u) { return navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(u) : Promise.reject(); }).then(pronto, avisar);
+      });
     });
 
     // ---- abrir uma rota que já existe: a do link ou um pedal do canal (?pedal=número) ----
@@ -1677,7 +1745,7 @@
     function estadoDoTerreno(texto) { var e = document.getElementById("status-terreno"); e.textContent = texto || ""; e.hidden = !texto; }
     function agendarTerreno() { clearTimeout(esperaTerreno); if (terrenoLigado) esperaTerreno = setTimeout(buscarTerreno, 1200); }
     var indiceDeVias = null, telasDeVias = {};
-    function viasDoSite(amostras) {                                // as vias do Espírito Santo, lidas dos arquivos do site (nada sai do navegador); rejeita se a rota sai da área coberta
+    function viasDoSite(amostras) {                                // as vias do Brasil, lidas do R2 do site (nada sai do navegador); rejeita se a rota sai da área coberta
       if (!indiceDeVias) indiceDeVias = fetch(URL_VIAS + "indice.json").then(function (r) { if (!r.ok) throw new Error("sem vias do site"); return r.json(); }).catch(function (e) { indiceDeVias = null; throw e; });
       return indiceDeVias.then(function (ind) {
         var c = ind.cobertura, precisa = {};
@@ -1685,12 +1753,12 @@
           if (p.lat < c.sul || p.lat > c.norte || p.lon < c.oeste || p.lon > c.leste) throw new Error("fora da área");
           precisa[Math.floor(p.lat / ind.tela) + "_" + Math.floor(p.lon / ind.tela)] = true;
         });
-        var chaves = Object.keys(precisa).filter(function (k) { return ind.telas.indexOf(k) >= 0; });      // a tela sem arquivo não tem vias
+        var chaves = Object.keys(precisa);                         // o quadradinho sem arquivo (404) não tem vias
         return Promise.all(chaves.map(function (k) { return telaDeVias(k, ind.escala); })).then(function (listas) { return [].concat.apply([], listas); });
       });
     }
     function telaDeVias(chave, escala) {                           // os segmentos [lat1, lon1, lat2, lon2, tipo] de um quadradinho
-      if (!telasDeVias[chave]) telasDeVias[chave] = fetch(URL_VIAS + chave + ".json").then(function (r) { if (!r.ok) throw new Error("tela " + chave); return r.json(); }).then(function (d) {
+      if (!telasDeVias[chave]) telasDeVias[chave] = fetch(URL_VIAS + chave + ".json").then(function (r) { if (r.status === 404) return { w: [] }; if (!r.ok) throw new Error("tela " + chave); return r.json(); }).then(function (d) {
         var segs = [];
         d.w.forEach(function (via) {
           var tipo = via[0] === 1 ? "Asfalto" : via[0] === 2 ? "Terra" : via[0] === 3 ? "Calçamento" : null, v = via[1], lat = 0, lon = 0, antes = null;
@@ -1785,7 +1853,7 @@
     document.getElementById("b-terreno").addEventListener("click", function () {
       terrenoLigado = !terrenoLigado;
       this.setAttribute("aria-pressed", String(terrenoLigado));
-      if (terrenoLigado) { avisarSoNoEs("terreno"); agendarTerreno(); } else { versaoTerreno++; terreno = null; estadoDoTerreno(""); desenharRota(); atualizarTerrenoNaTela(); colorirGraficoPeloTerreno(); }
+      if (terrenoLigado) { agendarTerreno(); } else { versaoTerreno++; terreno = null; estadoDoTerreno(""); desenharRota(); atualizarTerrenoNaTela(); colorirGraficoPeloTerreno(); }
     });
 
     function rotaDoHash(h, caminhos) {                                       // abre a rota de um endereço "#r=..."; false se não é uma rota nossa
@@ -1832,10 +1900,72 @@
       leitor.readAsText(arquivo);
     });
 
-    // ---- minhas rotas: guardadas neste navegador (localStorage) ----
-    var CHAVE_ROTAS = "rotas-salvas", MAX_ROTAS = 40, painelMinhas = document.getElementById("painel-minhas");
-    function lerRotas() { try { var l = JSON.parse(localStorage.getItem(CHAVE_ROTAS) || "[]"); return Array.isArray(l) ? l : []; } catch (x) { return []; } }
+    // ---- minhas rotas: guardadas neste navegador (localStorage) e, com o código de sincronização, também no banco do site
+    //      (functions/api/rotas.js), para o celular e o computador terem as mesmas rotas ----
+    var CHAVE_ROTAS = "rotas-salvas", CHAVE_APAGADAS = "rotas-apagadas", CHAVE_CODIGO = "rotas-codigo", MAX_ROTAS = 40, painelMinhas = document.getElementById("painel-minhas");
+    var ALFA_ID = "abcdefghijklmnopqrstuvwxyz0123456789", ALFA_CODIGO = "abcdefghijkmnpqrstuvwxyz23456789";   // o código não tem l, o, 0 e 1, que se confundem
+    function sortearId(tamanho, alfabeto) {
+      var bytes = new Uint8Array(tamanho), r = "";
+      window.crypto.getRandomValues(bytes);
+      for (var i = 0; i < tamanho; i++) r += alfabeto[bytes[i] % alfabeto.length];
+      return r;
+    }
+    function lerRotas() {                                          // cada rota ganha um id (as antigas, ao ler), para juntar as dos aparelhos
+      var l;
+      try { l = JSON.parse(localStorage.getItem(CHAVE_ROTAS) || "[]"); } catch (x) { return []; }
+      if (!Array.isArray(l)) return [];
+      var novos = false;
+      l.forEach(function (r) { if (!r.id) { r.id = sortearId(10, ALFA_ID); novos = true; } });
+      if (novos) gravarRotas(l);
+      return l;
+    }
     function gravarRotas(lista) { try { localStorage.setItem(CHAVE_ROTAS, JSON.stringify(lista)); return true; } catch (x) { return false; } }
+    function lerApagadas() { try { var a = JSON.parse(localStorage.getItem(CHAVE_APAGADAS) || "{}"); return a && typeof a === "object" ? a : {}; } catch (x) { return {}; } }
+    function gravarApagadas(a) { try { localStorage.setItem(CHAVE_APAGADAS, JSON.stringify(a)); } catch (x) { /* sem armazenamento */ } }
+    function codigoSinc() { try { return localStorage.getItem(CHAVE_CODIGO) || ""; } catch (x) { return ""; } }
+    function juntarRotas(a, b) {                                   // as rotas dos dois lados, sem as apagadas em qualquer um deles
+      var apagadas = {}, vistas = {}, lista = [], umAno = Date.now() - 365 * 24 * 3600 * 1000;
+      [a.apagadas || {}, b.apagadas || {}].forEach(function (ap) {
+        Object.keys(ap).forEach(function (id) { if (ap[id] > umAno) apagadas[id] = Math.max(apagadas[id] || 0, ap[id]); });
+      });
+      (a.rotas || []).concat(b.rotas || []).forEach(function (r) { if (r && r.id && !apagadas[r.id] && !vistas[r.id]) { vistas[r.id] = true; lista.push(r); } });
+      lista.sort(function (x, y) { return x.em < y.em ? 1 : x.em > y.em ? -1 : 0; });
+      return { rotas: lista, apagadas: apagadas };
+    }
+    function estadoSinc(texto) { document.getElementById("sinc-estado").textContent = texto || ""; }
+    function mostrarSinc() {
+      var codigo = codigoSinc();
+      document.getElementById("sinc-desligado").hidden = !!codigo;
+      document.getElementById("sinc-ligado").hidden = !codigo;
+      document.getElementById("sinc-codigo").textContent = codigo ? codigo.match(/.{4}/g).join("-") : "";
+    }
+    var sincronizando = null;
+    function sincronizar(codigo, entrando) {                       // busca as rotas da nuvem, junta com as daqui e grava nos dois lados
+      codigo = codigo || codigoSinc();
+      if (!codigo || !window.fetch || (location.protocol !== "https:" && !/^(localhost|127.0.0.1)$/.test(location.hostname))) return Promise.resolve(false);
+      if (sincronizando) return sincronizando.then(function () { return sincronizar(codigo, entrando); });
+      estadoSinc("Sincronizando...");
+      sincronizando = fetch("/api/rotas", { headers: { "X-Codigo": codigo }, cache: "no-store" })
+        .then(function (r) { if (!r.ok) throw new Error("rede"); return r.json(); })
+        .then(function (nuvem) {
+          if (entrando && !nuvem.dados) { estadoSinc("Código não encontrado. Confira as letras."); return false; }
+          var junto = juntarRotas({ rotas: lerRotas(), apagadas: lerApagadas() }, nuvem.dados || {});
+          return fetch("/api/rotas", { method: "PUT", headers: { "X-Codigo": codigo, "Content-Type": "application/json" }, body: JSON.stringify(junto) })
+            .then(function (r) {
+              if (!r.ok) throw new Error(r.status === 413 ? "grande" : "rede");
+              gravarRotas(junto.rotas); gravarApagadas(junto.apagadas);
+              try { localStorage.setItem(CHAVE_CODIGO, codigo); } catch (x) { /* vale só agora */ }
+              estadoSinc("Sincronizado"); mostrarSinc(); desenharMinhas();
+              return true;
+            });
+        })
+        .catch(function (e) {
+          estadoSinc(e && e.message === "grande" ? "Rotas demais para sincronizar: apague algumas." : "Sem conexão: as rotas ficam neste aparelho e sincronizam depois.");
+          return false;
+        })
+        .then(function (ok) { sincronizando = null; return ok; });
+      return sincronizando;
+    }
     function avisoMinhas(texto) { document.getElementById("msg-minhas").textContent = texto || ""; }
     function desenharMinhas() {
       var lista = lerRotas(), ul = document.getElementById("lista-minhas");
@@ -1857,7 +1987,22 @@
       var abrir = painelMinhas.hidden;
       painelMinhas.hidden = !abrir;
       this.setAttribute("aria-expanded", String(abrir));
-      if (abrir) { avisoMinhas(""); desenharMinhas(); }
+      if (abrir) { avisoMinhas(""); desenharMinhas(); mostrarSinc(); sincronizar(); }
+    });
+    document.getElementById("b-sinc-criar").addEventListener("click", function () { sincronizar(sortearId(16, ALFA_CODIGO)); });
+    document.getElementById("f-sinc-usar").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var campo = document.getElementById("sinc-campo"), codigo = campo.value.toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (!/^[a-z2-9]{16}$/.test(codigo)) { estadoSinc("O código tem 16 letras e números."); return; }
+      sincronizar(codigo, true).then(function (ok) { if (ok) campo.value = ""; });
+    });
+    document.getElementById("b-sinc-copiar").addEventListener("click", function () {
+      var texto = document.getElementById("sinc-codigo").textContent;
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(texto).then(function () { estadoSinc("Código copiado"); }, function () { /* fica na tela */ });
+    });
+    document.getElementById("b-sinc-sair").addEventListener("click", function () {   // só este aparelho deixa de sincronizar; as rotas ficam nele
+      try { localStorage.removeItem(CHAVE_CODIGO); } catch (x) { /* nada guardado */ }
+      estadoSinc("Este aparelho não sincroniza mais."); mostrarSinc();
     });
     document.getElementById("b-salvar").addEventListener("click", function () {
       if (rota.length < 2) return;
@@ -1865,53 +2010,108 @@
       function erro(texto) { msg.textContent = texto; msg.hidden = false; }
       if (lista.length >= MAX_ROTAS) { erro("O limite é de " + MAX_ROTAS + " rotas guardadas. Apague alguma em Minhas rotas para guardar outra."); return; }
       var nome = campo.value.trim() || ("Rota de " + new Date().toLocaleDateString("pt-BR"));
-      lista.unshift({ n: nome.slice(0, 60), em: new Date().toISOString(), km: comprimento(linhaCompleta()) / 1000, h: hashDaRota(),
+      lista.unshift({ id: sortearId(10, ALFA_ID), n: nome.slice(0, 60), em: new Date().toISOString(), km: comprimento(linhaCompleta()) / 1000, h: hashDaRota(),
         c: rota.map(function (p) { return p.fixo && p.caminho && p.caminho.length ? codificar(p.caminho) : ""; }) });
       if (!gravarRotas(lista)) { erro("Não consegui guardar: este navegador não deixa salvar dados do site."); return; }
       var rotulo = botao.querySelector(".rot"); rotulo.textContent = "Rota guardada"; setTimeout(function () { rotulo.textContent = "Salvar rota"; }, 2000);
-      desenharMinhas();
+      desenharMinhas(); sincronizar();
     });
     document.getElementById("lista-minhas").addEventListener("click", function (e) {
       var b = e.target.closest ? e.target.closest("button") : null;
       if (!b) return;
       var lista = lerRotas(), r = lista[Number(b.dataset.i)];
       if (!r) return;
-      if (b.className === "apagar") { lista.splice(Number(b.dataset.i), 1); gravarRotas(lista); avisoMinhas("Rota apagada."); desenharMinhas(); return; }
+      if (b.className === "apagar") {
+        var apagadas = lerApagadas(); apagadas[r.id] = Date.now(); gravarApagadas(apagadas);
+        lista.splice(Number(b.dataset.i), 1); gravarRotas(lista); avisoMinhas("Rota apagada."); desenharMinhas(); sincronizar(); return;
+      }
       var estavaVazia = !rota.length;
       guardar(); if (estavaVazia) antes = [];
       if (rotaDoHash(r.h, r.c)) { pedirPendentes(); avisoMinhas("Rota aberta."); } else avisoMinhas("Não consegui abrir essa rota.");
     });
-    desenharMinhas();
+    desenharMinhas(); mostrarSinc();
+    if (codigoSinc()) sincronizar();                               // ao abrir a página, já traz as rotas guardadas nos outros aparelhos
 
-    // ---- avisos do que só funciona (ou só é rápido) no Espírito Santo: um popup por assunto em cada sessão ----
-    var AVISOS_ES = {
-      apoios: ["Pontos de apoio: só no Espírito Santo", "Os pontos vêm de um arquivo que cobre apenas o Espírito Santo (até a latitude −18°). Em rotas de outros estados, esta opção não mostra nada."],
-      terreno: ["Terreno: mais rápido no Espírito Santo", "No Espírito Santo, o terreno vem de arquivos do site, na hora e sem enviar nada. Em outros estados, uma amostra da rota é enviada ao Overpass, um serviço público do OpenStreetMap que pode demorar ou falhar."]
-    };
-    function fecharPopup() { document.getElementById("popup").hidden = true; }
-    function avisarSoNoEs(assunto) {
-      try { if (sessionStorage.getItem("popup-es-" + assunto)) return; sessionStorage.setItem("popup-es-" + assunto, "1"); } catch (x) { /* sem sessionStorage: avisa de novo */ }
-      document.getElementById("popup-titulo").innerHTML = "<i>i</i>";
-      document.getElementById("popup-titulo").appendChild(document.createTextNode(AVISOS_ES[assunto][0]));
-      document.getElementById("popup-texto").textContent = AVISOS_ES[assunto][1];
-      document.getElementById("popup").hidden = false;
+    // ---- os quadrados de 1 grau dos pontos e das ciclovias (ver ferramentas/brasil.py): só os da rota ou da tela são baixados ----
+    var quadrados = {};
+    function quadrado(tipo, chave) {                               // o arquivo de um quadrado; o 404 é um quadrado sem nada
+      var k = tipo + "/" + chave;
+      if (!quadrados[k]) quadrados[k] = fetch(URL_DADOS + k + ".json").then(function (r) { if (r.status === 404) return null; if (!r.ok) throw new Error(k); return r.json(); })
+        .catch(function (e) { delete quadrados[k]; throw e; });
+      return quadrados[k];
     }
+    function chavesPerto(amostras, folga) {                        // os quadrados a até folga graus de algum ponto da rota
+      var vistos = {};
+      amostras.forEach(function (p) {
+        for (var la = Math.floor(p.lat - folga); la <= Math.floor(p.lat + folga); la++) for (var lo = Math.floor(p.lon - folga); lo <= Math.floor(p.lon + folga); lo++) vistos[la + "_" + lo] = true;
+      });
+      return Object.keys(vistos);
+    }
+    function itensDosQuadrados(tipo, chaves) {                     // {escala, p}: os itens de todos os quadrados pedidos, juntos
+      return Promise.all(chaves.map(function (k) { return quadrado(tipo, k); })).then(function (lista) {
+        var itens = [];
+        lista.forEach(function (d) { if (d) itens = itens.concat(d.p); });
+        return { escala: 100000, p: itens };
+      });
+    }
+    function fecharPopup() { document.getElementById("popup").hidden = true; }
     document.getElementById("popup-ok").addEventListener("click", fecharPopup);
 
-    // ---- pontos de apoio: lidos do arquivo do site (Espírito Santo), até 300 m da rota ----
+    // ---- pontos de apoio: lidos dos quadrados do Brasil (R2 do site), até 300 m da rota ----
     var DISTANCIA_APOIO = 300, TIPOS_APOIO = [null,
       { nome: "Água", cor: "#3a9ad9", icone: "M12 3.5c3.2 4 6 7.2 6 10.3a6 6 0 0 1-12 0c0-3.1 2.8-6.3 6-10.3z" },
       { nome: "Mercado ou padaria", cor: "#d99a1c", icone: "M3.5 9.5h17l-1.8 9.2a2 2 0 0 1-2 1.6H7.3a2 2 0 0 1-2-1.6L3.5 9.5zM8 9.5l3-5M16 9.5l-3-5" },
       { nome: "Posto", cor: "#d4503a", icone: "M5 20.5V5.5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15M3.5 20.5h13M15 9.5h2a1.5 1.5 0 0 1 1.5 1.5v5a1.5 1.5 0 0 0 3 0V9l-2.5-2.5M7.5 8h4" },
       { nome: "Lanchonete ou restaurante", cor: "#7a6ad8", icone: "M5 8h12v6a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5V8zM17 9.5h1.5a2.5 2.5 0 0 1 0 5H17M9 3.5v2M13 3.5v2" },
       { nome: "Bike", cor: "#2fae7a", icone: "M6 18.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM18 18.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM6 15l3.5-7h5l3.5 7M9.5 8l3.5 7" },
-      { nome: "Banheiro", cor: "#8f9aa3", icone: null }];
-    var visiveis = [false, true, true, true, false, true, false];      // por tipo: lanchonete e banheiro começam desligados (são muitos); o resumo liga e desliga
-    var dadosApoios = null, esperaApoios = null, versaoApoios = 0, chaveApoios = "";
-    function carregarApoios() {
-      if (!dadosApoios) dadosApoios = fetch("/ferramentas/apoios/apoios.json").then(function (r) { if (!r.ok) throw new Error("sem apoios"); return r.json(); }).catch(function (e) { dadosApoios = null; throw e; });
-      return dadosApoios;
+      { nome: "Banheiro", cor: "#8f9aa3", icone: null },
+      { nome: "Camping", cor: "#5b8c3a", icone: "M3 20.5h18M5.5 20.5L12 4l6.5 16.5M12 4v16.5M9.5 20.5l2.5-4.5 2.5 4.5" },
+      { nome: "Pousada ou hotel", cor: "#b5577f", icone: "M3.5 18.5v-12M3.5 14h17v4.5M20.5 14v-2.5a3 3 0 0 0-3-3h-7V14M7.2 11.3h.01" }];
+    // ---- horário de funcionamento (opening_hours do OpenStreetMap): o leitor entende os casos comuns ("Mo-Fr 08:00-18:00; Sa 08:00-12:00",
+    //      "24/7", "Su off"); num formato que ele não entende (meses, feriados, nascer do sol...), o ponto fica sem dizer se está aberto ----
+    var DIAS_OSM = { Su: 0, Mo: 1, Tu: 2, We: 3, Th: 4, Fr: 5, Sa: 6 };
+    function abertoNoHorario(horario, dia, minutos) {               // true, false ou null; dia: 0 domingo a 6 sábado; minutos desde a meia-noite
+      if (!horario) return null;
+      if (horario.trim() === "24/7") return true;
+      var estado = null, regras = horario.split(";");
+      for (var r = 0; r < regras.length; r++) {
+        var regra = regras[r].trim();
+        if (!regra) continue;
+        var m = regra.match(/^((?:Mo|Tu|We|Th|Fr|Sa|Su|PH)(?:-(?:Mo|Tu|We|Th|Fr|Sa|Su))?(?:,(?:Mo|Tu|We|Th|Fr|Sa|Su|PH)(?:-(?:Mo|Tu|We|Th|Fr|Sa|Su))?)*)?\s*(.*)$/);
+        var dias = m[1], resto = m[2].trim(), vale = !dias;
+        if (dias === "PH") continue;                               // regra só de feriado: não diz nada de um dia comum
+        if (dias) dias.split(",").forEach(function (parte) {
+          if (parte === "PH") return;
+          var ab = parte.split("-"), a = DIAS_OSM[ab[0]], b = ab.length > 1 ? DIAS_OSM[ab[1]] : a;
+          for (var d = a, n = 0; n < 7; d = (d + 1) % 7, n++) { if (d === dia) vale = true; if (d === b) break; }
+        });
+        if (!vale) continue;
+        if (/^(off|closed)$/i.test(resto)) { estado = false; continue; }
+        if (resto === "") { estado = true; continue; }             // só os dias, sem horário: aberto o dia todo
+        var aberto = false, entendeu = true;
+        resto.split(",").forEach(function (f) {
+          var t = f.trim().match(/^(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})\+?$/);
+          if (!t) { entendeu = false; return; }
+          var ini = +t[1] * 60 + +t[2], fim = +t[3] * 60 + +t[4];
+          if (fim <= ini) fim += 1440;                             // passa da meia-noite
+          if ((minutos >= ini && minutos < fim) || (minutos + 1440 >= ini && minutos + 1440 < fim)) aberto = true;
+        });
+        if (!entendeu) return null;
+        estado = aberto;
+      }
+      return estado === null ? false : estado;                     // dia que nenhuma regra cita: fechado
     }
+    function situacaoDoApoio(a) {                                  // "aberto", "fechado" ou "" (sem horário, horário que o leitor não entende ou sem a hora de passagem)
+      if (!a.horario || !temposDoPercurso) return "";
+      var data = document.getElementById("luz-data").value;
+      if (!data) return "";
+      var cum = temposDoPercurso.cum, t = temposDoPercurso.saida + cum[Math.min(cum.length - 1, Math.round(a.km * 1000 / PASSO))];
+      var dia = (new Date(data + "T12:00:00").getDay() + Math.floor(t / 1440)) % 7, ab = abertoNoHorario(a.horario, dia, ((t % 1440) + 1440) % 1440);
+      return ab === null ? "" : ab ? "aberto" : "fechado";
+    }
+    var visiveis = [false, true, true, true, false, true, false, true, false];      // por tipo: lanchonete, banheiro e hospedagem começam desligados (são muitos); o resumo liga e desliga
+    var esperaApoios = null, versaoApoios = 0, chaveApoios = "";
+    function carregarApoios(amostras) { return itensDosQuadrados("apoios", chavesPerto(amostras, 0.005)); }
     function estadoDosApoios(texto) { var e = document.getElementById("status-apoios"); e.textContent = texto || ""; e.hidden = !texto; }
     function agendarApoios() { clearTimeout(esperaApoios); if (apoiosLigado) esperaApoios = setTimeout(calcularApoios, 700); }
     function itensPertoDaRota(itens, esc, amostras, raio) {         // os itens [tipo, lat, lon, ...] a até `raio` metros da rota, com o km (pela amostra mais perto, de 100 em 100 m) e a distância
@@ -1932,14 +2132,11 @@
       var ida = linhaDaIda(), amostras = amostrar(ida, 100), minha = ++versaoApoios;      // um ponto da rota a cada 100 m
       var chave = amostras.length + ":" + amostras[0].lat.toFixed(5) + "," + amostras[0].lon.toFixed(5) + ":" + amostras[amostras.length - 1].lat.toFixed(5) + "," + amostras[amostras.length - 1].lon.toFixed(5);
       if (apoios && chave === chaveApoios) return;
-      carregarApoios().then(function (d) {
+      carregarApoios(amostras).then(function (d) {
         if (minha !== versaoApoios || !apoiosLigado) return;
-        var c = d.cobertura, esc = d.escala, grade = {}, achados = [];
-        if (!amostras.some(function (p) { return p.lat >= c.sul && p.lat <= c.norte && p.lon >= c.oeste && p.lon <= c.leste; })) {
-          apoios = []; chaveApoios = chave; estadoDosApoios("Não há pontos de apoio para esta área: o arquivo cobre só o Espírito Santo."); avisarSoNoEs("apoios"); desenharRota(); atualizarApoiosNaTela(); return;
-        }
+        var esc = d.escala, achados = [];
         estadoDosApoios("");
-        achados = itensPertoDaRota(d.p, esc, amostras, DISTANCIA_APOIO).map(function (x) { return { tipo: x.q[0], lat: x.lat, lon: x.lon, nome: x.q[3], km: x.km, d: x.d }; });
+        achados = itensPertoDaRota(d.p, esc, amostras, DISTANCIA_APOIO).map(function (x) { return { tipo: x.q[0], lat: x.lat, lon: x.lon, nome: x.q[3], horario: x.q[4] || "", km: x.km, d: x.d }; });
         achados.sort(function (a, b) { return a.km - b.km; });
         apoios = achados; chaveApoios = chave; apoioAberto = null;
         desenharRota(); atualizarApoiosNaTela();
@@ -1957,20 +2154,20 @@
         if (!visiveis[a.tipo]) return;
         var q = paraTela({ lat: a.lat, lon: a.lon });
         if (q.x < -20 || q.y < -20 || q.x > largura + 20 || q.y > altura + 20) return;
-        saida += '<g class="apoio" data-a="' + i + '"><circle cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="' + raio + '" fill="' + TIPOS_APOIO[a.tipo].cor + '" stroke="#fff" stroke-width="2"/>' + iconeDoApoio(a.tipo, q.x, q.y, raio) + "</g>";
+        saida += '<g class="apoio" data-a="' + i + '"' + (situacaoDoApoio(a) === "fechado" ? ' opacity=".45"' : "") + '><circle cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="' + raio + '" fill="' + TIPOS_APOIO[a.tipo].cor + '" stroke="#fff" stroke-width="2"/>' + iconeDoApoio(a.tipo, q.x, q.y, raio) + "</g>";
       });
       return saida;
     }
     function dicaDoApoio() {                                       // a etiqueta do apoio clicado: nome, tipo, quilômetro e distância da rota
       if (!apoiosLigado || !apoios || apoioAberto === null || !apoios[apoioAberto]) return "";
       var a = apoios[apoioAberto], q = paraTela({ lat: a.lat, lon: a.lon });
-      var l1 = a.nome || TIPOS_APOIO[a.tipo].nome, l2 = (a.nome ? TIPOS_APOIO[a.tipo].nome + " · " : "") + "km " + fmt(a.km, 1) + " · a " + Math.round(a.d) + " m da rota";
+      var l1 = a.nome || TIPOS_APOIO[a.tipo].nome, l2 = (a.nome ? TIPOS_APOIO[a.tipo].nome + " · " : "") + "km " + fmt(a.km, 1) + " · a " + Math.round(a.d) + " m da rota" + (situacaoDoApoio(a) ? " · " + situacaoDoApoio(a) + " às " + horaNoKm(a.km) : "");
       var w = Math.min(280, Math.max(l1.length, l2.length) * 7.2 + 24), x = Math.max(6, Math.min(q.x - w / 2, L() - w - 6)), y = q.y < 70 ? q.y + 18 : q.y - 62;
       return '<g pointer-events="none" transform="translate(' + x.toFixed(1) + "," + y.toFixed(1) + ')"><rect width="' + w.toFixed(0) + '" height="44" rx="12" fill="rgba(12,23,17,.93)" stroke="' + TIPOS_APOIO[a.tipo].cor + '" stroke-width="2"/>' +
         '<text x="' + (w / 2).toFixed(0) + '" y="19" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">' + l1.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</text>" +
         '<text x="' + (w / 2).toFixed(0) + '" y="35" text-anchor="middle" fill="#cfe0d3" font-size="12">' + l2.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</text></g>";
     }
-    var SIMBOLOS_GPX = [null, "Drinking Water", "Convenience Store", "Gas Station", "Restaurant", "Shopping Center", "Restroom"];      // os nomes que os aparelhos Garmin reconhecem
+    var SIMBOLOS_GPX = [null, "Drinking Water", "Convenience Store", "Gas Station", "Restaurant", "Shopping Center", "Restroom", "Campground", "Lodging"];      // os nomes que os aparelhos Garmin reconhecem
     function xmlSeguro(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
     function apoiosParaOGpx() { return apoiosLigado && apoios ? apoios.filter(function (a) { return visiveis[a.tipo]; }) : []; }      // os que aparecem no mapa
     function waypointsDeApoio() {                                  // cada apoio vira um ponto de passagem (<wpt>) no GPX
@@ -1980,6 +2177,15 @@
       }).join("");
     }
     function atualizarOpcaoGpx() { document.getElementById("rotulo-gpx-apoios").hidden = !apoiosParaOGpx().length; }
+    function aguaParaOTrecho(km0, km1) {                            // " · leve uns 1,5 L": 0,4 a 1 L por hora de pedal, mais com mais calor (estimativa)
+      if (!temposDoPercurso) return "";
+      var cum = temposDoPercurso.cum, ate = function (km) { return cum[Math.min(cum.length - 1, Math.round(km * 1000 / PASSO))]; };
+      var horas = (ate(km1) - ate(km0)) / 60, hora0 = Math.floor((temposDoPercurso.saida + ate(km0)) / 60), hora1 = Math.floor((temposDoPercurso.saida + ate(km1)) / 60);
+      var calor = (horasPrevistas || []).filter(function (q) { return q.h >= hora0 && q.h <= hora1; }).map(function (q) { return q.sens !== null && q.sens !== undefined ? q.sens : q.temp; });
+      var t = calor.length ? calor.reduce(function (a, b) { return a + b; }, 0) / calor.length : 22;      // sem previsão: um dia ameno
+      var litros = Math.max(0.5, Math.ceil(horas * Math.min(1, Math.max(0.4, 0.5 + 0.05 * (t - 20))) * 2) / 2);
+      return horas < 0.25 ? "" : " · leve uns " + fmt(litros, 1) + " L para ele" + (calor.length ? " (" + Math.round(t) + " °C previstos)" : "");
+    }
     function atualizarApoiosNaTela() {
       atualizarOpcaoGpx();                             // o resumo abaixo do mapa: quantos de cada tipo e o maior trecho sem água ou comida
       var resumo = document.getElementById("apoio-resumo");
@@ -1989,8 +2195,8 @@
       var chip = function (t) { return '<span class="apoio-chip" style="background:' + TIPOS_APOIO[t].cor + '">' + (t === 6 ? "WC" : '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="' + TIPOS_APOIO[t].icone + '"/></svg>') + "</span>"; };
       var pontos = [0].concat(comida, [total]), maior = 0, de = 0;
       for (var i = 1; i < pontos.length; i++) if (pontos[i] - pontos[i - 1] > maior) { maior = pontos[i] - pontos[i - 1]; de = pontos[i - 1]; }
-      resumo.innerHTML = "<b>Pontos de apoio</b><ul>" + [1, 2, 3, 4, 5, 6].filter(function (t) { return cont[t]; }).map(function (t) { return '<li><button type="button" class="apoio-filtro" data-t="' + t + '" aria-pressed="' + visiveis[t] + '" title="Mostrar ou esconder no mapa">' + chip(t) + cont[t] + " " + TIPOS_APOIO[t].nome.toLowerCase() + "</button></li>"; }).join("") +
-        "<li><b>Maior trecho sem água ou comida:</b> " + fmt(maior, 1) + " km (do km " + fmt(de, 1) + " ao km " + fmt(de + maior, 1) + ")</li></ul>";
+      resumo.innerHTML = "<b>Pontos de apoio</b><ul>" + [1, 2, 3, 4, 5, 6, 7, 8].filter(function (t) { return cont[t]; }).map(function (t) { return '<li><button type="button" class="apoio-filtro" data-t="' + t + '" aria-pressed="' + visiveis[t] + '" title="Mostrar ou esconder no mapa">' + chip(t) + cont[t] + " " + TIPOS_APOIO[t].nome.toLowerCase() + "</button></li>"; }).join("") +
+        "<li><b>Maior trecho sem água ou comida:</b> " + fmt(maior, 1) + " km (do km " + fmt(de, 1) + " ao km " + fmt(de + maior, 1) + ")" + aguaParaOTrecho(de, de + maior) + "</li></ul>";
       resumo.hidden = false;
     }
     document.getElementById("apoio-resumo").addEventListener("click", function (e) {
@@ -2007,7 +2213,7 @@
     document.getElementById("b-apoios").addEventListener("click", function () {
       apoiosLigado = !apoiosLigado;
       this.setAttribute("aria-pressed", String(apoiosLigado));
-      if (apoiosLigado) { avisarSoNoEs("apoios"); agendarApoios(); } else { versaoApoios++; apoios = null; apoioAberto = null; chaveApoios = ""; estadoDosApoios(""); desenharRota(); atualizarApoiosNaTela(); }
+      if (apoiosLigado) { agendarApoios(); } else { versaoApoios++; apoios = null; apoioAberto = null; chaveApoios = ""; estadoDosApoios(""); desenharRota(); atualizarApoiosNaTela(); }
     });
 
     // ---- selecionar um trecho na altimetria: os números do trecho e ele destacado no mapa ----
@@ -2083,8 +2289,7 @@
       }).catch(function () { pedaisLigado = false; document.getElementById("b-pedais").setAttribute("aria-pressed", "false"); });
     });
 
-    // ---- camada "Piso das ruas": o piso de todas as ruas com piso no OpenStreetMap (arquivos de vias do Espírito Santo), num canvas por cima dos quadros ----
-    AVISOS_ES.piso = ["Piso das ruas: só no Espírito Santo", "Mostra o piso das ruas que o OpenStreetMap descreve, só no Espírito Santo e a partir do zoom 12. Ruas sem o piso informado não aparecem."];
+    // ---- camada "Piso das ruas": o piso de todas as ruas com piso no OpenStreetMap (as vias do Brasil, no R2 do site), num canvas por cima dos quadros ----
     function agendarPiso() { if (quadroPiso) return; quadroPiso = requestAnimationFrame(function () { quadroPiso = null; desenharPiso(); }); }
     function indiceDoPiso() {
       if (!indiceDeVias) indiceDeVias = fetch(URL_VIAS + "indice.json").then(function (r) { if (!r.ok) throw new Error("sem vias do site"); return r.json(); }).catch(function (e) { indiceDeVias = null; throw e; });
@@ -2105,10 +2310,10 @@
       var minha = ++versaoPiso, a = daTela({ x: 0, y: 0 }), b = daTela({ x: w, y: h });
       indiceDoPiso().then(function (ind) {
         var c = ind.cobertura;
-        if (b.lat > c.norte || a.lat < c.sul || b.lon < c.oeste || a.lon > c.leste) { legendaDoPiso("Fora do Espírito Santo: sem dados de piso nesta área"); return null; }
+        if (b.lat > c.norte || a.lat < c.sul || b.lon < c.oeste || a.lon > c.leste) { legendaDoPiso("Fora do Brasil: sem dados de piso nesta área"); return null; }
         var chaves = [];
         for (var li = Math.floor(b.lat / ind.tela); li <= Math.floor(a.lat / ind.tela); li++) for (var co = Math.floor(a.lon / ind.tela); co <= Math.floor(b.lon / ind.tela); co++) {
-          if (ind.telas.indexOf(li + "_" + co) >= 0) chaves.push(li + "_" + co);
+          chaves.push(li + "_" + co);
         }
         return Promise.all(chaves.map(function (k) { return telaDeVias(k, ind.escala); })).then(function (listas) {
           if (minha !== versaoPiso || !pisoLigado) return;
@@ -2132,24 +2337,24 @@
     document.getElementById("b-piso").addEventListener("click", function () {
       pisoLigado = !pisoLigado;
       this.setAttribute("aria-pressed", String(pisoLigado));
-      if (pisoLigado) avisarSoNoEs("piso");
       desenharPiso();
     });
 
-    // ---- camada "Ciclovias": as ciclovias (tipo 1) e as ciclofaixas (tipo 2) do OpenStreetMap, de um arquivo do site só do Espírito Santo, num canvas por cima dos quadros ----
-    AVISOS_ES.ciclovias = ["Ciclovias: só no Espírito Santo", "Mostra as ciclovias e ciclofaixas que o OpenStreetMap tem, só no Espírito Santo e a partir do zoom 11. O que não está mapeado não aparece."];
-    var cicloviasLigada = false, dadosCiclovias = null, esperaCiclovias = null, quadroCiclovias = null;
-    function carregarCiclovias() {
-      if (dadosCiclovias) return Promise.resolve(dadosCiclovias);
-      if (!esperaCiclovias) esperaCiclovias = fetch("/ferramentas/ciclovias/ciclovias.json").then(function (r) { if (!r.ok) throw new Error("sem ciclovias"); return r.json(); }).then(function (d) {
-        d.linhas = d.c.map(function (x) {                          // cada trecho vira {tipo, pontos: [[lat, lon]...]} (o arquivo guarda a primeira coordenada e as diferenças)
-          var p = x[1], lat = p[0], lon = p[1], pts = [[lat / d.escala, lon / d.escala]];
-          for (var i = 2; i < p.length; i += 2) { lat += p[i]; lon += p[i + 1]; pts.push([lat / d.escala, lon / d.escala]); }
-          return { tipo: x[0], pts: pts };
+    // ---- camada "Ciclovias": as ciclovias (tipo 1) e as ciclofaixas (tipo 2) do OpenStreetMap, dos quadrados do Brasil (R2 do site), num canvas por cima dos quadros ----
+    var cicloviasLigada = false, quadroCiclovias = null, linhasCiclovia = {};
+    function carregarCiclovias(a, b) {                             // as ciclovias dos quadrados que a tela toca, como {tipo, pts: [[lat, lon]...]}
+      var chaves = [];
+      for (var la = Math.floor(b.lat); la <= Math.floor(a.lat); la++) for (var lo = Math.floor(a.lon); lo <= Math.floor(b.lon); lo++) chaves.push(la + "_" + lo);
+      return Promise.all(chaves.map(function (k) {
+        return quadrado("ciclovias", k).then(function (d) {
+          if (!linhasCiclovia[k]) linhasCiclovia[k] = !d ? [] : d.c.map(function (x) {      // o arquivo guarda a primeira coordenada e as diferenças
+            var p = x[1], lat = p[0], lon = p[1], pts = [[lat / d.escala, lon / d.escala]];
+            for (var i = 2; i < p.length; i += 2) { lat += p[i]; lon += p[i + 1]; pts.push([lat / d.escala, lon / d.escala]); }
+            return { tipo: x[0], pts: pts };
+          });
+          return linhasCiclovia[k];
         });
-        dadosCiclovias = d; return d;
-      }).catch(function (e) { esperaCiclovias = null; throw e; });
-      return esperaCiclovias;
+      })).then(function (listas) { return { linhas: [].concat.apply([], listas) }; });
     }
     function legendaDasCiclovias(aviso) {
       document.getElementById("leg-ciclovia").innerHTML = '<span class="item"><span class="amostra"></span>Ciclovia</span><span class="item"><span class="amostra faixa"></span>Ciclofaixa</span><small>' + aviso + "</small>";
@@ -2164,10 +2369,8 @@
       leg.hidden = false;
       if (z < 11) { legendaDasCiclovias("Aproxime o mapa (zoom 11 ou mais) para ver"); return; }
       var a = daTela({ x: 0, y: 0 }), b = daTela({ x: w, y: h });
-      carregarCiclovias().then(function (d) {
+      carregarCiclovias(a, b).then(function (d) {
         if (!cicloviasLigada) return;
-        var c = d.cobertura;
-        if (b.lat > c.norte || a.lat < c.sul || b.lon < c.oeste || a.lon > c.leste) { legendaDasCiclovias("Fora do Espírito Santo: sem dados de ciclovias nesta área"); return; }
         legendaDasCiclovias("Só o que o OpenStreetMap tem mapeado");
         var visiveis = d.linhas.filter(function (l) { return l.pts.some(function (p) { return p[0] <= a.lat && p[0] >= b.lat && p[1] >= a.lon && p[1] <= b.lon; }); });
         function traco(tipo, cor, largura, tracejado, contorno) {
@@ -2188,7 +2391,6 @@
     document.getElementById("b-ciclovias").addEventListener("click", function () {
       cicloviasLigada = !cicloviasLigada;
       this.setAttribute("aria-pressed", String(cicloviasLigada));
-      if (cicloviasLigada) avisarSoNoEs("ciclovias");
       desenharCiclovias();
     });
 
@@ -2241,24 +2443,16 @@
 
     // ---- camada "Pontos de interesse": mirantes, praias, cachoeiras, locais históricos... a até 1 km da rota; a foto e o texto vêm da Wikipédia, só ao abrir o ponto ----
     var TIPOS_INTERESSE = ["", "Mirante", "Cachoeira", "Praia", "Atração ou museu", "Histórico ou igreja", "Caverna", "Parque ou reserva", "Pico"], DISTANCIA_INTERESSE = 1000;
-    AVISOS_ES.interesses = ["Pontos de interesse: só no Espírito Santo", "Mostra mirantes, praias, cachoeiras e locais históricos do OpenStreetMap a até 1 km da rota. A foto e o texto, quando existem, vêm da Wikipédia e só são buscados ao abrir o ponto."];
-    function carregarInteresses() {
-      if (!dadosInteresses) dadosInteresses = fetch("/ferramentas/interesses/interesses.json").then(function (r) { if (!r.ok) throw new Error("sem interesses"); return r.json(); }).catch(function (e) { dadosInteresses = null; throw e; });
-      return dadosInteresses;
-    }
+    function carregarInteresses(amostras) { return itensDosQuadrados("interesses", chavesPerto(amostras, 0.015)); }
     function agendarInteresses() { clearTimeout(esperaInteresses); if (interessesLigado) esperaInteresses = setTimeout(calcularInteresses, 700); }
     function calcularInteresses() {
       if (!interessesLigado || rota.length < 2) return;
       var amostras = amostrar(linhaDaIda(), 100), minha = ++versaoInteresses;
       var chave = amostras.length + ":" + amostras[0].lat.toFixed(5) + "," + amostras[0].lon.toFixed(5) + ":" + amostras[amostras.length - 1].lat.toFixed(5) + "," + amostras[amostras.length - 1].lon.toFixed(5);
       if (interesses && chave === chaveInteresses) return;
-      carregarInteresses().then(function (d) {
+      carregarInteresses(amostras).then(function (d) {
         if (minha !== versaoInteresses || !interessesLigado) return;
-        var c = d.cobertura;
-        if (!amostras.some(function (p) { return p.lat >= c.sul && p.lat <= c.norte && p.lon >= c.oeste && p.lon <= c.leste; })) {
-          interesses = []; chaveInteresses = chave; estadoDosApoios("Não há pontos de interesse para esta área: o arquivo cobre só o Espírito Santo."); avisarSoNoEs("interesses"); desenharRota(); return;
-        }
-        interesses = itensPertoDaRota(d.p, d.escala, amostras, DISTANCIA_INTERESSE).map(function (x) { return { tipo: x.q[0], lat: x.lat, lon: x.lon, nome: x.q[3], foto: x.q[4], pagina: x.q[5], resumo: x.q[6], km: x.km, d: x.d }; });
+        interesses = itensPertoDaRota(d.p, d.escala, amostras, DISTANCIA_INTERESSE).map(function (x) { return { tipo: x.q[0], lat: x.lat, lon: x.lon, nome: x.q[3], foto: x.q[4], pagina: x.q[5], resumo: x.q[6], credito: x.q[7] || "", paginaFoto: x.q[8] || "", km: x.km, d: x.d }; });
         chaveInteresses = chave; interesseAberto = null; estadoDosApoios("");
         if (!interesses.length) estadoDosApoios("Nenhum ponto de interesse a até 1 km desta rota.");
         desenharRota();
@@ -2285,8 +2479,12 @@
       document.getElementById("interesse-dados").textContent = TIPOS_INTERESSE[a.tipo] + " · km " + fmt(a.km, 1) + " · a " + Math.round(a.d) + " m da rota";
       document.getElementById("interesse-resumo").textContent = a.resumo || "";
       document.getElementById("interesse-resumo").hidden = !a.resumo;
-      foto.hidden = !a.foto; foto.src = a.foto || "";             // a foto só é pedida agora, ao abrir o ponto
+      document.getElementById("interesse-fonte").textContent = "Lugar: OpenStreetMap" + (a.resumo ? " · Texto: Wikipédia (CC BY-SA)" : "");
+      foto.hidden = !a.foto; foto.src = !a.foto ? "" : /^https?:/.test(a.foto) ? a.foto : URL_DADOS + a.foto;      // a foto fica no site (R2) e só é pedida ao abrir o ponto
+      var credito = document.getElementById("interesse-credito"), creditoLink = document.getElementById("interesse-credito-link");
+      credito.hidden = !(a.foto && a.credito); creditoLink.textContent = a.credito || ""; creditoLink.href = a.paginaFoto || "#";
       link.hidden = !a.pagina; link.href = a.pagina || "#";
+      link.textContent = /wikipedia\.org/.test(a.pagina || "") ? "Mais informações na Wikipédia" : "Mais informações";
       cartao.hidden = false;
       cartao.style.left = Math.max(8, Math.min(onde.x + 14, L() - cartao.offsetWidth - 8)) + "px";
       cartao.style.top = Math.max(8, Math.min(onde.y - 20, A() - cartao.offsetHeight - 8)) + "px";
@@ -2295,7 +2493,50 @@
     document.getElementById("b-interesses").addEventListener("click", function () {
       interessesLigado = !interessesLigado;
       this.setAttribute("aria-pressed", String(interessesLigado));
-      if (interessesLigado) { avisarSoNoEs("interesses"); agendarInteresses(); } else { versaoInteresses++; interesses = null; chaveInteresses = ""; fecharCartaoDeInteresse(); desenharRota(); }
+      if (interessesLigado) { agendarInteresses(); } else { versaoInteresses++; interesses = null; chaveInteresses = ""; fecharCartaoDeInteresse(); desenharRota(); }
+    });
+
+    indiceDoPiso().then(function (ind) {                            // a data da cópia do OpenStreetMap que os geradores usaram
+      if (ind.data) document.getElementById("data-dos-dados").textContent = "Dados do OpenStreetMap de " + ind.data.split("-").reverse().join("/");
+    }, function () { /* sem a data: a linha fica vazia */ });
+
+    // ---- camada "Avisos na rota": porteiras, vaus, balsas e escadas do OpenStreetMap a até 25 m da rota (quadrados do Brasil no R2 do site) ----
+    var TIPOS_AVISO = ["", "Porteira", "Vau", "Balsa", "Escada"], PLURAL_AVISO = ["", "porteiras", "vaus", "balsas", "escadas"], DISTANCIA_AVISO = 25;
+    var avisosLigado = false, avisos = null, versaoAvisos = 0, chaveAvisos = "", esperaAvisos = null;
+    function estadoDosAvisos(texto) { var e = document.getElementById("status-avisos"); e.textContent = texto || ""; e.hidden = !texto; }
+    function agendarAvisos() { clearTimeout(esperaAvisos); if (avisosLigado) esperaAvisos = setTimeout(calcularAvisos, 700); }
+    function calcularAvisos() {
+      if (!avisosLigado || rota.length < 2) return;
+      var amostras = amostrar(linhaDaIda(), 20), minha = ++versaoAvisos;      // um ponto a cada 20 m: o aviso tem de estar no caminho, não ao lado
+      var chave = amostras.length + ":" + amostras[0].lat.toFixed(5) + "," + amostras[0].lon.toFixed(5) + ":" + amostras[amostras.length - 1].lat.toFixed(5) + "," + amostras[amostras.length - 1].lon.toFixed(5);
+      if (avisos && chave === chaveAvisos) return;
+      itensDosQuadrados("avisos", chavesPerto(amostras, 0.002)).then(function (d) {
+        if (minha !== versaoAvisos || !avisosLigado) return;
+        avisos = itensPertoDaRota(d.p, d.escala, amostras, DISTANCIA_AVISO).map(function (x) { return { tipo: x.q[0], lat: x.lat, lon: x.lon, nome: x.q[3], km: x.km * 0.2, d: x.d }; });      // o km da função conta 100 m por amostra
+        chaveAvisos = chave;
+        var cont = {};
+        avisos.forEach(function (a) { cont[a.tipo] = (cont[a.tipo] || 0) + 1; });
+        estadoDosAvisos(avisos.length ? "Avisos na rota: " + [1, 2, 3, 4].filter(function (t) { return cont[t]; }).map(function (t) { return cont[t] + " " + (cont[t] > 1 ? PLURAL_AVISO[t] : TIPOS_AVISO[t].toLowerCase()); }).join(", ") + "."
+          : "Nenhuma porteira, vau, balsa ou escada no OpenStreetMap ao longo desta rota.");
+        desenharRota();
+      }, function () { if (minha === versaoAvisos) estadoDosAvisos("Não consegui ler os avisos agora. Desligue e ligue a camada para tentar de novo."); });
+    }
+    function marcadoresDeAviso() {                                 // um triângulo laranja com "!" em cada aviso; o nome e o km na dica
+      if (!avisosLigado || !avisos) return "";
+      var saida = "", w = L(), h = A(), r = z >= 14 ? 11 : z >= 12 ? 9 : 7.5;
+      avisos.forEach(function (a) {
+        var q = paraTela({ lat: a.lat, lon: a.lon });
+        if (q.x < -20 || q.y < -20 || q.x > w + 20 || q.y > h + 20) return;
+        var dica = TIPOS_AVISO[a.tipo] + (a.nome ? " · " + a.nome : "") + " · km " + fmt(a.km, 1);
+        saida += '<g class="aviso-rota"><title>' + htmlSeguro(dica) + '</title><path d="M' + q.x.toFixed(1) + " " + (q.y - r).toFixed(1) + " L" + (q.x + r).toFixed(1) + " " + (q.y + r * 0.8).toFixed(1) + " L" + (q.x - r).toFixed(1) + " " + (q.y + r * 0.8).toFixed(1) +
+          'Z" fill="#e8873a" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><text x="' + q.x.toFixed(1) + '" y="' + (q.y + r * 0.55).toFixed(1) + '" text-anchor="middle" fill="#2e1600" font-size="' + (r * 1.1).toFixed(1) + '" font-weight="800">!</text></g>';
+      });
+      return saida;
+    }
+    document.getElementById("b-avisos").addEventListener("click", function () {
+      avisosLigado = !avisosLigado;
+      this.setAttribute("aria-pressed", String(avisosLigado));
+      if (avisosLigado) { agendarAvisos(); } else { versaoAvisos++; avisos = null; chaveAvisos = ""; estadoDosAvisos(""); desenharRota(); }
     });
 
     // ---- roadbook: uma folha para imprimir ou salvar em PDF, numa aba nova, com tudo o que a página calculou ----
@@ -2334,12 +2575,15 @@
       });
       h.push("<h2>Subidas</h2>" + (linhasSubidas.length ? '<table><tr><th>#</th><th>Categoria</th><th>Do km ao km</th><th>Hora no pé</th><th>Extensão</th><th>Ganho</th><th>Média</th><th>Máxima</th></tr>' + linhasSubidas.join("") + "</table>" : "<p>Nenhuma subida de pelo menos 500 m, 3% de média e 3.500 pontos.</p>"));
       var visiveisApoio = apoiosDaRota.filter(function (a) { return visiveis[a.tipo] && (a.tipo === 1 || a.nome); });      // sem nome, só a água entra (ela quase nunca tem)
-      if (visiveisApoio.length) h.push("<h2>Pontos de apoio</h2><table><tr><th>Km</th><th>Hora</th><th>Tipo</th><th>Nome</th><th>Da rota</th></tr>" + visiveisApoio.map(function (a) {
-        return "<tr><td>" + fmt(a.km, 1) + "</td><td>" + horaNoKm(a.km) + "</td><td>" + htmlSeguro(TIPOS_APOIO[a.tipo].nome) + "</td><td>" + htmlSeguro(a.nome || "") + "</td><td>" + Math.round(a.d) + " m</td></tr>";
+      if (visiveisApoio.length) h.push("<h2>Pontos de apoio</h2><table><tr><th>Km</th><th>Hora</th><th>Tipo</th><th>Nome</th><th>Da rota</th><th>Na passagem</th></tr>" + visiveisApoio.map(function (a) {
+        return "<tr><td>" + fmt(a.km, 1) + "</td><td>" + horaNoKm(a.km) + "</td><td>" + htmlSeguro(TIPOS_APOIO[a.tipo].nome) + "</td><td>" + htmlSeguro(a.nome || "") + "</td><td>" + Math.round(a.d) + " m</td><td>" + (situacaoDoApoio(a) || "–") + "</td></tr>";
       }).join("") + "</table><p class=\"nota\">Dados do OpenStreetMap, que não tem todos os lugares: confira antes de sair.</p>");
+      if (avisosLigado && avisos && avisos.length) h.push("<h2>Avisos na rota</h2><table><tr><th>Km</th><th>Hora</th><th>Aviso</th><th>Nome</th></tr>" + avisos.map(function (a) {
+        return "<tr><td>" + fmt(a.km, 1) + "</td><td>" + horaNoKm(a.km) + "</td><td>" + TIPOS_AVISO[a.tipo] + "</td><td>" + htmlSeguro(a.nome || "") + "</td></tr>";
+      }).join("") + "</table><p class=\"nota\">Dados do OpenStreetMap, que não tem todas as porteiras, vaus, balsas e escadas: confira antes de sair.</p>");
       if (interessesDaRota.length) h.push("<h2>Pontos de interesse</h2><table><tr><th>Km</th><th>Hora</th><th>Tipo</th><th>Nome</th><th>Da rota</th></tr>" + interessesDaRota.map(function (a) {
         return "<tr><td>" + fmt(a.km, 1) + "</td><td>" + horaNoKm(a.km) + "</td><td>" + htmlSeguro(TIPOS_INTERESSE[a.tipo]) + "</td><td>" + htmlSeguro(a.nome) + "</td><td>" + Math.round(a.d) + " m</td></tr>";
-      }).join("") + "</table>");
+      }).join("") + "</table><p class=\"nota\">Lugares do OpenStreetMap; fotos e textos da Wikipédia e do Wikimedia Commons (autor e licença de cada foto na página dela).</p>");
       if (terreno && terrenoLigado) {
         var cont = {}, nomes = ["Asfalto", "Terra", "Calçamento", "Sem informação"];
         terreno.tipos.forEach(function (x) { cont[x] = (cont[x] || 0) + 1; });
@@ -2347,8 +2591,8 @@
       }
       if (horasPrevistas.length) {
         var diaSeguinte = somarDias(el("luz-data").value, 1).split("-").reverse().slice(0, 2).join("/");      // as horas depois da meia-noite são do dia seguinte
-        h.push("<h2>Previsão do tempo · " + data + "</h2><p>" + htmlSeguro(el("resumo-previsao").textContent) + "</p><table><tr><th>Hora</th><th>Temperatura</th><th>Sensação</th><th>Céu</th><th>Chuva</th><th>Vento</th></tr>" + horasPrevistas.map(function (q) {
-          return "<tr><td>" + (q.h >= 24 ? diaSeguinte + " " : "") + dois(q.h % 24) + "h</td><td>" + Math.round(q.temp) + " °C</td><td>" + (q.sens !== null && q.sens !== undefined ? Math.round(q.sens) + " °C" : "–") + "</td><td>" + ceuDe(q.nuvens) + "</td><td>" + (q.prob !== null ? q.prob + "%" : fmt(q.mm, 1) + " mm") + "</td><td>de " + pontoCardeal(q.dir) + " · " + Math.round(q.vel) + " km/h (rajadas de " + Math.round(q.raj) + ")</td></tr>";
+        h.push("<h2>Previsão do tempo · " + data + "</h2><p>" + htmlSeguro(el("resumo-previsao").textContent) + "</p><table><tr><th>Hora</th><th>Temperatura</th><th>Sensação</th><th>UV</th><th>Céu</th><th>Chuva</th><th>Vento</th></tr>" + horasPrevistas.map(function (q) {
+          return "<tr><td>" + (q.h >= 24 ? diaSeguinte + " " : "") + dois(q.h % 24) + "h</td><td>" + Math.round(q.temp) + " °C</td><td>" + (q.sens !== null && q.sens !== undefined ? Math.round(q.sens) + " °C" : "–") + "</td><td>" + (q.uv !== null && q.uv !== undefined ? Math.round(q.uv) : "–") + "</td><td>" + ceuDe(q.nuvens) + "</td><td>" + (q.prob !== null ? q.prob + "%" : fmt(q.mm, 1) + " mm") + "</td><td>de " + pontoCardeal(q.dir) + " · " + Math.round(q.vel) + " km/h (rajadas de " + Math.round(q.raj) + ")</td></tr>";
         }).join("") + "</table>" + (el("vento-percurso").hidden ? "" : "<p>" + htmlSeguro(el("vento-percurso").innerText.replace(/\s+/g, " ")) + "</p>"));
       }
       h.push('<p class="nota">Gerado em brotenatrilha.com.br/planejar-pedal/ em ' + new Date().toLocaleString("pt-BR") + ". Mapa e vias: © colaboradores do OpenStreetMap (ODbL). Altitude: SRTM, e pode diferir da de um aparelho de GPS. Tempo e ganho são estimativas.</p>");
@@ -2364,8 +2608,8 @@
       janela.document.write("<p style=\"font-family:system-ui;padding:24px\">Montando o roadbook…</p>");
       if (!calculo || !pontosGpx) { janela.close(); return; }
       var amostras = amostrar(linhaDaIda(), 100);
-      Promise.all([carregarApoios().then(function (d) { return itensPertoDaRota(d.p, d.escala, amostras, DISTANCIA_APOIO).map(function (x) { return { tipo: x.q[0], nome: x.q[3], km: x.km, d: x.d }; }); }).catch(function () { return []; }),
-        carregarInteresses().then(function (d) { return itensPertoDaRota(d.p, d.escala, amostras, DISTANCIA_INTERESSE).map(function (x) { return { tipo: x.q[0], nome: x.q[3], km: x.km, d: x.d }; }); }).catch(function () { return []; })]).then(function (r) {
+      Promise.all([carregarApoios(amostras).then(function (d) { return itensPertoDaRota(d.p, d.escala, amostras, DISTANCIA_APOIO).map(function (x) { return { tipo: x.q[0], nome: x.q[3], horario: x.q[4] || "", km: x.km, d: x.d }; }); }).catch(function () { return []; }),
+        carregarInteresses(amostras).then(function (d) { return itensPertoDaRota(d.p, d.escala, amostras, DISTANCIA_INTERESSE).map(function (x) { return { tipo: x.q[0], nome: x.q[3], km: x.km, d: x.d }; }); }).catch(function () { return []; })]).then(function (r) {
         janela.document.open(); janela.document.write(montarRoadbook(r[0], r[1])); janela.document.close();
       });
     });
@@ -2382,7 +2626,7 @@
       { alvo: "#grafico", titulo: "Altimetria", texto: "Arraste no gráfico para escolher um trecho: a extensão, o ganho e a inclinação dele aparecem logo abaixo." },
       { alvo: "#b-previsao", titulo: "Previsão do tempo", texto: "Ligue para ver temperatura, sensação térmica, vento e chuva nas horas do pedal. O vento aparece no mapa, e o percurso mostra quanto é a favor, de lado e contra." },
       { alvo: "#b-gpx", titulo: "Roadbook, imagem e GPX", texto: "Com a rota pronta, imprima o roadbook, salve a imagem para compartilhar, baixe o GPX para o GPS ou copie o link para mandar a um amigo." },
-      { alvo: "#b-minhas", titulo: "Minhas rotas e Abrir GPX", texto: "Em Minhas rotas ficam as rotas que você guardou com Salvar rota, neste navegador. Abrir GPX traz um arquivo seu para ver as subidas, o terreno e o resto." },
+      { alvo: "#b-minhas", titulo: "Minhas rotas e Abrir GPX", texto: "Em Minhas rotas ficam as rotas que você guardou com Salvar rota; com um código, elas aparecem também no celular ou no computador. Abrir GPX traz um arquivo seu para ver as subidas, o terreno e o resto." },
       { alvo: "#b-exemplo", titulo: "Exemplo", texto: "Quer ver tudo funcionando? Toque em Exemplo: ele abre um pedal do canal com terreno, apoios e pontos de interesse já ligados." }
     ], passoAtual = -1;
     function limparAlvoDoPasseio() { var a = document.querySelector(".passo-alvo"); if (a) a.classList.remove("passo-alvo"); }
@@ -2418,7 +2662,7 @@
     document.getElementById("b-exemplo").addEventListener("click", function () {      // o pedal de Queimados, na Serra, com as chaves principais já ligadas
       fecharPasseio(); fecharGrupos();                              // as listas de chaves ficam recolhidas (o botão só mostra quantas estão ligadas)
       ["b-grudar", "b-terreno", "b-apoios", "b-interesses"].forEach(function (id) { var b = document.getElementById(id); if (b.getAttribute("aria-pressed") !== "true") b.click(); });
-      fecharPopup();                                               // os avisos "só no Espírito Santo" não valem aqui: o exemplo é no ES
+      fecharPopup();                                               // fecha um aviso que esteja aberto
       carregarPedal("13334280521");
     });
     document.getElementById("passeio-segue").addEventListener("click", function () { mostrarPasso(passoAtual + 1); });
@@ -2602,7 +2846,7 @@
 
     // ---- quais recursos são usados: só o NOME do recurso vai ao contador (GoatCounter, sem cookies); nada do que a pessoa desenha, digita ou escolhe ----
     var USOS = { "b-exemplo": "exemplo", "b-max": "tela-cheia", "b-imagem": "salvar-imagem", "b-roadbook": "roadbook", "b-gpx": "baixar-gpx", "b-link": "copiar-link", "b-previsao": "previsao",
-      "b-terreno": "camada-terreno", "b-apoios": "camada-apoios", "b-km": "camada-marcos-km", "b-piso": "camada-piso", "b-pedais": "camada-pedais", "b-interesses": "camada-interesses",
+      "b-terreno": "camada-terreno", "b-apoios": "camada-apoios", "b-km": "camada-marcos-km", "b-piso": "camada-piso", "b-pedais": "camada-pedais", "b-interesses": "camada-interesses", "b-avisos": "camada-avisos",
       "b-grudar": "grudar-nas-ruas", "b-evitar": "usar-ciclovia-evitar-rodovia", "b-ciclovias": "camada-ciclovias", "b-passeio": "como-usar", "busca-ok": "buscar-lugar", "b-abrir-gpx": "abrir-gpx", "b-minhas": "minhas-rotas", "b-salvar": "salvar-rota", "traco-abrir": "abrir-pedal-do-canal" };
     function contarUso(nome) {
       try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: "uso/planejar-pedal/" + nome, title: "Planejar pedal: " + nome, event: true }); } catch (x) { /* o contador é opcional */ }
@@ -2628,6 +2872,128 @@
     var guardado = null;
     try { guardado = sessionStorage.getItem("estilo-mapa"); } catch (x) { /* sem armazenamento: fica o padrão */ }
     trocarEstilo(guardado && ESTILOS[guardado] ? guardado : "ruas", true);      // o padrão é o mapa de ruas; a escolha da pessoa vale até fechar a aba
+
+    // ---- modo pedal: seguir a rota pelo GPS do celular (posição, km feito e que falta, próximo apoio e aviso, alerta ao sair da rota) ----
+    //      Depois de iniciado, funciona sem internet: a linha da rota, os apoios, os avisos e os tempos ficam guardados no aparelho
+    //      (localStorage), e o service worker (sw.js) guarda a página e os pedaços de mapa já vistos. Se a aba fechar, ele volta sozinho.
+    var pedal = null, FORA_DA_ROTA = 60;                             // metros
+    function projetarNaRota(p) {                                     // {km, d}: o ponto da linha mais perto da posição (procura primeiro perto do último)
+      var linha = pedal.linha, melhor = { km: 0, d: Infinity, i: pedal.i };
+      function testar(i0, i1) {
+        for (var i = Math.max(1, i0); i < Math.min(linha.length, i1); i++) {
+          var a = linha[i - 1], b = linha[i], k = Math.cos(a.lat * Math.PI / 180) * 111320;
+          var bx = (b.lon - a.lon) * k, by = (b.lat - a.lat) * 111320, px = (p.lon - a.lon) * k, py = (p.lat - a.lat) * 111320;
+          var dd = bx * bx + by * by, t = dd ? Math.max(0, Math.min(1, (px * bx + py * by) / dd)) : 0, d = Math.hypot(px - t * bx, py - t * by);
+          if (d < melhor.d) melhor = { km: pedal.kms[i - 1] + t * (pedal.kms[i] - pedal.kms[i - 1]), d: d, i: i };
+        }
+      }
+      testar(pedal.i - 200, pedal.i + 400);
+      if (melhor.d > FORA_DA_ROTA) testar(1, linha.length);          // longe do trecho esperado: procura na rota inteira
+      pedal.i = melhor.i;
+      return melhor;
+    }
+    function proximoDe(lista, km, filtro) {
+      var x = null;
+      (lista || []).forEach(function (a) { if (a.km > km + 0.02 && (!filtro || filtro(a)) && (!x || a.km < x.km)) x = a; });
+      return x;
+    }
+    var vozLigada = false;
+    try { vozLigada = localStorage.getItem("pedal-voz") === "1"; } catch (x) { /* sem armazenamento: começa desligada */ }
+    function falar(texto) {                                          // a voz do aparelho, em português (não precisa de internet)
+      if (!vozLigada || !window.speechSynthesis) return;
+      var f = new SpeechSynthesisUtterance(texto);
+      f.lang = "pt-BR";
+      speechSynthesis.speak(f);
+    }
+    function distanciaFalada(km) { return km < 1 ? Math.max(50, Math.round(km * 1000 / 50) * 50) + " metros" : fmt(Math.round(km * 10) / 10, 1) + " quilômetros"; }
+    function avisosDeVoz(r, fora, ap, av) {                          // cada aviso uma vez: o que vem à frente, a saída da rota, os marcos de 10 km e a chegada
+      var f = pedal.falados;
+      if (av && av.km - r.km <= 0.3 && !f["aviso" + av.km]) { f["aviso" + av.km] = true; falar(TIPOS_AVISO[av.tipo] + " em " + distanciaFalada(av.km - r.km)); }
+      if (ap && ap.km - r.km <= 0.5 && !f["apoio" + ap.km]) { f["apoio" + ap.km] = true; falar((ap.tipo === 1 ? "Água" : TIPOS_APOIO[ap.tipo].nome) + " em " + distanciaFalada(ap.km - r.km)); }
+      if (fora && !pedal.avisouFora) falar("Você saiu da rota");
+      if (!fora && pedal.avisouFora) falar("De volta à rota");
+      var marco = Math.floor(r.km / 10) * 10;
+      if (marco > 0 && !fora && !f["marco" + marco]) { f["marco" + marco] = true; falar(marco + " quilômetros. Faltam " + Math.round(pedal.total - r.km)); }
+      if (pedal.total - r.km < 0.15 && !fora && !f.chegada) { f.chegada = true; falar("Chegada"); }
+    }
+    function atualizarPedal(pos) {
+      var p = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+      eu = { lat: p.lat, lon: p.lon, precisao: pos.coords.accuracy || 30 };
+      var r = projetarNaRota(p), falta = Math.max(0, pedal.total - r.km), chegada = "";
+      if (pedal.tempos) {                                            // a chegada pelo tempo que falta no perfil, a partir de agora
+        var cum = pedal.tempos.cum, ate = function (km) { return cum[Math.min(cum.length - 1, Math.round(km * 1000 / PASSO))]; }, agora = new Date();
+        chegada = " · chegada às " + horaMin(agora.getHours() * 60 + agora.getMinutes() + ate(pedal.total) - ate(r.km));
+      }
+      document.getElementById("pedal-km").textContent = "km " + fmt(r.km, 1) + " de " + fmt(pedal.total, 1);
+      document.getElementById("pedal-falta").textContent = "Faltam " + fmt(falta, 1) + " km" + chegada;
+      var ap = proximoDe(pedal.apoios, r.km, function (a) { return visiveis[a.tipo]; }), av = proximoDe(pedal.avisos, r.km);
+      document.getElementById("pedal-apoio").textContent = ap ? "Próximo apoio: " + (ap.nome ? ap.nome + " (" + TIPOS_APOIO[ap.tipo].nome.toLowerCase() + ")" : TIPOS_APOIO[ap.tipo].nome) + " em " + fmt(ap.km - r.km, 1) + " km"
+        : pedal.apoios ? "Nenhum ponto de apoio à frente" : "Ligue Pontos de apoio antes de iniciar para vê-los aqui";
+      document.getElementById("pedal-aviso").textContent = av ? TIPOS_AVISO[av.tipo] + " em " + fmt(av.km - r.km, 1) + " km" + (av.nome ? " (" + av.nome + ")" : "") : "";
+      var fora = r.d > FORA_DA_ROTA;
+      avisosDeVoz(r, fora, ap, av);
+      document.getElementById("pedal-fora").textContent = fora ? "Fora da rota: " + Math.round(r.d) + " m" : "";
+      if (fora && !pedal.avisouFora && navigator.vibrate) navigator.vibrate([300, 150, 300]);
+      pedal.avisouFora = fora;
+      if (pedal.seguir) centro = mundo(p.lat, p.lon, z);
+      redesenhar();
+    }
+    function linhaDoPedal() {                                        // a linha guardada da rota (por baixo dos marcadores), só no modo pedal
+      if (!pedal) return "";
+      return '<polyline points="' + pedal.linha.map(function (q) { var t = paraTela(q); return t.x.toFixed(1) + "," + t.y.toFixed(1); }).join(" ") +
+        '" fill="none" stroke="#e8873a" stroke-width="5" stroke-opacity=".55" stroke-linejoin="round" stroke-linecap="round" pointer-events="none"/>';
+    }
+    function travarTela() { if (pedal && navigator.wakeLock) navigator.wakeLock.request("screen").then(function (t) { if (pedal) pedal.trava = t; }, function () { /* sem trava: a tela pode apagar */ }); }
+    function iniciarPedal(salvo) {
+      if (!navigator.geolocation) { avisar("Este navegador não informa a localização."); return; }
+      var linha = salvo ? salvo.linha : linhaDaIda(), kms = kmsDaLinha(linha);
+      pedal = { linha: linha, kms: kms, total: kms[kms.length - 1], i: 0, seguir: true, avisouFora: false, trava: null,
+        apoios: salvo ? salvo.apoios : apoios, avisos: salvo ? salvo.avisos : avisos, tempos: salvo ? salvo.tempos : temposDoPercurso, falados: {} };
+      document.getElementById("pedal-voz").setAttribute("aria-pressed", String(vozLigada));
+      if (!salvo) try {
+        localStorage.setItem("modo-pedal", JSON.stringify({ h: hashDaRota(), linha: linha, apoios: apoios, avisos: avisos, tempos: temposDoPercurso, em: Date.now() }));
+      } catch (x) { avisar("Não consegui guardar a rota no aparelho: sem internet, o modo pedal não volta se a aba fechar."); }
+      if (modoDesenhar) document.getElementById("b-desenhar").click();          // pedalando, um toque no mapa não acrescenta ponto
+      z = Math.max(z, 15);
+      document.getElementById("painel-pedal").hidden = false;
+      document.getElementById("b-pedalar").setAttribute("aria-pressed", "true");
+      document.getElementById("pedal-km").textContent = "Buscando o GPS…";
+      pedal.vigia = navigator.geolocation.watchPosition(atualizarPedal, function (e) {
+        document.getElementById("pedal-km").textContent = e.code === 1 ? "A localização foi negada: libere nas configurações do navegador." : "Sem sinal de GPS ainda…";
+      }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 });
+      travarTela();
+      redesenhar();
+    }
+    function pararPedal() {
+      if (!pedal) return;
+      navigator.geolocation.clearWatch(pedal.vigia);
+      if (pedal.trava) pedal.trava.release().catch(function () { /* já solta */ });
+      pedal = null;
+      document.getElementById("painel-pedal").hidden = true;
+      document.getElementById("b-pedalar").setAttribute("aria-pressed", "false");
+      try { localStorage.removeItem("modo-pedal"); } catch (x) { /* nada guardado */ }
+      botoes(); redesenhar();
+    }
+    document.getElementById("b-pedalar").addEventListener("click", function () { if (pedal) pararPedal(); else iniciarPedal(null); });
+    document.getElementById("pedal-parar").addEventListener("click", pararPedal);
+    document.getElementById("pedal-voz").addEventListener("click", function () {      // o toque libera o som (os celulares exigem um toque antes de falar)
+      vozLigada = !vozLigada;
+      this.setAttribute("aria-pressed", String(vozLigada));
+      try { localStorage.setItem("pedal-voz", vozLigada ? "1" : "0"); } catch (x) { /* sem armazenamento: vale só agora */ }
+      if (!window.speechSynthesis) { avisar("Este navegador não tem voz."); return; }
+      if (vozLigada) falar("Voz ligada"); else speechSynthesis.cancel();
+    });
+    document.getElementById("pedal-centro").addEventListener("click", function () { if (pedal) { pedal.seguir = true; if (eu) { centro = mundo(eu.lat, eu.lon, z); redesenhar(); } } });
+    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") travarTela(); });      // o navegador solta a trava quando a aba some
+    function retomarPedal() {                                        // a aba fechou no meio do pedal: volta com o que foi guardado (vale por 24 horas)
+      var salvo = null;
+      try { salvo = JSON.parse(localStorage.getItem("modo-pedal") || "null"); } catch (x) { /* nada guardado */ }
+      if (!salvo || !salvo.linha || Date.now() - salvo.em > 24 * 3600 * 1000) { try { localStorage.removeItem("modo-pedal"); } catch (x) { /* nada */ } return; }
+      if (salvo.h && !rota.length) rotaDoHash(salvo.h);
+      iniciarPedal(salvo);
+      avisar("Modo pedal retomado");
+    }
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () { /* sem service worker: a página só não abre sem internet */ });
 
     // ---- minha localização: lida só no navegador, para centralizar o mapa ----
     var eu = null, tempoDoAviso = null;
@@ -2661,6 +3027,7 @@
 
     redesenhar();
     botoes();
+    retomarPedal();
   })();
 </script>
 <script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>

@@ -42,7 +42,7 @@ jobs:
         if: env.CF_TOKEN != ''
         run: |
           mkdir -p "$RUNNER_TEMP/site"
-          rsync -a --exclude '.git' --exclude '.github' ./ "$RUNNER_TEMP/site/"
+          rsync -a --exclude '.git' --exclude '.github' --exclude 'functions' ./ "$RUNNER_TEMP/site/"   # functions/: código do servidor (o wrangler o lê daqui)
           echo "Arquivos: $(find "$RUNNER_TEMP/site" -type f | wc -l) (limite do plano grátis: 20000)"
 
       - name: Publicar no Cloudflare Pages
