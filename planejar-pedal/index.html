@@ -394,7 +394,6 @@
     <div class="passeio-botoes"><button type="button" id="passeio-volta" class="sem-fundo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Anterior</button><button type="button" id="passeio-segue">Próximo<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
   </div>
   <div class="minhas" id="painel-minhas" hidden>
-    <div class="salvar"><button type="button" id="b-salvar" disabled title="Salvar esta rota neste navegador"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg>Salvar rota</button></div>
     <ul id="lista-minhas"></ul>
     <p class="nota" id="msg-minhas" aria-live="polite" style="margin-top:12px"></p>
   </div>
@@ -450,7 +449,7 @@
     <h2>Subidas da rota</h2>
     <div class="tabela"><table id="tabela"></table></div>
   </div>
-  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled title="Copiar o link da rota"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="rot">Copiar link</span></button><button class="sec" type="button" id="b-roadbook" disabled title="Roadbook para imprimir"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Roadbook</button><button class="sec" type="button" id="b-imagem" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 3.5 3L16 12l4.5 4.5"/></svg>Salvar imagem</button></div>
+  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled title="Copiar o link da rota"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="rot">Copiar link</span></button><button class="sec" type="button" id="b-salvar" disabled title="Guardar esta rota neste navegador (fica em Minhas rotas)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg><span class="rot">Salvar rota</span></button><button class="sec" type="button" id="b-roadbook" disabled title="Roadbook para imprimir"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Roadbook</button><button class="sec" type="button" id="b-imagem" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 3.5 3L16 12l4.5 4.5"/></svg>Salvar imagem</button></div>
   <p class="nota">A altitude vem do relevo do mapa (SRTM), a cada 25 m ao longo da linha, e pode diferir da de um aparelho de GPS. O ganho total ignora oscilações de até 12 m, ajustado com os pedais do canal contra o Strava (erro médio de uns 12%). O GPX baixado traz só o traçado e a altitude. Com “Grudar nas ruas” desligado as linhas são retas entre os pontos: para seguir uma curva, clique com mais frequência.</p>
   <p class="nota">O link guarda a rota no próprio endereço, depois do “#”: o navegador não envia essa parte a nenhum servidor. Quem abrir o link vê a mesma rota, com as chaves do mapa que estavam ligadas (Grudar nas ruas, terreno e camadas): elas ligam sozinhas ao abrir e fazem os mesmos pedidos de quando a pessoa as liga. Um pedal aberto do canal vai simplificado no link (só os pontos, sem o caminho inteiro).</p>
 </main>
@@ -1861,13 +1860,15 @@
     });
     document.getElementById("b-salvar").addEventListener("click", function () {
       if (rota.length < 2) return;
-      var lista = lerRotas(), campo = document.getElementById("nome-rota");
-      if (lista.length >= MAX_ROTAS) { avisoMinhas("O limite é de " + MAX_ROTAS + " rotas. Apague alguma para guardar outra."); return; }
+      var lista = lerRotas(), campo = document.getElementById("nome-rota"), botao = this, msg = document.getElementById("msg-pedal");
+      function erro(texto) { msg.textContent = texto; msg.hidden = false; }
+      if (lista.length >= MAX_ROTAS) { erro("O limite é de " + MAX_ROTAS + " rotas guardadas. Apague alguma em Minhas rotas para guardar outra."); return; }
       var nome = campo.value.trim() || ("Rota de " + new Date().toLocaleDateString("pt-BR"));
       lista.unshift({ n: nome.slice(0, 60), em: new Date().toISOString(), km: comprimento(linhaCompleta()) / 1000, h: hashDaRota(),
         c: rota.map(function (p) { return p.fixo && p.caminho && p.caminho.length ? codificar(p.caminho) : ""; }) });
-      if (!gravarRotas(lista)) { avisoMinhas("Não consegui guardar: este navegador não deixa salvar dados do site."); return; }
-      avisoMinhas("Rota guardada."); desenharMinhas();
+      if (!gravarRotas(lista)) { erro("Não consegui guardar: este navegador não deixa salvar dados do site."); return; }
+      var rotulo = botao.querySelector(".rot"); rotulo.textContent = "Rota guardada"; setTimeout(function () { rotulo.textContent = "Salvar rota"; }, 2000);
+      desenharMinhas();
     });
     document.getElementById("lista-minhas").addEventListener("click", function (e) {
       var b = e.target.closest ? e.target.closest("button") : null;
@@ -2380,7 +2381,7 @@
       { alvo: "#grafico", titulo: "Altimetria", texto: "Arraste no gráfico para escolher um trecho: a extensão, o ganho e a inclinação dele aparecem logo abaixo." },
       { alvo: "#b-previsao", titulo: "Previsão do tempo", texto: "Ligue para ver temperatura, sensação térmica, vento e chuva nas horas do pedal. O vento aparece no mapa, e o percurso mostra quanto é a favor, de lado e contra." },
       { alvo: "#b-gpx", titulo: "Roadbook, imagem e GPX", texto: "Com a rota pronta, imprima o roadbook, salve a imagem para compartilhar, baixe o GPX para o GPS ou copie o link para mandar a um amigo." },
-      { alvo: "#b-minhas", titulo: "Minhas rotas e Abrir GPX", texto: "Salve a rota neste navegador para voltar nela depois. Abrir GPX traz um arquivo seu para ver as subidas, o terreno e o resto." },
+      { alvo: "#b-minhas", titulo: "Minhas rotas e Abrir GPX", texto: "Em Minhas rotas ficam as rotas que você guardou com Salvar rota, neste navegador. Abrir GPX traz um arquivo seu para ver as subidas, o terreno e o resto." },
       { alvo: "#b-exemplo", titulo: "Exemplo", texto: "Quer ver tudo funcionando? Toque em Exemplo: ele abre um pedal do canal com terreno, apoios e pontos de interesse já ligados." }
     ], passoAtual = -1;
     function limparAlvoDoPasseio() { var a = document.querySelector(".passo-alvo"); if (a) a.classList.remove("passo-alvo"); }
