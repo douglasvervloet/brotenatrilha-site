@@ -1,0 +1,41 @@
+# Mede as páginas principais do site com o Lighthouse (o mesmo do PageSpeed do Google), no modo celular, numa máquina limpa
+# (sem antivírus injetando scripts, como acontece no computador de casa). Rodado na mão em "Actions"; o resumo sai na própria execução
+# e os relatórios completos ficam como artefato.
+name: Medir o site (Lighthouse)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  medir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Medir
+        run: |
+          mkdir -p relatorios
+          for u in / /pedais/ /subidas/ /planejar-pedal/ /ferramentas/ /sobre/; do
+            n=$(echo "$u" | tr '/' '_')
+            npx -y lighthouse@12 "https://brotenatrilha.com.br$u" --quiet --form-factor=mobile \
+              --only-categories=performance,accessibility,best-practices,seo --output=json --output-path="relatorios/lh$n.json" \
+              --chrome-flags="--headless=new --no-sandbox" || echo "falhou: $u"
+          done
+      - name: Resumo
+        run: |
+          python3 - <<'EOF' | tee -a "$GITHUB_STEP_SUMMARY"
+          import glob, json
+          print("| Página | Desempenho | Acessibilidade | Boas práticas | SEO | LCP | FCP |")
+          print("|---|---|---|---|---|---|---|")
+          for f in sorted(glob.glob("relatorios/*.json")):
+              lh = json.load(open(f)); c = lh["categories"]; a = lh["audits"]
+              s = lambda k: round(c[k]["score"] * 100) if c[k]["score"] is not None else "?"
+              pagina = "/" + f.split("lh_", 1)[1][:-5].replace("_", "/")
+              print(f"| {pagina} | {s('performance')} | {s('accessibility')} | {s('best-practices')} | {s('seo')} | {a['largest-contentful-paint']['displayValue']} | {a['first-contentful-paint']['displayValue']} |")
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: relatorios-lighthouse
+          path: relatorios/
