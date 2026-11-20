@@ -265,6 +265,16 @@
   }
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebSite", "@id": "https://brotenatrilha.com.br/#site", "url": "https://brotenatrilha.com.br/", "name": "Brote na Trilha", "inLanguage": "pt-BR", "description": "Pedais com amigos pelo Espírito Santo."}, {"@type": "Organization", "@id": "https://brotenatrilha.com.br/#canal", "name": "Brote na Trilha", "url": "https://brotenatrilha.com.br/", "logo": "https://brotenatrilha.com.br/logo.png", "email": "contato@brotenatrilha.com.br", "sameAs": ["https://www.youtube.com/@BroteNaTrilha", "https://www.instagram.com/brotenatrilha/"]}]}</script>
+<script>
+  // quem não está num fuso do Brasil vê os avisos de que os dados do mapa são do Brasil (.so-fora); nada é enviado
+  (function () {
+    var fuso = "";
+    try { fuso = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (x) { /* sem fuso: fica como brasileiro */ }
+    var BR = /^America\/(Sao_Paulo|Araguaina|Bahia|Belem|Boa_Vista|Campo_Grande|Cuiaba|Eirunepe|Fortaleza|Maceio|Manaus|Noronha|Porto_Velho|Recife|Rio_Branco|Santarem)$|^Brazil\//;
+    if (fuso && !BR.test(fuso)) document.documentElement.classList.add("fora");
+  })();
+</script>
+<style>.so-fora { display: none; } html.fora .so-fora { display: inline; }</style>
 </head>
 <body>
 <a class="pular" href="#videos">Pular para os vídeos</a>
@@ -333,7 +343,7 @@
   <section id="planejar">
     <div class="miolo">
       <h2 class="titulo">Planejar pedal</h2>
-      <p class="lead">Desenhe a rota do seu próximo pedal direto no mapa, em qualquer lugar do Brasil.</p>
+      <p class="lead">Desenhe a rota do seu próximo pedal direto no mapa<span class="so-fora">, em qualquer lugar do Brasil</span>.</p>
       <div class="planejar">
         <a class="planejar-print" href="planejar-pedal/" aria-label="Abrir o Planejar pedal"><img src="planejar-pedal/previa.webp" width="1080" height="798" loading="lazy" alt="Mapa do Planejar pedal com uma rota de 50 km colorida pelo tipo de terreno e o painel de camadas aberto"></a>
         <div class="planejar-texto">

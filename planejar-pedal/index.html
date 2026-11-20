@@ -50,6 +50,7 @@
   #quadros img { position: absolute; width: 256px; height: 256px; max-width: none; pointer-events: none; -webkit-user-drag: none; }
   #rota { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   #rota circle.ponto { pointer-events: auto; cursor: pointer; }
+  .mapa.mover #rota circle.ponto { cursor: inherit; }          /* sem o Desenhar, os pontos não mudam: o cursor é o de arrastar o mapa */
   #rota text { font-family: inherit; }
   .barra { z-index: 4; position: absolute; left: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; max-width: calc(100% - 80px); }
   .linha1 { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -317,13 +318,23 @@
   footer a { color: #fff; }
   @media (max-width: 560px) { .dica { max-width: calc(100% - 24px); bottom: 34px; } .credito-mapa { max-width: 100%; } .grafico text { font-size: 26px; } }
 </style>
+<script>
+  // quem não está num fuso do Brasil vê os avisos de que os dados do mapa são do Brasil (.so-fora); nada é enviado
+  (function () {
+    var fuso = "";
+    try { fuso = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (x) { /* sem fuso: fica como brasileiro */ }
+    var BR = /^America\/(Sao_Paulo|Araguaina|Bahia|Belem|Boa_Vista|Campo_Grande|Cuiaba|Eirunepe|Fortaleza|Maceio|Manaus|Noronha|Porto_Velho|Recife|Rio_Branco|Santarem)$|^Brazil\//;
+    if (fuso && !BR.test(fuso)) document.documentElement.classList.add("fora");
+  })();
+</script>
+<style>.so-fora { display: none; } html.fora .so-fora { display: inline; }</style>
 </head>
 <body>
 <header>
   <div class="miolo">
     <a href="../">&larr; Brote na Trilha</a>
     <h1><span class="icone"><svg class="icone-svg" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="5.5" cy="18.5" r="2.2"/><circle cx="18.5" cy="5.5" r="2.2"/><path d="M7.7 18.5h4.3a3.2 3.2 0 0 0 0-6.4h-1a3.2 3.2 0 0 1 0-6.4h5.3"/></svg></span>Planejar pedal</h1>
-    <p>Clique no mapa para desenhar o percurso, em qualquer lugar do Brasil, e veja a distância, o ganho de altitude e as subidas com categoria. Depois, baixe o GPX.</p>
+    <p>Clique no mapa para desenhar o percurso<span class="so-fora">, em qualquer lugar do Brasil,</span> e veja a distância, o ganho de altitude e as subidas com categoria. Depois, baixe o GPX.</p>
   </div>
 </header>
 <main class="miolo">
@@ -442,7 +453,7 @@
   <details class="sobre-dados">
     <summary>Privacidade e fontes dos dados</summary>
     <p class="aviso"><b>Previsão do tempo</b>: só ao clicar no botão, o ponto de saída (arredondado a cerca de 1 km) e a data vão ao Open-Meteo, um serviço público de meteorologia. <b>Buscar um lugar</b>: só quando você envia a busca, o texto digitado vai ao Nominatim (OpenStreetMap), que recebe o seu endereço IP. <b>Pontos de interesse</b>: lidos dos arquivos do próprio site (OpenStreetMap), no Brasil; a foto e o texto, quando existem, vêm da Wikipédia e do Wikimedia Commons e ficam guardados no próprio site, com o autor e a licença de cada foto; só o link “Mais informações” leva à Wikipédia. <b>Contagem de usos</b>: o site conta quantas vezes cada botão é usado (só o nome do botão, sem cookies e sem o que você desenha, digita ou escolhe). <b>Roadbook e imagem da rota</b>: montados no seu navegador, nada é enviado. <b>Usar ciclovia / evitar rodovia</b> usa o mesmo serviço de rotas do Grudar nas ruas. <b>Ciclovias</b>: lidas dos arquivos do próprio site (dados do OpenStreetMap), no Brasil, sem enviar nada. <b>Pontos de apoio</b>: lidos dos arquivos do próprio site (dados do OpenStreetMap, © colaboradores, ODbL), no Brasil. <b>Abrir GPX</b>: o arquivo é lido só no seu navegador. <b>Minhas rotas</b>: ficam guardadas neste navegador; só com um código de sincronização elas vão também ao banco de dados do site (Cloudflare), ligadas ao código e a nada mais. <b>Copiar link</b>: a rota é guardada no banco do site para o link ficar curto.</p>
-    <p class="aviso"><b>Mostrar o terreno</b>: no Brasil, o terreno vem dos arquivos do próprio site e nada sai do navegador. Fora do Brasil, uma amostra da rota (um ponto a cada 200 m) é enviada ao Overpass, o serviço público do OpenStreetMap, para saber o tipo de cada via. Desligado, nada é enviado. Dados das vias: © colaboradores do OpenStreetMap (ODbL).</p>
+    <p class="aviso"><b>Mostrar o terreno</b>: o terreno vem dos arquivos do próprio site e nada sai do navegador.<span class="so-fora"> Fora do Brasil, uma amostra da rota (um ponto a cada 200 m) é enviada ao Overpass, o serviço público do OpenStreetMap, para saber o tipo de cada via.</span> Desligado, nada é enviado. Dados das vias: © colaboradores do OpenStreetMap (ODbL).</p>
     <p class="aviso"><b>Grudar nas ruas</b> vem ligado: os pontos de cada trecho (dois a dois) são enviados a um serviço público de rotas do OpenStreetMap
       (Valhalla, da FOSSGIS, e, se ele não responder, BRouter e o OSRM da FOSSGIS) para seguir as ruas e trilhas; se nenhum responder, o trecho fica em linha reta. Desligado (no painel Desenho), nada do que você desenha sai do seu navegador. O mapa e a altitude vêm de servidores abertos (OpenTopoMap ou OpenStreetMap, conforme o estilo, e Amazon Web Services),
       que só recebem o pedido dos quadros do mapa que você vê. A sua localização, se você usar o botão, é lida só no seu navegador.</p>
@@ -467,7 +478,7 @@
       <div><label for="luz-data">Data</label><input id="luz-data" type="date"></div>
       <div><label for="luz-saida">Saída</label><input id="luz-saida" type="time" value="06:30"></div>
       <div><label for="luz-vel">Velocidade no plano (km/h)</label><input id="luz-vel" inputmode="decimal" value="24"></div>
-      <div><label for="luz-massa">Peso do conjunto (kg)</label><input id="luz-massa" inputmode="decimal" value="85"></div>
+      <div><label for="luz-massa">Peso do conjunto, bike + ciclista (kg)</label><input id="luz-massa" inputmode="decimal" value="85"></div>
     </div>
     <div class="numeros">
       <div><span>Tempo de pedal</span><b id="luz-tempo">–</b><span id="luz-media"></span></div>
@@ -915,7 +926,7 @@
       if (Object.keys(dedos).length === 1) {
         var i = e.target.dataset ? e.target.dataset.i : undefined;
         var alvoApoio = e.target.closest ? e.target.closest(".apoio") : null, alvoTraco = e.target.closest ? e.target.closest(".traco") : null, alvoInteresse = e.target.closest ? e.target.closest(".interesse") : null;
-        gesto = { tipo: i !== undefined ? "ponto" : "mapa", i: Number(i), apoio: alvoApoio ? Number(alvoApoio.dataset.a) : null, traco: alvoTraco ? Number(alvoTraco.dataset.t) : null, interesse: alvoInteresse ? Number(alvoInteresse.dataset.j) : null, x0: e.clientX, y0: e.clientY, moveu: false };
+        gesto = { tipo: i !== undefined && modoDesenhar ? "ponto" : "mapa", i: Number(i), apoio: alvoApoio ? Number(alvoApoio.dataset.a) : null, traco: alvoTraco ? Number(alvoTraco.dataset.t) : null, interesse: alvoInteresse ? Number(alvoInteresse.dataset.j) : null, x0: e.clientX, y0: e.clientY, moveu: false };
       } else if (Object.keys(dedos).length === 2) {
         gesto = { tipo: "pinca", d0: distanciaDosDedos(), moveu: true, meio: null };
       }
@@ -996,6 +1007,7 @@
       modoDesenhar = !modoDesenhar;
       this.setAttribute("aria-pressed", String(modoDesenhar));
       caixa.classList.toggle("mover", !modoDesenhar);
+      if (!modoDesenhar) fecharMenuDoPonto();                      // desligado, nenhum ponto pode ser mudado (nem pelo menu que estava aberto)
       document.getElementById("dica").textContent = modoDesenhar ? "Clique para adicionar um ponto; clique na linha para inserir um no meio. Arraste um ponto para ajustar; clique nele para mais opções." : "Modo de mover: arraste o mapa. Ligue “Desenhar” para acrescentar pontos.";
     });
     document.addEventListener("keydown", function (e) {
@@ -2310,7 +2322,7 @@
       var minha = ++versaoPiso, a = daTela({ x: 0, y: 0 }), b = daTela({ x: w, y: h });
       indiceDoPiso().then(function (ind) {
         var c = ind.cobertura;
-        if (b.lat > c.norte || a.lat < c.sul || b.lon < c.oeste || a.lon > c.leste) { legendaDoPiso("Fora do Brasil: sem dados de piso nesta área"); return null; }
+        if (b.lat > c.norte || a.lat < c.sul || b.lon < c.oeste || a.lon > c.leste) { legendaDoPiso(document.documentElement.classList.contains("fora") ? "Fora do Brasil: sem dados de piso nesta área" : "Sem dados de piso nesta área"); return null; }
         var chaves = [];
         for (var li = Math.floor(b.lat / ind.tela); li <= Math.floor(a.lat / ind.tela); li++) for (var co = Math.floor(a.lon / ind.tela); co <= Math.floor(b.lon / ind.tela); co++) {
           chaves.push(li + "_" + co);
