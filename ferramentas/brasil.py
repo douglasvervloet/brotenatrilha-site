@@ -23,8 +23,19 @@ def chave(lat, lon):
     return f"{math.floor(lat / QUADRADO)}_{math.floor(lon / QUADRADO)}"
 
 
-def gravar_quadrados(pasta, campo, por_chave):
-    """Um arquivo {"escala": ..., campo: [...]} por quadrado, mais o info.json; apaga os arquivos de uma rodada anterior."""
+def data_do_mapa(pbf):
+    """A data (AAAA-MM-DD) da cópia do OpenStreetMap no arquivo .osm.pbf, pelo cabeçalho; "" se ele não disser."""
+    try:
+        import osmium
+        cabecalho = osmium.io.Reader(pbf, osmium.osm.osm_entity_bits.NOTHING).header()
+        return (cabecalho.get("osmosis_replication_timestamp") or cabecalho.get("timestamp") or "")[:10]
+    except Exception:
+        return ""
+
+
+def gravar_quadrados(pasta, campo, por_chave, data=""):
+    """Um arquivo {"escala": ..., campo: [...]} por quadrado, mais o info.json (com a data do mapa);
+    apaga os arquivos de uma rodada anterior."""
     os.makedirs(pasta, exist_ok=True)
     for antigo in os.listdir(pasta):
         if antigo.endswith(".json"):
@@ -33,4 +44,4 @@ def gravar_quadrados(pasta, campo, por_chave):
         with open(os.path.join(pasta, f"{k}.json"), "w", encoding="utf-8", newline="\n") as f:
             json.dump({"escala": ESCALA, campo: itens}, f, ensure_ascii=False, separators=(",", ":"))
     with open(os.path.join(pasta, "info.json"), "w", encoding="utf-8", newline="\n") as f:
-        json.dump({"quadrado": QUADRADO, "escala": ESCALA, "cobertura": COBERTURA}, f, separators=(",", ":"))
+        json.dump({"quadrado": QUADRADO, "escala": ESCALA, "cobertura": COBERTURA, "data": data}, f, separators=(",", ":"))

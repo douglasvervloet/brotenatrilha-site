@@ -104,7 +104,7 @@ def gerar(pbf, pasta):
             chaves.add(brasil.chave(lat / ESCALA, lon / ESCALA))
         for k in chaves:
             por_quadrado.setdefault(k, []).append(linha)
-    brasil.gravar_quadrados(pasta, "c", por_quadrado)
+    brasil.gravar_quadrados(pasta, "c", por_quadrado, brasil.data_do_mapa(pbf))
     por_tipo = {1: 0, 2: 0}
     for t, _ in linhas:
         por_tipo[t] += 1

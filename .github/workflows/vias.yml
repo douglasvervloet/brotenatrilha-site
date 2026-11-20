@@ -1,8 +1,10 @@
 # Atualiza todo mês os dados do Brasil que a ferramenta "Planejar pedal" lê do R2 da Cloudflare (bucket brotenatrilha-dados,
 # servido em dados.brotenatrilha.com.br/br/): as vias (br/vias/, o terreno e o piso das ruas), os pontos de apoio (br/apoios/),
-# os pontos de interesse (br/interesses/) e as ciclovias (br/ciclovias/). Baixa o mapa do Brasil na Geofabrik (uns 2 GB) e roda os
-# geradores de ferramentas/ (gerar_vias.py, gerar_apoios.py, gerar_interesses.py, gerar_ciclovias.py). Nada vai para o repositório.
-# Os pontos de interesse guardam no R2 um cache das fotos e textos da Wikipédia (br/_cache_interesses.json): só os novos são consultados.
+# os pontos de interesse (br/interesses/, com as fotos em br/fotos/), as ciclovias (br/ciclovias/) e os avisos na rota (br/avisos/:
+# porteira, vau, balsa, escada). Baixa o mapa do Brasil na Geofabrik (uns 2 GB) e roda os
+# geradores de ferramentas/ (gerar_vias.py, gerar_apoios.py, gerar_interesses.py, gerar_ciclovias.py, gerar_avisos.py). Nada vai para o repositório.
+# Os pontos de interesse guardam no R2 um cache das fotos e textos da Wikipédia (br/_cache_interesses_v2.json): só os novos são
+# consultados, e só as fotos novas são baixadas e enviadas (as antigas ficam em br/fotos/).
 # Segredos: R2_ACCESS_KEY_ID e R2_SECRET_ACCESS_KEY. Pode ser rodado na mão em "Actions".
 name: Atualizar os dados do mapa (Brasil)
 
@@ -26,6 +28,7 @@ env:
   AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
   R2: https://a31fab7247d8f39a21d0f52f1261a8d1.r2.cloudflarestorage.com
   BUCKET: s3://brotenatrilha-dados/br
+  LIMITE_DE_CONSULTAS: 3000      # consultas novas à Wikipédia por rodada (cada uma também baixa a foto)
 
 jobs:
   gerar:
@@ -64,7 +67,7 @@ jobs:
 
       - name: Gerar os pontos de interesse (com foto da Wikipédia, pelo cache)
         run: |
-          aws s3 cp "$BUCKET/_cache_interesses.json" "$RUNNER_TEMP/cache_interesses.json" --endpoint-url "$R2" --only-show-errors || echo "Sem cache ainda: todas as consultas são novas."
+          aws s3 cp "$BUCKET/_cache_interesses_v2.json" "$RUNNER_TEMP/cache_interesses.json" --endpoint-url "$R2" --only-show-errors || echo "Sem cache ainda: todas as consultas são novas."
           python ferramentas/gerar_interesses.py "$RUNNER_TEMP/brasil.osm.pbf" "$RUNNER_TEMP/br/interesses" "$RUNNER_TEMP/cache_interesses.json"
           python ferramentas/contar_quadrados.py "$RUNNER_TEMP/br/interesses" p 5000
 
@@ -73,12 +76,21 @@ jobs:
           python ferramentas/gerar_ciclovias.py "$RUNNER_TEMP/brasil.osm.pbf" "$RUNNER_TEMP/br/ciclovias"
           python ferramentas/contar_quadrados.py "$RUNNER_TEMP/br/ciclovias" c 3000
 
+      - name: Gerar os avisos na rota (porteira, vau, balsa, escada)
+        run: |
+          python ferramentas/gerar_avisos.py "$RUNNER_TEMP/brasil.osm.pbf" "$RUNNER_TEMP/br/avisos"
+          python ferramentas/contar_quadrados.py "$RUNNER_TEMP/br/avisos" p 2000
+
       - name: Enviar ao R2 (dados.brotenatrilha.com.br/br/)
         run: |
-          for pasta in vias apoios interesses ciclovias; do
+          for pasta in vias apoios interesses ciclovias avisos; do
             aws s3 sync "$RUNNER_TEMP/br/$pasta" "$BUCKET/$pasta" --delete --size-only --only-show-errors --endpoint-url "$R2" \
               --content-type application/json --cache-control "public, max-age=86400"
             echo "$pasta: $(ls "$RUNNER_TEMP/br/$pasta" | wc -l) arquivos"
           done
-          aws s3 cp "$RUNNER_TEMP/cache_interesses.json" "$BUCKET/_cache_interesses.json" --endpoint-url "$R2" --only-show-errors \
+          # as fotos: só as novas desta rodada (sem --delete: as antigas continuam no R2); o nome muda se o arquivo da foto mudar
+          aws s3 sync "$RUNNER_TEMP/br/fotos" "$BUCKET/fotos" --size-only --only-show-errors --endpoint-url "$R2" \
+            --cache-control "public, max-age=2592000"
+          echo "fotos novas: $(ls "$RUNNER_TEMP/br/fotos" | wc -l)"
+          aws s3 cp "$RUNNER_TEMP/cache_interesses.json" "$BUCKET/_cache_interesses_v2.json" --endpoint-url "$R2" --only-show-errors \
             --content-type application/json

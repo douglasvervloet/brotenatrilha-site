@@ -10,14 +10,19 @@ O CACHE guarda a foto, a página e o resumo já consultados (por marca "wikipedi
 novos são consultados. Cada rodada faz no máximo LIMITE_DE_CONSULTAS consultas novas (variável de ambiente; o padrão é 5000); os
 pontos que passarem disso ficam sem foto até a próxima rodada.
 
-Um arquivo por quadrado de 1 grau (ver brasil.py): {"escala": 100000, "p": [[tipo, lat, lon, nome, foto, pagina, resumo], ...]},
+Um arquivo por quadrado de 1 grau (ver brasil.py): {"escala": 100000, "p": [[tipo, lat, lon, nome, foto, pagina, resumo, credito, pagina_foto], ...]},
 com lat e lon em inteiros de 1e-5 grau.
 Tipo: 1 mirante, 2 cachoeira, 3 praia, 4 atração ou museu, 5 histórico ou igreja notável, 6 caverna, 7 parque ou reserva, 8 pico.
-"foto" é o endereço de uma miniatura, "pagina" o artigo (ou a página da foto no Commons, onde estão o autor e a licença) e "resumo" uma frase do artigo.
+"foto" é a miniatura (até 480 px) guardada no site ("fotos/abc123.jpg", na pasta ao lado da de saída: o workflow a envia ao R2),
+"pagina" o artigo da Wikipédia (mais informações), "resumo" uma frase do artigo, "credito" o autor e a licença da foto e "pagina_foto"
+a página da foto no Commons. Só entram fotos do Commons com licença livre (CC BY, CC BY-SA, CC0, domínio público): as de "uso justo"
+de algumas Wikipédias ficam de fora.
 Os dados são do OpenStreetMap (ODbL, © colaboradores) e as fotos e textos, da Wikipédia e do Wikimedia Commons (cada um com a sua licença, na página indicada).
 """
+import hashlib
 import json
 import os
+import re
 import sys
 import time
 import urllib.parse
@@ -81,25 +86,90 @@ def foto_do_artigo(marca):
     return foto, pagina, resumo
 
 
-def foto_do_wikidata(codigo):
-    """Foto (P18) de um item do Wikidata: a miniatura do Commons e a página da foto, onde estão o autor e a licença."""
+def arquivo_do_wikidata(codigo):
+    """O nome do arquivo da foto (P18) de um item do Wikidata, no Commons; None se não houver."""
     try:
         d = pegar_json(f"https://www.wikidata.org/w/api.php?action=wbgetclaims&entity={codigo}&property=P18&format=json")
-        arquivo = d["claims"]["P18"][0]["mainsnak"]["datavalue"]["value"]
+        return d["claims"]["P18"][0]["mainsnak"]["datavalue"]["value"]
     except Exception:
-        return None, None
-    nome = urllib.parse.quote(arquivo.replace(" ", "_"))
-    return f"https://commons.wikimedia.org/wiki/Special:FilePath/{nome}?width=480", f"https://commons.wikimedia.org/wiki/File:{nome}"
+        return None
 
 
-def consultar(artigo, codigo):
-    """Foto, página e resumo (sem a checagem do nome) de um ponto com marca da Wikipédia ou do Wikidata."""
-    f, p, r = foto_do_artigo(artigo) if artigo else (None, None, None)
-    if not f and codigo:
-        f, p2 = foto_do_wikidata(codigo)
-        p = p or p2
+def artigo_do_wikidata(codigo):
+    """O endereço do artigo da Wikipédia (em português, ou em inglês) de um item do Wikidata; "" se não houver."""
+    try:
+        d = pegar_json(f"https://www.wikidata.org/w/api.php?action=wbgetentities&ids={codigo}&props=sitelinks/urls&sitefilter=ptwiki|enwiki&format=json")
+        links = d["entities"][codigo]["sitelinks"]
+        for site in ("ptwiki", "enwiki"):
+            if site in links:
+                return links[site]["url"]
+    except Exception:
+        pass
+    return ""
+
+
+def arquivo_do_commons(miniatura):
+    """O nome do arquivo no Commons a partir do endereço da miniatura (upload.wikimedia.org/wikipedia/commons/...);
+    None se a foto não é do Commons (as fotos guardadas só numa Wikipédia podem ser de uso justo)."""
+    partes = urllib.parse.urlparse(miniatura).path.split("/")
+    if len(partes) < 6 or partes[1] != "wikipedia" or partes[2] != "commons":
+        return None
+    if partes[3] == "thumb":
+        return urllib.parse.unquote(partes[6]) if len(partes) > 6 else None
+    return urllib.parse.unquote(partes[5])
+
+
+def foto_do_commons(arquivo):
+    """(miniatura de 480 px, crédito "Autor, licença", página da foto) de um arquivo do Commons; None se não achar.
+    O Commons só aceita licenças livres (CC BY, CC BY-SA, CC0, "Attribution", domínio público...): basta guardar o crédito.
+    As fotos que só existem numa Wikipédia (que podem ser de uso justo) nem chegam aqui: arquivo_do_commons() as descarta."""
+    try:
+        d = pegar_json("https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=480&titles="
+                       + urllib.parse.quote("File:" + arquivo))
+        info = next(iter(d["query"]["pages"].values()))["imageinfo"][0]
+    except Exception:
+        return None
+    meta = info.get("extmetadata", {})
+    licenca = " ".join(re.sub(r"<[^>]+>", "", (meta.get("LicenseShortName") or {}).get("value", "")).split())[:40] or "licença no Commons"
+    if str((meta.get("NonFree") or {}).get("value", "")).lower() == "true":
+        return None
+    autor = " ".join(re.sub(r"<[^>]+>", "", (meta.get("Artist") or {}).get("value", "")).split())[:80] or "autor no Commons"
+    return info.get("thumburl") or info.get("url"), f"{autor}, {licenca}", info.get("descriptionurl", "")
+
+
+def baixar(url, destino):
+    """Grava a miniatura em destino; False se não deu (ou se veio grande demais para uma miniatura)."""
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": AGENTE})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            dados = r.read(600001)
+    except Exception:
+        return False
+    if not dados or len(dados) > 600000:
+        return False
+    with open(destino, "wb") as f:
+        f.write(dados)
+    return True
+
+
+def consultar(artigo, codigo, pasta_fotos):
+    """[foto, pagina, resumo, credito, pagina_foto] (o resumo sem a checagem do nome) de um ponto com marca da Wikipédia ou do Wikidata."""
+    miniatura, pagina, resumo = foto_do_artigo(artigo) if artigo else (None, None, None)
+    arquivo = arquivo_do_commons(miniatura) if miniatura else None
+    if not arquivo and codigo:
+        arquivo = arquivo_do_wikidata(codigo)
+    if not pagina and codigo:
+        pagina = artigo_do_wikidata(codigo)
+    foto = credito = pagina_foto = ""
+    if arquivo:
+        achada = foto_do_commons(arquivo)
+        if achada:
+            extensao = os.path.splitext(urllib.parse.urlparse(achada[0]).path)[1].lower()
+            nome = hashlib.sha1(arquivo.encode("utf-8")).hexdigest()[:16] + (extensao if extensao in (".jpg", ".jpeg", ".png", ".webp", ".gif") else ".jpg")
+            if baixar(achada[0], os.path.join(pasta_fotos, nome)):
+                foto, credito, pagina_foto = "fotos/" + nome, achada[1], achada[2]
     time.sleep(0.15)                              # sem pressa: os servidores da Wikipédia são comunitários
-    return [f or "", p or "", r or ""]
+    return [foto, pagina or "", resumo or "", credito, pagina_foto]
 
 
 def gerar(pbf, pasta, arquivo_cache=None):
@@ -107,6 +177,8 @@ def gerar(pbf, pasta, arquivo_cache=None):
     if arquivo_cache and os.path.exists(arquivo_cache):
         cache = json.load(open(arquivo_cache, encoding="utf-8"))
     achados, consultas = {}, 0
+    pasta_fotos = os.path.join(os.path.dirname(os.path.abspath(pasta)), "fotos")      # só as fotos novas: as antigas já estão no R2
+    os.makedirs(pasta_fotos, exist_ok=True)
     leitor = osmium.FileProcessor(pbf, osmium.osm.NODE | osmium.osm.WAY).with_locations().with_filter(
         osmium.filter.KeyFilter("tourism", "natural", "historic", "leisure", "amenity", "boundary"))
     for objeto in leitor:
@@ -133,24 +205,24 @@ def gerar(pbf, pasta, arquivo_cache=None):
     for (lat, lon, tipo, nome), (artigo, codigo) in sorted(achados.items()):
         if lista and lista[-1][3].lower() == nome.lower() and abs(lista[-1][1] - lat) <= 150 and abs(lista[-1][2] - lon) <= 150:
             continue                                  # o mesmo lugar mapeado duas vezes (ponto e contorno): fica um só
-        foto = pagina = resumo = ""
+        foto = pagina = resumo = credito = pagina_foto = ""
         if artigo or codigo:
             marca = f"{artigo or ''}|{codigo or ''}"
             if marca not in cache and consultas < LIMITE_DE_CONSULTAS:
-                cache[marca] = consultar(artigo, codigo)
+                cache[marca] = consultar(artigo, codigo, pasta_fotos)
                 consultas += 1
                 if consultas % 500 == 0:
                     print(f"  {consultas} consultas à Wikipédia...", flush=True)
-            foto, pagina, resumo = cache.get(marca, ["", "", ""])
+            foto, pagina, resumo, credito, pagina_foto = cache.get(marca, ["", "", "", "", ""])
             palavras = [w for w in nome.lower().replace(",", " ").split() if len(w) >= 5]
             if resumo and not any(w in resumo.lower()[:200] for w in palavras):
                 resumo = ""                                # o artigo é de outra coisa (por exemplo, a diocese no lugar da catedral): fica só a foto
             com_foto += bool(foto)
-        lista.append([tipo, lat, lon, nome, foto, pagina, resumo])
+        lista.append([tipo, lat, lon, nome, foto, pagina, resumo, credito, pagina_foto])
     por_quadrado = {}
     for item in lista:
         por_quadrado.setdefault(brasil.chave(item[1] / ESCALA, item[2] / ESCALA), []).append(item)
-    brasil.gravar_quadrados(pasta, "p", por_quadrado)
+    brasil.gravar_quadrados(pasta, "p", por_quadrado, brasil.data_do_mapa(pbf))
     if arquivo_cache:
         with open(arquivo_cache, "w", encoding="utf-8", newline="\n") as f:
             json.dump(cache, f, ensure_ascii=False, separators=(",", ":"))

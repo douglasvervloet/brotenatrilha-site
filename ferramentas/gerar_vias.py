@@ -158,7 +158,7 @@ def gerar(pbf, pasta):
             os.remove(os.path.join(temporaria, f"faixa_{faixa}.bin"))
     finally:
         shutil.rmtree(temporaria, ignore_errors=True)
-    indice = {"tela": TELA, "escala": ESCALA, "cobertura": brasil.COBERTURA}
+    indice = {"tela": TELA, "escala": ESCALA, "cobertura": brasil.COBERTURA, "data": brasil.data_do_mapa(pbf)}
     with open(os.path.join(pasta, "indice.json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(indice, f, separators=(",", ":"))
     print(f"{vias} vias em {total} quadradinhos, em {pasta}")
