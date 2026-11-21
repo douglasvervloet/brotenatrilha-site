@@ -1482,7 +1482,9 @@
       }).join("");
     }
     document.getElementById("dias-ligado").addEventListener("change", function () {      // o tempo inteiro: a Chegada volta a ser a de um dia ao desligar
-      document.getElementById("dias-campo").hidden = !this.checked; atualizarLuz();
+      document.getElementById("dias-campo").hidden = !this.checked;
+      if (this.checked && !apoiosLigado) document.getElementById("b-apoios").click();      // as pousadas e campings vêm dos apoios: liga junto
+      atualizarLuz();
     });
     document.getElementById("dias-horas").addEventListener("input", atualizarLuz);
 
