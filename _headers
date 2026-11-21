@@ -18,3 +18,5 @@
   Cache-Control: public, max-age=604800
 /icone-*
   Cache-Control: public, max-age=604800
+/fontes/*
+  Cache-Control: public, max-age=31536000, immutable

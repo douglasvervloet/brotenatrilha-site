@@ -2946,7 +2946,7 @@
       return linhas;
     }
     function montarImagemDaRota(comMapa) {                         // Promise do canvas pronto; comMapa=false desenha só a rota (se os quadros do mapa não deixarem copiar)
-      var pts = linhaDaIda(), W = 1200, H = 630, MX = 40, MY = 40, MW = 660, MH = 550, AH = 400, FONTE = '"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+      var pts = linhaDaIda(), W = 1200, H = 630, MX = 40, MY = 40, MW = 660, MH = 550, AH = 400, FONTE = '"Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
       var tela = document.createElement("canvas"); tela.width = W; tela.height = H;
       var c = tela.getContext("2d"), grad = c.createLinearGradient(0, 0, 0, H);
       grad.addColorStop(0, "#1e4a30"); grad.addColorStop(1, "#0f2218"); c.fillStyle = grad; c.fillRect(0, 0, W, H);

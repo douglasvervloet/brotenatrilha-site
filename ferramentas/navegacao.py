@@ -22,11 +22,18 @@ RODAPE_LINKS = [("/pedais/", "Pedais"), ("/subidas/", "Subidas"), ("/planejar-pe
                 ("/ferramentas/", "Ferramentas"), ("/sobre/", "Sobre"), ("/bnteditor/", "BNT Editor"), ("/privacidade/", "Privacidade"),
                 ("https://www.youtube.com/@BroteNaTrilha", "Canal no YouTube")]
 
-ESTILO = """<style id="ns-estilo">
+ESTILO = """<link rel="preload" href="/fontes/inter-latin.woff2" as="font" type="font/woff2" crossorigin id="ns-fonte">
+<style id="ns-estilo">
+  /* a mesma fonte em todos os aparelhos (Inter, hospedada no site, licença OFL em /fontes/) e os mesmos tamanhos de título em todas as páginas */
+  @font-face { font-family: "Inter"; src: url("/fontes/inter-latin.woff2") format("woff2"); font-weight: 400 800; font-display: swap; }
+  html body, html body button, html body input, html body select, html body textarea { font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif !important; }
+  html body h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem) !important; line-height: 1.15 !important; letter-spacing: -.02em !important; }
+  html body main h2, html body section h2 { font-size: clamp(1.15rem, 2.4vw, 1.4rem) !important; line-height: 1.25 !important; }
+  html body main h3 { font-size: 1.05rem !important; line-height: 1.3 !important; }
   .ns-barra { background: #0f1a13; border-bottom: 1px solid rgba(255,255,255,.08); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   .ns-barra .ns-miolo { max-width: 1100px; margin: 0 auto; padding: 0 16px; display: flex; align-items: center; gap: 10px; min-height: 40px; }
-  .ns-marca { display: inline-flex; align-items: center; gap: 7px; color: #fff; font-weight: 800; font-size: .9rem; text-decoration: none; white-space: nowrap; flex: none; }
-  .ns-marca img { width: 22px; height: 22px; border-radius: 50%; }
+  .ns-marca { display: inline-flex; align-items: center; gap: 8px; color: #fff; font-weight: 700; font-size: .98rem; letter-spacing: -.01em; text-decoration: none; white-space: nowrap; flex: none; }
+  .ns-marca img { width: 26px; height: 26px; border-radius: 50%; }
   .ns-menu { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .ns-menu::-webkit-scrollbar { display: none; }
   @media (max-width: 760px) { .ns-menu { -webkit-mask-image: linear-gradient(to right, #000 85%, transparent); mask-image: linear-gradient(to right, #000 85%, transparent); padding-right: 24px; } }
@@ -47,7 +54,7 @@ ESTILO = """<style id="ns-estilo">
   @media (max-width: 640px) { .ns-marca span { display: none; } }
   /* o cabeçalho verde de cada página fica mais baixo: o menu já está em cima (a inicial tem o cabeçalho dela e fica como está) */
   .ns-barra ~ header { padding-top: 12px !important; padding-bottom: 18px !important; }
-  .ns-barra ~ header h1 { margin-top: 6px !important; font-size: clamp(1.5rem, 4.6vw, 2.3rem) !important; }
+  .ns-barra ~ header h1 { margin-top: 6px !important; }
   .ns-barra ~ header h1 + p, .ns-barra ~ header .data, .ns-barra ~ header .cidades { margin-top: 5px !important; }
   .ns-barra ~ header .ns-trilha + h1 { margin-top: 2px !important; }
 </style>"""
@@ -56,7 +63,7 @@ ESTILO = """<style id="ns-estilo">
 def barra(atual):
     itens = "".join(f'<a href="{href}"' + (' aria-current="page"' if pagina == atual else "") + f">{rotulo}</a>" for pagina, href, rotulo in MENU)
     return ('<!--ns:menu--><nav class="ns-barra" aria-label="Site"><div class="ns-miolo"><a class="ns-marca" href="/" aria-label="Brote na Trilha, início">'
-            '<img src="/favicon.png" width="22" height="22" alt=""><span>Brote na Trilha</span></a>'
+            '<img src="/favicon.png" width="26" height="26" alt=""><span>Brote na Trilha</span></a>'
             f'<div class="ns-menu">{itens}</div></div></nav>'
             '<script>(function () { var a = document.querySelector(".ns-menu [aria-current]"); if (a) a.parentNode.scrollLeft = a.offsetLeft - 60; })();</script>'
             '<!--/ns:menu-->')
@@ -111,6 +118,7 @@ def pagina_e_trilha(rel, doc, ano_mais_novo):
 
 def aplicar(doc, atual, trilha):
     # o estilo, uma vez
+    doc = re.sub(r'<link [^>]*id="ns-fonte">\n?', "", doc)
     doc = re.sub(r'<style id="ns-estilo">.*?</style>\n?', "", doc, flags=re.S)      # com a quebra de linha: rodar de novo não acumula linhas
     doc = doc.replace("</head>", ESTILO + "\n</head>", 1)
     # a trilha para o Google
