@@ -1,8 +1,8 @@
-// "Minhas rotas" na nuvem (GET e PUT /api/rotas): as rotas guardadas no Planejar pedal ficam no banco D1 sob um código de
-// sincronização (16 letras sorteadas no navegador; sem conta e sem e-mail). Quem tem o código vê e muda as rotas; a página junta
+// "Minhas rotas" na nuvem (GET e PUT /api/rotas): as rotas guardadas no Planejar pedal ficam no banco D1 sob o código de
+// sincronização da conta do Google (16 letras sorteadas em /api/conta, que só a sessão da pessoa recebe). Quem tem o código vê e muda as rotas; a página junta
 // as rotas de cada aparelho antes de gravar (planejar-pedal/index.html, "sincronizar"). Códigos sem uso há um ano são apagados.
 
-const MAX_DADOS = 1900000;                    // bytes (o limite de uma linha do D1 é 2 MB; 40 rotas longas ficam bem abaixo)
+const MAX_DADOS = 1900000;                    // bytes (o limite de uma linha do D1 é 2 MB; 50 rotas longas ficam bem abaixo)
 const UM_ANO = 365 * 24 * 3600 * 1000;
 const ORIGENS = /^https:\/\/(brotenatrilha\.com\.br|[a-z0-9-]+\.brotenatrilha\.pages\.dev|brotenatrilha\.pages\.dev)$|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 

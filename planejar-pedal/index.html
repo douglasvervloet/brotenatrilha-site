@@ -143,8 +143,8 @@
   .sinc button { font: inherit; font-weight: 700; padding: 7px 16px; border-radius: 999px; cursor: pointer; border: 2px solid var(--linha); background: transparent; color: var(--texto); }
   .sinc button:hover { border-color: var(--verde); }
   #conta-fora, #conta-dentro { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 8px 0; }
+  #conta-fora[hidden], #conta-dentro[hidden] { display: none; }      /* o display: flex acima anulava o hidden */
   #g-entrar { min-height: 32px; }
-  #sinc-codigo { font-family: ui-monospace, Consolas, monospace; letter-spacing: .03em; }
   #sinc-estado { margin: 8px 0 0; min-height: 1.3em; }
   .contagem { display: inline-block; min-width: 22px; margin-left: 6px; padding: 0 7px; border-radius: 999px; background: var(--verde); color: #fff; font-size: .8rem; }
   .apoio-chip { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; color: #fff; font-size: .62rem; font-weight: 800; }
@@ -467,19 +467,10 @@
     <ul id="lista-minhas"></ul>
     <p class="nota" id="msg-minhas" aria-live="polite" style="margin-top:12px"></p>
     <div class="sinc">
-      <b>Sincronizar com outro aparelho</b>
+      <b>Guardar na sua conta</b>
       <div id="conta" hidden>
-        <div id="conta-fora"><div id="g-entrar"></div><span class="nota">ou use um código:</span></div>
-        <div id="conta-dentro" hidden><span>Conectado como <b id="conta-nome"></b></span><button type="button" id="b-conta-sair" title="Este aparelho deixa de sincronizar (as rotas ficam nele)">Sair</button></div>
-      </div>
-      <div id="sinc-desligado">
-        <button type="button" id="b-sinc-criar" title="Cria um código para usar no outro aparelho">Criar código</button>
-        <form id="f-sinc-usar"><input type="text" id="sinc-campo" placeholder="Código do outro aparelho" autocomplete="off" spellcheck="false" aria-label="Código de sincronização"><button type="submit">Usar código</button></form>
-      </div>
-      <div id="sinc-ligado" hidden>
-        <span>Código: <b id="sinc-codigo"></b></span>
-        <button type="button" id="b-sinc-copiar">Copiar</button>
-        <button type="button" id="b-sinc-sair" title="Este aparelho deixa de sincronizar (as rotas ficam nele)">Desligar</button>
+        <div id="conta-fora"><div id="g-entrar"></div></div>
+        <div id="conta-dentro" hidden><span>Conectado como <b id="conta-nome"></b></span><button type="button" id="b-conta-sair" title="Sair da conta Google">Sair</button></div>
       </div>
       <p class="nota" id="sinc-estado" aria-live="polite"></p>
     </div>
@@ -540,7 +531,7 @@
     <h2>Subidas da rota</h2>
     <div class="tabela"><table id="tabela"></table></div>
   </div>
-  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled title="Copiar o link da rota"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="rot">Copiar link</span></button><button class="sec" type="button" id="b-salvar" disabled title="Guardar esta rota neste navegador (fica em Minhas rotas)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg><span class="rot">Salvar rota</span></button><button class="sec" type="button" id="b-roadbook" disabled title="Roadbook para imprimir"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Roadbook</button><button class="sec" type="button" id="b-imagem" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 3.5 3L16 12l4.5 4.5"/></svg>Salvar imagem</button><button class="sec" type="button" id="b-pedalar" disabled hidden title="Seguir a rota pelo GPS do celular"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l7 18-7-4-7 4z"/></svg>Modo pedal</button></div>
+  <div class="acoes"><button class="principal" type="button" id="b-gpx" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled title="Copiar o link da rota"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="rot">Copiar link</span></button><button class="sec" type="button" id="b-salvar" disabled title="Guardar esta rota na sua conta do Google (fica em Minhas rotas)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg><span class="rot">Salvar rota</span></button><button class="sec" type="button" id="b-roadbook" disabled title="Roadbook para imprimir"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Roadbook</button><button class="sec" type="button" id="b-imagem" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 3.5 3L16 12l4.5 4.5"/></svg>Salvar imagem</button><button class="sec" type="button" id="b-pedalar" disabled hidden title="Seguir a rota pelo GPS do celular"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l7 18-7-4-7 4z"/></svg>Modo pedal</button></div>
   <p class="nota">A altitude vem do relevo do mapa (SRTM), a cada 25 m ao longo da linha, e pode diferir da de um aparelho de GPS. O ganho total ignora oscilações de até 12 m, ajustado com os pedais do canal contra o Strava (erro médio de uns 12%). O GPX baixado traz só o traçado e a altitude. Com “Grudar nas ruas” desligado as linhas são retas entre os pontos: para seguir uma curva, clique com mais frequência.</p>
   <p class="nota">O link curto (brotenatrilha.com.br/r/...) leva à rota guardada no banco do site; sem conexão, sai o link longo, com a rota no próprio endereço. Quem abrir o link vê a mesma rota, com as chaves do mapa que estavam ligadas (Grudar nas ruas, terreno e camadas): elas ligam sozinhas ao abrir e fazem os mesmos pedidos de quando a pessoa as liga. Um pedal aberto do canal vai simplificado no link (só os pontos, sem o caminho inteiro).</p>
 </main>
@@ -2085,83 +2076,52 @@
       leitor.readAsText(arquivo);
     });
 
-    // ---- minhas rotas: guardadas neste navegador (localStorage) e, com o código de sincronização, também no banco do site
+    // ---- minhas rotas: só com a conta do Google; a lista vem do banco do site e cada mudança vai para ele
     //      (functions/api/rotas.js), para o celular e o computador terem as mesmas rotas ----
-    var CHAVE_ROTAS = "rotas-salvas", CHAVE_APAGADAS = "rotas-apagadas", CHAVE_CODIGO = "rotas-codigo", MAX_ROTAS = 40, painelMinhas = document.getElementById("painel-minhas");
-    var ALFA_ID = "abcdefghijklmnopqrstuvwxyz0123456789", ALFA_CODIGO = "abcdefghijkmnpqrstuvwxyz23456789";   // o código não tem l, o, 0 e 1, que se confundem
+    var MAX_ROTAS = 50, painelMinhas = document.getElementById("painel-minhas");
+    var ALFA_ID = "abcdefghijklmnopqrstuvwxyz0123456789";
     function sortearId(tamanho, alfabeto) {
       var bytes = new Uint8Array(tamanho), r = "";
       window.crypto.getRandomValues(bytes);
       for (var i = 0; i < tamanho; i++) r += alfabeto[bytes[i] % alfabeto.length];
       return r;
     }
-    function lerRotas() {                                          // cada rota ganha um id (as antigas, ao ler), para juntar as dos aparelhos
-      var l;
-      try { l = JSON.parse(localStorage.getItem(CHAVE_ROTAS) || "[]"); } catch (x) { return []; }
-      if (!Array.isArray(l)) return [];
-      var novos = false;
-      l.forEach(function (r) { if (!r.id) { r.id = sortearId(10, ALFA_ID); novos = true; } });
-      if (novos) gravarRotas(l);
-      return l;
-    }
-    function gravarRotas(lista) { try { localStorage.setItem(CHAVE_ROTAS, JSON.stringify(lista)); return true; } catch (x) { return false; } }
-    function lerApagadas() { try { var a = JSON.parse(localStorage.getItem(CHAVE_APAGADAS) || "{}"); return a && typeof a === "object" ? a : {}; } catch (x) { return {}; } }
-    function gravarApagadas(a) { try { localStorage.setItem(CHAVE_APAGADAS, JSON.stringify(a)); } catch (x) { /* sem armazenamento */ } }
-    function codigoSinc() { try { return localStorage.getItem(CHAVE_CODIGO) || ""; } catch (x) { return ""; } }
-    function juntarRotas(a, b) {                                   // as rotas dos dois lados, sem as apagadas em qualquer um deles
-      var apagadas = {}, vistas = {}, lista = [], umAno = Date.now() - 365 * 24 * 3600 * 1000;
-      [a.apagadas || {}, b.apagadas || {}].forEach(function (ap) {
-        Object.keys(ap).forEach(function (id) { if (ap[id] > umAno) apagadas[id] = Math.max(apagadas[id] || 0, ap[id]); });
-      });
-      (a.rotas || []).concat(b.rotas || []).forEach(function (r) { if (r && r.id && !apagadas[r.id] && !vistas[r.id]) { vistas[r.id] = true; lista.push(r); } });
-      lista.sort(function (x, y) { return x.em < y.em ? 1 : x.em > y.em ? -1 : 0; });
-      return { rotas: lista, apagadas: apagadas };
+    var rotasDaConta = null;                                     // a lista que veio do banco (null enquanto não chega ou sem conta)
+    function lerRotas() { return contaAtual ? (rotasDaConta || []).slice() : []; }
+    function gravarRotas(lista) {
+      if (!contaAtual) return false;
+      rotasDaConta = lista; guardarNaConta(); return true;
     }
     function estadoSinc(texto) { document.getElementById("sinc-estado").textContent = texto || ""; }
     var contaAtual = null, clienteGoogle = "", botaoGoogleFeito = false;   // a conta do Google (Entrar com o Google), quando o site tem o cliente configurado
     function mostrarSinc() {
-      var codigo = codigoSinc();
       document.getElementById("conta").hidden = !clienteGoogle;
       document.getElementById("conta-fora").hidden = !!contaAtual;
       document.getElementById("conta-dentro").hidden = !contaAtual;
       document.getElementById("conta-nome").textContent = contaAtual ? (contaAtual.nome || contaAtual.email || "Google") : "";
-      document.getElementById("sinc-desligado").hidden = !!codigo || !!contaAtual;
-      document.getElementById("sinc-ligado").hidden = !codigo || !!contaAtual;
-      document.getElementById("sinc-codigo").textContent = codigo ? codigo.match(/.{4}/g).join("-") : "";
     }
-    var sincronizando = null;
-    function sincronizar(codigo, entrando) {                       // busca as rotas da nuvem, junta com as daqui e grava nos dois lados
-      codigo = codigo || codigoSinc();
-      if (!codigo || !window.fetch || (location.protocol !== "https:" && !/^(localhost|127.0.0.1)$/.test(location.hostname))) return Promise.resolve(false);
-      if (sincronizando) return sincronizando.then(function () { return sincronizar(codigo, entrando); });
-      estadoSinc("Sincronizando...");
-      sincronizando = fetch("/api/rotas", { headers: { "X-Codigo": codigo }, cache: "no-store" })
+    function buscarDaConta() {                                     // as rotas da conta, guardadas no banco do site
+      estadoSinc("Buscando suas rotas...");
+      return fetch("/api/rotas", { headers: { "X-Codigo": contaAtual.codigo }, cache: "no-store" })
         .then(function (r) { if (!r.ok) throw new Error("rede"); return r.json(); })
-        .then(function (nuvem) {
-          if (entrando && !nuvem.dados) { estadoSinc("Código não encontrado. Confira as letras."); return false; }
-          var junto = juntarRotas({ rotas: lerRotas(), apagadas: lerApagadas() }, nuvem.dados || {});
-          return fetch("/api/rotas", { method: "PUT", headers: { "X-Codigo": codigo, "Content-Type": "application/json" }, body: JSON.stringify(junto) })
-            .then(function (r) {
-              if (!r.ok) throw new Error(r.status === 413 ? "grande" : "rede");
-              gravarRotas(junto.rotas); gravarApagadas(junto.apagadas);
-              try { localStorage.setItem(CHAVE_CODIGO, codigo); } catch (x) { /* vale só agora */ }
-              estadoSinc("Sincronizado"); mostrarSinc(); desenharMinhas();
-              return true;
-            });
-        })
-        .catch(function (e) {
-          estadoSinc(e && e.message === "grande" ? "Rotas demais para sincronizar: apague algumas." : "Sem conexão: as rotas ficam neste aparelho e sincronizam depois.");
-          return false;
-        })
-        .then(function (ok) { sincronizando = null; return ok; });
-      return sincronizando;
+        .then(function (j) { rotasDaConta = (j.dados && j.dados.rotas) || []; estadoSinc(""); desenharMinhas(); })
+        .catch(function () { rotasDaConta = rotasDaConta || []; estadoSinc("Sem conexão: não consegui buscar suas rotas."); desenharMinhas(); });
+    }
+    var guardando = Promise.resolve();
+    function guardarNaConta() {                                    // grava a lista inteira da conta no banco (uma gravação de cada vez)
+      var codigo = contaAtual.codigo, lista = rotasDaConta.slice();
+      guardando = guardando.then(function () {
+        return fetch("/api/rotas", { method: "PUT", headers: { "X-Codigo": codigo, "Content-Type": "application/json" }, body: JSON.stringify({ rotas: lista, apagadas: {} }) })
+          .then(function (r) { if (!r.ok) throw new Error(r.status === 413 ? "grande" : "rede"); estadoSinc("Guardado na sua conta"); })
+          .catch(function (e) { estadoSinc(e && e.message === "grande" ? "Rotas demais: apague algumas." : "Sem conexão: não consegui guardar na sua conta."); });
+      });
     }
     function avisoMinhas(texto) { document.getElementById("msg-minhas").textContent = texto || ""; }
     function desenharMinhas() {
       var lista = lerRotas(), ul = document.getElementById("lista-minhas");
       document.getElementById("n-minhas").textContent = String(lista.length);
       ul.innerHTML = "";
-      if (!lista.length) { var vazia = document.createElement("li"); vazia.textContent = "Nenhuma rota guardada ainda."; vazia.style.color = "var(--suave)"; ul.appendChild(vazia); return; }
+      if (!lista.length) { var vazia = document.createElement("li"); vazia.textContent = contaAtual ? "Nenhuma rota guardada ainda." : "Entre com o Google para ver e salvar suas rotas."; vazia.style.color = "var(--suave)"; ul.appendChild(vazia); return; }
       lista.forEach(function (r, i) {
         var li = document.createElement("li"), info = document.createElement("div"), nome = document.createElement("b"), dados = document.createElement("small");
         info.className = "info"; nome.textContent = r.n; nome.title = r.n;
@@ -2177,9 +2137,8 @@
       var abrir = painelMinhas.hidden;
       painelMinhas.hidden = !abrir;
       this.setAttribute("aria-expanded", String(abrir));
-      if (abrir) { avisoMinhas(""); desenharMinhas(); mostrarSinc(); sincronizar(); botaoGoogle(); }
+      if (abrir) { avisoMinhas(""); desenharMinhas(); mostrarSinc(); if (contaAtual) buscarDaConta(); botaoGoogle(); }
     });
-    document.getElementById("b-sinc-criar").addEventListener("click", function () { sincronizar(sortearId(16, ALFA_CODIGO)); });
     // Entrar com o Google: o script do Google só carrega quando o painel abre e ninguém está conectado
     function botaoGoogle() {
       if (!clienteGoogle || contaAtual || botaoGoogleFeito) return;
@@ -2197,40 +2156,31 @@
       estadoSinc("Entrando...");
       fetch("/api/conta", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ credencial: r.credential }) })
         .then(function (x) { if (!x.ok) throw new Error("conta"); return x.json(); })
-        .then(function (j) { contaAtual = j.conta; mostrarSinc(); return sincronizar(contaAtual.codigo); })
+        .then(function (j) { contaAtual = j.conta; rotasDaConta = null; mostrarSinc(); desenharMinhas(); return buscarDaConta(); })
         .catch(function () { estadoSinc("Não foi possível entrar. Tente de novo."); });
     }
-    document.getElementById("b-conta-sair").addEventListener("click", function () {   // sai da conta: este aparelho para de sincronizar e as rotas ficam nele
+    document.getElementById("b-conta-sair").addEventListener("click", function () {   // sai da conta: a lista volta a ser a deste navegador
       fetch("/api/conta", { method: "DELETE" }).catch(function () { /* a sessão vence sozinha */ });
-      contaAtual = null;
-      try { localStorage.removeItem(CHAVE_CODIGO); } catch (x) { /* nada guardado */ }
-      estadoSinc("Você saiu. As rotas continuam neste aparelho."); mostrarSinc(); botaoGoogle();
-    });
-    document.getElementById("f-sinc-usar").addEventListener("submit", function (e) {
-      e.preventDefault();
-      var campo = document.getElementById("sinc-campo"), codigo = campo.value.toLowerCase().replace(/[^a-z0-9]/g, "");
-      if (!/^[a-z2-9]{16}$/.test(codigo)) { estadoSinc("O código tem 16 letras e números."); return; }
-      sincronizar(codigo, true).then(function (ok) { if (ok) campo.value = ""; });
-    });
-    document.getElementById("b-sinc-copiar").addEventListener("click", function () {
-      var texto = document.getElementById("sinc-codigo").textContent;
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(texto).then(function () { estadoSinc("Código copiado"); }, function () { /* fica na tela */ });
-    });
-    document.getElementById("b-sinc-sair").addEventListener("click", function () {   // só este aparelho deixa de sincronizar; as rotas ficam nele
-      try { localStorage.removeItem(CHAVE_CODIGO); } catch (x) { /* nada guardado */ }
-      estadoSinc("Este aparelho não sincroniza mais."); mostrarSinc();
+      contaAtual = null; rotasDaConta = null;
+      estadoSinc("Você saiu da conta."); mostrarSinc(); desenharMinhas(); botaoGoogle();
     });
     document.getElementById("b-salvar").addEventListener("click", function () {
       if (rota.length < 2) return;
       var lista = lerRotas(), campo = document.getElementById("nome-rota"), botao = this, msg = document.getElementById("msg-pedal");
       function erro(texto) { msg.textContent = texto; msg.hidden = false; }
+      if (!contaAtual) {                                           // sem conta não há onde guardar: abre Minhas rotas com o botão do Google
+        painelMinhas.hidden = false; document.getElementById("b-minhas").setAttribute("aria-expanded", "true");
+        desenharMinhas(); mostrarSinc(); botaoGoogle(); estadoSinc("Entre com o Google para salvar a rota.");
+        painelMinhas.scrollIntoView({ block: "nearest", behavior: "smooth" }); return;
+      }
+      if (rotasDaConta === null) { erro("Aguarde: ainda buscando as rotas da sua conta."); return; }   // sem isso, a lista do banco seria trocada por uma só rota
       if (lista.length >= MAX_ROTAS) { erro("O limite é de " + MAX_ROTAS + " rotas guardadas. Apague alguma em Minhas rotas para guardar outra."); return; }
       var nome = campo.value.trim() || ("Rota de " + new Date().toLocaleDateString("pt-BR"));
       lista.unshift({ id: sortearId(10, ALFA_ID), n: nome.slice(0, 60), em: new Date().toISOString(), km: comprimento(linhaCompleta()) / 1000, h: hashDaRota(),
         c: rota.map(function (p) { return p.fixo && p.caminho && p.caminho.length ? codificar(p.caminho) : ""; }) });
-      if (!gravarRotas(lista)) { erro("Não consegui guardar: este navegador não deixa salvar dados do site."); return; }
+      gravarRotas(lista);
       var rotulo = botao.querySelector(".rot"); rotulo.textContent = "Rota guardada"; setTimeout(function () { rotulo.textContent = "Salvar rota"; }, 2000);
-      desenharMinhas(); sincronizar();
+      desenharMinhas();
     });
     document.getElementById("lista-minhas").addEventListener("click", function (e) {
       var b = e.target.closest ? e.target.closest("button") : null;
@@ -2238,23 +2188,22 @@
       var lista = lerRotas(), r = lista[Number(b.dataset.i)];
       if (!r) return;
       if (b.className === "apagar") {
-        var apagadas = lerApagadas(); apagadas[r.id] = Date.now(); gravarApagadas(apagadas);
-        lista.splice(Number(b.dataset.i), 1); gravarRotas(lista); avisoMinhas("Rota apagada."); desenharMinhas(); sincronizar(); return;
+        lista.splice(Number(b.dataset.i), 1); gravarRotas(lista); avisoMinhas("Rota apagada."); desenharMinhas(); return;
       }
       var estavaVazia = !rota.length;
       guardar(); if (estavaVazia) antes = [];
       if (rotaDoHash(r.h, r.c)) { pedirPendentes(); avisoMinhas("Rota aberta."); } else avisoMinhas("Não consegui abrir essa rota.");
     });
     desenharMinhas(); mostrarSinc();
-    if (codigoSinc()) sincronizar();                               // ao abrir a página, já traz as rotas guardadas nos outros aparelhos
     if (window.fetch && (location.protocol === "https:" || /^(localhost|127.0.0.1)$/.test(location.hostname))) {
       fetch("/api/conta", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
         if (!j) return;
         clienteGoogle = j.cliente || ""; contaAtual = j.conta || null;
-        if (contaAtual && codigoSinc() !== contaAtual.codigo) sincronizar(contaAtual.codigo);   // conectado: as rotas da conta vêm para cá
+        if (contaAtual) { desenharMinhas(); buscarDaConta(); }     // conectado: a lista é a da conta, guardada no banco
+        try { localStorage.removeItem("rotas-codigo"); } catch (x) { /* o código de sincronização antigo não é mais usado */ }
         mostrarSinc();
         if (!painelMinhas.hidden) botaoGoogle();
-      }).catch(function () { /* sem conta: segue com o código */ });
+      }).catch(function () { /* sem conexão: as rotas ficam neste aparelho */ });
     }
 
     // ---- os quadrados de 1 grau dos pontos e das ciclovias (ver ferramentas/brasil.py): só os da rota ou da tela são baixados ----
