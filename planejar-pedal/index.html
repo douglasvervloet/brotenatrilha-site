@@ -324,6 +324,19 @@
   .campos label { display: block; font-weight: 700; font-size: .92rem; margin-bottom: 4px; }
   .campos input { width: 100%; font: inherit; padding: 10px 14px; border-radius: 12px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); }
   .campos input:focus { border-color: var(--verde); outline: none; }
+  .chave-dias { display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; }
+  .chave { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; cursor: pointer; min-height: 44px; }
+  .chave input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .chave span { width: 42px; height: 24px; border-radius: 999px; background: var(--linha); position: relative; transition: background .15s; flex: none; }
+  .chave span::after { content: ""; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: left .15s; }
+  .chave input:checked + span { background: var(--verde); }
+  .chave input:checked + span::after { left: 21px; }
+  .chave input:focus-visible + span { outline: 2px solid var(--ambar, #e8a33d); outline-offset: 2px; }
+  #etapas { margin-top: 14px; overflow-x: auto; }
+  #etapas table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  #etapas th, #etapas td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--linha); white-space: nowrap; }
+  #etapas th { color: var(--suave); font-weight: 600; }
+  #etapas .nota { margin: 8px 0 0; }
   footer { background: var(--verde-fundo); color: #cfe0d3; padding: 24px 0; font-size: .92rem; margin-top: 20px; }
   footer .miolo { display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: space-between; }
   footer a { color: #fff; }
@@ -490,6 +503,8 @@
       <div><label for="luz-saida">Saída</label><input id="luz-saida" type="time" value="06:30"></div>
       <div><label for="luz-vel">Velocidade no plano (km/h)</label><input id="luz-vel" inputmode="decimal" value="24"></div>
       <div><label for="luz-massa">Peso do conjunto, bike + ciclista (kg)</label><input id="luz-massa" inputmode="decimal" value="85"></div>
+      <div class="chave-dias"><label class="chave"><input type="checkbox" id="dias-ligado"><span></span>Dividir em dias</label>
+        <div id="dias-campo" hidden><label for="dias-horas">Horas de pedal por dia</label><input id="dias-horas" inputmode="decimal" value="5"></div></div>
     </div>
     <div class="numeros">
       <div><span>Tempo de pedal</span><b id="luz-tempo">–</b><span id="luz-media"></span></div>
@@ -499,6 +514,7 @@
       <div><span>Luz que sobra</span><b id="luz-sobra">–</b></div>
     </div>
     <p class="aviso" id="luz-aviso"></p>
+    <div id="etapas" hidden></div>
     <p class="nota" style="margin-top:8px">O tempo vem de um modelo simples (peso, velocidade no plano e inclinação de cada trecho), ajustado com os pedais do canal: erra em média uns 8 a 10%. Não conta paradas. O nascer e o pôr do sol são aproximados (diferença de poucos minutos), no horário de Brasília.</p>
     <h2>Previsão do tempo</h2>
     <div class="acoes" style="margin-top:8px"><button class="sec" type="button" id="b-previsao" title="Ver a previsão do tempo para a saída"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a4 4 0 0 1 .5-8A5.5 5.5 0 0 1 18 11.5 3.3 3.3 0 0 1 17.5 18z"/></svg>Ver previsão</button></div>
@@ -813,6 +829,7 @@
       svg += marcadoresDeInteresse();
       svg += marcadoresDeApoio();
       svg += marcadoresDeAviso();
+      svg += marcadoresDeEtapa();
       var comRetorno = idaEVolta && p.length > 1;
       p.forEach(function (q, i) {
         var ehUltimo = i === p.length - 1 && p.length > 1, primeiro = i === 0;
@@ -1230,7 +1247,7 @@
     }
     document.getElementById("b-gpx").addEventListener("click", function () {
       if (!pontosGpx) return;
-      var url = URL.createObjectURL(new Blob([gpxTexto(pontosGpx, document.getElementById("gpx-apoios").checked ? waypointsDeApoio() : "")], { type: "application/gpx+xml" })), a = document.createElement("a");
+      var url = URL.createObjectURL(new Blob([gpxTexto(pontosGpx, (document.getElementById("gpx-apoios").checked ? waypointsDeApoio() : "") + waypointsDeEtapa())], { type: "application/gpx+xml" })), a = document.createElement("a");
       a.href = url; a.download = "rota-brote-na-trilha.gpx";
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
@@ -1358,9 +1375,116 @@
         : saidaMin < sol[0] ? "Você sai " + duracaoMin(sol[0] - saidaMin) + " antes do nascer do sol: leve luzes para o começo."
         : "Você faz o pedal com a luz do dia.";
       aviso.textContent = texto; aviso.hidden = false;
+      atualizarEtapas();
     }
     (function () { var h = new Date(); document.getElementById("luz-data").value = h.getFullYear() + "-" + dois(h.getMonth() + 1) + "-" + dois(h.getDate()); })();
     ["luz-data", "luz-saida", "luz-vel", "luz-massa"].forEach(function (id) { document.getElementById(id).addEventListener("input", atualizarLuz); });
+
+    // ---- dividir em dias: a rota em etapas de até N horas de pedal (pelo mesmo modelo do tempo); o fim de cada dia vai para a pousada
+    //      ou o camping mais perto (camada Apoios): até 25% do dia antes (no máximo 1 h) ou 15% depois (no máximo 30 min). Cada dia sai na hora da saída ----
+    var etapas = null;                                              // null: desligado; []: cabe em um dia; [{ini, fim, pernoite}] em amostras do perfil
+    function calcularEtapas() {
+      etapas = null;
+      if (!document.getElementById("dias-ligado").checked || !temposDoPercurso || !calculo) return;
+      var horas = numero(document.getElementById("dias-horas").value);
+      if (!horas || horas < 0.5) return;
+      var cum = temposDoPercurso.cum, n = cum.length, porDia = horas * 60, kmIda = comprimento(linhaDaIda()) / 1000;
+      var pernoites = [];
+      (apoios || []).forEach(function (a) {
+        if (a.tipo !== 7 && a.tipo !== 8) return;
+        pernoites.push([a, a.km]);
+        if (idaEVolta) pernoites.push([a, 2 * kmIda - a.km]);      // na volta, a mesma pousada fica no km espelhado
+      });
+      var antes = Math.min(60, porDia * 0.25), depois = Math.min(30, porDia * 0.15);      // a janela da pousada, proporcional ao dia
+      var lista = [], ini = 0;
+      while (cum[n - 1] - cum[ini] > porDia * 1.1) {                // o que sobra cabe em um dia (com 10% de folga): é a última etapa
+        var alvo = ini;
+        while (alvo < n - 1 && cum[alvo] - cum[ini] < porDia) alvo++;
+        var fim = alvo, pernoite = null, melhor = Infinity;
+        pernoites.forEach(function (q) {
+          var k = Math.round(q[1] * 1000 / PASSO);
+          if (k <= ini + 1 || k >= n - 1) return;
+          var dif = cum[k] - cum[alvo];
+          if (dif < -antes || dif > depois) return;
+          if (Math.abs(dif) < melhor) { melhor = Math.abs(dif); fim = k; pernoite = q[0]; }
+        });
+        lista.push({ ini: ini, fim: fim, pernoite: pernoite });
+        ini = fim;
+      }
+      lista.push({ ini: ini, fim: n - 1, pernoite: null });
+      etapas = lista.length > 1 ? lista : [];
+    }
+    function pontoNoKm(km) {                                        // o lugar da rota (ida e volta inteira) a km quilômetros da saída
+      var linha = linhaCompleta(), feito = 0, alvo = km * 1000;
+      for (var i = 1; i < linha.length; i++) {
+        var d = metrosEntre(linha[i - 1], linha[i]);
+        if (feito + d >= alvo) { var t = d ? (alvo - feito) / d : 0; return { lat: linha[i - 1].lat + (linha[i].lat - linha[i - 1].lat) * t, lon: linha[i - 1].lon + (linha[i].lon - linha[i - 1].lon) * t }; }
+        feito += d;
+      }
+      return linha[linha.length - 1];
+    }
+    function dadosDaEtapa(e) {
+      var cum = temposDoPercurso.cum, tempo = cum[e.fim] - cum[e.ini];
+      return { km0: e.ini * PASSO / 1000, km1: e.fim * PASSO / 1000, ganho: ganhoComLimiar(calculo.alt.slice(e.ini, e.fim + 1), LIMIAR_DO_GANHO), tempo: tempo,
+        chegada: temposDoPercurso.saida + tempo };
+    }
+    function tabelaDeEtapas() {                                     // a tabela (na página e no roadbook)
+      var poe = null, d = document.getElementById("luz-data").value.split("-").map(Number);
+      if (d.length === 3 && rota.length) { var sol = solDoDia(rota[0].lat, rota[0].lon, d[0], d[1], d[2]); if (sol) poe = sol[1]; }
+      return "<table><tr><th>Dia</th><th>Do km ao km</th><th>Distância</th><th>Ganho</th><th>Tempo</th><th>Chegada</th><th>Pernoite</th></tr>" + etapas.map(function (e, k) {
+        var x = dadosDaEtapa(e), ultima = k === etapas.length - 1;
+        return "<tr><td>" + (k + 1) + "</td><td>" + fmt(x.km0, 1) + " a " + fmt(x.km1, 1) + "</td><td>" + fmt(x.km1 - x.km0, 1) + " km</td><td>" + fmt(x.ganho, 0) + " m</td><td>" +
+          duracaoMin(x.tempo) + "</td><td>" + horaMin(x.chegada) + (poe !== null && x.chegada > poe ? " (depois do pôr do sol)" : "") + "</td><td>" +
+          (ultima ? "chegada" : e.pernoite ? htmlSeguro((e.pernoite.nome || TIPOS_APOIO[e.pernoite.tipo].nome) + " (" + TIPOS_APOIO[e.pernoite.tipo].nome.toLowerCase() + ")") : "–") + "</td></tr>";
+      }).join("") + "</table>";
+    }
+    function atualizarEtapas() {
+      calcularEtapas();
+      var caixa = document.getElementById("etapas");
+      document.getElementById("dias-campo").hidden = !document.getElementById("dias-ligado").checked;
+      if (!etapas) { caixa.hidden = true; caixa.innerHTML = ""; desenharRota(); return; }
+      if (!etapas.length) { caixa.innerHTML = '<p class="nota">A rota cabe em um dia.</p>'; caixa.hidden = false; desenharRota(); return; }
+      var semPernoite = etapas.slice(0, -1).some(function (e) { return !e.pernoite; });
+      caixa.innerHTML = tabelaDeEtapas() + (semPernoite && !apoiosLigado ? '<p class="nota">Ligue a camada Apoios para o fim de cada dia ir para uma pousada ou camping.</p>' : "");
+      caixa.hidden = false;
+      var x = dadosDaEtapa(etapas[etapas.length - 1]);
+      document.getElementById("luz-chegada").textContent = "Dia " + etapas.length + " · " + horaMin(x.chegada);
+      // a luz que sobra e o aviso do pôr do sol pelo dia que termina mais tarde (cada dia sai na hora da saída)
+      var d = document.getElementById("luz-data").value.split("-").map(Number), sol = rota.length && d.length === 3 ? solDoDia(rota[0].lat, rota[0].lon, d[0], d[1], d[2]) : null;
+      if (sol) {
+        var pior = 0, chegadaPior = 0;
+        etapas.forEach(function (e, k) { var c = dadosDaEtapa(e).chegada; if (c > chegadaPior) { chegadaPior = c; pior = k; } });
+        document.getElementById("luz-sobra").textContent = chegadaPior <= sol[1] ? duracaoMin(sol[1] - chegadaPior) : "–";
+        var aviso = document.getElementById("luz-aviso");
+        aviso.textContent = chegadaPior > sol[1] ? "No dia " + (pior + 1) + " você chega " + duracaoMin(chegadaPior - sol[1]) + " depois do pôr do sol: leve luzes na bike."
+          : temposDoPercurso.saida < sol[0] ? "Você sai " + duracaoMin(sol[0] - temposDoPercurso.saida) + " antes do nascer do sol: leve luzes para o começo." : "Você faz cada dia com a luz do dia.";
+        aviso.hidden = false;
+      }
+      desenharRota();
+    }
+    function marcadoresDeEtapa() {                                  // o fim de cada dia no mapa: um círculo roxo com o número do dia
+      if (!etapas || etapas.length < 2) return "";
+      var saida = "";
+      etapas.slice(0, -1).forEach(function (e, k) {
+        var x = dadosDaEtapa(e), q = paraTela(pontoNoKm(x.km1));
+        var dica = "Fim do dia " + (k + 1) + " · km " + fmt(x.km1, 1) + (e.pernoite ? " · " + (e.pernoite.nome || TIPOS_APOIO[e.pernoite.tipo].nome) : "");
+        saida += '<g pointer-events="none"><title>' + htmlSeguro(dica) + '</title><circle cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="13" fill="#6b4fc4" stroke="#fff" stroke-width="3"/>' +
+          '<text x="' + q.x.toFixed(1) + '" y="' + (q.y + 4.5).toFixed(1) + '" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">' + (k + 1) + "</text></g>";
+      });
+      return saida;
+    }
+    function waypointsDeEtapa() {                                   // o fim de cada dia também no GPX
+      if (!etapas || etapas.length < 2) return "";
+      return etapas.slice(0, -1).map(function (e, k) {
+        var x = dadosDaEtapa(e), q = pontoNoKm(x.km1);
+        return '<wpt lat="' + q.lat.toFixed(6) + '" lon="' + q.lon.toFixed(6) + '"><name>' + xmlSeguro("Fim do dia " + (k + 1)) + "</name><desc>" +
+          xmlSeguro("km " + fmt(x.km1, 1) + (e.pernoite ? " · " + (e.pernoite.nome || TIPOS_APOIO[e.pernoite.tipo].nome) : "")) + "</desc><sym>Lodging</sym></wpt>";
+      }).join("");
+    }
+    document.getElementById("dias-ligado").addEventListener("change", function () {      // o tempo inteiro: a Chegada volta a ser a de um dia ao desligar
+      document.getElementById("dias-campo").hidden = !this.checked; atualizarLuz();
+    });
+    document.getElementById("dias-horas").addEventListener("input", atualizarLuz);
 
     // ---- a previsão do tempo na saída (Open-Meteo): só depois de clicar no botão; vai o ponto de saída, arredondado, e a data ----
     var previsaoLigada = false, esperaPrevisao = null, ultimaSaidaMin = 0, ultimaChegadaMin = 0, versaoPrevisao = 0, cachePrevisao = {};
@@ -2227,6 +2351,7 @@
       return horas < 0.25 ? "" : " · leve uns " + fmt(litros, 1) + " L para ele" + (calor.length ? " (" + Math.round(t) + " °C previstos)" : "");
     }
     function atualizarApoiosNaTela() {
+      if (document.getElementById("dias-ligado").checked) setTimeout(atualizarEtapas, 0);       // as pousadas e campings mudam o fim de cada dia
       atualizarOpcaoGpx();                             // o resumo abaixo do mapa: quantos de cada tipo e o maior trecho sem água ou comida
       var resumo = document.getElementById("apoio-resumo");
       if (!apoiosLigado || !apoios || !apoios.length) { resumo.hidden = true; if (apoiosLigado && apoios && !apoios.length && !document.getElementById("status-apoios").textContent) estadoDosApoios("Nenhum ponto de apoio a até 300 m desta rota. O OpenStreetMap não tem todos os lugares."); return; }
@@ -2607,8 +2732,11 @@
     function htmlSeguro(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
     function horaNoKm(km) {                                        // a hora estimada de passagem por um quilômetro da ida ("" se não há saída e perfil)
       if (!temposDoPercurso) return "";
-      var cum = temposDoPercurso.cum;
-      return horaMin(temposDoPercurso.saida + cum[Math.min(cum.length - 1, Math.round(km * 1000 / PASSO))]);
+      var cum = temposDoPercurso.cum, k = Math.min(cum.length - 1, Math.round(km * 1000 / PASSO));
+      if (etapas && etapas.length > 1) {                            // com dias: a hora daquele dia, que começa na hora da saída
+        for (var d = 0; d < etapas.length; d++) if (k <= etapas[d].fim) return "Dia " + (d + 1) + " · " + horaMin(temposDoPercurso.saida + cum[k] - cum[etapas[d].ini]);
+      }
+      return horaMin(temposDoPercurso.saida + cum[k]);
     }
     function esbocoDoPercurso() {                                  // o desenho simples do percurso (sem mapa de fundo), com um marco a cada 10 km
       var pts = pontosGpx, la = pts.map(function (p) { return p[0]; }), lo = pts.map(function (p) { return p[1]; });
@@ -2632,6 +2760,7 @@
       h.push("<h1>Roadbook</h1><p class=\"sub\">" + htmlSeguro(nome) + " · " + data + " · saída às " + htmlSeguro(el("luz-saida").value) + " · " + htmlSeguro(el("luz-vel").value) + " km/h no plano · conjunto de " + htmlSeguro(el("luz-massa").value) + " kg</p>");
       h.push('<div class="numeros">' + cartao("Distância", el("n-dist").textContent) + cartao("Ganho de altitude", el("n-ganho").textContent) + cartao("Tempo de pedal", el("luz-tempo").textContent) + cartao("Chegada", el("luz-chegada").textContent) +
         cartao("Nascer do sol", el("luz-nasce").textContent) + cartao("Pôr do sol", el("luz-poe").textContent) + "</div>");
+      if (etapas && etapas.length > 1) h.push("<h2>Dias</h2>" + tabelaDeEtapas());
       h.push("<h2>Percurso</h2>" + esbocoDoPercurso());
       h.push("<h2>Altimetria</h2>" + altimetria.outerHTML);
       var linhasSubidas = calculo.subidas.map(function (s, k) {
