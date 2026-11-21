@@ -45,11 +45,15 @@ ESTILO = """<link rel="preload" href="/fontes/inter-latin.woff2" as="font" type=
   .ns-trilha li + li::before { content: "›"; margin-right: 6px; opacity: .7; }
   .ns-trilha a { color: inherit; opacity: .9; }
   .ns-trilha [aria-current] { opacity: .75; }
-  .ns-rodape { background: #0c1510; color: #b9c8bd; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: .8rem; padding: 14px 0 16px; margin-top: 24px; }
+  /* o vão antes do rodapé: o fim do conteúdo de cada página tinha folga demais (padding do main + margem do último bloco + a do rodapé) */
+  body > main { padding-bottom: 24px !important; }
+  body > main > :last-child { margin-bottom: 0 !important; }
+  .ns-rodape { background: #0c1510; color: #b9c8bd; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: .8rem; padding: 14px 0 16px; margin-top: 0; }
   .ns-rodape .ns-miolo { max-width: 1100px; margin: 0 auto; padding: 0 16px; display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; }
   .ns-rodape nav { display: flex; flex-wrap: wrap; gap: 4px 12px; }
   .ns-rodape a { color: #dfe9e2; text-decoration: none; }
   .ns-rodape a:hover { text-decoration: underline; }
+  .ns-rodape .ns-strava { background: #fff; border-radius: 6px; padding: 5px 9px; line-height: 0; }      /* o selo do Strava pede fundo claro */
   .ns-rodape .ns-strava img { display: block; width: 148px; height: auto; }
   @media (max-width: 640px) { .ns-marca span { display: none; } }
   /* o cabeçalho verde de cada página fica mais baixo: o menu já está em cima (a inicial tem o cabeçalho dela e fica como está) */
@@ -125,10 +129,12 @@ def aplicar(doc, atual, trilha):
     doc = re.sub(r'<script type="application/ld\+json" id="ns-trilha-ld">.*?</script>\n?', "", doc, flags=re.S)
     if trilha:
         doc = doc.replace("</head>", trilha_ld([(n, h) for n, h in trilha]) + "\n</head>", 1)
-    # o menu: a inicial tem o menu dela; nas outras, a barra logo depois do <body>
-    if atual != "inicio":
-        doc = re.sub(r"\n?<!--ns:menu-->.*?<!--/ns:menu-->", "", doc, flags=re.S)
-        doc = re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + "\n" + barra(atual), doc, count=1)
+    # o menu: a barra logo depois do <body>, em todas as páginas; a inicial perde a barra própria dela (pedido do usuário, 2026-11-21)
+    doc = re.sub(r"\n?<!--ns:menu-->.*?<!--/ns:menu-->", "", doc, flags=re.S)
+    doc = re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + "\n" + barra(atual), doc, count=1)
+    if atual == "inicio":
+        doc = re.sub(r'\n?<header class="topo">.*?</header>', "", doc, count=1, flags=re.S)
+    else:
         # o "← ..." do cabeçalho da página vira a trilha (ou sai: o menu já leva a qualquer lugar)
         cab = re.search(r"<header[^>]*>.*?</header>", doc, re.S)
         if cab:
