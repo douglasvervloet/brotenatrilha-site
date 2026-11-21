@@ -74,7 +74,7 @@ def resumo_da_descricao(texto):
 
 
 # Domínios de links de afiliado: vão com rel="sponsored" (o pedido do Google para link pago ou de comissão)
-AFILIADOS = ("s.click.aliexpress.com", "amzn.to", "shope.ee", "mercadolivre.com/sec", "magalu.lu")
+AFILIADOS = ("s.click.aliexpress.com", "amzn.to", "shope.ee", "mercadolivre.com/sec", "meli.la", "magalu.lu")
 ICONE_TOCAR = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>'
 SELO_AFILIADO = '<span class="selo-afiliado" title="Link de afiliado: se você comprar por ele, o canal recebe uma comissão, sem custo extra para você">afiliado</span>'      # o selo ao lado de cada link pago: o aviso tem de estar à vista
 AVISO_AFILIADO = '<aside class="aviso-afiliado" role="note"><strong>Links de afiliado.</strong> Alguns links desta página são de afiliados e vêm marcados com &ldquo;afiliado&rdquo;. Se você comprar por eles, o canal recebe uma comissão, sem custo extra para você.</aside>'
@@ -82,6 +82,33 @@ AVISO_AFILIADO = '<aside class="aviso-afiliado" role="note"><strong>Links de afi
 
 def eh_afiliado(url):
     return any(a in url for a in AFILIADOS)
+
+
+# Os links de cada peça da "Configuração da bike" (ferramentas/links_pecas.json, tirado da planilha do usuário): por bike e por peça.
+# A bike do vídeo sai do título; uma peça com bike "A + B" vale para as duas.
+LINKS_PECAS = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "links_pecas.json"), encoding="utf-8"))["pecas"] \
+    if os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), "links_pecas.json")) else []
+BIKES_PELO_TITULO = {"rava": "Rava Cave 2025", "spcycle": "Spcycle SP-M09"}
+
+
+def sem_acento(t):
+    import unicodedata
+    return "".join(c for c in unicodedata.normalize("NFD", t.lower()) if unicodedata.category(c) != "Mn").strip()
+
+
+def links_da_peca(titulo_do_video, peca):
+    """Os anúncios de uma peça do vídeo: [(rótulo, link)]; o rótulo é a posição ("dianteiro") quando a peça tem mais de um."""
+    bike = next((b for chave, b in BIKES_PELO_TITULO.items() if chave in titulo_do_video.lower()), None)
+    if not bike:
+        return []
+    nome = sem_acento(peca)                            # "Central" na descrição = "Movimento central" na planilha
+    achados = [x for x in LINKS_PECAS if bike in x["bike"] and (sem_acento(x["categoria"]) == nome or sem_acento(x["categoria"]).endswith(" " + nome))]
+    saida = []
+    for x in achados:
+        posicao = re.search(r"\((dianteiro|traseiro)\)", x["componente"], re.I)
+        rotulo = ("Anúncio " + posicao.group(1).lower()) if len(achados) > 1 and posicao else "Ver anúncio"
+        saida.append((rotulo, x["link"]))
+    return saida
 
 
 def partes_da_descricao(texto):
@@ -111,6 +138,8 @@ def cartao(v):
     titulo = html.escape(v["titulo"])
     texto = resumo_da_descricao(v["descricao"])
     links, pecas, capitulos = partes_da_descricao(v["descricao"])
+    nas_pecas = {u for a, _ in pecas for _, u in links_da_peca(v["titulo"], a)}
+    links = [(r, u) for r, u in links if u not in nas_pecas]           # o link que já está na peça (ex.: o do quadro) não se repete no resumo
     extras = ""
     if links:
         itens = "".join(f'<li><a href="{html.escape(u)}" target="_blank" rel="noopener{" sponsored" if eh_afiliado(u) else ""}">{html.escape(r)}{SELO_AFILIADO if eh_afiliado(u) else ""}</a></li>'
@@ -121,7 +150,10 @@ def cartao(v):
                         for s, m, t in capitulos)
         extras += f'<details><summary>Capítulos</summary><ol class="capitulos">{itens}</ol></details>'
     if pecas:
-        itens = "".join(f"<div><dt>{html.escape(a)}</dt><dd>{html.escape(b)}</dd></div>" for a, b in pecas)
+        def anuncios(a):                              # os links da peça, logo depois do modelo
+            return "".join(f' <a class="anuncio" href="{html.escape(u)}" target="_blank" rel="noopener sponsored">{html.escape(r)}{SELO_AFILIADO}</a>'
+                           for r, u in links_da_peca(v["titulo"], a))
+        itens = "".join(f"<div><dt>{html.escape(a)}</dt><dd>{html.escape(b)}{anuncios(a)}</dd></div>" for a, b in pecas)
         extras += f'<details><summary>Configuração da bike</summary><dl class="pecas">{itens}</dl></details>' 
     return f"""  <article class="analise">
     <div class="video">
@@ -150,7 +182,8 @@ def montar(videos, modelo):
               "thumbnailUrl": [f"https://i.ytimg.com/vi/{v['id']}/hqdefault.jpg"], "uploadDate": v["publicado"],
               "embedUrl": f"https://www.youtube.com/embed/{v['id']}", "contentUrl": f"https://www.youtube.com/watch?v={v['id']}"}}
               for i, v in enumerate(videos)]}
-    tem_afiliado = any(eh_afiliado(u) for v in videos for _, u in partes_da_descricao(v["descricao"])[0])
+    tem_afiliado = any(eh_afiliado(u) for v in videos for _, u in partes_da_descricao(v["descricao"])[0]) or \
+        any(links_da_peca(v["titulo"], a) for v in videos for a, _ in partes_da_descricao(v["descricao"])[1])
     troca = {"{{AVISO_AFILIADO}}": AVISO_AFILIADO if tem_afiliado else "", "{{CONTEUDO}}": '<div class="lista">\n' + "\n".join(cartao(v) for v in videos) + "\n</div>",
              "{{RESUMO}}": resumo, "{{PLAYLIST}}": PLAYLIST,
              "{{OG_IMAGE}}": "https://brotenatrilha.com.br/analises/compartilhar.jpg",      # imagem fixa e grande (a capa do vídeo, em 480 px, ficava em baixa resolução no WhatsApp)

@@ -1,0 +1,317 @@
+{
+ "_fonte": "produtos-analises-bikes.xlsx (planilha do usuário, fora do site); links de afiliado do Mercado Livre (meli.la) e do AliExpress",
+ "pecas": [
+  {
+   "bike": "Rava Cave 2025",
+   "categoria": "Quadro",
+   "componente": "Rava Cave 2025 tamanho 21/XL",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1qkBZ14",
+   "aproximado": true
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Quadro",
+   "componente": "Spcycle SP-M09 (21/XL)",
+   "loja": "AliExpress",
+   "link": "https://s.click.aliexpress.com/e/_c3rAZJRv",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025 + Spcycle SP-M09",
+   "categoria": "Suspensão",
+   "componente": "Manitou Machete Comp",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/2HaQax7",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025 + Spcycle SP-M09",
+   "categoria": "Aros",
+   "componente": "Alexrims MD25",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1gQZgRj",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025",
+   "categoria": "Cubos",
+   "componente": "DT Swiss 370",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/2fDNzxr",
+   "aproximado": true
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Cubos",
+   "componente": "Koozer XM450",
+   "loja": "AliExpress",
+   "link": "https://s.click.aliexpress.com/e/_c33loxrB",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025 + Spcycle SP-M09",
+   "categoria": "Pneus",
+   "componente": "Continental Cross King 2.30 (dianteiro)",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1RXXuoS",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025 + Spcycle SP-M09",
+   "categoria": "Pneus",
+   "componente": "Continental Race King 2.20 (traseiro)",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1ApB92Y",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025",
+   "categoria": "Freios",
+   "componente": "Shimano SLX M7100",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/2Ud5J4A",
+   "aproximado": false
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Freios",
+   "componente": "SRAM Level TL",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1kuBhcs",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025",
+   "categoria": "Discos",
+   "componente": "Shimano RT-86 180mm (dianteiro)",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/2xqtZtK",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025",
+   "categoria": "Discos",
+   "componente": "Shimano RT-86 160mm (traseiro)",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/34nDim4",
+   "aproximado": false
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Discos",
+   "componente": "SRAM Centerline 180mm (dianteiro)",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/2ao2K14",
+   "aproximado": false
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Discos",
+   "componente": "SRAM Centerline 160mm (traseiro)",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1pH2np6",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025",
+   "categoria": "Mesa",
+   "componente": "Kalloy Uno Project Advanced 110mm -7º",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1QapxJg",
+   "aproximado": false
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Mesa",
+   "componente": "Kalloy Uno Advanced Projects 90mm 7º",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/14Xpcq8",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025",
+   "categoria": "Guidão",
+   "componente": "Dodici Carbon 760mm",
+   "loja": "AliExpress",
+   "link": "https://s.click.aliexpress.com/e/_c40VXXVF",
+   "aproximado": false
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Guidão",
+   "componente": "Session Carbon200 780mm",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1Dynena",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025",
+   "categoria": "Manopla",
+   "componente": "Supacaz Diamond Kush 34mm",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1UkAHSj",
+   "aproximado": true
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Manopla",
+   "componente": "ESI Grips Extra Chunky",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/33KSb1M",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025 + Spcycle SP-M09",
+   "categoria": "Canote",
+   "componente": "Exaform 900i (170mm)",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/2hsoaVj",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025",
+   "categoria": "Selim",
+   "componente": "Velo VL-1966",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/2nKkgA9",
+   "aproximado": false
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Selim",
+   "componente": "Prólogo Proxim W350",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1C5co5E",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025",
+   "categoria": "Pedal",
+   "componente": "Shimano Deore XT M8100",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/2fJ63xK",
+   "aproximado": false
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Pedal",
+   "componente": "Look X-Track Race",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1QU5xKh",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025",
+   "categoria": "Trocador",
+   "componente": "Shimano SLX M7100",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1o9dALS",
+   "aproximado": false
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Trocador",
+   "componente": "SRAM GX Lunar 12v",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1REp5R6",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025",
+   "categoria": "Câmbio",
+   "componente": "Shimano SLX M7100",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/2pQAoh8",
+   "aproximado": false
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Câmbio",
+   "componente": "SRAM GX Lunar 12v",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/24tSV1q",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025",
+   "categoria": "Pedivela",
+   "componente": "Shimano SLX M7100",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/2y7qLBw",
+   "aproximado": false
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Pedivela",
+   "componente": "SRAM GX Lunar 12v",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1yPQp7n",
+   "aproximado": false
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Movimento central",
+   "componente": "SRAM DUB BSA 73mm",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/14VniXN",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025",
+   "categoria": "Roldanas",
+   "componente": "Shimano Deore XT M8100",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/2cb6PcL",
+   "aproximado": false
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Roldanas",
+   "componente": "Token Eagle 12v",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1p1urCA",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025",
+   "categoria": "Coroa",
+   "componente": "Motsuv 12v 36 dentes",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1zWK3fE",
+   "aproximado": false
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Coroa",
+   "componente": "Goldix Aero 34 dentes (offset 3mm)",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/2eEQKR4",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025 + Spcycle SP-M09",
+   "categoria": "Cassete",
+   "componente": "Shimano SLX 10-51 12v",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/1Ktp7af",
+   "aproximado": false
+  },
+  {
+   "bike": "Rava Cave 2025",
+   "categoria": "Corrente",
+   "componente": "Shimano XTR M9100",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/2xwYQrX",
+   "aproximado": false
+  },
+  {
+   "bike": "Spcycle SP-M09",
+   "categoria": "Corrente",
+   "componente": "KMC X12",
+   "loja": "Mercado Livre",
+   "link": "https://meli.la/2EuPnUk",
+   "aproximado": false
+  }
+ ]
+}

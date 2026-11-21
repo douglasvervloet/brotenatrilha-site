@@ -37,7 +37,8 @@
   header p { margin: 10px 0 0; color: #dcebe0; max-width: 60ch; }
   .resumo { margin-top: 14px !important; color: var(--ambar) !important; font-weight: 700; }
   main { padding: 34px 0 56px; }
-  .lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 22px; }
+  .lista { display: grid; grid-template-columns: 1fr; gap: 22px; align-items: start; }      /* 2 colunas no computador, 1 no celular; cada cartão na sua altura */
+  @media (min-width: 760px) { .lista { grid-template-columns: repeat(2, 1fr); } }
   .analise { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
   .video { position: relative; aspect-ratio: 16 / 9; background: #10160f; }
   .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
@@ -71,6 +72,7 @@
   .pecas div { display: grid; grid-template-columns: 96px 1fr; gap: 10px; }
   .pecas dt { color: var(--suave); }
   .pecas dd { margin: 0; }
+  .pecas .anuncio { margin-left: 6px; font-size: .82rem; font-weight: 600; white-space: nowrap; }      /* o link de cada peça (afiliado) */
   .vazio { color: var(--suave); }
   footer { background: var(--verde-fundo); color: #cfe0d3; padding: 28px 0; font-size: .92rem; }
   footer .miolo { display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: space-between; }
