@@ -22,6 +22,73 @@ RODAPE_LINKS = [("/pedais/", "Pedais"), ("/subidas/", "Subidas"), ("/planejar-pe
                 ("/ferramentas/", "Ferramentas"), ("/sobre/", "Sobre"), ("/bnteditor/", "BNT Editor"), ("/privacidade/", "Privacidade"),
                 ("https://www.youtube.com/@BroteNaTrilha", "Canal no YouTube")]
 
+# A serra no pé da faixa verde de cada página (montanhas, morros e pinheiros em branco translúcido) e o "easter egg":
+# um ciclista que atravessa a serra de vez em quando. Desenhos em SVG, sem arquivo a mais.
+def _svg(conteudo, largura, altura):
+    import urllib.parse
+    return "url(\"data:image/svg+xml," + urllib.parse.quote(
+        f"<svg xmlns='http://www.w3.org/2000/svg' width='{largura}' height='{altura}' viewBox='0 0 {largura} {altura}'>{conteudo}</svg>", safe=" ='/:") + "\")"
+
+
+def _morro(x):
+    """A altura da linha dos morros (em px, de cima da faixa de 48) no ponto x; repete a cada 600 px, como o desenho."""
+    import math
+    return 37 - 4 * math.sin(2 * math.pi * x / 300) - 2.5 * math.sin(2 * math.pi * x / 120 + 1)
+
+
+def _pinheiro(x, base, alto):
+    """Um pinheiro de três andares (triângulos que se sobrepõem) e o tronco, com o pé em (x, base)."""
+    partes = [f"<rect x='{x - .8:.1f}' y='{base - alto * .15:.1f}' width='1.6' height='{alto * .15:.1f}'/>"]
+    for andar in range(3):
+        topo = base - alto + andar * alto * .24
+        pe = topo + alto * .42
+        meio = alto * (.16 + .07 * andar)
+        partes.append(f"<path d='M{x} {topo:.1f} L{x + meio:.1f} {pe:.1f} L{x - meio:.1f} {pe:.1f} Z'/>")
+    return "".join(partes)
+
+
+SERRA = _svg(
+    "<path fill='white' fill-opacity='.07' d='M0 48 L0 30 L40 18 L85 26 L130 8 L175 22 L215 14 L260 27 L310 6 L355 20 L400 12 L450 25 L500 10 L550 21 L600 30 L600 48 Z'/>"
+    "<path fill='white' fill-opacity='.10' d='M0 48 " + " ".join(f"L{x} {_morro(x):.1f}" for x in range(0, 601, 6)) + " L600 48 Z'/>"
+    "<g fill='white' fill-opacity='.14'>" + "".join(_pinheiro(x, 46, a) for x, a in
+                                                  ((34, 18), (46, 13), (150, 15), (290, 20), (303, 14), (316, 17), (430, 14), (522, 19), (536, 13))) + "</g>",
+    600, 48)
+def _roda(cx, cy, volta):
+    """Uma roda do ícone (pneu cheio) com raios e cubo que giram."""
+    raios = "".join(f"<rect x='{cx - .28}' y='{cy - 3.4}' width='.56' height='6.8' transform='rotate({g} {cx} {cy})'/>" for g in (0, 60, 120))
+    return (f"<path fill-rule='evenodd' d='M{cx - 5} {cy}a5 5 0 1 0 10 0a5 5 0 1 0-10 0zM{cx - 3.5} {cy}a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0z'/>"
+            f"<g>{raios}<circle cx='{cx}' cy='{cy}' r='.9'/>"
+            f"<animateTransform attributeName='transform' type='rotate' from='0 {cx} {cy}' to='360 {cx} {cy}' dur='{volta}' repeatCount='indefinite'/></g>")
+
+
+# O ciclista: a silhueta do ícone "directions_bike" do Material Design (Google, licença Apache 2.0), com as rodas
+# trocadas por rodas que giram. Desenho em 24 x 24, mostrado em 36 x 36 px.
+_VOLTA = "0.8s"
+CICLISTA = _svg(
+    "<g fill='white' opacity='.8'>"
+    "<path d='M15.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2s-2 .9-2 2s.9 2 2 2'/>"                                    # a cabeça
+    "<path d='M10.8 10.5l2.4-2.4l.8.8c1.3 1.3 3 2.1 5.1 2.1V9c-1.5 0-2.7-.6-3.6-1.5l-1.9-1.9c-.5-.4-1-.6-1.6-.6"
+    "s-1.1.2-1.4.6L7.8 8.4c-.4.4-.6.9-.6 1.4c0 .6.2 1.1.6 1.4L11 14v5h2v-6.2z'/>"                            # o corpo
+    + _roda(5, 17, _VOLTA) + _roda(19, 17, _VOLTA) + "</g>",
+    24, 24).replace("width='24' height='24'", "width='36' height='36'")
+
+def _caminho_do_ciclista(distancia=2600, passo=10, fracao=.45):
+    """Os quadros da animação: a roda sempre na linha dos morros (translate) e a bike inclinada como o morro (rotate).
+    O ciclista anda `distancia` px na `fracao` do ciclo e fica fora da tela no resto (passa de novo no ciclo seguinte)."""
+    import math
+    quadros = []
+    for x in range(-60, distancia + 1, passo):
+        tras, frente = _morro(x - 10.5), _morro(x + 10.5)              # as duas rodas na linha dos morros: a bike apoia nas duas
+        inclinacao = math.degrees(math.atan2(frente - tras, 21))
+        pct = (x + 60) / (distancia + 60) * fracao * 100
+        quadros.append(f"{pct:.2f}% {{ transform: translate({x - 18}px, {(tras + frente) / 2 - 45:.1f}px) rotate({inclinacao:.1f}deg); }}")
+    quadros.append(f"100% {{ transform: translate({distancia - 22}px, 0); }}")
+    return "@keyframes ns-pedala { " + " ".join(quadros) + " }"
+
+
+PEDALA = _caminho_do_ciclista()
+CICLISTAS = '<span class="ns-ciclista" aria-hidden="true"></span>' * 3          # o grupo do pedal: três ciclistas em fila
+
 ESTILO = """<link rel="preload" href="/fontes/inter-latin.woff2" as="font" type="font/woff2" crossorigin id="ns-fonte">
 <style id="ns-estilo">
   /* a mesma fonte em todos os aparelhos (Inter, hospedada no site, licença OFL em /fontes/) e os mesmos tamanhos de título em todas as páginas */
@@ -65,6 +132,15 @@ ESTILO = """<link rel="preload" href="/fontes/inter-latin.woff2" as="font" type=
   .ns-barra ~ header h1 { margin-top: 6px !important; }
   .ns-barra ~ header h1 + p, .ns-barra ~ header .data, .ns-barra ~ header .cidades { margin-top: 5px !important; }
   .ns-barra ~ header .ns-trilha + h1 { margin-top: 2px !important; }
+  /* a serra no pé da faixa verde e o ciclista que passa por ela (some para quem pede menos movimento) */
+  .ns-barra ~ header { position: relative; overflow: hidden; }
+  .ns-barra ~ header > * { position: relative; z-index: 1; }
+  .ns-barra ~ header::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 48px; background: """ + SERRA + """ repeat-x left bottom; pointer-events: none; }
+  .ns-barra ~ header > .ns-ciclista { position: absolute; z-index: 0; bottom: 0; left: 0; width: 36px; height: 36px; transform: translate(-80px, 0); transform-origin: 18px 33px; background: """ + CICLISTA + """ no-repeat; pointer-events: none; animation: ns-pedala 60s linear 4s infinite; }
+  .ns-barra ~ header > .ns-ciclista + .ns-ciclista { animation-delay: 4.5s; }
+  .ns-barra ~ header > .ns-ciclista + .ns-ciclista + .ns-ciclista { animation-delay: 5.1s; }
+  """ + PEDALA + """
+  @media (prefers-reduced-motion: reduce) { .ns-barra ~ header > .ns-ciclista { display: none; } }
   /* o botão de sol e lua: mostra o sol no modo escuro (vai para o claro) e a lua no claro */
   .ns-tema { flex: none; display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 999px; background: transparent; color: #cfdcd3; cursor: pointer; }
   .ns-tema:hover { color: #fff; background: rgba(255,255,255,.07); }
@@ -212,6 +288,8 @@ def aplicar(doc, atual, trilha):
                 novo = re.sub(r'<a [^>]*href="[^"]*"[^>]*>\s*(?:&larr;|←)[^<]*</a>', lambda m: trilha_html(trilha) if trilha else "", bloco, count=1)
                 if trilha and novo == bloco:                              # sem o "←": a trilha entra no começo do miolo do cabeçalho
                     novo = re.sub(r'(<header[^>]*>\s*(?:<div class="miolo">)?)', lambda m: m.group(1) + trilha_html(trilha), bloco, count=1)
+            novo = re.sub(r'<span class="ns-ciclista" aria-hidden="true"></span>', "", novo)
+            novo = re.sub(r"(<header[^>]*>)", lambda m: m.group(1) + CICLISTAS, novo, count=1)
             doc = doc.replace(cab.group(0), novo, 1)
     # o rodapé
     if "<!--ns:rodape-->" in doc:
