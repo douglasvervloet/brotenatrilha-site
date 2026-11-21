@@ -142,6 +142,8 @@
   .sinc input:focus { border-color: var(--verde); outline: none; }
   .sinc button { font: inherit; font-weight: 700; padding: 7px 16px; border-radius: 999px; cursor: pointer; border: 2px solid var(--linha); background: transparent; color: var(--texto); }
   .sinc button:hover { border-color: var(--verde); }
+  #conta-fora, #conta-dentro { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 8px 0; }
+  #g-entrar { min-height: 32px; }
   #sinc-codigo { font-family: ui-monospace, Consolas, monospace; letter-spacing: .03em; }
   #sinc-estado { margin: 8px 0 0; min-height: 1.3em; }
   .contagem { display: inline-block; min-width: 22px; margin-left: 6px; padding: 0 7px; border-radius: 999px; background: var(--verde); color: #fff; font-size: .8rem; }
@@ -466,6 +468,10 @@
     <p class="nota" id="msg-minhas" aria-live="polite" style="margin-top:12px"></p>
     <div class="sinc">
       <b>Sincronizar com outro aparelho</b>
+      <div id="conta" hidden>
+        <div id="conta-fora"><div id="g-entrar"></div><span class="nota">ou use um código:</span></div>
+        <div id="conta-dentro" hidden><span>Conectado como <b id="conta-nome"></b></span><button type="button" id="b-conta-sair" title="Este aparelho deixa de sincronizar (as rotas ficam nele)">Sair</button></div>
+      </div>
       <div id="sinc-desligado">
         <button type="button" id="b-sinc-criar" title="Cria um código para usar no outro aparelho">Criar código</button>
         <form id="f-sinc-usar"><input type="text" id="sinc-campo" placeholder="Código do outro aparelho" autocomplete="off" spellcheck="false" aria-label="Código de sincronização"><button type="submit">Usar código</button></form>
@@ -2112,10 +2118,15 @@
       return { rotas: lista, apagadas: apagadas };
     }
     function estadoSinc(texto) { document.getElementById("sinc-estado").textContent = texto || ""; }
+    var contaAtual = null, clienteGoogle = "", botaoGoogleFeito = false;   // a conta do Google (Entrar com o Google), quando o site tem o cliente configurado
     function mostrarSinc() {
       var codigo = codigoSinc();
-      document.getElementById("sinc-desligado").hidden = !!codigo;
-      document.getElementById("sinc-ligado").hidden = !codigo;
+      document.getElementById("conta").hidden = !clienteGoogle;
+      document.getElementById("conta-fora").hidden = !!contaAtual;
+      document.getElementById("conta-dentro").hidden = !contaAtual;
+      document.getElementById("conta-nome").textContent = contaAtual ? (contaAtual.nome || contaAtual.email || "Google") : "";
+      document.getElementById("sinc-desligado").hidden = !!codigo || !!contaAtual;
+      document.getElementById("sinc-ligado").hidden = !codigo || !!contaAtual;
       document.getElementById("sinc-codigo").textContent = codigo ? codigo.match(/.{4}/g).join("-") : "";
     }
     var sincronizando = null;
@@ -2166,9 +2177,35 @@
       var abrir = painelMinhas.hidden;
       painelMinhas.hidden = !abrir;
       this.setAttribute("aria-expanded", String(abrir));
-      if (abrir) { avisoMinhas(""); desenharMinhas(); mostrarSinc(); sincronizar(); }
+      if (abrir) { avisoMinhas(""); desenharMinhas(); mostrarSinc(); sincronizar(); botaoGoogle(); }
     });
     document.getElementById("b-sinc-criar").addEventListener("click", function () { sincronizar(sortearId(16, ALFA_CODIGO)); });
+    // Entrar com o Google: o script do Google só carrega quando o painel abre e ninguém está conectado
+    function botaoGoogle() {
+      if (!clienteGoogle || contaAtual || botaoGoogleFeito) return;
+      botaoGoogleFeito = true;
+      var sc = document.createElement("script");
+      sc.src = "https://accounts.google.com/gsi/client"; sc.async = true;
+      sc.onload = function () {
+        google.accounts.id.initialize({ client_id: clienteGoogle, callback: entrouComGoogle });
+        google.accounts.id.renderButton(document.getElementById("g-entrar"), { theme: "outline", size: "medium", shape: "pill", text: "signin_with", locale: "pt-BR" });
+      };
+      sc.onerror = function () { botaoGoogleFeito = false; };
+      document.head.appendChild(sc);
+    }
+    function entrouComGoogle(r) {
+      estadoSinc("Entrando...");
+      fetch("/api/conta", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ credencial: r.credential }) })
+        .then(function (x) { if (!x.ok) throw new Error("conta"); return x.json(); })
+        .then(function (j) { contaAtual = j.conta; mostrarSinc(); return sincronizar(contaAtual.codigo); })
+        .catch(function () { estadoSinc("Não foi possível entrar. Tente de novo."); });
+    }
+    document.getElementById("b-conta-sair").addEventListener("click", function () {   // sai da conta: este aparelho para de sincronizar e as rotas ficam nele
+      fetch("/api/conta", { method: "DELETE" }).catch(function () { /* a sessão vence sozinha */ });
+      contaAtual = null;
+      try { localStorage.removeItem(CHAVE_CODIGO); } catch (x) { /* nada guardado */ }
+      estadoSinc("Você saiu. As rotas continuam neste aparelho."); mostrarSinc(); botaoGoogle();
+    });
     document.getElementById("f-sinc-usar").addEventListener("submit", function (e) {
       e.preventDefault();
       var campo = document.getElementById("sinc-campo"), codigo = campo.value.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -2210,6 +2247,15 @@
     });
     desenharMinhas(); mostrarSinc();
     if (codigoSinc()) sincronizar();                               // ao abrir a página, já traz as rotas guardadas nos outros aparelhos
+    if (window.fetch && (location.protocol === "https:" || /^(localhost|127.0.0.1)$/.test(location.hostname))) {
+      fetch("/api/conta", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+        if (!j) return;
+        clienteGoogle = j.cliente || ""; contaAtual = j.conta || null;
+        if (contaAtual && codigoSinc() !== contaAtual.codigo) sincronizar(contaAtual.codigo);   // conectado: as rotas da conta vêm para cá
+        mostrarSinc();
+        if (!painelMinhas.hidden) botaoGoogle();
+      }).catch(function () { /* sem conta: segue com o código */ });
+    }
 
     // ---- os quadrados de 1 grau dos pontos e das ciclovias (ver ferramentas/brasil.py): só os da rota ou da tela são baixados ----
     var quadrados = {};
