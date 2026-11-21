@@ -193,6 +193,36 @@
   footer .strava img { height: 20px; width: auto; display: block; }
   @media (max-width: 560px) { .clima-grade { grid-template-columns: 1fr; } dl { grid-template-columns: repeat(2, 1fr); } .navegacao { grid-template-columns: 1fr; } .navegacao .proximo, .navegacao .anterior { grid-column: auto; text-align: left; } }
   @media (prefers-reduced-motion: reduce) { .botao { transition: none; } }
+
+  /* o vídeo em destaque (2026-11-21, pedido do usuário): faixa escura com o vídeo, a descrição e os números; atalhos fixos para as seções */
+  .cinema { background: #070d09; padding: 16px 0 18px; }
+  .cinema .video { margin-top: 0; box-shadow: 0 10px 40px rgba(0,0,0,.6); }
+  .cinema .texto { margin: 14px 0 0; color: #d6e2d9; max-width: 80ch; }
+  .numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-top: 14px; }
+  .num { background: #16251c; border: 1px solid #2a3b30; border-radius: 14px; padding: 10px 12px; display: grid; grid-template-columns: 22px 1fr; column-gap: 9px; align-items: center; color: #e9f0ea; }
+  .num svg { width: 22px; height: 22px; grid-row: span 2; color: #e8a33d; }
+  .num b { font-size: 1.12rem; line-height: 1.15; }
+  .num span { font-size: .76rem; color: #b9c9bd; }
+  .nivel { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; vertical-align: 2px; font-weight: 800; font-size: .78rem; padding: 2px 10px; border-radius: 999px; }
+  .nivel i { display: inline-flex; gap: 2px; } .nivel i b { width: 5px; height: 11px; border-radius: 2px; background: currentColor; } .nivel i b.vazia { opacity: .3; }
+  .nivel-1 { background: #cfe3c3; color: #14301c; } .nivel-2 { background: #e8873a; color: #2a1400; } .nivel-3 { background: #c8452c; color: #fff; }
+  .atalhos { position: sticky; top: 0; z-index: 20; background: rgba(15,26,19,.96); backdrop-filter: blur(6px); border-bottom: 1px solid #2a3b30; }
+  .atalhos .miolo { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-top: 6px; padding-bottom: 6px; }
+  .atalhos .miolo::-webkit-scrollbar { display: none; }
+  .atalhos a { color: #b9c9bd; text-decoration: none; font-size: .85rem; font-weight: 700; padding: 5px 12px; border-radius: 999px; white-space: nowrap; }
+  .atalhos a:hover { color: #fff; background: #16251c; }
+  .secao { scroll-margin-top: 54px; }
+  .legenda-inclinacao { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 4px 6px 0; font-size: .76rem; color: var(--suave); }
+  .legenda-inclinacao i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .perfil .inclinacao { opacity: .9; }
+  @media (max-width: 640px) {
+    .cinema { padding-top: 0; }
+    .cinema .miolo { padding-left: 0; padding-right: 0; width: 100%; max-width: none; }
+    .cinema .video { border-radius: 0; }
+    .cinema .texto, .cinema .numeros { margin-left: 14px; margin-right: 14px; }
+    .numeros { grid-template-columns: repeat(2, 1fr); }
+    .numeros .num:last-child:nth-child(odd) { grid-column: span 2; }
+  }
 </style>
 </head>
 <body>
@@ -200,22 +230,26 @@
   <div class="miolo">
     <a href="/pedais/">&larr; Todos os pedais</a>
     <h1>{{TITULO}}</h1>
-    <p class="data">{{DATA_LONGA}}</p>
+    <p class="data">{{DATA_LONGA}} {{NIVEL}}</p>
     {{CIDADES}}
   </div>
 </header>
 
-<main class="miolo">
+<div class="cinema"><div class="miolo">
   {{VIDEO}}
   {{TEXTO}}
-  {{MAPA}}
-  {{PISO}}
-  {{PERFIL}}
+  <div class="numeros">{{CARTOES}}</div>
+</div></div>
+<nav class="atalhos" aria-label="Nesta página"><div class="miolo">{{ATALHOS}}</div></nav>
+
+<main class="miolo">
+  <div class="secao" id="mapa">{{MAPA}}
+  {{PISO}}</div>
+  <div class="secao" id="altimetria">{{PERFIL}}</div>
   <p class="credito">{{NOTA_CORTE}}Mapa: © OpenStreetMap contributors, SRTM | estilo © OpenTopoMap (CC-BY-SA).{{CREDITO_PISO}}</p>
-  <dl>{{NUMEROS}}</dl>
-  {{SUBIDAS}}
-  {{LUGARES}}
-  {{CLIMA}}
+  <div class="secao" id="subidas">{{SUBIDAS}}</div>
+  <div class="secao" id="lugares">{{LUGARES}}</div>
+  <div class="secao" id="clima">{{CLIMA}}</div>
   <p class="links">{{LINKS}}<button type="button" class="botao claro" id="compartilhar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Compartilhar</button></p>
   {{NOTA_GPX}}
   {{PARECIDOS}}

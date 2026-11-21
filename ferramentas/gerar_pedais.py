@@ -1058,14 +1058,27 @@ def perfil_svg(caminho, subidas=None):
         grade.append(f'<text class="eixo" x="{x(km):.1f}" y="{PERFIL_A - 8}" text-anchor="middle">{num(km)} km</text>')
         km += degrau_x
     areas_subidas, numeros_subidas = subidas_no_perfil(subidas or [], kms, valores, x, y, base_y, largura)
+    # a área embaixo da linha, em trechos da cor da inclinação (média numa janela de uns 4 pontos, para o ruído do relevo não piscar)
+    def inclinacao(i):
+        a, b = max(0, i - 2), min(len(kms) - 1, i + 2)
+        return 0 if kms[b] == kms[a] else (valores[b] - valores[a]) / ((kms[b] - kms[a]) * 1000) * 100
+    pedacos, ini = [], 0
+    cores = [cor_da_inclinacao(max(0, inclinacao(i))) for i in range(len(kms))]
+    for i in range(1, len(kms) + 1):
+        if i == len(kms) or cores[i] != cores[ini]:
+            fim = min(i, len(kms) - 1)
+            pontos = " ".join(f"{x(kms[j]):.1f},{y(valores[j]):.1f}" for j in range(ini, fim + 1))
+            pedacos.append(f'<polygon class="inclinacao" fill="{cores[ini]}" points="{x(kms[ini]):.1f},{base_y:.1f} {pontos} {x(kms[fim]):.1f},{base_y:.1f}"/>')
+            ini = i
+    legenda = "".join(f'<span><i style="background:{cor}"></i>{rotulo}</span>' for _, cor, rotulo in FAIXAS_INCLINACAO)
     # Os dados vão no próprio SVG: o script da página (modelo_pedal.tpl) os lê para mostrar a posição no mapa quando o mouse passa no gráfico
     dados = (f'data-km="{",".join(f"{k:.2f}" for k in kms)}" data-alt="{",".join(f"{v:.1f}" for v in valores)}" '
              f'data-x0="{m["esq"]}" data-largura="{largura}" data-y0="{m["topo"]}" data-altura="{altura}" data-ymin="{y_min}" data-ymax="{y_max}"')
     return (f'<figure class="perfil"><div class="rolagem"><svg viewBox="0 0 {PERFIL_L} {PERFIL_A}" role="img" {dados} '
             f'aria-label="Perfil de altimetria do percurso: altitude de {num(min(valores))} a {num(max(valores))} m em {num(km_total, 1)} km">'
-            + "".join(grade) + f'<polygon class="area" points="{area}"/>{areas_subidas}<polyline class="altitude" points="{linha}"/>{numeros_subidas}'
+            + "".join(grade) + "".join(pedacos) + f'<polyline class="altitude" points="{linha}"/>{numeros_subidas}'
             f'<line class="cursor" y1="{m["topo"]}" y2="{base_y:.1f}" hidden/><circle class="ponto-perfil" r="5" hidden/></svg></div>'
-            '<div class="dica" hidden></div>'
+            f'<div class="dica" hidden></div><div class="legenda-inclinacao">{legenda}</div>'
             '<figcaption>Altimetria do trecho mostrado no mapa. Passe o mouse (ou toque) no gráfico ou no traçado do mapa para ligar os dois.</figcaption></figure>')
 
 
@@ -1977,6 +1990,56 @@ def exercicio_ld(p, titulo, url):
     return dados
 
 
+NIVEIS = [(1.5, "Leve", 1), (2.8, "Moderado", 2), (99, "Puxado", 3)]
+BONUS_DA_CATEGORIA = {"Cat 4": 0.2, "Cat 3": 0.4, "Cat 2": 0.7, "Cat 1": 1.0, "HC": 1.4}
+
+
+def nivel_do_pedal(p):
+    """Leve, Moderado ou Puxado: pela distância, pelo ganho e pela subida mais dura (a nota soma km/50, ganho/800 e um bônus da categoria)."""
+    km, _ = numeros(p)
+    nota = km / 50 + subida_do_pedal(p) / 800 + max([BONUS_DA_CATEGORIA.get(s["categoria"], 0) for s in p.get("_subidas") or []], default=0)
+    return next((nome, barras) for ate, nome, barras in NIVEIS if nota < ate)
+
+
+def etiqueta_do_nivel(p):
+    nome, barras = nivel_do_pedal(p)
+    return (f'<span class="nivel nivel-{barras}" title="Pela distância, pelo ganho e pela subida mais dura"><i>' + "".join(
+        '<b></b>' if k < barras else '<b class="vazia"></b>' for k in range(3)) + f"</i>{nome}</span>")
+
+
+ICONES_NUMEROS = {"dist": '<path d="M4 18c4-10 12-2 16-12"/>', "subida": '<path d="M3 19l6-8 4 5 3-4 5 7H3z"/>',
+                  "tempo": '<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/>', "piso": '<path d="M5 20L9 4M19 20L15 4M12 6v2M12 11v2M12 16v2"/>',
+                  "subidas": '<path d="M4 20l6-14 4 8 2-3 4 9z"/>'}
+
+
+def cartoes_de_numeros(p):
+    """A faixa de números logo abaixo do vídeo: distância, subida, tempo, piso (se houver) e as subidas (se houver)."""
+    km, media = numeros(p)
+    cartao = lambda ic, valor, rotulo: (f'<div class="num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+                                       f'stroke-linejoin="round" aria-hidden="true">{ICONES_NUMEROS[ic]}</svg><b>{valor}</b><span>{rotulo}</span></div>')
+    h = [cartao("dist", f"{num(km, 1)} km", "distância"), cartao("subida", f"{num(subida_do_pedal(p))} m", "de subida"),
+         cartao("tempo", duracao(p["moving_time"]), f"pedalando · {num(media, 1)} km/h")]
+    piso = p.get("_piso")
+    if piso:
+        pct = lambda nome: round(piso.count(nome) / len(piso) * 100)
+        terra = pct("Terra")
+        h.append(cartao("piso", f'{pct("Asfalto")}%', "asfalto" + (f" · {terra}% terra" if terra else "")))
+    subidas = p.get("_subidas") or []
+    if subidas:
+        com_cat = [s for s in subidas if s["categoria"] != "Sem categoria"]
+        dura = max(com_cat, key=lambda s: s["pontos"]) if com_cat else None
+        h.append(cartao("subidas", f"{len(subidas)} subida{'s' if len(subidas) > 1 else ''}",
+                        (f"{len(com_cat)} com categoria ({dura['categoria']})" if dura else "sem categoria")))
+    return "".join(h)
+
+
+def atalhos_da_pagina(p):
+    """Os atalhos fixos para as seções da página (só as que existem)."""
+    itens = [("mapa", "Mapa"), ("altimetria", "Altimetria") if p.get("_perfil") else None, ("subidas", "Subidas") if p.get("_subidas") else None,
+             ("lugares", "Por onde passa") if p.get("_lugares") else None, ("clima", "Clima")]
+    return "".join(f'<a href="#{i}">{t}</a>' for i, t in (x for x in itens if x))
+
+
 def montar_pagina_pedal(p, mais_novo, mais_velho, modelo, todos=None):
     km, media = numeros(p)
     titulo = titulo_exibido(p)
@@ -2009,7 +2072,7 @@ def montar_pagina_pedal(p, mais_novo, mais_velho, modelo, todos=None):
     troca = {"{{TITULO}}": html.escape(titulo), "{{DESCRICAO_META}}": html.escape(descricao_meta), "{{URL}}": url,
              "{{OG_IMAGE}}": og, "{{DATA_LONGA}}": data_longa(p["start_date_local"]), "{{MAPA}}": mapa_do_pedal(p), "{{PERFIL}}": p.get("_perfil", ""),
              "{{PISO}}": bloco_piso(p.get("_piso")), "{{SUBIDAS}}": bloco_subidas(p.get("_subidas")), "{{CREDITO_PISO}}": " Piso: OpenStreetMap." if p.get("_piso") else "",
-             "{{NUMEROS}}": nums, "{{VIDEO}}": video, "{{TEXTO}}": f"<p class=\"texto\">{html.escape(texto)}</p>" if texto else "",
+             "{{NUMEROS}}": nums, "{{CARTOES}}": cartoes_de_numeros(p), "{{NIVEL}}": etiqueta_do_nivel(p), "{{ATALHOS}}": atalhos_da_pagina(p), "{{VIDEO}}": video, "{{TEXTO}}": f"<p class=\"texto\">{html.escape(texto)}</p>" if texto else "",
              "{{CLIMA}}": bloco_clima(p), "{{LUGARES}}": bloco_lugares(p), "{{LINKS}}": botoes(p, extra=" " + bloco_gpx(p)) if p.get("_gpx") else botoes(p), "{{NOTA_GPX}}": NOTA_GPX if p.get("_gpx") and p.get("_cortado") else "",
              "{{NOTA_CORTE}}": "O traçado não mostra o começo nem o fim do percurso. " if p.get("_cortado") else "", "{{CIDADES}}": linha_cidades(p, 99), "{{NAV}}": "".join(nav),
              "{{PARECIDOS}}": bloco_parecidos(p, todos or [], {x["id"] for x in (mais_novo, mais_velho) if x}),
