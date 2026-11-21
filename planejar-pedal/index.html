@@ -1812,7 +1812,7 @@
 
     // ---- as opções de um ponto: o trecho até ele e o trecho dele até o próximo seguem as ruas ou ficam livres (linha reta), ou remover o ponto ----
     var menu = document.getElementById("menu-ponto");
-    function fecharMenuDoPonto() { menu.hidden = true; menuDoPonto = null; }
+    function fecharMenuDoPonto() { if (menu) menu.hidden = true; menuDoPonto = null; }      // pode ser chamada antes de o menu existir (Desenhar desligado ao abrir um link)
     function trechoDoMenu(qual, i) { return qual === "aqui" ? i : i + 1; }                         // o trecho é guardado no ponto onde ele termina (livre, caminho)
     function abrirMenuDoPonto(i, onde) {
       menuDoPonto = i;
