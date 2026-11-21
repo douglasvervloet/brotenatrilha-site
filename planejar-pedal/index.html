@@ -1487,6 +1487,7 @@
       atualizarLuz();
     });
     document.getElementById("dias-horas").addEventListener("input", atualizarLuz);
+    ["dias-ligado", "dias-horas"].forEach(function (id) { document.getElementById(id).addEventListener(id === "dias-ligado" ? "change" : "input", function () { setTimeout(atualizarEndereco, 0); }); });
 
     // ---- a previsão do tempo na saída (Open-Meteo): só depois de clicar no botão; vai o ponto de saída, arredondado, e a data ----
     var previsaoLigada = false, esperaPrevisao = null, ultimaSaidaMin = 0, ultimaChegadaMin = 0, versaoPrevisao = 0, cachePrevisao = {};
@@ -1681,6 +1682,12 @@
       return (grudar ? "" : "n") + Object.keys(OPCOES_DO_LINK).filter(function (id) { return document.getElementById(id).getAttribute("aria-pressed") === "true"; }).map(function (id) { return OPCOES_DO_LINK[id]; }).join("");      // "n": sem Grudar nas ruas (ele vem ligado)
     }
     function ligarOpcoesDoLink(resto) {                                      // liga as chaves que o link traz (nunca desliga uma que a pessoa já ligou)
+      var dias = resto.match(/&dias=([\d.]+)/);
+      if (dias && Number(dias[1]) > 0) {                                     // a rota veio dividida em dias: as mesmas horas por dia, e a chave ligada
+        document.getElementById("dias-horas").value = dias[1].replace(".", ",");
+        var chave = document.getElementById("dias-ligado");
+        if (!chave.checked) chave.click(); else atualizarLuz();
+      }
       var o = resto.match(/&o=([a-z]+)/);
       if (!o) return;
       if (o[1].indexOf("n") >= 0 && grudar) document.getElementById("b-grudar").click();      // a rota foi compartilhada sem Grudar nas ruas
@@ -1693,7 +1700,9 @@
       if (!rota.length) return "";
       var livres = [], opcoes = opcoesDoLink();
       rota.forEach(function (p, i) { if (p.livre) livres.push(i); });
-      return "#r=" + encodeURIComponent(codificar(rota)) + (livres.length ? "&l=" + livres.join(".") : "") + (idaEVolta ? "&iv=1" : "") + (opcoes ? "&o=" + opcoes : "");
+      var horasDia = numero(document.getElementById("dias-horas").value);
+      var dias = document.getElementById("dias-ligado").checked && horasDia > 0 ? "&dias=" + String(Math.round(horasDia * 10) / 10) : "";      // a divisão em dias vai junto
+      return "#r=" + encodeURIComponent(codificar(rota)) + (livres.length ? "&l=" + livres.join(".") : "") + (idaEVolta ? "&iv=1" : "") + (opcoes ? "&o=" + opcoes : "") + dias;
     }
     Object.keys(OPCOES_DO_LINK).concat("b-grudar").forEach(function (id) {   // ligar ou desligar uma chave do mapa muda o link (e o endereço)
       document.getElementById(id).addEventListener("click", function () { setTimeout(atualizarEndereco, 0); });
