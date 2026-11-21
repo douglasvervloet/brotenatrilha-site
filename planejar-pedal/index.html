@@ -324,13 +324,17 @@
   .campos label { display: block; font-weight: 700; font-size: .92rem; margin-bottom: 4px; }
   .campos input { width: 100%; font: inherit; padding: 10px 14px; border-radius: 12px; border: 2px solid var(--linha); background: var(--cartao); color: var(--texto); }
   .campos input:focus { border-color: var(--verde); outline: none; }
-  .chave-dias { display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; }
-  .chave { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; cursor: pointer; min-height: 44px; }
+  .campos > div { display: flex; flex-direction: column; justify-content: flex-end; }      /* as caixas da linha alinhadas embaixo, mesmo com rótulo de duas linhas */
+  .chave-dias { gap: 4px; }
+  .campos .chave { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: .92rem; cursor: pointer; margin: 0; }
+  .chave-dias:not(:has(.dias-campo:not([hidden]))) .chave { min-height: 46px; }      /* desligada: a chave na altura das caixas ao lado */
+  .dias-campo { position: relative; }
+  .dias-campo span { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--suave); font-size: .85rem; pointer-events: none; }
   .chave input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-  .chave span { width: 42px; height: 24px; border-radius: 999px; background: var(--linha); position: relative; transition: background .15s; flex: none; }
-  .chave span::after { content: ""; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: left .15s; }
+  .chave span { display: inline-block; width: 38px; height: 21px; border-radius: 999px; background: var(--linha); position: relative; transition: background .15s; flex: none; }
+  .chave span::after { content: ""; position: absolute; left: 3px; top: 3px; width: 15px; height: 15px; border-radius: 50%; background: #fff; transition: left .15s; }
   .chave input:checked + span { background: var(--verde); }
-  .chave input:checked + span::after { left: 21px; }
+  .chave input:checked + span::after { left: 20px; }
   .chave input:focus-visible + span { outline: 2px solid var(--ambar, #e8a33d); outline-offset: 2px; }
   #etapas { margin-top: 14px; overflow-x: auto; }
   #etapas table { width: 100%; border-collapse: collapse; font-size: .92rem; }
@@ -502,9 +506,9 @@
       <div><label for="luz-data">Data</label><input id="luz-data" type="date"></div>
       <div><label for="luz-saida">Saída</label><input id="luz-saida" type="time" value="06:30"></div>
       <div><label for="luz-vel">Velocidade no plano (km/h)</label><input id="luz-vel" inputmode="decimal" value="24"></div>
-      <div><label for="luz-massa">Peso do conjunto, bike + ciclista (kg)</label><input id="luz-massa" inputmode="decimal" value="85"></div>
+      <div><label for="luz-massa">Peso (bike + ciclista, kg)</label><input id="luz-massa" inputmode="decimal" value="85"></div>
       <div class="chave-dias"><label class="chave"><input type="checkbox" id="dias-ligado"><span></span>Dividir em dias</label>
-        <div id="dias-campo" hidden><label for="dias-horas">Horas de pedal por dia</label><input id="dias-horas" inputmode="decimal" value="5"></div></div>
+        <div id="dias-campo" class="dias-campo" hidden><input id="dias-horas" inputmode="decimal" value="5" aria-label="Horas de pedal por dia"><span>horas por dia</span></div></div>
     </div>
     <div class="numeros">
       <div><span>Tempo de pedal</span><b id="luz-tempo">–</b><span id="luz-media"></span></div>
