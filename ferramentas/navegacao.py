@@ -65,14 +65,76 @@ ESTILO = """<link rel="preload" href="/fontes/inter-latin.woff2" as="font" type=
   .ns-barra ~ header h1 { margin-top: 6px !important; }
   .ns-barra ~ header h1 + p, .ns-barra ~ header .data, .ns-barra ~ header .cidades { margin-top: 5px !important; }
   .ns-barra ~ header .ns-trilha + h1 { margin-top: 2px !important; }
-</style>"""
+  /* o botão de sol e lua: mostra o sol no modo escuro (vai para o claro) e a lua no claro */
+  .ns-tema { flex: none; display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 999px; background: transparent; color: #cfdcd3; cursor: pointer; }
+  .ns-tema:hover { color: #fff; background: rgba(255,255,255,.07); }
+  .ns-tema svg { width: 17px; height: 17px; }
+  .ns-tema .ns-sol { display: none; }
+  html[data-tema="escuro"] .ns-tema .ns-sol { display: block; } html[data-tema="escuro"] .ns-tema .ns-lua { display: none; }
+  @media (prefers-color-scheme: dark) { html:not([data-tema="claro"]) .ns-tema .ns-sol { display: block; } html:not([data-tema="claro"]) .ns-tema .ns-lua { display: none; } }
+  html[data-tema="escuro"] { color-scheme: dark; } html[data-tema="claro"] { color-scheme: light; }
+</style>
+<script id="ns-tema">try { var t = localStorage.getItem("tema"); if (t === "claro" || t === "escuro") document.documentElement.setAttribute("data-tema", t); } catch (e) {}</script>"""
+
+
+SOL = ('<svg class="ns-sol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">'
+       '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>')
+LUA = ('<svg class="ns-lua" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+       '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>')
+# troca entre claro e escuro e guarda a escolha no navegador; sem escolha, o site segue o modo do aparelho
+BOTAO_TEMA = ('<button class="ns-tema" type="button" aria-label="Modo claro ou escuro" title="Modo claro/escuro" onclick="(function () {'
+              " var h = document.documentElement, t = h.getAttribute('data-tema');"
+              " var escuro = t === 'escuro' || (t !== 'claro' &amp;&amp; matchMedia('(prefers-color-scheme: dark)').matches);"
+              " var novo = escuro ? 'claro' : 'escuro'; h.setAttribute('data-tema', novo); try { localStorage.setItem('tema', novo); } catch (e) {} })()\">"
+              + SOL + LUA + '</button>')
+
+
+def com_escolha(seletores, marca):
+    """Os seletores de uma regra do modo escuro presos ao html com a marca ([data-tema=...]): ":root" e "html" levam a marca neles."""
+    saida = []
+    for sel in re.sub(r"/\*.*?\*/", "", seletores, flags=re.S).split(","):
+        sel = sel.strip()
+        if sel.startswith(":root"):
+            saida.append(":root" + marca + sel[5:])
+        elif re.match(r"html(?![\w-])", sel):
+            saida.append("html" + marca + sel[4:])
+        else:
+            saida.append("html" + marca + " " + sel)
+    return ", ".join(saida)
+
+
+def tema_escolhido(doc):
+    """Cada bloco "@media (prefers-color-scheme: dark)" da página passa a valer só sem escolha contrária (html sem data-tema="claro"),
+    e ganha uma cópia que vale quando a pessoa escolhe o escuro no botão. Rodar de novo não duplica (o bloco feito já tem data-tema)."""
+    abre = "@media (prefers-color-scheme: dark)"
+    partes, pos = [], 0
+    while True:
+        i = doc.find(abre, pos)
+        if i < 0:
+            break
+        j = doc.find("{", i)
+        nivel, k = 1, j + 1
+        while nivel and k < len(doc):
+            nivel += {"{": 1, "}": -1}.get(doc[k], 0)
+            k += 1
+        dentro = doc[j + 1:k - 1]
+        regras = re.findall(r"([^{}]+)\{([^{}]*)\}", dentro)
+        sobra = re.sub(r"/\*.*?\*/", "", re.sub(r"[^{}]+\{[^{}]*\}", "", dentro), flags=re.S).strip()
+        if "data-tema" in dentro or not regras or sobra:          # já feito, ou de um jeito que não sei reescrever: fica como está
+            partes.append(doc[pos:k])
+        else:
+            sem_escolha = " ".join(f'{com_escolha(sel, ":not([data-tema=" + chr(34) + "claro" + chr(34) + "])")} {{{dec}}}' for sel, dec in regras)
+            escolhido = " ".join(f'{com_escolha(sel, "[data-tema=" + chr(34) + "escuro" + chr(34) + "]")} {{{dec}}}' for sel, dec in regras)
+            partes.append(doc[pos:i] + abre + " { " + sem_escolha + " }\n  " + escolhido)
+        pos = k
+    return "".join(partes) + doc[pos:]
 
 
 def barra(atual):
     itens = "".join(f'<a href="{href}"' + (' aria-current="page"' if pagina == atual else "") + f">{rotulo}</a>" for pagina, href, rotulo in MENU)
     return ('<!--ns:menu--><nav class="ns-barra" aria-label="Site"><div class="ns-miolo"><a class="ns-marca" href="/" aria-label="Brote na Trilha, início">'
             '<img src="/favicon.png" width="26" height="26" alt=""><span>Brote na Trilha</span></a>'
-            f'<div class="ns-menu">{itens}</div></div></nav>'
+            f'<div class="ns-menu">{itens}</div>' + BOTAO_TEMA + '</div></nav>'
             '<script>(function () { var a = document.querySelector(".ns-menu [aria-current]"); if (a) a.parentNode.scrollLeft = a.offsetLeft - 60; })();</script>'
             '<!--/ns:menu-->')
 
@@ -128,7 +190,9 @@ def aplicar(doc, atual, trilha):
     # o estilo, uma vez
     doc = re.sub(r'<link [^>]*id="ns-fonte">\n?', "", doc)
     doc = re.sub(r'<style id="ns-estilo">.*?</style>\n?', "", doc, flags=re.S)      # com a quebra de linha: rodar de novo não acumula linhas
+    doc = re.sub(r'<script id="ns-tema">.*?</script>\n?', "", doc, flags=re.S)
     doc = doc.replace("</head>", ESTILO + "\n</head>", 1)
+    doc = tema_escolhido(doc)                                  # o modo escuro segue o botão de sol e lua (ou o aparelho, sem escolha)
     # a trilha para o Google
     doc = re.sub(r'<script type="application/ld\+json" id="ns-trilha-ld">.*?</script>\n?', "", doc, flags=re.S)
     if trilha:
