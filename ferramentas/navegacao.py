@@ -56,6 +56,7 @@ ESTILO = """<link rel="preload" href="/fontes/inter-latin.woff2" as="font" type=
   .ns-rodape .ns-strava { background: #fff; border-radius: 6px; padding: 5px 9px; line-height: 0; }      /* o selo do Strava pede fundo claro */
   .ns-rodape .ns-strava img { display: block; width: 148px; height: auto; }
   @media (max-width: 640px) { .ns-marca span { display: none; } }
+  @media (min-width: 900px) { .ns-barra .ns-miolo { justify-content: center; } }      /* tela larga: o logo e o menu juntos, no meio */
   /* o cabeçalho verde de cada página fica mais baixo: o menu já está em cima (a inicial tem o cabeçalho dela e fica como está) */
   .ns-barra ~ header { padding-top: 12px !important; padding-bottom: 18px !important; }
   .ns-barra ~ header h1 { margin-top: 6px !important; }
