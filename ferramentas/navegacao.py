@@ -133,9 +133,8 @@ def aplicar(doc, atual, trilha):
     # o menu: a barra logo depois do <body>, em todas as páginas; a inicial perde a barra própria dela (pedido do usuário, 2026-11-21)
     doc = re.sub(r"\n?<!--ns:menu-->.*?<!--/ns:menu-->", "", doc, flags=re.S)
     doc = re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + "\n" + barra(atual), doc, count=1)
-    if atual == "inicio":
-        doc = re.sub(r'\n?<header class="topo">.*?</header>', "", doc, count=1, flags=re.S)
-    else:
+    doc = re.sub(r'\n?<header class="topo">.*?</header>', "", doc, count=1, flags=re.S)      # a barra própria da inicial, do Sobre e do BNT Editor sai
+    if atual != "inicio":
         # o "← ..." do cabeçalho da página vira a trilha (ou sai: o menu já leva a qualquer lugar)
         cab = re.search(r"<header[^>]*>.*?</header>", doc, re.S)
         if cab:
