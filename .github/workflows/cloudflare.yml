@@ -44,6 +44,8 @@ jobs:
           mkdir -p "$RUNNER_TEMP/site"
           rsync -a --exclude '.git' --exclude '.github' --exclude 'functions' ./ "$RUNNER_TEMP/site/"   # functions/: código do servidor (o wrangler o lê daqui)
           echo "Arquivos: $(find "$RUNNER_TEMP/site" -type f | wc -l) (limite do plano grátis: 20000)"
+          # o menu, a trilha de navegação e o rodapé iguais em todas as páginas (ferramentas/navegacao.py), na cópia que vai para o ar
+          python3 ferramentas/navegacao.py "$RUNNER_TEMP/site"
 
       - name: Publicar no Cloudflare Pages
         if: env.CF_TOKEN != ''

@@ -19,6 +19,8 @@
   a.botao { display: inline-block; margin-top: 22px; padding: 13px 26px; border-radius: 999px; background: #e8a33d; color: #1b2a1f; font-weight: 700; text-decoration: none; }
   a.botao:hover { background: #f0b255; }
   :focus-visible { outline: 3px solid #e8a33d; outline-offset: 3px; }
+  .atalhos { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 18px; margin-top: 22px; }
+  .atalhos a { color: var(--texto); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -27,6 +29,7 @@
   <h1>Essa trilha não existe</h1>
   <p>A página que você procura não foi encontrada. Talvez o endereço tenha mudado.</p>
   <a class="botao" href="/">Voltar ao início</a>
+  <nav class="atalhos" aria-label="Atalhos"><a href="/pedais/">Pedais</a><a href="/subidas/">Subidas</a><a href="/planejar-pedal/">Planejar pedal</a><a href="/ferramentas/">Ferramentas</a><a href="/sobre/">Sobre</a></nav>
 </main>
 </body>
 </html>
