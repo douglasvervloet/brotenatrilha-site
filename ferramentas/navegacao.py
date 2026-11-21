@@ -48,6 +48,9 @@ ESTILO = """<link rel="preload" href="/fontes/inter-latin.woff2" as="font" type=
   /* o vão antes do rodapé: o fim do conteúdo de cada página tinha folga demais (padding do main + margem do último bloco + a do rodapé) */
   body > main { padding-bottom: 24px !important; }
   body > main > :last-child { margin-bottom: 0 !important; }
+  body > main:has(> section:last-of-type) { padding-bottom: 0 !important; }      /* página feita de faixas (inicial, Sobre, BNT Editor): a última faixa encosta no rodapé */
+  body > main > section:last-of-type { padding-bottom: 24px !important; }
+  body > main > section:last-of-type > * > :last-child { margin-bottom: 0 !important; }
   .ns-rodape { background: #0c1510; color: #b9c8bd; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: .8rem; padding: 14px 0 16px; margin-top: 0; }
   .ns-rodape .ns-miolo { max-width: 1100px; margin: 0 auto; padding: 0 16px; display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; }
   .ns-rodape nav { display: flex; flex-wrap: wrap; gap: 4px 12px; }
