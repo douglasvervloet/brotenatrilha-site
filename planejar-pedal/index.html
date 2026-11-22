@@ -2189,7 +2189,7 @@
         info.className = "info"; nome.textContent = r.n; nome.title = r.n;
         dados.textContent = fmt(r.km, 1) + " km · " + new Date(r.em).toLocaleDateString("pt-BR");
         info.appendChild(nome); info.appendChild(dados); li.appendChild(info);
-        [["Abrir", "abrir"], ["Renomear", "renomear"], ["Apagar", "apagar"]].forEach(function (par) {
+        [["Abrir", "abrir"], ["Copiar link", "link"], ["Duplicar", "duplicar"], ["Renomear", "renomear"], ["Apagar", "apagar"]].forEach(function (par) {
           var b = document.createElement("button"); b.type = "button"; b.textContent = par[0]; b.className = par[1]; b.dataset.i = String(i); li.appendChild(b);
         });
         ul.appendChild(li);
@@ -2268,6 +2268,27 @@
       if (!r) return;
       if (b.className === "apagar") {
         lista.splice(Number(b.dataset.i), 1); gravarRotas(lista); avisoMinhas("Rota apagada."); desenharMinhas(); return;
+      }
+      if (b.className === "link") {                                // o link curto da rota guardada, sem abri-la (sem imagem de prévia)
+        var longo = location.origin + location.pathname + r.h;
+        b.disabled = true;
+        passeTurnstile().then(function (t) {
+          var dados = new FormData(); dados.append("h", r.h); dados.append("n", r.n || ""); dados.append("d", fmt(r.km, 1) + " km"); dados.append("t", t);
+          return fetch("/api/link", { method: "POST", body: dados });
+        }).then(function (x) { return x.ok ? x.json() : null; }).then(function (j) { return j && j.id ? location.origin + "/r/" + j.id : longo; })
+          .catch(function () { return longo; })
+          .then(function (url) {
+            b.disabled = false;
+            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { avisoMinhas("Link copiado: " + url); }, function () { avisoMinhas(url); });
+            else avisoMinhas(url);
+          });
+        return;
+      }
+      if (b.className === "duplicar") {                            // uma cópia para fazer outra versão sem perder a original
+        if (lista.length >= MAX_ROTAS) { avisoMinhas("O limite é de " + MAX_ROTAS + " rotas. Apague alguma para duplicar."); return; }
+        var copiaDaRota = JSON.parse(JSON.stringify(r));
+        copiaDaRota.id = sortearId(10, ALFA_ID); copiaDaRota.em = new Date().toISOString(); copiaDaRota.n = ((r.n || "Rota") + " (cópia)").slice(0, 60);
+        lista.unshift(copiaDaRota); gravarRotas(lista); avisoMinhas("Rota duplicada."); desenharMinhas(); return;
       }
       if (b.className === "renomear") {                            // o nome vira um campo: Enter (ou sair do campo) grava, Esc desiste
         var li = b.closest("li"), info = li.querySelector(".info"), campo = document.createElement("input");

@@ -1,0 +1,61 @@
+# Manutenção semanal do banco do site (D1 "brotenatrilha"), toda segunda às 3h de Brasília:
+# 1) cópia do banco inteiro, comprimida, no bucket R2 PRIVADO "brotenatrilha-backup" (d1/AAAA-MM-DD.sql.gz; ficam 8 semanas).
+#    O bucket "brotenatrilha-dados" não serve: ele é público (dados.brotenatrilha.com.br) e o banco tem os e-mails das contas.
+# 2) aviso dos erros das funções: se a tabela "erros" tiver linhas da última semana, abre uma issue (o GitHub avisa por e-mail)
+#    só com a contagem por endereço e código; o detalhe fica no console do D1 (o repositório é público).
+# Nada do banco aparece no registro do workflow.
+name: Manutenção semanal
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  manutencao:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Cópia do banco no R2 privado
+        run: |
+          set -e
+          hoje=$(date -u +%F); velha=$(date -u -d '56 days ago' +%F)
+          npx --yes wrangler@4 d1 export brotenatrilha --remote --output "$RUNNER_TEMP/d1.sql" > /dev/null
+          gzip -9 "$RUNNER_TEMP/d1.sql"
+          npx --yes wrangler@4 r2 bucket create brotenatrilha-backup > /dev/null 2>&1 || true      # já existe: segue
+          npx --yes wrangler@4 r2 object put "brotenatrilha-backup/d1/$hoje.sql.gz" --file "$RUNNER_TEMP/d1.sql.gz" --remote > /dev/null
+          npx --yes wrangler@4 r2 object delete "brotenatrilha-backup/d1/$velha.sql.gz" --remote > /dev/null 2>&1 || true   # a de 8 semanas atrás
+          echo "cópia d1/$hoje.sql.gz guardada: $(stat -c%s "$RUNNER_TEMP/d1.sql.gz") bytes"
+
+      - name: Aviso dos erros da semana
+        run: |
+          set -e
+          desde=$(date -u -d '7 days ago' +%Y-%m-%dT%H:%M:%S)
+          npx --yes wrangler@4 d1 execute brotenatrilha --remote --json \
+            --command "SELECT caminho, status, COUNT(*) AS n FROM erros WHERE quando >= '$desde' GROUP BY caminho, status ORDER BY n DESC" \
+            > "$RUNNER_TEMP/erros.json" 2> /dev/null || echo "[]" > "$RUNNER_TEMP/erros.json"      # sem a tabela: nenhum erro
+          python3 - "$RUNNER_TEMP/erros.json" "$RUNNER_TEMP/aviso.md" <<'PY'
+          import json, sys
+          try:
+              linhas = json.load(open(sys.argv[1]))[0]["results"]
+          except Exception:
+              linhas = []
+          if linhas:
+              total = sum(l["n"] for l in linhas)
+              texto = [f"{total} erro(s) nas funções do site na última semana:", "", "| Endereço | Código | Vezes |", "|---|---|---|"]
+              texto += [f"| `{l['caminho']}` | {l['status']} | {l['n']} |" for l in linhas]
+              texto += ["", "Detalhes no console do D1 (painel da Cloudflare → D1 → brotenatrilha):",
+                        "`SELECT * FROM erros ORDER BY quando DESC LIMIT 50;`"]
+              open(sys.argv[2], "w").write("\n".join(texto))
+          print(f"{len(linhas)} tipo(s) de erro na semana")
+          PY
+          if [ -f "$RUNNER_TEMP/aviso.md" ]; then
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "Erros do site na semana de $(date -u +%d/%m/%Y)" --body-file "$RUNNER_TEMP/aviso.md"
+          fi
