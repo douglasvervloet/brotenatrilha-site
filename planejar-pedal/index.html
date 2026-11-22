@@ -146,6 +146,8 @@
   #conta-fora, #conta-dentro { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 8px 0; }
   #conta-fora[hidden], #conta-dentro[hidden] { display: none; }      /* o display: flex acima anulava o hidden */
   #g-entrar { min-height: 32px; }
+  .sinc button, .minhas li button { display: inline-flex; align-items: center; gap: 6px; }
+  .sinc button svg.ic, .minhas li button svg.ic { width: 15px; height: 15px; flex: none; }
   .sinc .perigo:hover { border-color: #c8452c; }
   .sinc .perigo.confirmar { border-color: #c8452c; background: #c8452c; color: #fff; }
   #levar-antigas { margin: 4px 0 8px; }
@@ -326,7 +328,6 @@
   .acoes .sec:hover:not(:disabled) { border-color: var(--verde); }
   .acoes button:disabled { opacity: .45; cursor: default; }
   .acoes.barra-rota { flex-direction: column; gap: 8px; }      /* cada grupo numa linha */
-  @media (max-width: 560px) { .barra-rota .so-icone .rot { display: none; } .acoes.barra-rota .so-icone { padding: 10px 12px; } }      /* celular: só o ícone nos botões menos usados */
   .acoes.barra-rota .grupo { display: flex; flex-wrap: wrap; gap: 8px; }      /* os grupos ficam separados por um vão maior */
   .acoes.barra-rota button { padding: 9px 16px; font-size: .92rem; }      /* mais botões numa fila: um pouco menores */
   @media (max-width: 560px) { .acoes { gap: 8px; } .acoes button { padding: 10px 14px; font-size: .88rem; } .acoes button svg.ic { width: 15px; height: 15px; } }      /* celular: dois botões por linha */
@@ -463,13 +464,13 @@
   <div class="nome-da-rota"><input id="nome-rota" type="text" maxlength="60" placeholder="Nome da rota" aria-label="Nome da rota" title="O nome sai na imagem e no roadbook" autocomplete="off"></div>
   <div class="acoes barra-rota">      <!-- a ordem dos botões, como o usuário pediu: duas linhas -->
     <div class="grupo"><button class="sec" type="button" id="b-minhas" aria-expanded="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4z"/></svg>Minhas rotas<span class="contagem" id="n-minhas">0</span></button><button class="sec" type="button" id="b-salvar" disabled title="Guardar esta rota na sua conta do Google (fica em Minhas rotas)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg><span class="rot">Salvar rota</span></button><button class="principal" type="button" id="b-gpx" disabled><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Baixar GPX</button><label class="opcao" id="rotulo-gpx-apoios" hidden><input type="checkbox" id="gpx-apoios"> Com pontos de apoio</label><button class="sec" type="button" id="b-link" disabled title="Copiar o link da rota" aria-label="Copiar link"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="rot">Copiar link</span></button><button class="sec" type="button" id="b-pedalar" disabled hidden title="Seguir a rota pelo GPS do celular"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l7 18-7-4-7 4z"/></svg>Modo pedal</button></div>
-    <div class="grupo"><button class="sec so-icone" type="button" id="b-abrir-gpx" title="Abrir um arquivo GPX seu" aria-label="Abrir GPX"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="rot">Abrir GPX</span></button><input type="file" id="arq-gpx" accept=".gpx,application/gpx+xml,text/xml" hidden><button class="sec so-icone" type="button" id="b-roadbook" disabled title="Roadbook para imprimir" aria-label="Roadbook"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg><span class="rot">Roadbook</span></button><button class="sec so-icone" type="button" id="b-imagem" disabled aria-label="Salvar imagem"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 3.5 3L16 12l4.5 4.5"/></svg><span class="rot">Salvar imagem</span></button><button class="sec so-icone" type="button" id="b-exemplo" title="Pedal de exemplo: abre o pedal de Queimados (Serra) para você ver como a ferramenta funciona" aria-label="Exemplo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l3.5-8h5l3.5 8M9.5 9L13 17M9 6h2.5"/></svg><span class="rot">Exemplo</span></button><button class="sec so-icone" type="button" id="b-passeio" aria-label="Como usar"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg><span class="rot">Como usar</span></button></div>
+    <div class="grupo"><button class="sec" type="button" id="b-abrir-gpx" title="Abrir um arquivo GPX seu" aria-label="Abrir GPX"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="rot">Abrir GPX</span></button><input type="file" id="arq-gpx" accept=".gpx,application/gpx+xml,text/xml" hidden><button class="sec" type="button" id="b-roadbook" disabled title="Roadbook para imprimir" aria-label="Roadbook"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg><span class="rot">Roadbook</span></button><button class="sec" type="button" id="b-imagem" disabled aria-label="Salvar imagem"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 3.5 3L16 12l4.5 4.5"/></svg><span class="rot">Salvar imagem</span></button><button class="sec" type="button" id="b-passeio" aria-label="Como usar"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg><span class="rot">Como usar</span></button></div>
   </div>
   <div class="passeio" id="passeio" role="dialog" aria-labelledby="passeio-titulo" hidden>
     <div class="passeio-topo"><small id="passeio-n"></small><button type="button" id="passeio-pular" class="sem-fundo pequeno"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5l9 7-9 7z"/><path d="M18 5v14"/></svg>Pular</button></div>
     <b id="passeio-titulo"></b>
     <p id="passeio-texto"></p>
-    <div class="passeio-botoes"><button type="button" id="passeio-volta" class="sem-fundo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Anterior</button><button type="button" id="passeio-segue">Próximo<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
+    <div class="passeio-botoes"><button type="button" id="passeio-volta" class="sem-fundo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Anterior</button><button type="button" id="b-exemplo" hidden title="Abre um pedal do canal, com terreno, apoios e pontos de interesse ligados"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l3.5-8h5l3.5 8M9.5 9L13 17M9 6h2.5"/></svg>Ver o exemplo</button><button type="button" id="passeio-segue">Próximo<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
   </div>
   <div class="minhas" id="painel-minhas" hidden>
     <ul id="lista-minhas"></ul>
@@ -478,7 +479,7 @@
       <b>Guardar na sua conta</b>
       <div id="conta" hidden>
         <div id="conta-fora"><div id="g-entrar"></div></div>
-        <div id="conta-dentro" hidden><span>Conectado como <b id="conta-nome"></b></span><button type="button" id="b-conta-sair" title="Sair da conta Google">Sair</button><button type="button" id="b-conta-apagar" class="perigo" title="Apaga a conta e todas as rotas guardadas nela">Apagar conta</button></div>
+        <div id="conta-dentro" hidden><span>Conectado como <b id="conta-nome"></b></span><button type="button" id="b-conta-sair" title="Sair da conta Google"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 5H5v14h5M15 8l4 4-4 4M9 12h10"/></svg>Sair</button><button type="button" id="b-conta-apagar" class="perigo" title="Apaga a conta e todas as rotas guardadas nela"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13M10 11v6M14 11v6"/></svg>Apagar conta</button></div>
         <div id="levar-antigas" hidden><button type="button" id="b-levar-antigas"></button></div>
       </div>
       <p class="nota" id="sinc-estado" aria-live="polite"></p>
@@ -1832,12 +1833,13 @@
       msg.textContent = texto + rota.length + " pontos para você ajustar. A altitude vem do relevo do mapa, e não do arquivo.";
       msg.hidden = false;
     }
-    function carregarPedal(id) {
+    function carregarPedal(id, aindaVale) {
       var msg = document.getElementById("msg-pedal");
       fetch("/pedais/gpx/" + id + ".gpx").then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.text(); }).then(function (texto) {
         var pts = [], re = /<trkpt lat="([-\d.]+)" lon="([-\d.]+)"/g, m;
         while ((m = re.exec(texto))) pts.push({ lat: parseFloat(m[1]), lon: parseFloat(m[2]) });
         if (pts.length < 2) throw new Error("sem pontos");
+        if (aindaVale && !aindaVale()) return;                     // o tutorial acabou antes de o pedal chegar: ele não aparece
         abrirPercurso(pts, { id: id }, "Percurso do pedal aberto e simplificado em ");
       }).catch(function () { msg.textContent = "Não consegui abrir o percurso deste pedal."; msg.hidden = false; });
     }
@@ -2145,7 +2147,7 @@
     function mostrarAntigas() {
       var n = contaAtual && rotasDaConta ? rotasAntigas().length : 0, caixa = document.getElementById("levar-antigas");
       caixa.hidden = !n;
-      if (n) document.getElementById("b-levar-antigas").textContent = "Levar " + n + (n === 1 ? " rota" : " rotas") + " deste aparelho para a conta";
+      if (n) document.getElementById("b-levar-antigas").innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V6M7 11l5-5 5 5M5 20h14"/></svg>' + "Levar " + n + (n === 1 ? " rota" : " rotas") + " deste aparelho para a conta";
     }
     document.getElementById("b-levar-antigas").addEventListener("click", function () {
       var lista = lerRotas(), ids = {}, vagas = MAX_ROTAS - lista.length, levadas = 0;
@@ -2179,6 +2181,13 @@
       return guardando;
     }
     function avisoMinhas(texto) { document.getElementById("msg-minhas").textContent = texto || ""; }
+    var ICONES_DA_LISTA = {
+      abrir: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+      link: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+      duplicar: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 9h10v10H9zM5 15V5h10"/></svg>',
+      renomear: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/></svg>',
+      apagar: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13M10 11v6M14 11v6"/></svg>'
+    };      // os ícones dos botões de cada rota
     function desenharMinhas() {
       var lista = lerRotas(), ul = document.getElementById("lista-minhas");
       document.getElementById("n-minhas").textContent = String(lista.length);
@@ -2190,7 +2199,7 @@
         dados.textContent = fmt(r.km, 1) + " km · " + new Date(r.em).toLocaleDateString("pt-BR");
         info.appendChild(nome); info.appendChild(dados); li.appendChild(info);
         [["Abrir", "abrir"], ["Copiar link", "link"], ["Duplicar", "duplicar"], ["Renomear", "renomear"], ["Apagar", "apagar"]].forEach(function (par) {
-          var b = document.createElement("button"); b.type = "button"; b.textContent = par[0]; b.className = par[1]; b.dataset.i = String(i); li.appendChild(b);
+          var b = document.createElement("button"); b.type = "button"; b.innerHTML = ICONES_DA_LISTA[par[1]] + par[0]; b.className = par[1]; b.dataset.i = String(i); li.appendChild(b);
         });
         ul.appendChild(li);
       });
@@ -2230,8 +2239,8 @@
     document.getElementById("b-conta-apagar").addEventListener("click", function () {
       var b = this;
       if (!b.classList.contains("confirmar")) {                    // primeiro clique: pede a confirmação
-        b.classList.add("confirmar"); b.textContent = "Confirmar: apagar conta e rotas";
-        setTimeout(function () { b.classList.remove("confirmar"); b.textContent = "Apagar conta"; }, 5000);
+        b.classList.add("confirmar"); var ic = b.querySelector("svg"); b.textContent = "Confirmar: apagar conta e rotas"; if (ic) b.insertBefore(ic, b.firstChild);
+        setTimeout(function () { b.classList.remove("confirmar"); var ic = b.querySelector("svg"); b.textContent = "Apagar conta"; if (ic) b.insertBefore(ic, b.firstChild); }, 5000);
         return;
       }
       fetch("/api/conta?apagar=tudo", { method: "DELETE" })
@@ -2945,13 +2954,20 @@
       { alvo: "#b-previsao", titulo: "Previsão do tempo", texto: "Ligue para ver temperatura, sensação térmica, vento e chuva nas horas do pedal. O vento aparece no mapa, e o percurso mostra quanto é a favor, de lado e contra." },
       { alvo: "#b-gpx", titulo: "Roadbook, imagem e GPX", texto: "Com a rota pronta, imprima o roadbook, salve a imagem para compartilhar, baixe o GPX para o GPS ou copie o link para mandar a um amigo." },
       { alvo: ".nome-da-rota", titulo: "Nome, Salvar rota e Minhas rotas", texto: "Dê um nome à rota (ele sai na imagem e no roadbook) e toque em Salvar rota: ela fica em Minhas rotas, na sua conta do Google, e aparece em qualquer aparelho em que você entrar. Abrir GPX traz um arquivo seu para o mapa." },
-      { alvo: "#b-exemplo", titulo: "Exemplo", texto: "Quer ver tudo funcionando? Toque em Exemplo: ele abre um pedal do canal com terreno, apoios e pontos de interesse já ligados." }
+      { alvo: "#b-passeio", titulo: "Ver tudo funcionando", texto: "Este foi um pedal do canal, com terreno, apoios e pontos de interesse já ligados. Toque em Ver o exemplo para abri-lo de novo." }
     ], passoAtual = -1;
     function limparAlvoDoPasseio() { var a = document.querySelector(".passo-alvo"); if (a) a.classList.remove("passo-alvo"); }
+    var exemploDoPasseio = null;                                   // quando o Como usar abriu o exemplo: as chaves do mapa que ele ligou (null = não abriu)
     function fecharPasseio() {
       passoAtual = -1;
       document.getElementById("passeio").hidden = true;
       limparAlvoDoPasseio();
+      if (exemploDoPasseio) {                                      // depois de sair do tutorial, o mapa volta a ficar limpo (pedido do usuário, 2026-11-22); o Desfazer traz a rota de volta
+        var ligadas = exemploDoPasseio;
+        exemploDoPasseio = null;
+        limpar();
+        ligadas.forEach(function (id) { var b = document.getElementById(id); if (b.getAttribute("aria-pressed") === "true") b.click(); });
+      }
     }
     function mostrarPasso(n) {
       if (n < 0) return;
@@ -2969,11 +2985,13 @@
       document.getElementById("passeio-texto").textContent = p.texto;
       document.getElementById("passeio-volta").hidden = n === 0;
       document.getElementById("passeio-pular").hidden = n === PASSOS_DO_PASSEIO.length - 1;
+      document.getElementById("b-exemplo").hidden = n !== PASSOS_DO_PASSEIO.length - 1;      // o exemplo só no último passo
       document.getElementById("passeio-segue").innerHTML = n === PASSOS_DO_PASSEIO.length - 1 ? 'Concluir<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : 'Próximo<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
       cartao.hidden = false;
     }
     function abrirPasseio() {
       fecharGrupos(); fecharPopup();
+      if (!rota.length) abrirOExemplo(false);                      // mapa vazio: o pedal de exemplo abre antes do passo 1, e os passos dos números e da altimetria mostram a rota de verdade (com rota sua no mapa, ela fica)
       document.getElementById("mapa").scrollIntoView({ block: "start", behavior: "smooth" });
       mostrarPasso(0);
     }
@@ -2988,12 +3006,17 @@
         p.hidden = false;
       }).catch(function () { /* sem o número, o cabeçalho fica como está */ });
     }
-    document.getElementById("b-exemplo").addEventListener("click", function () {      // o pedal de Queimados, na Serra, com as chaves principais já ligadas
-      fecharPasseio(); fecharGrupos();                              // as listas de chaves ficam recolhidas (o botão só mostra quantas estão ligadas)
-      ["b-grudar", "b-terreno", "b-apoios", "b-interesses"].forEach(function (id) { var b = document.getElementById(id); if (b.getAttribute("aria-pressed") !== "true") b.click(); });
+    function abrirOExemplo(fecharOPasseio) {                       // o pedal de Queimados, na Serra, com as chaves principais já ligadas (a demonstração do Como usar)
+      if (fecharOPasseio) fecharPasseio();
+      fecharGrupos();                                              // as listas de chaves ficam recolhidas (o botão só mostra quantas estão ligadas)
+      var ligadasAgora = [];
+      ["b-grudar", "b-terreno", "b-apoios", "b-interesses"].forEach(function (id) { var b = document.getElementById(id); if (b.getAttribute("aria-pressed") !== "true") { b.click(); ligadasAgora.push(id); } });
       fecharPopup();                                               // fecha um aviso que esteja aberto
-      carregarPedal("13334280521");
-    });
+      if (fecharOPasseio) { carregarPedal("13334280521"); return; }
+      exemploDoPasseio = ligadasAgora;                             // o tutorial é quem abriu: ao sair, o mapa volta limpo, com as chaves como estavam
+      carregarPedal("13334280521", function () { return exemploDoPasseio === ligadasAgora; });
+    }
+    document.getElementById("b-exemplo").addEventListener("click", function () { abrirOExemplo(true); });      // "Ver o exemplo", no último passo
     document.getElementById("passeio-segue").addEventListener("click", function () { mostrarPasso(passoAtual + 1); });
     document.getElementById("passeio-volta").addEventListener("click", function () { mostrarPasso(passoAtual - 1); });
     document.getElementById("passeio-pular").addEventListener("click", fecharPasseio);
