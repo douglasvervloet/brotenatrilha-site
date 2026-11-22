@@ -19,10 +19,10 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:image" content="{{OG_IMAGE}}">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
-<link rel="icon" type="image/png" sizes="512x512" href="/icone-512.png">
-<link rel="shortcut icon" href="/favicon.ico">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon.png?v=2">
+<link rel="icon" type="image/png" sizes="512x512" href="/icone-512.png?v=2">
+<link rel="shortcut icon" href="/favicon.ico?v=2">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
 {{JSONLD}}<style>
   :root { --verde: #1f8448; --verde-escuro: #176a39; --verde-fundo: #0f4a28; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; --mapa: #1b4a30; }
   @media (prefers-color-scheme: dark) { :root { --fundo: #0f1a13; --cartao: #172a1e; --texto: #e9f0ea; --suave: #a9bbae; --linha: #284534; --mapa: #12331f; } }

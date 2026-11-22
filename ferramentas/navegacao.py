@@ -209,7 +209,7 @@ def tema_escolhido(doc):
 def barra(atual):
     itens = "".join(f'<a href="{href}"' + (' aria-current="page"' if pagina == atual else "") + f">{rotulo}</a>" for pagina, href, rotulo in MENU)
     return ('<!--ns:menu--><nav class="ns-barra" aria-label="Site"><div class="ns-miolo"><a class="ns-marca" href="/" aria-label="Brote na Trilha, início">'
-            '<img src="/favicon.png" width="26" height="26" alt=""><span>Brote na Trilha</span></a>'
+            '<img src="/favicon.png?v=2" width="26" height="26" alt=""><span>Brote na Trilha</span></a>'
             f'<div class="ns-menu">{itens}</div>' + BOTAO_TEMA + '</div></nav>'
             '<script>(function () { var a = document.querySelector(".ns-menu [aria-current]"); if (a) a.parentNode.scrollLeft = a.offsetLeft - 60; })();</script>'
             '<!--/ns:menu-->')
