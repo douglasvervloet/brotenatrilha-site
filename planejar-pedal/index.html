@@ -202,6 +202,8 @@
   .passeio-topo button.pequeno svg.ic { width: 12px; height: 12px; flex: none; }
   .passeio-botoes button.sem-fundo { background: transparent; border-color: rgba(255, 255, 255, .35); }
   .passeio-botoes button[hidden] { display: none; }
+  .passeio-botoes button { white-space: nowrap; }
+  @media (max-width: 560px) { .passeio-botoes.com-exemplo { grid-template-columns: 1fr 1fr; } .passeio-botoes.com-exemplo #b-exemplo { grid-column: 1 / -1; order: -1; } }      /* celular, último passo: o exemplo numa linha só, em cima */
   #b-pedalar[hidden] { display: none; }                         /* modo pedal desativado (2026-11-20) */
   .menu-ponto button svg.ic, .passeio-botoes button svg.ic, .popup button svg.ic { width: 15px; height: 15px; flex: none; }
   .popup button { display: inline-flex; align-items: center; gap: 8px; }
@@ -470,7 +472,7 @@
     <div class="passeio-topo"><small id="passeio-n"></small><button type="button" id="passeio-pular" class="sem-fundo pequeno"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5l9 7-9 7z"/><path d="M18 5v14"/></svg>Pular</button></div>
     <b id="passeio-titulo"></b>
     <p id="passeio-texto"></p>
-    <div class="passeio-botoes"><button type="button" id="passeio-volta" class="sem-fundo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Anterior</button><button type="button" id="b-exemplo" hidden title="Abre um pedal do canal, com terreno, apoios e pontos de interesse ligados"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l3.5-8h5l3.5 8M9.5 9L13 17M9 6h2.5"/></svg>Ver o exemplo</button><button type="button" id="passeio-segue">Próximo<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
+    <div class="passeio-botoes" id="passeio-botoes"><button type="button" id="passeio-volta" class="sem-fundo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Anterior</button><button type="button" id="b-exemplo" hidden title="Abre um pedal do canal, com terreno, apoios e pontos de interesse ligados"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l3.5-8h5l3.5 8M9.5 9L13 17M9 6h2.5"/></svg>Ver o exemplo</button><button type="button" id="passeio-segue">Próximo<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
   </div>
   <div class="minhas" id="painel-minhas" hidden>
     <ul id="lista-minhas"></ul>
@@ -2986,6 +2988,7 @@
       document.getElementById("passeio-volta").hidden = n === 0;
       document.getElementById("passeio-pular").hidden = n === PASSOS_DO_PASSEIO.length - 1;
       document.getElementById("b-exemplo").hidden = n !== PASSOS_DO_PASSEIO.length - 1;      // o exemplo só no último passo
+      document.getElementById("passeio-botoes").classList.toggle("com-exemplo", n === PASSOS_DO_PASSEIO.length - 1);
       document.getElementById("passeio-segue").innerHTML = n === PASSOS_DO_PASSEIO.length - 1 ? 'Concluir<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : 'Próximo<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
       cartao.hidden = false;
     }
