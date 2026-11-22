@@ -7,7 +7,7 @@
 <title>Calculadora de categoria de subida | Brote na Trilha</title>
 <meta name="description" content="Informe a extensão e o ganho de altitude da subida e veja a categoria: Cat 4, Cat 3, Cat 2, Cat 1 ou HC, com a inclinação média e a pontuação.">
 <link rel="canonical" href="https://brotenatrilha.com.br/ferramentas/categoria-de-subida/">
-<meta name="theme-color" content="#2d7046">
+<meta name="theme-color" content="#1f8448">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
 <meta property="og:site_name" content="Brote na Trilha">
@@ -24,7 +24,7 @@
 <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Calculadora de categoria de subida", "url": "https://brotenatrilha.com.br/ferramentas/categoria-de-subida/", "applicationCategory": "SportsApplication", "operatingSystem": "Qualquer navegador", "inLanguage": "pt-BR", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "BRL"}, "publisher": {"@type": "Organization", "name": "Brote na Trilha", "url": "https://brotenatrilha.com.br/"}}</script>
 <style>
-  :root { --verde: #2d7046; --verde-escuro: #1e5434; --verde-fundo: #163d27; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; }
+  :root { --verde: #1f8448; --verde-escuro: #176a39; --verde-fundo: #0f4a28; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; }
   @media (prefers-color-scheme: dark) { :root { --fundo: #0f1a13; --cartao: #172a1e; --texto: #e9f0ea; --suave: #a9bbae; --linha: #284534; } }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--fundo); color: var(--texto); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
@@ -120,7 +120,7 @@
   // Aceita vírgula ou ponto como separador decimal; devolve null se não for um número maior que zero
   function numero(t) { var v = parseFloat(String(t).replace(",", ".")); return isFinite(v) && v > 0 ? v : null; }
   function formatar(v, casas) { return v.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas }); }
-  var CATEGORIAS = [["HC", 80000, "#6e1f2a", "#fff"], ["Cat 1", 64000, "#c8452c", "#fff"], ["Cat 2", 32000, "#e8873a", "#2e1600"], ["Cat 3", 16000, "#f2c14e", "#3a2a00"], ["Cat 4", 8000, "#2d7046", "#fff"]];
+  var CATEGORIAS = [["HC", 80000, "#6e1f2a", "#fff"], ["Cat 1", 64000, "#c8452c", "#fff"], ["Cat 2", 32000, "#e8873a", "#2e1600"], ["Cat 3", 16000, "#f2c14e", "#3a2a00"], ["Cat 4", 8000, "#1f8448", "#fff"]];
   function calcular() {
     var ext = numero(document.getElementById("extensao").value), ganho = numero(document.getElementById("ganho").value);
     var selo = document.getElementById("selo"), explica = document.getElementById("explica");

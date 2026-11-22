@@ -7,7 +7,7 @@
 <title>{{TITULO}} | Pedais | Brote na Trilha</title>
 <meta name="description" content="{{DESCRICAO_META}}">
 <link rel="canonical" href="{{URL}}">
-<meta name="theme-color" content="#2d7046">
+<meta name="theme-color" content="#1f8448">
 <meta property="og:type" content="article">
 <meta property="og:locale" content="pt_BR">
 <meta property="og:site_name" content="Brote na Trilha">
@@ -24,7 +24,7 @@
 <link rel="shortcut icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 {{JSONLD}}<style>
-  :root { --verde: #2d7046; --verde-escuro: #1e5434; --verde-fundo: #163d27; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; --mapa: #1b4a30; }
+  :root { --verde: #1f8448; --verde-escuro: #176a39; --verde-fundo: #0f4a28; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; --mapa: #1b4a30; }
   @media (prefers-color-scheme: dark) { :root { --fundo: #0f1a13; --cartao: #172a1e; --texto: #e9f0ea; --suave: #a9bbae; --linha: #284534; --mapa: #12331f; } }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--fundo); color: var(--texto); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.65; -webkit-font-smoothing: antialiased; }

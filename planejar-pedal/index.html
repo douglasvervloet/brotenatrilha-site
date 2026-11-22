@@ -7,7 +7,7 @@
 <title>Planejar pedal | Brote na Trilha</title>
 <meta name="description" content="Planeje o seu pedal em qualquer lugar do Brasil: desenhe a rota no mapa de ruas e veja a distância, as subidas, o terreno, os pontos de apoio e de interesse, as porteiras e balsas no caminho, o vento e a previsão do tempo. Dá para imprimir um roadbook e baixar o GPX.">
 <link rel="canonical" href="https://brotenatrilha.com.br/planejar-pedal/">
-<meta name="theme-color" content="#2d7046">
+<meta name="theme-color" content="#1f8448">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
 <meta property="og:site_name" content="Brote na Trilha">
@@ -26,7 +26,7 @@
 <meta name="apple-mobile-web-app-title" content="Planejar pedal">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Planejar pedal", "url": "https://brotenatrilha.com.br/planejar-pedal/", "applicationCategory": "SportsApplication", "operatingSystem": "Qualquer navegador", "inLanguage": "pt-BR", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "BRL"}, "publisher": {"@type": "Organization", "name": "Brote na Trilha", "url": "https://brotenatrilha.com.br/"}}</script>
 <style>
-  :root { --verde: #2d7046; --verde-escuro: #1e5434; --verde-fundo: #163d27; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; }
+  :root { --verde: #1f8448; --verde-escuro: #176a39; --verde-fundo: #0f4a28; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; }
   @media (prefers-color-scheme: dark) { :root { --fundo: #0f1a13; --cartao: #172a1e; --texto: #e9f0ea; --suave: #a9bbae; --linha: #284534; } }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--fundo); color: var(--texto); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
@@ -66,7 +66,7 @@
   .grudar i { width: 38px; height: 22px; border-radius: 999px; background: #4d5e53; position: relative; flex: none; transition: background .2s; }
   .grudar i::after { content: ""; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left .2s; }
   .grudar[aria-pressed="true"] { border-color: var(--ambar); }
-  .grudar[aria-pressed="true"] i { background: #2d7046; }
+  .grudar[aria-pressed="true"] i { background: #1f8448; }
   .grudar[aria-pressed="true"] i::after { left: 19px; }
   .grudar small { background: var(--ambar); color: #2a1a00; font-weight: 800; border-radius: 999px; padding: 0 8px; font-size: .7rem; letter-spacing: .5px; }
   .bt svg { width: 22px; height: 22px; display: block; margin: auto; }
@@ -117,7 +117,7 @@
   .menu-ponto .trecho[hidden] { display: none; }
   .menu-ponto .trecho span { opacity: .85; margin-right: 4px; min-width: 96px; }
   .menu-ponto button { display: inline-flex; align-items: center; gap: 7px; font: inherit; font-weight: 700; min-height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .35); background: transparent; color: #fff; cursor: pointer; }
-  .menu-ponto button[aria-pressed="true"] { background: #2d7046; border-color: #fff; }
+  .menu-ponto button[aria-pressed="true"] { background: #1f8448; border-color: #fff; }
   .menu-ponto .remover { border-color: rgba(232, 135, 58, .8); color: #ffd2b0; }
   #rota g.apoio, #rota g.apoio *, #rota g.interesse, #rota g.interesse * { pointer-events: auto; cursor: pointer; }
   .minhas { margin-top: 12px; background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 16px 18px; }
@@ -270,7 +270,7 @@
   .painel-pedal .aviso-pedal { color: #f2c14e; font-weight: 700; }
   .painel-pedal .fora { color: #ffb38a; font-weight: 800; }
   .painel-pedal .botoes { display: flex; gap: 8px; margin-top: 4px; }
-  .painel-pedal .botoes button[aria-pressed="true"] { background: #2d7046; border-color: #fff; }
+  .painel-pedal .botoes button[aria-pressed="true"] { background: #1f8448; border-color: #fff; }
   .painel-pedal .botoes button { font: inherit; font-weight: 700; padding: 6px 16px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .4); background: transparent; color: #fff; cursor: pointer; }
   .painel-chaves .data-dados { display: block; margin: 6px 8px 0; color: rgba(255, 255, 255, .6); font-size: .74rem; }
   .painel-chaves h4 { margin: 0 0 4px 6px; font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; opacity: .8; }
@@ -554,7 +554,7 @@
   // ---- o mesmo cálculo das subidas das páginas de pedais do site, em JavaScript ----
   var PASSO = 20, TOLERANCIA = 10, FUNDO = 3;                           // metros
   var CATEGORIAS = [["HC", 80000], ["Cat 1", 64000], ["Cat 2", 32000], ["Cat 3", 16000], ["Cat 4", 8000]];
-  var CORES = { "Sem categoria": ["#7fb07a", "#14301c"], "Cat 4": ["#2d7046", "#fff"], "Cat 3": ["#f2c14e", "#3a2a00"], "Cat 2": ["#e8873a", "#2e1600"], "Cat 1": ["#c8452c", "#fff"], "HC": ["#6e1f2a", "#fff"] };
+  var CORES = { "Sem categoria": ["#7fb07a", "#14301c"], "Cat 4": ["#1f8448", "#fff"], "Cat 3": ["#f2c14e", "#3a2a00"], "Cat 2": ["#e8873a", "#2e1600"], "Cat 1": ["#c8452c", "#fff"], "HC": ["#6e1f2a", "#fff"] };
 
   function metros(a, b) {
     var r = Math.PI / 180, dlat = (b[0] - a[0]) * r, dlon = (b[1] - a[1]) * r;
@@ -842,7 +842,7 @@
       var comRetorno = idaEVolta && p.length > 1;
       p.forEach(function (q, i) {
         var ehUltimo = i === p.length - 1 && p.length > 1, primeiro = i === 0;
-        var cor = primeiro ? "#2d7046" : ehUltimo ? (comRetorno ? "#e8873a" : "#c8452c") : "#fff", raio = primeiro || ehUltimo ? 9 : 6, borda = primeiro || ehUltimo ? "#fff" : "#1c2a22";
+        var cor = primeiro ? "#1f8448" : ehUltimo ? (comRetorno ? "#e8873a" : "#c8452c") : "#fff", raio = primeiro || ehUltimo ? 9 : 6, borda = primeiro || ehUltimo ? "#fff" : "#1c2a22";
         if (primeiro && comRetorno) svg += '<circle cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="14" fill="none" stroke="#c8452c" stroke-width="4" pointer-events="none"/>';
         svg += '<circle class="ponto" data-i="' + i + '" cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="' + raio + '" fill="' + cor + '" stroke="' + borda + '" stroke-width="' + (primeiro || ehUltimo ? 3 : 2) + '"/>';
       });
@@ -2874,7 +2874,7 @@
         s += '<circle cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="9" fill="#fff" stroke="#1c2a22" stroke-width="1.5"/><text x="' + q[0].toFixed(1) + '" y="' + (q[1] + 3.5).toFixed(1) + '" text-anchor="middle" font-size="9" font-weight="700">' + km + "</text>";
       }
       var a = xy(pts[0]), b = xy(pts[pts.length - 1]);
-      s += '<circle cx="' + a[0].toFixed(1) + '" cy="' + a[1].toFixed(1) + '" r="7" fill="#2d7046" stroke="#fff" stroke-width="2"/><circle cx="' + b[0].toFixed(1) + '" cy="' + b[1].toFixed(1) + '" r="7" fill="#c8452c" stroke="#fff" stroke-width="2"/>';
+      s += '<circle cx="' + a[0].toFixed(1) + '" cy="' + a[1].toFixed(1) + '" r="7" fill="#1f8448" stroke="#fff" stroke-width="2"/><circle cx="' + b[0].toFixed(1) + '" cy="' + b[1].toFixed(1) + '" r="7" fill="#c8452c" stroke="#fff" stroke-width="2"/>';
       return '<svg viewBox="0 0 ' + W.toFixed(0) + " " + H.toFixed(0) + '" role="img" aria-label="Desenho do percurso">' + s + "</svg>";
     }
     function montarRoadbook(apoiosDaRota, interessesDaRota) {
@@ -2914,10 +2914,10 @@
         }).join("") + "</table>" + (el("vento-percurso").hidden ? "" : "<p>" + htmlSeguro(el("vento-percurso").innerText.replace(/\s+/g, " ")) + "</p>"));
       }
       h.push('<p class="nota">Gerado em brotenatrilha.com.br/planejar-pedal/ em ' + new Date().toLocaleString("pt-BR") + ". Mapa e vias: © colaboradores do OpenStreetMap (ODbL). Altitude: SRTM, e pode diferir da de um aparelho de GPS. Tempo e ganho são estimativas.</p>");
-      var css = "body{font-family:system-ui,sans-serif;color:#1c2a22;max-width:900px;margin:0 auto;padding:24px}h1{margin:0}h2{margin:22px 0 8px;font-size:1.1rem;border-bottom:2px solid #2d7046;padding-bottom:3px}.sub{margin:4px 0 14px;color:#4d5e53}" +
+      var css = "body{font-family:system-ui,sans-serif;color:#1c2a22;max-width:900px;margin:0 auto;padding:24px}h1{margin:0}h2{margin:22px 0 8px;font-size:1.1rem;border-bottom:2px solid #1f8448;padding-bottom:3px}.sub{margin:4px 0 14px;color:#4d5e53}" +
         ".numeros{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.numeros div{border:1px solid #dcd8c9;border-radius:10px;padding:8px 12px}.numeros span{display:block;font-size:.78rem;color:#4d5e53}.numeros b{font-size:1.2rem}" +
         "table{border-collapse:collapse;width:100%;font-size:.88rem}th,td{border-bottom:1px solid #dcd8c9;padding:5px 8px;text-align:left}th{background:#f2efe6}svg{width:100%;height:auto;max-height:430px;display:block}svg text{font-family:inherit;fill:#4d5e53;font-size:12px}" +
-        ".nota{font-size:.8rem;color:#4d5e53}.imprimir{margin:12px 0;padding:10px 22px;border-radius:999px;border:0;background:#2d7046;color:#fff;font-weight:700;font-size:1rem;cursor:pointer}.imprimir svg{display:inline-block;width:18px;height:18px;max-height:none}@page{size:A4;margin:12mm}@media print{.imprimir{display:none}h2,table,svg{break-inside:avoid}body{padding:0}}";
+        ".nota{font-size:.8rem;color:#4d5e53}.imprimir{margin:12px 0;padding:10px 22px;border-radius:999px;border:0;background:#1f8448;color:#fff;font-weight:700;font-size:1rem;cursor:pointer}.imprimir svg{display:inline-block;width:18px;height:18px;max-height:none}@page{size:A4;margin:12mm}@media print{.imprimir{display:none}h2,table,svg{break-inside:avoid}body{padding:0}}";
       return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Roadbook · ' + htmlSeguro(nome) + "</title><style>" + css + '</style></head><body><button class="imprimir" onclick="window.print()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-3px;margin-right:8px"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></svg>Imprimir ou salvar em PDF</button>' + h.join("") + "</body></html>";
     }
     document.getElementById("b-roadbook").addEventListener("click", function () {
@@ -3100,7 +3100,7 @@
         var xy = pts.map(function (p) { var m = mundo(p.lat, p.lon, zt); return [MX + (m.x - ox) * esc, MY + (m.y - oy) * esc]; });
         c.lineJoin = "round"; c.lineCap = "round";
         [["#ffffff", 8], ["#d6004f", 4.5]].forEach(function (e) { c.strokeStyle = e[0]; c.lineWidth = e[1]; c.beginPath(); xy.forEach(function (q, i) { if (i) c.lineTo(q[0], q[1]); else c.moveTo(q[0], q[1]); }); c.stroke(); });
-        [[xy[0], "#2d7046"], [xy[xy.length - 1], "#d6452c"]].forEach(function (e) { c.fillStyle = e[1]; c.strokeStyle = "#fff"; c.lineWidth = 3; c.beginPath(); c.arc(e[0][0], e[0][1], 8, 0, 7); c.fill(); c.stroke(); });
+        [[xy[0], "#1f8448"], [xy[xy.length - 1], "#d6452c"]].forEach(function (e) { c.fillStyle = e[1]; c.strokeStyle = "#fff"; c.lineWidth = 3; c.beginPath(); c.arc(e[0][0], e[0][1], 8, 0, 7); c.fill(); c.stroke(); });
         c.fillStyle = "rgba(255,255,255,.85)"; c.font = "12px " + FONTE; c.textAlign = "right"; c.fillText("© OpenStreetMap contributors", MX + MW - 14, MY + 22);
         c.restore(); c.strokeStyle = "rgba(255,255,255,.55)"; c.lineWidth = 2; retanguloArredondado(c, MX, MY, MW, MH, 24); c.stroke();
 

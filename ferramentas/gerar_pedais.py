@@ -1089,7 +1089,7 @@ SUBIDA_PASSO_M = 20                                  # a altitude reamostrada a 
 SUBIDA_TOLERANCIA_M = 10                             # uma descida de até 10 m no meio não corta a subida
 SUBIDA_FUNDO_M = 3                                   # a subida começa no último ponto a até 3 m do fundo do trecho
 CATEGORIAS_SUBIDA = [(80000, "HC"), (64000, "Cat 1"), (32000, "Cat 2"), (16000, "Cat 3"), (8000, "Cat 4")]
-CORES_CATEGORIA = {"Sem categoria": ("#7fb07a", "#14301c"), "Cat 4": ("#2d7046", "#ffffff"), "Cat 3": ("#f2c14e", "#3a2a00"),
+CORES_CATEGORIA = {"Sem categoria": ("#7fb07a", "#14301c"), "Cat 4": ("#1f8448", "#ffffff"), "Cat 3": ("#f2c14e", "#3a2a00"),
                    "Cat 2": ("#e8873a", "#2e1600"), "Cat 1": ("#c8452c", "#ffffff"), "HC": ("#6e1f2a", "#ffffff")}
 FAIXAS_INCLINACAO = [(3, "#cfe3c3", "até 3%"), (6, "#f2c14e", "3 a 6%"), (9, "#e8873a", "6 a 9%"), (12, "#c8452c", "9 a 12%"), (999, "#6e1f2a", "mais de 12%")]
 

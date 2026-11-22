@@ -7,7 +7,7 @@
   "scope": "/planejar-pedal/",
   "display": "standalone",
   "background_color": "#0f1a13",
-  "theme_color": "#2d7046",
+  "theme_color": "#1f8448",
   "icons": [
     { "src": "/icone-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "/logo.png", "sizes": "512x512", "type": "image/png" }

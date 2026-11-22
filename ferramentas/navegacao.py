@@ -106,7 +106,7 @@ ESTILO = """<link rel="preload" href="/fontes/inter-latin.woff2" as="font" type=
   @media (max-width: 760px) { .ns-menu { -webkit-mask-image: linear-gradient(to right, #000 85%, transparent); mask-image: linear-gradient(to right, #000 85%, transparent); padding-right: 24px; } }
   .ns-menu a { color: #cfdcd3; text-decoration: none; font-size: .84rem; font-weight: 600; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
   .ns-menu a:hover { color: #fff; background: rgba(255,255,255,.07); }
-  .ns-menu a[aria-current="page"] { color: #fff; background: #2d7046; }
+  .ns-menu a[aria-current="page"] { color: #fff; background: #1f8448; }
   .ns-trilha { font-size: .8rem; margin-bottom: 4px; }
   .ns-trilha ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 2px 6px; }
   .ns-trilha li + li::before { content: "›"; margin-right: 6px; opacity: .7; }
