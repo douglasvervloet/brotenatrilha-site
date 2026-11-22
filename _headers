@@ -20,3 +20,12 @@
   Cache-Control: public, max-age=604800
 /fontes/*
   Cache-Control: public, max-age=31536000, immutable
+# Segurança em todas as páginas (2026-11-22): o site não pode ser posto dentro de outro (contra clique enganado no login e no
+# "Apagar conta"), o navegador não adivinha o tipo dos arquivos, os outros sites recebem só o domínio de onde a pessoa veio e
+# câmera, microfone, pagamento e USB ficam desligados (a localização continua: o Planejar pedal usa).
+/*
+  X-Frame-Options: SAMEORIGIN
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), payment=(), usb=()

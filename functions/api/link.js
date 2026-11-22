@@ -19,6 +19,34 @@ function sortear(tamanho) {
   return Array.from(bytes, (b) => ALFABETO[b % ALFABETO.length]).join("");
 }
 
+async function hex256(texto) {                // SHA-256 em hexadecimal
+  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(texto));
+  return Array.from(new Uint8Array(d), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+// limite por serviço: no máximo `maximo` pedidos por minuto de cada endereço (o endereço fica embaralhado e só por 5 minutos)
+async function passouDoLimite(env, request, servico, maximo) {
+  const minuto = Math.floor(Date.now() / 60000);
+  const chave = servico + ":" + (await hex256(request.headers.get("CF-Connecting-IP") || "?")).slice(0, 24) + ":" + minuto;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS limites (chave TEXT PRIMARY KEY, n INTEGER NOT NULL, minuto INTEGER NOT NULL)").run();
+  const n = await env.DB.prepare("INSERT INTO limites (chave, n, minuto) VALUES (?, 1, ?) ON CONFLICT(chave) DO UPDATE SET n = n + 1 RETURNING n")
+    .bind(chave, minuto).first("n");
+  if (Math.random() < 0.05) await env.DB.prepare("DELETE FROM limites WHERE minuto < ?").bind(minuto - 5).run();
+  return n > maximo;
+}
+// Turnstile (o verificador invisível do Cloudflare): com o segredo TURNSTILE_SECRET nas variáveis do Pages, o pedido precisa
+// trazer um passe válido; sem o segredo, não verifica (o site funciona como antes)
+async function turnstileOk(env, request, passe) {
+  if (!env.TURNSTILE_SECRET) return true;
+  if (!passe) return false;
+  const corpo = new FormData();
+  corpo.append("secret", env.TURNSTILE_SECRET); corpo.append("response", passe);
+  corpo.append("remoteip", request.headers.get("CF-Connecting-IP") || "");
+  try {
+    const r = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body: corpo });
+    return !!(await r.json()).success;
+  } catch { return false; }
+}
+
 async function resumo(texto) {                // SHA-256: acha o mesmo link já guardado sem comparar o texto inteiro
   const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(texto));
   return Array.from(new Uint8Array(d), (b) => b.toString(16).padStart(2, "0")).join("");
@@ -49,9 +77,11 @@ async function limparImagensAntigas(env) {    // um pouco a cada link novo: as i
 
 export async function onRequestPost({ request, env, waitUntil }) {
   const origem = request.headers.get("Origin") || "";
-  if (origem && !ORIGENS.test(origem)) return resposta({ erro: "origem não aceita" }, 403);    // só a página do site cria links
+  if (!ORIGENS.test(origem)) return resposta({ erro: "origem não aceita" }, 403);    // só a página do site cria links
+  if (await passouDoLimite(env, request, "link", 10)) return resposta({ erro: "muitos links seguidos: espere um minuto" }, 429);
   let dados;
   try { dados = await request.formData(); } catch { return resposta({ erro: "pedido inválido" }, 400); }
+  if (!(await turnstileOk(env, request, String(dados.get("t") || "")))) return resposta({ erro: "verificação falhou" }, 403);
   const rota = String(dados.get("h") || "");
   if (!rota.startsWith("#r=") || rota.length > MAX_ROTA || /[^\x21-\x7e]/.test(rota)) return resposta({ erro: "rota inválida" }, 400);
   const nome = textoLimpo(dados.get("n"), 60), descricao = textoLimpo(dados.get("d"), 120);
