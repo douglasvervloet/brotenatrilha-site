@@ -928,7 +928,11 @@
         return new Promise(function (ok) {
           var caixa = document.createElement("div"), feito = false;
           caixa.style.cssText = "position:fixed;left:-9999px;top:0"; document.body.appendChild(caixa);
-          function fim(passe) { if (feito) return; feito = true; try { turnstile.remove(id); } catch (x) { /* já saiu */ } caixa.remove(); ok(passe || ""); }
+          function fim(passe) {
+            if (feito) return; feito = true;
+            setTimeout(function () { try { turnstile.remove(id); } catch (x) { /* já saiu */ } caixa.remove(); }, 0);      // depois do render (o passe pode chegar antes de o id existir)
+            ok(passe || "");
+          }
           var id = turnstile.render(caixa, { sitekey: TURNSTILE_SITE, callback: fim, "error-callback": function () { fim(""); } });
           setTimeout(function () { fim(""); }, 8000);
         });
