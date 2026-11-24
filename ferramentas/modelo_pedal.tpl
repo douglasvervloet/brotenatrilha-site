@@ -216,6 +216,11 @@
   .legenda-inclinacao { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 4px 6px 0; font-size: .76rem; color: var(--suave); }
   .legenda-inclinacao i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
   .perfil .inclinacao { opacity: .9; }
+  .perfil .vistas { display: flex; justify-content: flex-end; gap: 4px; margin: 0 6px 6px; }
+  .perfil .vistas[hidden] { display: none; }
+  .perfil .vistas button { font: inherit; font-size: .76rem; padding: 3px 11px; border-radius: 999px; border: 1px solid var(--linha); background: transparent; color: var(--suave); cursor: pointer; }
+  .perfil .vistas button[aria-pressed="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
+  .perfil[data-vista="inclinacao"] .v-sub, .perfil[data-vista="subidas"] .v-incl { display: none; }
   @media (max-width: 640px) {
     .cinema { padding-top: 0; }
     .cinema .miolo { padding-left: 0; padding-right: 0; width: 100%; max-width: none; }
@@ -346,5 +351,17 @@
   })();
 </script>
 <script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<script>
+  // O botão do gráfico de altimetria: as cores pela inclinação ou pelas subidas (sem script o gráfico fica pela inclinação e o botão não aparece)
+  document.querySelectorAll(".perfil .vistas").forEach(function (vistas) {
+    vistas.hidden = false;
+    vistas.addEventListener("click", function (e) {
+      var botao = e.target.closest("button");
+      if (!botao) return;
+      vistas.closest(".perfil").dataset.vista = botao.dataset.vista;
+      vistas.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-pressed", b === botao ? "true" : "false"); });
+    });
+  });
+</script>
 </body>
 </html>

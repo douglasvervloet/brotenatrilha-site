@@ -1072,14 +1072,23 @@ def perfil_svg(caminho, subidas=None):
             pedacos.append(f'<polygon class="inclinacao" fill="{cores[ini]}" points="{x(kms[ini]):.1f},{base_y:.1f} {pontos} {x(kms[fim]):.1f},{base_y:.1f}"/>')
             ini = i
     legenda = "".join(f'<span><i style="background:{cor}"></i>{rotulo}</span>' for _, cor, rotulo in FAIXAS_INCLINACAO)
+    # O botão troca a cor do gráfico: pela inclinação (o padrão) ou pelas subidas (a área na cor da categoria); só há botão se há subida
+    categorias = [c for _, c in CATEGORIAS_SUBIDA] + ["Sem categoria"]
+    presentes = [c for c in categorias if any(s["categoria"] == c for s in subidas or [])]
+    legenda_subidas = "".join(f'<span><i style="background:{CORES_CATEGORIA[c][0]}"></i>{c}</span>' for c in presentes)
+    botao = ('<div class="vistas" role="group" aria-label="Cores do gráfico" hidden>'
+             '<button type="button" data-vista="inclinacao" aria-pressed="true">Inclinação</button>'
+             '<button type="button" data-vista="subidas" aria-pressed="false">Subidas</button></div>') if presentes else ""
+    legendas = f'<div class="legenda-inclinacao v-incl">{legenda}</div>' + (f'<div class="legenda-inclinacao v-sub">{legenda_subidas}</div>' if presentes else "")
     # Os dados vão no próprio SVG: o script da página (modelo_pedal.tpl) os lê para mostrar a posição no mapa quando o mouse passa no gráfico
     dados = (f'data-km="{",".join(f"{k:.2f}" for k in kms)}" data-alt="{",".join(f"{v:.1f}" for v in valores)}" '
              f'data-x0="{m["esq"]}" data-largura="{largura}" data-y0="{m["topo"]}" data-altura="{altura}" data-ymin="{y_min}" data-ymax="{y_max}"')
-    return (f'<figure class="perfil"><div class="rolagem"><svg viewBox="0 0 {PERFIL_L} {PERFIL_A}" role="img" {dados} '
+    return (f'<figure class="perfil" data-vista="inclinacao">{botao}<div class="rolagem"><svg viewBox="0 0 {PERFIL_L} {PERFIL_A}" role="img" {dados} '
             f'aria-label="Perfil de altimetria do percurso: altitude de {num(min(valores))} a {num(max(valores))} m em {num(km_total, 1)} km">'
-            + "".join(grade) + "".join(pedacos) + f'<polyline class="altitude" points="{linha}"/>{numeros_subidas}'
+            + "".join(grade) + '<g class="v-incl">' + "".join(pedacos) + f'</g><g class="v-sub"><polygon class="area" points="{area}"/>{areas_subidas}</g>'
+            f'<polyline class="altitude" points="{linha}"/>{numeros_subidas}'
             f'<line class="cursor" y1="{m["topo"]}" y2="{base_y:.1f}" hidden/><circle class="ponto-perfil" r="5" hidden/></svg></div>'
-            f'<div class="dica" hidden></div><div class="legenda-inclinacao">{legenda}</div>'
+            f'<div class="dica" hidden></div>{legendas}'
             '<figcaption>Altimetria do trecho mostrado no mapa. Passe o mouse (ou toque) no gráfico ou no traçado do mapa para ligar os dois.</figcaption></figure>')
 
 
