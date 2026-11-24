@@ -75,7 +75,7 @@
   <div class="miolo">
     <img class="icone" src="../icone.png" alt="">
     <h1>Política de privacidade do BNT Editor</h1>
-    <p class="subtitulo">Última atualização: 13 de outubro de 2026. <a href="#english">English version below</a>.</p>
+    <p class="subtitulo">Última atualização: 24 de novembro de 2026. <a href="#english">English version below</a>.</p>
   </div>
 </div>
 
@@ -83,7 +83,7 @@
 
 
 <h2>O que é</h2>
-<p>O BNT Editor é um aplicativo de Windows para edição de vídeos de ciclismo, usado por criadores de conteúdo. Ele roda no computador de cada usuário.</p>
+<p>O BNT Editor é um aplicativo de Windows e Linux para edição de vídeos de ciclismo, usado por criadores de conteúdo. Ele roda no computador de cada usuário.</p>
 
 <h2>Quais dados o aplicativo acessa</h2>
 <p>Quando o usuário conecta a conta do YouTube (Configurações → Integrações) ou clica em "Enviar ao YouTube", o aplicativo pede autorização à conta do Google do próprio usuário, com o escopo <code>https://www.googleapis.com/auth/youtube.force-ssl</code>. Esse acesso é usado somente, e apenas no canal do usuário, para:</p>
@@ -104,10 +104,20 @@
 <li>guardar, no projeto, o endereço da atividade (campo "Link do Strava" do YouTube);</li>
 <li>ler o nome do atleta, para mostrar no aplicativo qual conta está conectada.</li>
 </ul>
-<p>O aplicativo não altera nem publica nada na conta do Strava e não lê atividades de outras pessoas. Os dados do Strava ficam no computador do usuário, não são enviados ao desenvolvedor nem a terceiros, não são vendidos, não são usados para publicidade e não são usados para treinar modelos de inteligência artificial. O que aparece no vídeo (mapa, velocidade, altitude) é decisão do usuário, que publica o vídeo no próprio canal.</p>
+<p>O aplicativo não altera nem publica nada na conta do Strava e não lê atividades de outras pessoas. Os dados do Strava ficam no computador do usuário, não são enviados ao desenvolvedor, não são vendidos, não são usados para publicidade e não são usados para treinar modelos de inteligência artificial. Para mostrar o mapa e dar nome aos lugares, o aplicativo consulta serviços abertos de mapas com as coordenadas da área do percurso (veja <a href="#mapas">Mapas e serviços abertos</a>). O que aparece no vídeo (mapa, velocidade, altitude) é decisão do usuário, que publica o vídeo no próprio canal.</p>
 
 <h2>Onde os dados ficam</h2>
-<p>O aplicativo <strong>não tem servidor próprio</strong> e não envia nenhum dado do usuário ao desenvolvedor nem a terceiros. As informações trocadas com o YouTube vão diretamente do computador do usuário para o Google. Os tokens de acesso (YouTube e Strava) ficam guardados somente no computador do usuário, na pasta <code>%LocalAppData%\BNTEditor</code>.</p>
+<p>O aplicativo <strong>não tem servidor próprio</strong> e não envia nenhum dado do usuário ao desenvolvedor. As informações trocadas com o YouTube vão diretamente do computador do usuário para o Google. Os tokens de acesso (YouTube e Strava), os projetos e os caches ficam guardados somente no computador do usuário, na pasta <code>%LocalAppData%\BNTEditor</code> (no Linux, <code>~/.local/share/BNTEditor</code>). Para mapas e nomes de lugares, o aplicativo consulta serviços abertos, descritos a seguir.</p>
+
+<h2 id="mapas">Mapas e serviços abertos</h2>
+<p>Estes serviços são de terceiros, não passam pelo desenvolvedor e cada um recebe o endereço IP do computador do usuário. Os pedidos se identificam só como "BNTEditor", com a versão do aplicativo. O que o aplicativo envia:</p>
+<ul>
+<li><strong>Nome do lugar</strong> (Nominatim, do OpenStreetMap): as coordenadas de pontos do percurso, para achar o bairro e a cidade; e o texto que o usuário digita ao procurar um lugar, inclusive o endereço informado na zona de privacidade da casa (Configurações). As respostas ficam guardadas no computador, para não repetir a consulta.</li>
+<li><strong>Pontos de interesse</strong> (Nominatim e Overpass, do OpenStreetMap): a caixa que envolve a área do percurso (limites sul, oeste, norte e leste), para listar praias, mirantes e atrações.</li>
+<li><strong>Mapas e relevo</strong> (OpenTopoMap, OpenStreetMap, CyclOSM, Esri/ArcGIS e os mapas de elevação da Mapzen na Amazon S3): o número dos quadrados do mapa que cobrem a área do percurso, para desenhar o mapa e a altimetria no vídeo.</li>
+<li><strong>Downloads de componentes</strong> (gyan.dev, GitHub, Hugging Face e Geofabrik): o aplicativo só baixa o FFmpeg, os modelos de transcrição e de imagem e o mapa offline; não envia dados do usuário.</li>
+</ul>
+<p>Cada serviço trata esses dados pela sua própria política, por exemplo a <a href="https://osmfoundation.org/wiki/Privacy_Policy">política de privacidade da OpenStreetMap Foundation</a>. O vídeo, o áudio e os brutos nunca saem do computador, a não ser no envio ao YouTube, que o próprio usuário pede.</p>
 
 <h2>Uso e compartilhamento</h2>
 <p>O uso e a transferência das informações recebidas das APIs do Google seguem a <a href="https://developers.google.com/terms/api-services-user-data-policy">Política de Dados do Usuário dos Serviços de API do Google</a>, incluindo os requisitos de Uso Limitado. Os dados não são vendidos, não são usados para publicidade e não são lidos por pessoas.</p>
@@ -127,10 +137,10 @@
 <hr>
 
 <h1 class="ingles" id="english">BNT Editor privacy policy</h1>
-<p>Last updated: October 13, 2026.</p>
+<p>Last updated: November 24, 2026.</p>
 
 <h2>What it is</h2>
-<p>BNT Editor is a Windows app for editing cycling videos, used by content creators. It runs on each user's own computer.</p>
+<p>BNT Editor is a Windows and Linux app for editing cycling videos, used by content creators. It runs on each user's own computer.</p>
 
 <h2>What data the app accesses</h2>
 <p>When the user connects the YouTube account (Settings → Integrations) or clicks "Send to YouTube", the app asks for authorization to the user's own Google account, with the scope <code>https://www.googleapis.com/auth/youtube.force-ssl</code>. This access is used only, and only on the user's own channel, to:</p>
@@ -151,10 +161,20 @@
 <li>store the activity address in the project ("Strava link" field of the YouTube card);</li>
 <li>read the athlete name, to show in the app which account is connected.</li>
 </ul>
-<p>The app does not change or publish anything on the Strava account and does not read other people's activities. Strava data stays on the user's computer, is not sent to the developer or to third parties, is not sold, is not used for advertising and is not used to train artificial intelligence models. What appears in the video (map, speed, altitude) is the user's decision, who publishes the video on their own channel.</p>
+<p>The app does not change or publish anything on the Strava account and does not read other people's activities. Strava data stays on the user's computer, is not sent to the developer, is not sold, is not used for advertising and is not used to train artificial intelligence models. To show the map and name places, the app queries open map services with the coordinates of the ride area (see <a href="#maps">Maps and open services</a>). What appears in the video (map, speed, altitude) is the user's decision, who publishes the video on their own channel.</p>
 
 <h2>Where the data stays</h2>
-<p>The app <strong>has no server of its own</strong> and does not send any user data to the developer or to third parties. The information exchanged with YouTube goes directly from the user's computer to Google. The access tokens (YouTube and Strava) are stored only on the user's computer, in the folder <code>%LocalAppData%\BNTEditor</code>.</p>
+<p>The app <strong>has no server of its own</strong> and does not send any user data to the developer. The information exchanged with YouTube goes directly from the user's computer to Google. The access tokens (YouTube and Strava), the projects and the caches are stored only on the user's computer, in the folder <code>%LocalAppData%\BNTEditor</code> (on Linux, <code>~/.local/share/BNTEditor</code>). For maps and place names, the app queries open services, described below.</p>
+
+<h2 id="maps">Maps and open services</h2>
+<p>These services belong to third parties, do not go through the developer, and each one receives the IP address of the user's computer. The requests identify themselves only as "BNTEditor", with the app version. What the app sends:</p>
+<ul>
+<li><strong>Place name</strong> (Nominatim, from OpenStreetMap): the coordinates of points of the route, to find the neighborhood and city; and the text the user types when searching for a place, including the address entered for the home privacy zone (Settings). The answers are kept on the computer, so the query is not repeated.</li>
+<li><strong>Points of interest</strong> (Nominatim and Overpass, from OpenStreetMap): the box around the route area (south, west, north and east limits), to list beaches, viewpoints and attractions.</li>
+<li><strong>Maps and terrain</strong> (OpenTopoMap, OpenStreetMap, CyclOSM, Esri/ArcGIS and the Mapzen elevation maps on Amazon S3): the numbers of the map tiles that cover the route area, to draw the map and the elevation profile in the video.</li>
+<li><strong>Component downloads</strong> (gyan.dev, GitHub, Hugging Face and Geofabrik): the app only downloads FFmpeg, the transcription and image models and the offline map; it does not send user data.</li>
+</ul>
+<p>Each service handles this data under its own policy, for example the <a href="https://osmfoundation.org/wiki/Privacy_Policy">OpenStreetMap Foundation privacy policy</a>. The video, the audio and the raw footage never leave the computer, except in the upload to YouTube, which the user requests.</p>
 
 <h2>Use and sharing</h2>
 <p>BNT Editor's use and transfer of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements. The data is not sold, not used for advertising and not read by humans.</p>
