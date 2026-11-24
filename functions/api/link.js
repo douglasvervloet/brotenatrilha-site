@@ -75,6 +75,19 @@ async function limparImagensAntigas(env) {    // um pouco a cada link novo: as i
   }
 }
 
+// GET /api/link?h=<#r=...>&n=<nome>: o link dessa rota com esse nome já existe e já tem imagem? (a lista Minhas rotas só refaz a imagem de quem ainda
+// não tem). Só lê: quem não conhece a rota inteira não acha nada; limite de 30 pedidos por minuto de cada endereço.
+export async function onRequestGet({ request, env }) {
+  const url = new URL(request.url);
+  const rota = String(url.searchParams.get("h") || "");
+  if (!rota.startsWith("#r=") || rota.length > MAX_ROTA || /[^\x21-\x7e]/.test(rota)) return resposta({ erro: "rota inválida" }, 400);
+  if (await passouDoLimite(env, request, "linkget", 30)) return resposta({ erro: "muitos pedidos seguidos: espere um minuto" }, 429);
+  const nome = textoLimpo(url.searchParams.get("n"), 60);
+  await prepararTabela(env.DB);
+  const linha = await env.DB.prepare("SELECT id, imagem FROM links WHERE resumo = ?").bind(await resumo(rota + "\n" + nome)).first();
+  return resposta(linha ? { id: linha.id, imagem: !!linha.imagem } : {});
+}
+
 export async function onRequestPost({ request, env, waitUntil }) {
   const origem = request.headers.get("Origin") || "";
   if (!ORIGENS.test(origem)) return resposta({ erro: "origem não aceita" }, 403);    // só a página do site cria links

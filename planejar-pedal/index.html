@@ -318,6 +318,7 @@
   .vistas button { font: inherit; font-size: .76rem; padding: 3px 11px; border-radius: 999px; border: 1px solid var(--linha); background: transparent; color: var(--suave); cursor: pointer; }
   .vistas button[aria-pressed="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
   [data-vista="inclinacao"] .v-sub, [data-vista="subidas"] .v-incl { display: none; }
+  .nome-da-rota input[aria-invalid="true"] { border-color: #d6452c; box-shadow: 0 0 0 3px rgba(214, 69, 44, .25); }
   .legenda .faixa { font-size: .76rem; color: var(--suave); }
   .legenda .faixa i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
   .cat { display: inline-block; padding: 3px 14px; border-radius: 999px; font-weight: 800; font-size: .82rem; }
@@ -1305,7 +1306,7 @@
         document.getElementById("n-dist").textContent = fmt(total / 1000, 1) + " km";           // o comprimento da linha desenhada, igual ao do rótulo no mapa
         document.getElementById("b-gpx").disabled = document.getElementById("b-roadbook").disabled = document.getElementById("b-imagem").disabled = false;
         var perfil = perfilDe(pts), alt = altitudes(perfil);                                     // guarda o cálculo para colorir a linha e para o marcador do gráfico
-        calculo = { perfil: perfil, alt: alt, subidas: subidasDe(alt) };
+        calculo = { perfil: perfil, alt: alt, subidas: subidasDe(alt), v: minha };
         ultimoTotal = total;
         document.getElementById("n-ganho").textContent = fmt(ganhoComLimiar(alt, LIMIAR_DO_GANHO), 0) + " m";     // o ganho de altitude sem o ruído do relevo
         atualizarLuz();
@@ -1800,12 +1801,12 @@
       var espera = new Promise(function (ok) { setTimeout(function () { ok(null); }, 6000); });      // sem a imagem a tempo, o link sai sem ela
       return Promise.race([pronta, espera]).catch(function () { return null; });
     }
-    function linkCurto(hash) {                                       // /r/<código> guardado no banco do site (functions/api/link.js), com o nome e a
+    function linkCurto(hash, passeAntecipado) {                                       // /r/<código> guardado no banco do site (functions/api/link.js), com o nome e a
       var longo = location.origin + location.pathname + hash;        // imagem da rota para a prévia nos apps de mensagem; sem ele, o link longo
       if (!window.fetch || !window.FormData || !hash || (location.protocol !== "https:" && !/^(localhost|127.0.0.1)$/.test(location.hostname))) return Promise.resolve(longo);
       var nome = (document.getElementById("nome-rota").value || "").trim();
       var descricao = calculo ? document.getElementById("n-dist").textContent + " · " + document.getElementById("n-ganho").textContent + " de ganho de altitude" : "";
-      return Promise.all([imagemDoLink(), passeTurnstile()]).then(function (feitos) {
+      return Promise.all([imagemDoLink(), passeAntecipado || passeTurnstile()]).then(function (feitos) {
         var imagem = feitos[0], dados = new FormData(), parar = window.AbortController ? new AbortController() : null;
         dados.append("h", hash); dados.append("n", nome); dados.append("d", descricao); dados.append("t", feitos[1]);
         if (imagem) dados.append("imagem", imagem, "rota.jpg");
@@ -2294,6 +2295,7 @@
       contaAtual = null; rotasDaConta = null;
       estadoSinc("Você saiu da conta."); mostrarSinc(); desenharMinhas(); mostrarAntigas(); botaoGoogle();
     });
+    document.getElementById("nome-rota").addEventListener("input", function () { this.removeAttribute("aria-invalid"); this.placeholder = "Nome da rota"; });      // o destaque some ao digitar
     document.getElementById("b-salvar").addEventListener("click", function () {
       if (rota.length < 2) return;
       var lista = lerRotas(), campo = document.getElementById("nome-rota"), botao = this, msg = document.getElementById("msg-pedal");
@@ -2305,13 +2307,29 @@
       }
       if (rotasDaConta === null) { erro("Aguarde: ainda buscando as rotas da sua conta."); return; }   // sem isso, a lista do banco seria trocada por uma só rota
       if (lista.length >= MAX_ROTAS) { erro("O limite é de " + MAX_ROTAS + " rotas guardadas. Apague alguma em Minhas rotas para guardar outra."); return; }
-      var nome = campo.value.trim() || ("Rota de " + new Date().toLocaleDateString("pt-BR"));
+      var nome = campo.value.trim();
+      if (!nome) {                                                 // o título é obrigatório: é ele que sai na imagem do link e na lista
+        campo.setAttribute("aria-invalid", "true"); campo.placeholder = "Dê um nome à rota para salvar";      // o aviso vai no próprio campo (a mensagem geral fica longe)
+        campo.focus(); campo.scrollIntoView({ block: "center", behavior: "smooth" }); return;
+      }
       lista.unshift({ id: sortearId(10, ALFA_ID), n: nome.slice(0, 60), em: new Date().toISOString(), km: comprimento(linhaCompleta()) / 1000, h: hashDaRota(),
         c: rota.map(function (p) { return p.fixo && p.caminho && p.caminho.length ? codificar(p.caminho) : ""; }) });
       gravarRotas(lista);
       var rotulo = botao.querySelector(".rot"); rotulo.textContent = "Rota guardada"; setTimeout(function () { rotulo.textContent = "Salvar rota"; }, 2000);
       desenharMinhas();
     });
+    function rotaPronta() {                                        // Promise<boolean>: os caminhos pelas ruas e o cálculo da rota aberta terminaram (até 40 s)
+      var inicio = Date.now(), parado = 0;      // olha a cada 150 ms
+      return new Promise(function (ok) {
+        (function olhar() {
+          // pronto = sem pedido de caminho, e o cálculo é o da versão de agora; 300 ms seguidos (mais que os 250 ms que o cálculo espera para recomeçar)
+          parado = !emCurso && !fila.length && calculo && calculo.v === versao ? parado + 1 : 0;
+          if (parado >= 2) return ok(true);
+          if (Date.now() - inicio > 40000) return ok(false);
+          setTimeout(olhar, 150);
+        })();
+      });
+    }
     document.getElementById("lista-minhas").addEventListener("click", function (e) {
       var b = e.target.closest ? e.target.closest("button") : null;
       if (!b) return;
@@ -2320,19 +2338,30 @@
       if (b.className === "apagar") {
         lista.splice(Number(b.dataset.i), 1); gravarRotas(lista); avisoMinhas("Rota apagada."); desenharMinhas(); return;
       }
-      if (b.className === "link") {                                // o link curto da rota guardada, sem abri-la (sem imagem de prévia)
-        var longo = location.origin + location.pathname + r.h;
+      if (b.className === "link") {                                // o link curto da rota guardada, com a imagem do botão do topo
         b.disabled = true;
-        passeTurnstile().then(function (t) {
-          var dados = new FormData(); dados.append("h", r.h); dados.append("n", r.n || ""); dados.append("d", fmt(r.km, 1) + " km"); dados.append("t", t);
-          return fetch("/api/link", { method: "POST", body: dados });
-        }).then(function (x) { return x.ok ? x.json() : null; }).then(function (j) { return j && j.id ? location.origin + "/r/" + j.id : longo; })
-          .catch(function () { return longo; })
-          .then(function (url) {
-            b.disabled = false;
-            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { avisoMinhas("Link copiado: " + url); }, function () { avisoMinhas(url); });
-            else avisoMinhas(url);
-          });
+        avisoMinhas("Preparando o link...");
+        var pergunta = fetch("/api/link?h=" + encodeURIComponent(r.h) + "&n=" + encodeURIComponent(r.n || ""), { cache: "no-store" })      // já existe com imagem? então é só copiar
+          .then(function (x) { return x.ok ? x.json() : null; }).catch(function () { return null; });
+        var url = pergunta.then(function (j) {
+          if (j && j.id && j.imagem) return location.origin + "/r/" + j.id;
+          var passe = passeTurnstile(), vazia = !rota.length;      // sem imagem ainda: abre a rota (o desenho de agora vai para o Desfazer) e monta a imagem; o Turnstile roda junto
+          guardar(); if (vazia) antes = [];
+          if (!rotaDoHash(r.h, r.c)) throw new Error("abrir");
+          pedirPendentes();
+          document.getElementById("nome-rota").value = r.n || "";
+          avisoMinhas("Montando a imagem do link (alguns segundos)...");
+          return rotaPronta().then(function (pronta) { if (!pronta) throw new Error("tempo"); return linkCurto(hashDaRota(), passe); });
+        }), copiado = null;
+        // o Safari só copia dentro do clique: o ClipboardItem recebe a promessa do link e espera por ela; os outros copiam o texto depois
+        if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+          try { copiado = navigator.clipboard.write([new ClipboardItem({ "text/plain": url.then(function (u) { return new Blob([u], { type: "text/plain" }); }) })]); } catch (x) { copiado = null; }
+        }
+        if (!copiado) copiado = url.then(function (u) { return navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(u) : Promise.reject(); });
+        copiado.then(function () { return url; }).then(function (u) { avisoMinhas("Link copiado: " + u); }, function () {
+          url.then(function (u) { avisoMinhas("Não consegui copiar sozinho. Copie este link: " + u); },
+            function (erro) { avisoMinhas(erro && erro.message === "abrir" ? "Não consegui abrir essa rota." : "Não deu para montar o link agora. Tente de novo."); });
+        }).then(function () { b.disabled = false; });
         return;
       }
       if (b.className === "duplicar") {                            // uma cópia para fazer outra versão sem perder a original
