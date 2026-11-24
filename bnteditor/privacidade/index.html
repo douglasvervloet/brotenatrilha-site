@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Política de privacidade do BNT Editor</title>
+<meta name="description" content="Como o aplicativo BNT Editor trata o acesso à conta do YouTube e do Strava: sem servidor próprio, os dados ficam no seu computador.">
+<link rel="canonical" href="https://brotenatrilha.com.br/bnteditor/privacidade/">
+<meta name="theme-color" content="#1f8448">
+<link rel="icon" type="image/png" sizes="48x48" href="../../favicon.png?v=2">
+<link rel="icon" type="image/png" sizes="512x512" href="/icone-512.png?v=2">
+<link rel="shortcut icon" href="/favicon.ico?v=2">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png?v=2">
+<style>
+  :root { --verde: #1f8448; --verde-fundo: #0f4a28; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; }
+  @media (prefers-color-scheme: dark) { :root { --fundo: #0f1a13; --cartao: #172a1e; --texto: #e9f0ea; --suave: #a9bbae; --linha: #284534; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+  a { color: var(--verde); font-weight: 600; }
+  @media (prefers-color-scheme: dark) { a { color: #7fcf9d; } }
+  :focus-visible { outline: 3px solid var(--ambar); outline-offset: 3px; border-radius: 4px; }
+  .miolo { width: min(760px, 100% - 32px); margin-inline: auto; }
+  header { background: linear-gradient(180deg, var(--verde), var(--verde-fundo)); color: #fff; padding: 18px 0 34px; }
+  header a { color: #fff; text-decoration: none; font-weight: 600; opacity: .9; }
+  header a:hover { opacity: 1; text-decoration: underline; }
+  h1 { margin: 22px 0 0; font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.15; }
+  header p { margin: 8px 0 0; color: #dcebe0; }
+  main { padding: 36px 0 56px; }
+  h2 { margin: 34px 0 6px; font-size: 1.3rem; }
+  h2::after { content: ""; display: block; width: 40px; height: 3px; border-radius: 2px; background: var(--ambar); margin-top: 8px; }
+  p, li { color: var(--suave); }
+  p { margin: 10px 0 0; }
+  ul { margin: 10px 0 0; padding-left: 1.2em; }
+  strong { color: var(--texto); }
+  footer { background: var(--verde-fundo); color: #cfe0d3; padding: 26px 0; font-size: .92rem; }
+  footer a { color: #fff; }
+  hr { border: 0; border-top: 1px solid var(--linha); margin: 44px 0 0; }
+  code { background: var(--cartao); border: 1px solid var(--linha); border-radius: 4px; padding: 0 5px; font-size: .9em; word-break: break-all; }
+</style>
+</head>
+<body>
+<header>
+  <div class="miolo">
+    <a href="../">&larr; BNT Editor</a>
+    <h1>Política de privacidade do BNT Editor</h1>
+    <p>Última atualização: 13 de outubro de 2026. <a href="#english">English version below</a>.</p>
+  </div>
+</header>
+
+<main class="miolo">
+
+
+<h2>O que é</h2>
+<p>O BNT Editor é um aplicativo de Windows para edição de vídeos de ciclismo, usado por criadores de conteúdo. Ele roda no computador de cada usuário.</p>
+
+<h2>Quais dados o aplicativo acessa</h2>
+<p>Quando o usuário conecta a conta do YouTube (Configurações → Integrações) ou clica em "Enviar ao YouTube", o aplicativo pede autorização à conta do Google do próprio usuário, com o escopo <code>https://www.googleapis.com/auth/youtube.force-ssl</code>. Esse acesso é usado somente, e apenas no canal do usuário, para:</p>
+<ul>
+<li>enviar o vídeo finalizado, com título, descrição, tags, idioma e a visibilidade escolhida pelo usuário (privado, não listado, público ou agendado);</li>
+<li>definir a capa (miniatura) do vídeo enviado;</li>
+<li>enviar o arquivo de legendas (.srt) do vídeo enviado;</li>
+<li>listar as playlists do canal e colocar o vídeo enviado em uma delas;</li>
+<li>ler o nome do canal, para mostrar no aplicativo qual conta está conectada.</li>
+</ul>
+<p>O aplicativo não lê, não baixa nem altera outros vídeos, comentários ou dados do canal.</p>
+
+<h2>Strava (opcional)</h2>
+<p>Se o usuário quiser trazer o percurso de um passeio do Strava, ele conecta a conta do Strava em Configurações → Integrações. O aplicativo pede autorização à conta do Strava do próprio usuário, com o escopo <code>activity:read_all</code> (leitura das atividades, inclusive as privadas e o trecho escondido por zonas de privacidade). Esse acesso é usado somente, e apenas na conta do usuário, para:</p>
+<ul>
+<li>listar as últimas atividades de pedal do usuário, para ele escolher a do passeio;</li>
+<li>baixar o percurso da atividade escolhida (posição, altitude e horário de cada ponto) e gravá-lo como arquivo GPX no computador do usuário, na pasta GPS escolhida por ele nas Configurações do aplicativo, para alimentar o painel de GPS e o resumo do passeio no vídeo editado;</li>
+<li>guardar, no projeto, o endereço da atividade (campo "Link do Strava" do YouTube);</li>
+<li>ler o nome do atleta, para mostrar no aplicativo qual conta está conectada.</li>
+</ul>
+<p>O aplicativo não altera nem publica nada na conta do Strava e não lê atividades de outras pessoas. Os dados do Strava ficam no computador do usuário, não são enviados ao desenvolvedor nem a terceiros, não são vendidos, não são usados para publicidade e não são usados para treinar modelos de inteligência artificial. O que aparece no vídeo (mapa, velocidade, altitude) é decisão do usuário, que publica o vídeo no próprio canal.</p>
+
+<h2>Onde os dados ficam</h2>
+<p>O aplicativo <strong>não tem servidor próprio</strong> e não envia nenhum dado do usuário ao desenvolvedor nem a terceiros. As informações trocadas com o YouTube vão diretamente do computador do usuário para o Google. Os tokens de acesso (YouTube e Strava) ficam guardados somente no computador do usuário, na pasta <code>%LocalAppData%\BNTEditor</code>.</p>
+
+<h2>Uso e compartilhamento</h2>
+<p>O uso e a transferência das informações recebidas das APIs do Google seguem a <a href="https://developers.google.com/terms/api-services-user-data-policy">Política de Dados do Usuário dos Serviços de API do Google</a>, incluindo os requisitos de Uso Limitado. Os dados não são vendidos, não são usados para publicidade e não são lidos por pessoas.</p>
+
+<h2>Como revogar o acesso</h2>
+<p>O usuário pode revogar o acesso a qualquer momento no botão "Desconectar" do aplicativo (Configurações → Integrações), ou em <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a> (YouTube) e <a href="https://www.strava.com/settings/apps">strava.com/settings/apps</a> (Strava). Também é possível apagar os arquivos <code>youtube_token.json</code> e <code>strava_token.json</code> da pasta indicada acima, e os GPX baixados, na pasta GPS.</p>
+
+<h2>Termos do YouTube</h2>
+<p>Ao usar o envio ao YouTube, o usuário também concorda com os <a href="https://www.youtube.com/t/terms">Termos de Serviço do YouTube</a> e com a <a href="https://policies.google.com/privacy">Política de Privacidade do Google</a>.</p>
+
+<h2>Termos do Strava</h2>
+<p>Ao usar a conexão com o Strava, o usuário também concorda com os <a href="https://www.strava.com/legal/terms">Termos de Serviço do Strava</a> e com a <a href="https://www.strava.com/legal/privacy">Política de Privacidade do Strava</a>. O uso da API do Strava segue o <a href="https://www.strava.com/legal/api">Acordo da API do Strava</a>. Powered by Strava.</p>
+
+<h2>Contato</h2>
+<p>Dúvidas: <a href="mailto:contato@brotenatrilha.com.br">contato@brotenatrilha.com.br</a>.</p>
+
+<hr>
+
+<h1 id="english">BNT Editor privacy policy</h1>
+<p>Last updated: October 13, 2026.</p>
+
+<h2>What it is</h2>
+<p>BNT Editor is a Windows app for editing cycling videos, used by content creators. It runs on each user's own computer.</p>
+
+<h2>What data the app accesses</h2>
+<p>When the user connects the YouTube account (Settings → Integrations) or clicks "Send to YouTube", the app asks for authorization to the user's own Google account, with the scope <code>https://www.googleapis.com/auth/youtube.force-ssl</code>. This access is used only, and only on the user's own channel, to:</p>
+<ul>
+<li>upload the finished video with its title, description, tags, language and the visibility chosen by the user (private, unlisted, public or scheduled);</li>
+<li>set the thumbnail of the uploaded video;</li>
+<li>upload the subtitle file (.srt) of the uploaded video;</li>
+<li>list the channel's playlists and add the uploaded video to one of them;</li>
+<li>read the channel name, to show in the app which account is connected.</li>
+</ul>
+<p>The app does not read, download or change any other videos, comments or channel data.</p>
+
+<h2>Strava (optional)</h2>
+<p>If the user wants to bring the route of a ride from Strava, they connect their Strava account in Settings → Integrations. The app asks for authorization to the user's own Strava account, with the scope <code>activity:read_all</code> (read access to activities, including private ones and the part hidden by privacy zones). This access is used only, and only on the user's own account, to:</p>
+<ul>
+<li>list the user's latest cycling activities, so they can pick the one for the ride;</li>
+<li>download the route of the chosen activity (position, altitude and time of each point) and save it as a GPX file on the user's computer, in the GPS folder the user chose in the app Settings, to feed the GPS panel and the ride summary in the edited video;</li>
+<li>store the activity address in the project ("Strava link" field of the YouTube card);</li>
+<li>read the athlete name, to show in the app which account is connected.</li>
+</ul>
+<p>The app does not change or publish anything on the Strava account and does not read other people's activities. Strava data stays on the user's computer, is not sent to the developer or to third parties, is not sold, is not used for advertising and is not used to train artificial intelligence models. What appears in the video (map, speed, altitude) is the user's decision, who publishes the video on their own channel.</p>
+
+<h2>Where the data stays</h2>
+<p>The app <strong>has no server of its own</strong> and does not send any user data to the developer or to third parties. The information exchanged with YouTube goes directly from the user's computer to Google. The access tokens (YouTube and Strava) are stored only on the user's computer, in the folder <code>%LocalAppData%\BNTEditor</code>.</p>
+
+<h2>Use and sharing</h2>
+<p>BNT Editor's use and transfer of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements. The data is not sold, not used for advertising and not read by humans.</p>
+
+<h2>How to revoke access</h2>
+<p>The user can revoke access at any time with the "Disconnect" button in the app (Settings → Integrations), or at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a> (YouTube) and <a href="https://www.strava.com/settings/apps">strava.com/settings/apps</a> (Strava). The files <code>youtube_token.json</code> and <code>strava_token.json</code> in the folder above, and the downloaded GPX files, in the GPS folder, can also be deleted.</p>
+
+<h2>YouTube terms</h2>
+<p>By using the upload to YouTube, the user also agrees to the <a href="https://www.youtube.com/t/terms">YouTube Terms of Service</a> and the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>.</p>
+
+<h2>Strava terms</h2>
+<p>By using the Strava connection, the user also agrees to the <a href="https://www.strava.com/legal/terms">Strava Terms of Service</a> and the <a href="https://www.strava.com/legal/privacy">Strava Privacy Policy</a>. Use of the Strava API follows the <a href="https://www.strava.com/legal/api">Strava API Agreement</a>. Powered by Strava.</p>
+
+<h2>Contact</h2>
+<p>Questions: <a href="mailto:contato@brotenatrilha.com.br">contato@brotenatrilha.com.br</a>.</p>
+</main>
+
+<footer>
+  <div class="miolo">© <span id="ano">2026</span> Brote na Trilha · <a href="../">BNT Editor</a> · <a href="../../privacidade/">Privacidade do site</a> · <a href="../../">Voltar ao site</a></div>
+</footer>
+<script>document.getElementById("ano").textContent = new Date().getFullYear();</script>
+<script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
