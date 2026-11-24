@@ -937,7 +937,11 @@
     function redesenhar() { desenharQuadros(); desenharRota(); agendarPiso(); if (typeof agendarCiclovias === "function") agendarCiclovias(); }
 
     // ---- histórico (desfazer e refazer) ----
-    function copia() { return rota.map(function (p) { return { lat: p.lat, lon: p.lon, caminho: p.caminho, reta: p.reta, fixo: p.fixo, livre: p.livre }; }); }
+    var rotaGuardada = null;                                       // o código da rota de Minhas rotas que está na tela (salvar atualiza ela); null = rota nova, de um GPX, de um pedal ou de um link
+    function copia() {
+      var c = rota.map(function (p) { return { lat: p.lat, lon: p.lon, caminho: p.caminho, reta: p.reta, fixo: p.fixo, livre: p.livre }; });
+      c.guardada = rotaGuardada; return c;
+    }
     function guardar() { antes.push(copia()); if (antes.length > 100) antes.shift(); depois = []; deUmPedal = null; }          // mexer na rota: já não é o pedal do canal como veio
     function mudou() { contarRotaCriada(); calculo = null; marcador = null; terreno = null; apoios = null; apoioAberto = null; selecaoDoGrafico = null; document.getElementById("selecao").hidden = true; interesses = null; fecharCartaoDeInteresse(); botoes(); agendar(); desenharRota(); atualizarTerrenoNaTela(); atualizarApoiosNaTela(); }
     function botoes() {
@@ -946,11 +950,12 @@
       document.getElementById("b-limpar").disabled = !rota.length;
       document.getElementById("b-link").disabled = rota.length < 2;
       document.getElementById("b-salvar").disabled = rota.length < 2;
+      rotuloDoSalvar();
       document.getElementById("b-pedalar").disabled = rota.length < 2 && !pedal;
     }
-    function desfazer() { if (!antes.length) return; depois.push(copia()); rota = antes.pop(); mudou(); pedirPendentes(); }
-    function refazer() { if (!depois.length) return; antes.push(copia()); rota = depois.pop(); mudou(); pedirPendentes(); }
-    function limpar() { if (!rota.length) return; guardar(); rota = []; rotaContada = false; mudou(); pedirPendentes(); }
+    function desfazer() { if (!antes.length) return; depois.push(copia()); rota = antes.pop(); rotaGuardada = rota.guardada || null; mudou(); pedirPendentes(); }
+    function refazer() { if (!depois.length) return; antes.push(copia()); rota = depois.pop(); rotaGuardada = rota.guardada || null; mudou(); pedirPendentes(); }
+    function limpar() { if (!rota.length) return; guardar(); rota = []; rotaGuardada = null; rotaContada = false; mudou(); pedirPendentes(); }
     // ---- Turnstile (verificador invisível do Cloudflare): um passe para criar link e para contar rota; sem a chave, passe vazio ----
     var TURNSTILE_SITE = "0x4AAAAAAGNGVgPs7BPx8ACv";             // a chave pública do widget "Brote na Trilha" (Turnstile, modo invisível)
     var turnstileCarregado = null;
@@ -1817,10 +1822,19 @@
         .then(function (d) { return d && d.id ? location.origin + "/r/" + d.id : longo; })
         .catch(function () { return longo; });
     }
+    function consultarLink(hash, nome) {                           // o link curto dessa rota com esse nome, se o servidor já o tem com imagem (copia na hora); senão null
+      if (!window.fetch || !hash) return Promise.resolve(null);
+      return fetch("/api/link?h=" + encodeURIComponent(hash) + "&n=" + encodeURIComponent(nome), { cache: "no-store" })
+        .then(function (x) { return x.ok ? x.json() : null; })
+        .then(function (j) { return j && j.id && j.imagem ? location.origin + "/r/" + j.id : null; })
+        .catch(function () { return null; });
+    }
     document.getElementById("b-link").addEventListener("click", function () {
-      var botao = this, msg = document.getElementById("msg-pedal"), url = linkCurto(hashDaRota()), copiado = null;
-      function pronto() { var rotulo = botao.querySelector(".rot"); rotulo.textContent = "Link copiado"; setTimeout(function () { rotulo.textContent = "Copiar link"; }, 2000); }
-      function avisar() { url.then(function (u) { msg.textContent = "Não consegui copiar sozinho. Copie este link: " + u; msg.hidden = false; }); }
+      var botao = this, msg = document.getElementById("msg-pedal"), rotulo = botao.querySelector(".rot"), hash = hashDaRota(), copiado = null;
+      var url = consultarLink(hash, (document.getElementById("nome-rota").value || "").trim()).then(function (u) { return u || linkCurto(hash); });
+      botao.style.minWidth = botao.offsetWidth + "px"; botao.disabled = true; rotulo.textContent = "Preparando…";       // o andamento vai no rótulo do botão (a largura não muda)
+      function pronto() { rotulo.textContent = "Link copiado"; botao.disabled = rota.length < 2; setTimeout(function () { rotulo.textContent = "Copiar link"; }, 2000); }
+      function avisar() { rotulo.textContent = "Copiar link"; botao.disabled = rota.length < 2; url.then(function (u) { msg.textContent = "Não consegui copiar sozinho. Copie este link: " + u; msg.hidden = false; }); }
       // o Safari só copia dentro do clique: o ClipboardItem recebe a promessa do link e espera por ela; os outros copiam o texto depois
       if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
         try { copiado = navigator.clipboard.write([new ClipboardItem({ "text/plain": url.then(function (u) { return new Blob([u], { type: "text/plain" }); }) })]); } catch (x) { copiado = null; }
@@ -1866,6 +1880,7 @@
       var estavaVazia = !rota.length;
       guardar(); if (estavaVazia) antes = [];                       // com uma rota na tela, dá para desfazer e voltar a ela
       rotaContada = true;                                          // um GPX aberto não é uma rota criada aqui
+      rotaGuardada = null;
       rota = indices.map(function (ix, n) {                         // cada ponto guarda o caminho original desde o anterior: a linha continua igual ao arquivo, e só vira reta onde a pessoa mexer
         var ponto = { lat: pts[ix].lat, lon: pts[ix].lon, fixo: true };
         if (n > 0) ponto.caminho = pts.slice(indices[n - 1] + 1, ix);
@@ -2121,7 +2136,7 @@
       try {
         var lidos = decodificar(decodeURIComponent(m[1])).slice(0, 500);
         if (!lidos.length || !lidos.every(function (p) { return isFinite(p.lat) && isFinite(p.lon) && Math.abs(p.lat) <= 85 && Math.abs(p.lon) <= 180; })) return false;
-        rota = lidos; rotaContada = true;                         // rota aberta pronta: não é uma rota criada aqui
+        rota = lidos; rotaContada = true; rotaGuardada = null;     // rota aberta pronta: não é uma rota criada aqui (quem abre uma rota de Minhas rotas marca depois qual é)
         var listaLivres = m[2].match(/&l=([\d.]+)/);
         if (listaLivres) listaLivres[1].split(".").forEach(function (n) { if (rota[Number(n)] && Number(n) > 0) rota[Number(n)].livre = true; });
         if (caminhos) caminhos.forEach(function (c, i) { if (c && i > 0 && rota[i]) { rota[i].caminho = decodificar(c); rota[i].fixo = true; } });      // o caminho original de um GPX ou pedal aberto
@@ -2231,9 +2246,19 @@
       renomear: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/></svg>',
       apagar: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13M10 11v6M14 11v6"/></svg>'
     };      // os ícones dos botões de cada rota
+    function indiceDaGuardada(lista) {                             // a posição da rota aberta na lista de Minhas rotas; -1 se não há (ou se já foi apagada)
+      if (!rotaGuardada) return -1;
+      for (var i = 0; i < lista.length; i++) if (lista[i].id === rotaGuardada) return i;
+      return -1;
+    }
+    function rotuloDoSalvar() {
+      var rot = document.querySelector("#b-salvar .rot");
+      if (rot && !document.getElementById("b-salvar").dataset.ocupado) rot.textContent = indiceDaGuardada(lerRotas()) >= 0 ? "Atualizar rota" : "Salvar rota";
+    }
     function desenharMinhas() {
       var lista = lerRotas(), ul = document.getElementById("lista-minhas");
       document.getElementById("n-minhas").textContent = String(lista.length);
+      rotuloDoSalvar();
       ul.innerHTML = "";
       if (!lista.length) { var vazia = document.createElement("li"); vazia.textContent = contaAtual ? "Nenhuma rota guardada ainda." : "Entre com o Google para ver e salvar suas rotas."; vazia.style.color = "var(--suave)"; ul.appendChild(vazia); return; }
       lista.forEach(function (r, i) {
@@ -2242,7 +2267,7 @@
         dados.textContent = fmt(r.km, 1) + " km · " + new Date(r.em).toLocaleDateString("pt-BR");
         info.appendChild(nome); info.appendChild(dados); li.appendChild(info);
         [["Abrir", "abrir"], ["Copiar link", "link"], ["Duplicar", "duplicar"], ["Renomear", "renomear"], ["Apagar", "apagar"]].forEach(function (par) {
-          var b = document.createElement("button"); b.type = "button"; b.innerHTML = ICONES_DA_LISTA[par[1]] + par[0]; b.className = par[1]; b.dataset.i = String(i); li.appendChild(b);
+          var b = document.createElement("button"); b.type = "button"; b.innerHTML = ICONES_DA_LISTA[par[1]] + '<span class="rot">' + par[0] + "</span>"; b.className = par[1]; b.dataset.i = String(i); li.appendChild(b);
         });
         ul.appendChild(li);
       });
@@ -2306,16 +2331,20 @@
         painelMinhas.scrollIntoView({ block: "nearest", behavior: "smooth" }); return;
       }
       if (rotasDaConta === null) { erro("Aguarde: ainda buscando as rotas da sua conta."); return; }   // sem isso, a lista do banco seria trocada por uma só rota
-      if (lista.length >= MAX_ROTAS) { erro("O limite é de " + MAX_ROTAS + " rotas guardadas. Apague alguma em Minhas rotas para guardar outra."); return; }
+      var indice = indiceDaGuardada(lista);                        // a rota aberta de Minhas rotas: salvar atualiza ela, sem criar outra
+      if (indice < 0 && lista.length >= MAX_ROTAS) { erro("O limite é de " + MAX_ROTAS + " rotas guardadas. Apague alguma em Minhas rotas para guardar outra."); return; }
       var nome = campo.value.trim();
       if (!nome) {                                                 // o título é obrigatório: é ele que sai na imagem do link e na lista
         campo.setAttribute("aria-invalid", "true"); campo.placeholder = "Dê um nome à rota para salvar";      // o aviso vai no próprio campo (a mensagem geral fica longe)
         campo.focus(); campo.scrollIntoView({ block: "center", behavior: "smooth" }); return;
       }
-      lista.unshift({ id: sortearId(10, ALFA_ID), n: nome.slice(0, 60), em: new Date().toISOString(), km: comprimento(linhaCompleta()) / 1000, h: hashDaRota(),
-        c: rota.map(function (p) { return p.fixo && p.caminho && p.caminho.length ? codificar(p.caminho) : ""; }) });
+      var guardada = { n: nome.slice(0, 60), em: new Date().toISOString(), km: comprimento(linhaCompleta()) / 1000, h: hashDaRota(),
+        c: rota.map(function (p) { return p.fixo && p.caminho && p.caminho.length ? codificar(p.caminho) : ""; }) };
+      if (indice >= 0) lista[indice] = Object.assign({}, lista[indice], guardada);      // o mesmo código e o mesmo lugar na lista
+      else { guardada.id = sortearId(10, ALFA_ID); lista.unshift(guardada); rotaGuardada = guardada.id; }      // rota nova: daqui em diante salvar atualiza ela
       gravarRotas(lista);
-      var rotulo = botao.querySelector(".rot"); rotulo.textContent = "Rota guardada"; setTimeout(function () { rotulo.textContent = "Salvar rota"; }, 2000);
+      var rotulo = botao.querySelector(".rot"); rotulo.textContent = indice >= 0 ? "Rota atualizada" : "Rota guardada"; botao.dataset.ocupado = "1";
+      setTimeout(function () { delete botao.dataset.ocupado; rotuloDoSalvar(); }, 2000);
       desenharMinhas();
     });
     function rotaPronta() {                                        // Promise<boolean>: os caminhos pelas ruas e o cálculo da rota aberta terminaram (até 40 s)
@@ -2336,11 +2365,13 @@
       var lista = lerRotas(), r = lista[Number(b.dataset.i)];
       if (!r) return;
       if (b.className === "apagar") {
+        if (r.id === rotaGuardada) rotaGuardada = null;
         lista.splice(Number(b.dataset.i), 1); gravarRotas(lista); avisoMinhas("Rota apagada."); desenharMinhas(); return;
       }
       if (b.className === "link") {                                // o link curto da rota guardada, com a imagem do botão do topo
-        b.disabled = true;
-        avisoMinhas("Preparando o link...");
+        var rotulo = b.querySelector(".rot"), original = "Copiar link";      // o andamento e o resultado vão no rótulo do botão, sem texto embaixo da lista
+        var dizer = function (texto, volta) { rotulo.textContent = texto; if (volta) setTimeout(function () { rotulo.textContent = original; }, volta); };
+        b.disabled = true; b.removeAttribute("title"); dizer("Preparando…");
         var pergunta = fetch("/api/link?h=" + encodeURIComponent(r.h) + "&n=" + encodeURIComponent(r.n || ""), { cache: "no-store" })      // já existe com imagem? então é só copiar
           .then(function (x) { return x.ok ? x.json() : null; }).catch(function () { return null; });
         var url = pergunta.then(function (j) {
@@ -2348,9 +2379,9 @@
           var passe = passeTurnstile(), vazia = !rota.length;      // sem imagem ainda: abre a rota (o desenho de agora vai para o Desfazer) e monta a imagem; o Turnstile roda junto
           guardar(); if (vazia) antes = [];
           if (!rotaDoHash(r.h, r.c)) throw new Error("abrir");
+          rotaGuardada = r.id; rotuloDoSalvar();
           pedirPendentes();
           document.getElementById("nome-rota").value = r.n || "";
-          avisoMinhas("Montando a imagem do link (alguns segundos)...");
           return rotaPronta().then(function (pronta) { if (!pronta) throw new Error("tempo"); return linkCurto(hashDaRota(), passe); });
         }), copiado = null;
         // o Safari só copia dentro do clique: o ClipboardItem recebe a promessa do link e espera por ela; os outros copiam o texto depois
@@ -2358,9 +2389,9 @@
           try { copiado = navigator.clipboard.write([new ClipboardItem({ "text/plain": url.then(function (u) { return new Blob([u], { type: "text/plain" }); }) })]); } catch (x) { copiado = null; }
         }
         if (!copiado) copiado = url.then(function (u) { return navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(u) : Promise.reject(); });
-        copiado.then(function () { return url; }).then(function (u) { avisoMinhas("Link copiado: " + u); }, function () {
-          url.then(function (u) { avisoMinhas("Não consegui copiar sozinho. Copie este link: " + u); },
-            function (erro) { avisoMinhas(erro && erro.message === "abrir" ? "Não consegui abrir essa rota." : "Não deu para montar o link agora. Tente de novo."); });
+        copiado.then(function () { return url; }).then(function () { dizer("Copiado", 2000); }, function () {
+          url.then(function (u) { dizer(original); avisoMinhas("Não consegui copiar sozinho. Copie este link: " + u); },      // o único texto embaixo: o link, para copiar à mão
+            function (erro) { dizer("Falhou", 3000); b.title = erro && erro.message === "abrir" ? "Não consegui abrir essa rota." : "Não deu para montar o link agora. Tente de novo."; });
         }).then(function () { b.disabled = false; });
         return;
       }
@@ -2387,7 +2418,10 @@
       }
       var estavaVazia = !rota.length;
       guardar(); if (estavaVazia) antes = [];
-      if (rotaDoHash(r.h, r.c)) { pedirPendentes(); avisoMinhas("Rota aberta."); } else avisoMinhas("Não consegui abrir essa rota.");
+      if (rotaDoHash(r.h, r.c)) {
+        rotaGuardada = r.id; document.getElementById("nome-rota").value = r.n || ""; rotuloDoSalvar();      // salvar agora atualiza esta rota; o nome dela vai para o campo
+        pedirPendentes(); avisoMinhas("Rota aberta.");
+      } else avisoMinhas("Não consegui abrir essa rota.");
     });
     desenharMinhas(); mostrarSinc();
     if (window.fetch && (location.protocol === "https:" || /^(localhost|127.0.0.1)$/.test(location.hostname))) {
