@@ -1,6 +1,8 @@
 # Confere os links do site toda segunda-feira (e quando pedido, em Actions > Conferir links > Run workflow).
 # Se algum link estiver quebrado (interno, vídeo apagado do YouTube, loja ou outro site fora do ar), abre uma issue "Links quebrados no site"
 # (ou comenta na que já está aberta) e deixa a execução vermelha; o GitHub avisa por e-mail. O que conferir está em ferramentas/conferir_links.py.
+# O e-mail de execução vermelha ("All jobs have failed") é texto fixo do GitHub; o detalhe está no título da issue (com o que quebrou), no corpo
+# (data, endereço da execução e relatório), nas anotações da execução (um erro por link, com a página) e na mensagem do último passo.
 name: Conferir links
 
 on:
@@ -26,7 +28,7 @@ jobs:
       - name: Conferir os links
         id: links
         continue-on-error: true
-        run: python -X utf8 ferramentas/conferir_links.py --relatorio "$RUNNER_TEMP/relatorio_links.md"
+        run: python -X utf8 ferramentas/conferir_links.py --relatorio "$RUNNER_TEMP/relatorio_links.md" --resumo "$RUNNER_TEMP/resumo_links.txt"
 
       - name: Mostrar o relatório na execução
         if: always()
@@ -37,14 +39,22 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          titulo="Links quebrados no site"
-          aberta=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "$titulo in:title" --json number --jq '.[0].number')
+          base="Links quebrados no site"
+          resumo=$(cat "$RUNNER_TEMP/resumo_links.txt" 2>/dev/null || echo "veja o relatório")
+          titulo="$base: $resumo"
+          # o corpo leva a data e o endereço da execução, antes do relatório
+          { echo "Conferência de $(date -u '+%d/%m/%Y às %H:%M') UTC: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo; cat "$RUNNER_TEMP/relatorio_links.md"; } > "$RUNNER_TEMP/corpo_issue.md"
+          aberta=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "$base in:title" --json number --jq '.[0].number')
           if [ -n "$aberta" ]; then
-            gh issue comment "$aberta" --repo "$GITHUB_REPOSITORY" --body-file "$RUNNER_TEMP/relatorio_links.md"
+            gh issue edit "$aberta" --repo "$GITHUB_REPOSITORY" --title "${titulo:0:200}"
+            gh issue comment "$aberta" --repo "$GITHUB_REPOSITORY" --body-file "$RUNNER_TEMP/corpo_issue.md"
           else
-            gh issue create --repo "$GITHUB_REPOSITORY" --title "$titulo" --body-file "$RUNNER_TEMP/relatorio_links.md"
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "${titulo:0:200}" --body-file "$RUNNER_TEMP/corpo_issue.md"
           fi
 
       - name: Falhar se há link quebrado
         if: steps.links.outcome == 'failure'
-        run: exit 1
+        run: |
+          echo "::error title=Links quebrados no site::$(cat "$RUNNER_TEMP/resumo_links.txt" 2>/dev/null)"
+          exit 1

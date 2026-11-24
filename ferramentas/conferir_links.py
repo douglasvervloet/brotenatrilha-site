@@ -6,7 +6,8 @@
   Erro de rede, 403, 429 e 5xx ficam como "não deu para conferir" e não contam como quebrado (o site de fora pode só estar fora do ar).
 - Não conferidos: Strava e Instagram (respondem 200 para qualquer endereço, inclusive o que não existe), os players de playlist (respondem 404 a quem não é navegador), o contador, a política do Google e imagens do YouTube.
 
-Uso:  python ferramentas/conferir_links.py [--relatorio arquivo.md]
+Uso:  python ferramentas/conferir_links.py [--relatorio arquivo.md] [--resumo arquivo.txt]
+      (o resumo é uma linha só, "2 links quebrados: ...", para o título da issue; no GitHub Actions cada link vira uma anotação da execução)
 Sai com 1 se houver link quebrado (e escreve o relatório); com 0 se tudo certo.
 """
 import html
@@ -97,6 +98,7 @@ def conferir_externo(url):
 
 def main():
     relatorio = sys.argv[sys.argv.index("--relatorio") + 1] if "--relatorio" in sys.argv else ""
+    resumo_arquivo = sys.argv[sys.argv.index("--resumo") + 1] if "--resumo" in sys.argv else ""
     internos, externos = {}, {}                                         # destino -> [páginas]; endereço -> [páginas]
     paginas = sorted(paginas_do_site())
     for pagina in paginas:
@@ -130,11 +132,42 @@ def main():
         linhas += ["", f"## Não deu para conferir ({len(incertos)}; não conta como quebrado)"] + [f"- {u} ({d})" for u, d, _ in incertos]
     if not quebrados_internos and not quebrados:
         linhas += ["", "Nenhum link quebrado."]
+    else:
+        linhas += ["", "## O que fazer"]
+        if quebrados_internos:
+            linhas.append("- Link interno: o arquivo não existe no repositório. Se a página é gerada por um robô, veja se ele já rodou "
+                          "(Actions › Atualizar página de pedais ou Atualizar números do canal); senão, corrija ou tire o link da página.")
+        if quebrados:
+            linhas.append("- Endereço de fora: abra o endereço no navegador; se mudou, atualize o link nas páginas listadas; se saiu do ar, tire o link.")
     texto = "\n".join(linhas) + "\n"
     print(texto)
     if relatorio:
         open(relatorio, "w", encoding="utf-8", newline="\n").write(texto)
+    resumo = resumo_dos_quebrados([l for l, _ in quebrados_internos] + [u for u, _, _ in quebrados])
+    if resumo_arquivo:
+        open(resumo_arquivo, "w", encoding="utf-8", newline="\n").write(resumo + "\n")
+    if os.environ.get("GITHUB_ACTIONS"):
+        anotar_no_github(quebrados_internos, quebrados, incertos)
     return 1 if (quebrados_internos or quebrados) else 0
+
+
+def resumo_dos_quebrados(enderecos, mostrar=3):
+    """Uma linha com o que quebrou (vai no título da issue e na mensagem de erro da execução); '' se nada quebrou."""
+    if not enderecos:
+        return ""
+    sem_protocolo = [e.replace("https://", "").replace("http://", "") for e in enderecos[:mostrar]]
+    mais = f" e mais {len(enderecos) - mostrar}" if len(enderecos) > mostrar else ""
+    return f"{len(enderecos)} {'link quebrado' if len(enderecos) == 1 else 'links quebrados'}: {', '.join(sem_protocolo)}{mais}"
+
+
+def anotar_no_github(quebrados_internos, quebrados, incertos):
+    """Anotações da execução no GitHub Actions: cada link aparece na página da execução, com a página onde está."""
+    for link, paginas in quebrados_internos:
+        print(f"::error file={paginas[0]},title=Link interno quebrado::{link} não existe no site (em {len(paginas)} página{'s' if len(paginas) > 1 else ''})")
+    for url, detalhe, paginas in quebrados:
+        print(f"::error file={paginas[0]},title=Endereço de fora quebrado::{url} ({detalhe}; em {len(paginas)} página{'s' if len(paginas) > 1 else ''})")
+    for url, detalhe, _ in incertos:
+        print(f"::warning title=Não deu para conferir::{url} ({detalhe})")
 
 
 if __name__ == "__main__":
