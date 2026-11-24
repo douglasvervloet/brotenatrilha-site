@@ -7,6 +7,7 @@
 <title>Análises | Brote na Trilha</title>
 <meta name="description" content="As análises do canal Brote na Trilha: reviews de quadros, peças e equipamentos de bike, com o vídeo de cada uma.">
 <link rel="canonical" href="https://brotenatrilha.com.br/analises/">
+<link rel="alternate" type="application/rss+xml" title="Brote na Trilha: análises" href="/analises/feed.xml">
 <meta name="theme-color" content="#1f8448">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">

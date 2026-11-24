@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Brote na Trilha: análises</title>
+    <link>https://brotenatrilha.com.br/analises/</link>
+    <description>As análises em vídeo do canal Brote na Trilha.</description>
+    <language>pt-BR</language>
+    <atom:link href="https://brotenatrilha.com.br/analises/feed.xml" rel="self" type="application/rss+xml"/>
+    <lastBuildDate>Wed, 09 Sep 2026 20:00:20 +0000</lastBuildDate>
+    <item>
+      <title>Review quadro Rava Cave 2025</title>
+      <link>https://brotenatrilha.com.br/analises/</link>
+      <guid isPermaLink="false">analise-qjft8-I4z9s</guid>
+      <pubDate>Wed, 09 Sep 2026 20:00:20 +0000</pubDate>
+      <description>Review do quadro Rava Cave 2025 após 2800km (bike do Simão).</description>
+    </item>
+    <item>
+      <title>Review quadro carbono Spcycle do AliExpress</title>
+      <link>https://brotenatrilha.com.br/analises/</link>
+      <guid isPermaLink="false">analise-JpIsgRmZXBQ</guid>
+      <pubDate>Wed, 02 Sep 2026 20:00:00 +0000</pubDate>
+      <description>Review do quadro MTB de carbono chinês SP-M09 da marca Spcycle importado do AliExpress após 1500km.</description>
+    </item>
+  </channel>
+</rss>
