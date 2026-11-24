@@ -7,6 +7,7 @@
 <title>{{TITULO}} | Pedais | Brote na Trilha</title>
 <meta name="description" content="{{DESCRICAO_META}}">
 <link rel="canonical" href="{{URL}}">
+<link rel="alternate" type="application/rss+xml" title="Brote na Trilha: pedais" href="/pedais/feed.xml">
 <meta name="theme-color" content="#1f8448">
 <meta property="og:type" content="article">
 <meta property="og:locale" content="pt_BR">

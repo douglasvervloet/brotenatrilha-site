@@ -13,6 +13,8 @@ import re
 import sys
 import urllib.request
 
+import feed_rss                                      # o feed RSS (ferramentas/feed_rss.py)
+
 PLAYLIST = "PLOHdygxxt5OA"                            # "Análises" no canal
 AGENTE = "brotenatrilha.com.br (contato@brotenatrilha.com.br)"
 MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
@@ -193,6 +195,15 @@ def montar(videos, modelo):
     return modelo
 
 
+def escrever_feed(caminho, videos):
+    """Grava analises/feed.xml (RSS): as análises da playlist, da mais nova à mais antiga."""
+    itens = [{"titulo": v["titulo"], "link": "https://brotenatrilha.com.br/analises/", "guid": "analise-" + v["id"], "data": v["publicado"],
+              "descricao": resumo_da_descricao(v["descricao"]) or v["titulo"]}
+             for v in sorted(videos, key=lambda v: v["publicado"], reverse=True)[:30]]
+    feed_rss.escrever(caminho, "Brote na Trilha: análises", "https://brotenatrilha.com.br/analises/",
+                      "As análises em vídeo do canal Brote na Trilha.", "https://brotenatrilha.com.br/analises/feed.xml", itens)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--saida", default="analises/index.html")
@@ -210,6 +221,7 @@ def main():
     os.makedirs(os.path.dirname(os.path.abspath(args.saida)), exist_ok=True)
     with open(args.saida, "w", encoding="utf-8", newline="\n") as f:
         f.write(montar(videos, open(args.modelo, encoding="utf-8").read()))
+    escrever_feed(os.path.join(os.path.dirname(os.path.abspath(args.saida)), "feed.xml"), videos)
     print(f"  análises: {len(videos)} vídeos ({'API' if chave else 'feed'})")
     return 0
 

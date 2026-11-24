@@ -34,6 +34,7 @@ import urllib.request
 import time
 from datetime import datetime, timedelta, timezone
 
+import feed_rss                                      # o feed RSS (ferramentas/feed_rss.py)
 import mapa_geral                                    # o mapa com todos os pedais (ferramentas/mapa_geral.py)
 
 try:
@@ -2127,6 +2128,23 @@ def escrever_sitemap(caminho, pedais):
         f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + corpo + "</urlset>\n")
 
 
+FEED_MAXIMO = 30                                     # os pedais mais novos que o feed traz
+
+
+def escrever_feed(caminho, pedais):
+    """Grava pedais/feed.xml (RSS): os pedais mais novos, do mais novo ao mais antigo, cada um com a distância, a subida e o tempo."""
+    itens = []
+    for p in pedais[:FEED_MAXIMO]:
+        video = p.get("_video")
+        itens.append({"titulo": titulo_exibido(p), "link": f"https://brotenatrilha.com.br/pedais/{p['_slug']}/", "guid": f"pedal-{p['id']}",
+                      "data": (video or {}).get("publicado") or p["start_date_local"][:10],
+                      "descricao": f"{data_longa(p['start_date_local'])}: {num(p['distance'] / 1000, 1)} km, {num(subida_do_pedal(p))} m de subida, "
+                                   f"{duracao(p['moving_time'])} de pedal."})
+    feed_rss.escrever(caminho, "Brote na Trilha: pedais", "https://brotenatrilha.com.br/pedais/",
+                      "Os pedais mais novos do canal Brote na Trilha, com o mapa, a altimetria e as subidas de cada um.",
+                      "https://brotenatrilha.com.br/pedais/feed.xml", itens)
+
+
 def escrever_mapa_geral(pedais, base, pasta_gpx, pasta_cache):
     """Grava pedais/mapa/index.html e os fundos de relevo: o mapa com os percursos de todos os pedais juntos (ferramentas/mapa_geral.py)."""
     percursos = [(titulo_exibido(p), f"/pedais/{p['_slug']}/", mapa_geral.reduzir(mapa_geral.pontos_do_gpx(caminho_gpx(pasta_gpx, p["id"]))))
@@ -2361,6 +2379,7 @@ def main():
     slugs.update(anos_dos_pedais(pedais)[1:])           # as listas dos anos anteriores (/pedais/2025/) também ficam
     limpar_paginas_antigas(base, slugs)
     if pedais:
+        escrever_feed(os.path.join(base, "feed.xml"), pedais)
         escrever_mapa_geral(pedais, base, pasta_gpx, pasta_cache)
         escrever_tracos(pedais, pasta_gpx)
     if pedais and injetar_na_home(args.home, bloco_ultimo(pedais[0])):
