@@ -6,48 +6,80 @@
 <title>Política de privacidade do BNT Editor</title>
 <meta name="description" content="Como o aplicativo BNT Editor trata o acesso à conta do YouTube e do Strava: sem servidor próprio, os dados ficam no seu computador.">
 <link rel="canonical" href="https://brotenatrilha.com.br/bnteditor/privacidade/">
-<meta name="theme-color" content="#1f8448">
-<link rel="icon" type="image/png" sizes="48x48" href="../../favicon.png?v=2">
+<meta name="theme-color" content="#161616">
+<link rel="icon" type="image/png" sizes="48x48" href="../favicon.png?v=2">
 <link rel="icon" type="image/png" sizes="512x512" href="/icone-512.png?v=2">
 <link rel="shortcut icon" href="/favicon.ico?v=2">
-<link rel="apple-touch-icon" href="../../apple-touch-icon.png?v=2">
+<link rel="icon" type="image/png" sizes="256x256" href="../icone.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png?v=2">
 <style>
-  :root { --verde: #1f8448; --verde-fundo: #0f4a28; --ambar: #e8a33d; --fundo: #f6f3ea; --cartao: #fff; --texto: #1c2a22; --suave: #4d5e53; --linha: #dcd8c9; }
-  @media (prefers-color-scheme: dark) { :root { --fundo: #0f1a13; --cartao: #172a1e; --texto: #e9f0ea; --suave: #a9bbae; --linha: #284534; } }
+  :root { --laranja: #fe7201; --laranja-claro: #ff9a4d; --fundo-topo: #161616; --fundo: #f6f3ea; --cartao: #ffffff; --texto: #1f1f1f; --texto-suave: #55524a; --linha: #ded9ca; }
+  @media (prefers-color-scheme: dark) { :root { --fundo: #121212; --cartao: #1d1d1d; --texto: #eeeeee; --texto-suave: #adadad; --linha: #333333; } }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--fundo); color: var(--texto); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.7; -webkit-font-smoothing: antialiased; }
-  a { color: var(--verde); font-weight: 600; }
-  @media (prefers-color-scheme: dark) { a { color: #7fcf9d; } }
-  :focus-visible { outline: 3px solid var(--ambar); outline-offset: 3px; border-radius: 4px; }
-  .miolo { width: min(760px, 100% - 32px); margin-inline: auto; }
-  header { background: linear-gradient(180deg, var(--verde), var(--verde-fundo)); color: #fff; padding: 18px 0 34px; }
-  header a { color: #fff; text-decoration: none; font-weight: 600; opacity: .9; }
-  header a:hover { opacity: 1; text-decoration: underline; }
-  h1 { margin: 22px 0 0; font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.15; }
-  header p { margin: 8px 0 0; color: #dcebe0; }
-  main { padding: 36px 0 56px; }
-  h2 { margin: 34px 0 6px; font-size: 1.3rem; }
-  h2::after { content: ""; display: block; width: 40px; height: 3px; border-radius: 2px; background: var(--ambar); margin-top: 8px; }
-  p, li { color: var(--suave); }
-  p { margin: 10px 0 0; }
-  ul { margin: 10px 0 0; padding-left: 1.2em; }
+  html { scroll-behavior: smooth; scroll-padding-top: 64px; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--laranja); outline-offset: 3px; border-radius: 4px; }
+  .miolo { width: min(1080px, 100% - 32px); margin-inline: auto; }
+
+  .topo { position: sticky; top: 0; z-index: 5; background: rgba(22,22,22,.86); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,.08); }
+  .topo .miolo { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; }
+  .marca { display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 700; text-decoration: none; }
+  .marca img { width: 30px; height: 30px; border-radius: 26%; }
+  .menu { display: flex; gap: 22px; }
+  .menu a { color: #d8d8d8; text-decoration: none; font-size: .95rem; padding: 6px 2px; border-bottom: 2px solid transparent; }
+  .menu a:hover { border-bottom-color: var(--laranja); color: #fff; }
+  .menu a.atual { color: #fff; border-bottom-color: var(--laranja); }
+
+  .capa { background: radial-gradient(900px 420px at 50% 0%, rgba(254, 114, 1, .28) 0%, transparent 65%), var(--fundo-topo); color: #fff; text-align: center; padding: 44px 0 48px; }
+  .capa .icone { width: 96px; margin: 0 auto 16px; border-radius: 26%; box-shadow: 0 16px 36px rgba(0,0,0,.5); }
+  .capa h1 { margin: 0; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; letter-spacing: -.5px; }
+  .capa .subtitulo { margin: 14px auto 0; color: #e2e2e2; }
+  .capa .subtitulo a { color: var(--laranja-claro); font-weight: 700; }
+
+  main { padding: 48px 0 64px; }
+  .texto { max-width: 760px; }
+  h2 { margin: 40px 0 8px; font-size: clamp(1.3rem, 3.4vw, 1.6rem); line-height: 1.25; }
+  h2:first-child { margin-top: 0; }
+  h2::after { content: ""; display: block; width: 52px; height: 4px; border-radius: 2px; background: var(--laranja); margin-top: 10px; }
+  p, li { color: var(--texto-suave); }
+  p { margin: 12px 0 0; }
+  ul { margin: 12px 0 0; padding-left: 1.2em; }
+  li { margin: 6px 0; }
+  li::marker { color: var(--laranja); }
   strong { color: var(--texto); }
-  footer { background: var(--verde-fundo); color: #cfe0d3; padding: 26px 0; font-size: .92rem; }
+  main a { color: var(--texto); font-weight: 600; text-decoration-color: var(--laranja); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  main a:hover { color: var(--laranja); }
+  code { background: var(--cartao); border: 1px solid var(--linha); border-radius: 6px; padding: 1px 6px; font-size: .88em; word-break: break-all; }
+  hr { border: 0; border-top: 1px solid var(--linha); margin: 56px 0 40px; }
+  h1.ingles { margin: 0 0 6px; font-size: clamp(1.7rem, 5vw, 2.2rem); line-height: 1.15; scroll-margin-top: 72px; }
+
+  footer { background: var(--fundo-topo); color: #c8c8c8; padding: 34px 0; font-size: .92rem; }
+  footer .miolo { display: flex; flex-wrap: wrap; gap: 10px 26px; align-items: center; justify-content: space-between; }
   footer a { color: #fff; }
-  hr { border: 0; border-top: 1px solid var(--linha); margin: 44px 0 0; }
-  code { background: var(--cartao); border: 1px solid var(--linha); border-radius: 4px; padding: 0 5px; font-size: .9em; word-break: break-all; }
+  footer .links { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+  footer .peq { flex-basis: 100%; color: #9a9a9a; font-size: .85rem; }
+  footer img.strava { display: block; height: 20px; width: auto; background: #fff; border-radius: 6px; padding: 6px 10px; box-sizing: content-box; margin: 8px 0; }
+  @media (max-width: 760px) { .menu { display: none; } }
 </style>
 </head>
 <body>
-<header>
+<header class="topo">
   <div class="miolo">
-    <a href="../">&larr; BNT Editor</a>
-    <h1>Política de privacidade do BNT Editor</h1>
-    <p>Última atualização: 13 de outubro de 2026. <a href="#english">English version below</a>.</p>
+    <a class="marca" href="../"><img src="../icone.png" alt=""> BNT Editor</a>
+    <nav class="menu" aria-label="Principal"><a href="../privacidade/" class="atual">Privacidade</a><a href="../termos-de-uso/">Termos de uso</a></nav>
   </div>
 </header>
 
-<main class="miolo">
+<div class="capa">
+  <div class="miolo">
+    <img class="icone" src="../icone.png" alt="">
+    <h1>Política de privacidade do BNT Editor</h1>
+    <p class="subtitulo">Última atualização: 13 de outubro de 2026. <a href="#english">English version below</a>.</p>
+  </div>
+</div>
+
+<main class="miolo"><div class="texto">
 
 
 <h2>O que é</h2>
@@ -94,7 +126,7 @@
 
 <hr>
 
-<h1 id="english">BNT Editor privacy policy</h1>
+<h1 class="ingles" id="english">BNT Editor privacy policy</h1>
 <p>Last updated: October 13, 2026.</p>
 
 <h2>What it is</h2>
@@ -138,11 +170,28 @@
 
 <h2>Contact</h2>
 <p>Questions: <a href="mailto:contato@brotenatrilha.com.br">contato@brotenatrilha.com.br</a>.</p>
-</main>
+</div></main>
 
 <footer>
-  <div class="miolo">© <span id="ano">2026</span> Brote na Trilha · <a href="../">BNT Editor</a> · <a href="../../privacidade/">Privacidade do site</a> · <a href="../../">Voltar ao site</a></div>
+  <div class="miolo">
+    <span>© <span id="ano">2026</span> Brote na Trilha</span>
+    <span class="links">
+      <a href="../privacidade/">Privacidade do aplicativo</a>
+      <a href="../../privacidade/">Privacidade do site</a>
+      <a href="../termos-de-uso/">Termos de uso</a>
+      <a href="../../">Canal Brote na Trilha</a>
+    </span>
+    <span class="peq">
+      O envio ao YouTube usa os Serviços de API do YouTube. Ao usá-lo, você concorda com os
+      <a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener">Termos de Serviço do YouTube</a>
+      e com a <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Política de Privacidade do Google</a>.
+      A conexão com o Strava usa a API do Strava e os dados ficam só no seu computador.
+      <img class="strava" src="../strava_powered_by.png" width="180" alt="Powered by Strava" loading="lazy" decoding="async">
+      As visitas a esta página são contadas sem cookies e sem identificar ninguém.
+    </span>
+  </div>
 </footer>
+
 <script>document.getElementById("ano").textContent = new Date().getFullYear();</script>
 <script data-goatcounter="https://brotenatrilha.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
