@@ -1830,6 +1830,27 @@ def capa_recente(video):
 PASTAS_DE_ARQUIVOS = ("mapas", "gpx", "capas", "mapa", "compartilhar")
 
 
+INICIO_REDIRECIONAMENTOS = "# --- pedais: endereços antigos (gerado pelo gerar_pedais.py; não editar à mão) ---"
+FIM_REDIRECIONAMENTOS = "# --- fim dos pedais ---"
+
+
+def escrever_redirecionamentos(arquivo, pares):
+    """Grava no _redirects da Cloudflare o 301 de cada endereço antigo de pedal para o de agora (o Google prefere o 301 do servidor
+    ao meta refresh da página). As linhas de fora do bloco dos pedais (as feitas à mão) ficam como estão."""
+    linhas = open(arquivo, encoding="utf-8").read().splitlines() if os.path.exists(arquivo) else []
+    if INICIO_REDIRECIONAMENTOS in linhas and FIM_REDIRECIONAMENTOS in linhas:
+        i, j = linhas.index(INICIO_REDIRECIONAMENTOS), linhas.index(FIM_REDIRECIONAMENTOS)
+        linhas = linhas[:i] + linhas[j + 1:]
+    while linhas and not linhas[-1].strip():
+        linhas.pop()
+    bloco = [INICIO_REDIRECIONAMENTOS]
+    for antigo, novo in sorted(pares):
+        bloco += [f"/pedais/{antigo}/ /pedais/{novo}/ 301", f"/pedais/{antigo} /pedais/{novo}/ 301"]
+    bloco.append(FIM_REDIRECIONAMENTOS)
+    with open(arquivo, "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(linhas + ([""] if linhas else []) + bloco) + "\n")
+
+
 def limpar_paginas_antigas(base, slugs):
     """Apaga as pastas de pedais que saíram da página (as de arquivos, como mapas, gpx e capas, ficam)."""
     for nome in os.listdir(base):
@@ -2377,14 +2398,18 @@ def main():
         with open(os.path.join(pasta, "index.html"), "w", encoding="utf-8", newline="\n") as f:
             f.write(montar_pagina_pedal(p, mais_novo, mais_velho, modelo_pedal, pedais))
     slugs = {p["_slug"] for p in pedais}                # apaga as páginas de pedais que saíram
+    redirecionamentos = []
     for p in pedais:                                    # o endereço de antes (nome do Strava) vira um redirecionamento para o de agora
         antigo = slug_antigo(p)
         if antigo != p["_slug"] and antigo not in slugs:
             pasta = os.path.join(base, antigo)
             os.makedirs(pasta, exist_ok=True)
             with open(os.path.join(pasta, "index.html"), "w", encoding="utf-8", newline="\n") as f:
-                f.write(pagina_de_redirecionamento(p))
+                f.write(pagina_de_redirecionamento(p))   # reserva, caso o 301 do _redirects não valha
             slugs.add(antigo)
+            redirecionamentos.append((antigo, p["_slug"]))
+    if pedais:
+        escrever_redirecionamentos(os.path.join(os.path.dirname(os.path.abspath(base)), "_redirects"), redirecionamentos)
     slugs.update(anos_dos_pedais(pedais)[1:])           # as listas dos anos anteriores (/pedais/2025/) também ficam
     limpar_paginas_antigas(base, slugs)
     if pedais:

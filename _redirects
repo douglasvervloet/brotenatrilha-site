@@ -1,0 +1,74 @@
+# Redirecionamentos 301 da Cloudflare Pages (o servidor responde antes da página: o Google prefere ao meta refresh).
+# Feitos à mão: as ferramentas que saíram (o Planejar pedal as cobre)
+/ferramentas/desenhar-rota/ /planejar-pedal/ 301
+/ferramentas/desenhar-rota /planejar-pedal/ 301
+/ferramentas/subidas-do-gpx/ /planejar-pedal/ 301
+/ferramentas/subidas-do-gpx /planejar-pedal/ 301
+# Pedal cujo título do vídeo mudou depois de a página ir ao ar
+/pedais/2026-11-21-tentando-pedalar-no-trilho-no-trem/ /pedais/2026-11-21-tentando-pedalar-no-trilho-do-trem/ 301
+/pedais/2026-11-21-tentando-pedalar-no-trilho-no-trem /pedais/2026-11-21-tentando-pedalar-no-trilho-do-trem/ 301
+
+# --- pedais: endereços antigos (gerado pelo gerar_pedais.py; não editar à mão) ---
+/pedais/2025-01-12-ciladinha-de-leve-igreja-sao-jose-do-queimado/ /pedais/2025-01-12-ciladinha-de-leve-igreja-sao-jose-do-queimado-serra/ 301
+/pedais/2025-01-12-ciladinha-de-leve-igreja-sao-jose-do-queimado /pedais/2025-01-12-ciladinha-de-leve-igreja-sao-jose-do-queimado-serra/ 301
+/pedais/2025-01-18-um-novato-e-um-capote-pedreira-fonte-grande/ /pedais/2025-01-18-um-novato-e-um-capote-pedreira-e-fonte-grande/ 301
+/pedais/2025-01-18-um-novato-e-um-capote-pedreira-fonte-grande /pedais/2025-01-18-um-novato-e-um-capote-pedreira-e-fonte-grande/ 301
+/pedais/2025-02-09-uprise-brasil-desafio-cara-de-barro-2025/ /pedais/2025-02-09-desafio-cara-de-barro-uprise-brasil-2025/ 301
+/pedais/2025-02-09-uprise-brasil-desafio-cara-de-barro-2025 /pedais/2025-02-09-desafio-cara-de-barro-uprise-brasil-2025/ 301
+/pedais/2025-03-02-pedal-raiz-duas-bocas/ /pedais/2025-03-02-pedal-raiz-reserva-de-duas-bocas/ 301
+/pedais/2025-03-02-pedal-raiz-duas-bocas /pedais/2025-03-02-pedal-raiz-reserva-de-duas-bocas/ 301
+/pedais/2025-04-05-desafio-dos-100km-santa-leopoldina/ /pedais/2025-04-05-primeiro-pedal-de-100km-de-vitoria-a-santa-leopoldina/ 301
+/pedais/2025-04-05-desafio-dos-100km-santa-leopoldina /pedais/2025-04-05-primeiro-pedal-de-100km-de-vitoria-a-santa-leopoldina/ 301
+/pedais/2025-04-28-romaria-dos-ciclistas-n-s-da-penha-vitoria/ /pedais/2025-04-28-romaria-dos-ciclistas-n-s-da-penha-2025/ 301
+/pedais/2025-04-28-romaria-dos-ciclistas-n-s-da-penha-vitoria /pedais/2025-04-28-romaria-dos-ciclistas-n-s-da-penha-2025/ 301
+/pedais/2025-05-25-diziam-que-era-so-baixada-viana-a-buenos-aires/ /pedais/2025-05-25-diziam-que-era-so-baixada-buenos-aires/ 301
+/pedais/2025-05-25-diziam-que-era-so-baixada-viana-a-buenos-aires /pedais/2025-05-25-diziam-que-era-so-baixada-buenos-aires/ 301
+/pedais/2025-06-07-um-capote-apos-a-subida-ao-ceu-no-marco-9-viana/ /pedais/2025-06-07-um-capote-apos-a-subida-ao-ceu-no-marco-9/ 301
+/pedais/2025-06-07-um-capote-apos-a-subida-ao-ceu-no-marco-9-viana /pedais/2025-06-07-um-capote-apos-a-subida-ao-ceu-no-marco-9/ 301
+/pedais/2025-09-21-5-pedal-do-colono-paraju-rota-pro/ /pedais/2025-09-21-5-pedal-do-colono-de-paraju/ 301
+/pedais/2025-09-21-5-pedal-do-colono-paraju-rota-pro /pedais/2025-09-21-5-pedal-do-colono-de-paraju/ 301
+/pedais/2025-10-05-4-cicloturismo-santa-teresa-rota-pro/ /pedais/2025-10-05-4-cicloturismo-santa-teresa-rota-da-uva-e-do-vinho-2025/ 301
+/pedais/2025-10-05-4-cicloturismo-santa-teresa-rota-pro /pedais/2025-10-05-4-cicloturismo-santa-teresa-rota-da-uva-e-do-vinho-2025/ 301
+/pedais/2025-10-18-em-busca-do-pao-com-linguica-de-santa-leopoldina/ /pedais/2025-10-18-em-busca-do-pao-com-linguica-es-080/ 301
+/pedais/2025-10-18-em-busca-do-pao-com-linguica-de-santa-leopoldina /pedais/2025-10-18-em-busca-do-pao-com-linguica-es-080/ 301
+/pedais/2025-11-16-3-mtb-rota-28/ /pedais/2025-11-16-3-mtb-rota-28-anchieta/ 301
+/pedais/2025-11-16-3-mtb-rota-28 /pedais/2025-11-16-3-mtb-rota-28-anchieta/ 301
+/pedais/2025-12-06-pedal-para-cachoeira-rio-do-meio-tentando-quebrar-o-lucas/ /pedais/2025-12-06-cachoeira-rio-do-meio-santa-leopoldina/ 301
+/pedais/2025-12-06-pedal-para-cachoeira-rio-do-meio-tentando-quebrar-o-lucas /pedais/2025-12-06-cachoeira-rio-do-meio-santa-leopoldina/ 301
+/pedais/2026-01-17-vale-da-lua-capixaba/ /pedais/2026-01-17-vale-da-lua-capixaba-santa-leopoldina/ 301
+/pedais/2026-01-17-vale-da-lua-capixaba /pedais/2026-01-17-vale-da-lua-capixaba-santa-leopoldina/ 301
+/pedais/2026-01-24-volta-na-gv/ /pedais/2026-01-24-volta-na-grande-vitoria/ 301
+/pedais/2026-01-24-volta-na-gv /pedais/2026-01-24-volta-na-grande-vitoria/ 301
+/pedais/2026-03-21-quase-perdendo-a-rosca-do-pedivela/ /pedais/2026-03-21-quase-perdendo-a-rosca-do-pedivela-nova-almeida/ 301
+/pedais/2026-03-21-quase-perdendo-a-rosca-do-pedivela /pedais/2026-03-21-quase-perdendo-a-rosca-do-pedivela-nova-almeida/ 301
+/pedais/2026-03-28-secos-e-molhados/ /pedais/2026-03-28-secos-e-molhados-praia-grande/ 301
+/pedais/2026-03-28-secos-e-molhados /pedais/2026-03-28-secos-e-molhados-praia-grande/ 301
+/pedais/2026-04-11-bora-bill-vitoria-fonte-grande/ /pedais/2026-04-11-bora-bill-volta-vitoria-fonte-grande/ 301
+/pedais/2026-04-11-bora-bill-vitoria-fonte-grande /pedais/2026-04-11-bora-bill-volta-vitoria-fonte-grande/ 301
+/pedais/2026-04-13-dia-de-check-up-do-coracao/ /pedais/2026-04-13-dia-de-check-up-do-coracao-na-serra/ 301
+/pedais/2026-04-13-dia-de-check-up-do-coracao /pedais/2026-04-13-dia-de-check-up-do-coracao-na-serra/ 301
+/pedais/2026-04-25-cachoeira-de-holanda/ /pedais/2026-04-25-cachoeira-de-holanda-santa-leopoldina/ 301
+/pedais/2026-04-25-cachoeira-de-holanda /pedais/2026-04-25-cachoeira-de-holanda-santa-leopoldina/ 301
+/pedais/2026-06-14-giro-curto-nas-queijarias-com-quase-28-de-media/ /pedais/2026-06-14-giro-curto-pelas-queijarias-da-serra/ 301
+/pedais/2026-06-14-giro-curto-nas-queijarias-com-quase-28-de-media /pedais/2026-06-14-giro-curto-pelas-queijarias-da-serra/ 301
+/pedais/2026-07-25-pedalando-ate-o-por-do-sol-voltando-com-as-estrelas/ /pedais/2026-07-25-ate-o-por-do-sol-nos-pontoes-capixabas/ 301
+/pedais/2026-07-25-pedalando-ate-o-por-do-sol-voltando-com-as-estrelas /pedais/2026-07-25-ate-o-por-do-sol-nos-pontoes-capixabas/ 301
+/pedais/2026-08-08-rampa-do-urubu-duas-bocas/ /pedais/2026-08-08-rampa-do-urubu-e-moxuara-subindo-sem-dar-tela-azul/ 301
+/pedais/2026-08-08-rampa-do-urubu-duas-bocas /pedais/2026-08-08-rampa-do-urubu-e-moxuara-subindo-sem-dar-tela-azul/ 301
+/pedais/2026-08-16-12-volta-da-lagoa-juparana/ /pedais/2026-08-16-12-volta-da-lagoa-juparana-essa-foi-raiz/ 301
+/pedais/2026-08-16-12-volta-da-lagoa-juparana /pedais/2026-08-16-12-volta-da-lagoa-juparana-essa-foi-raiz/ 301
+/pedais/2026-09-05-cilada-by-strava/ /pedais/2026-09-05-duas-bocas-sabao-e-uma-cilada-by-strava/ 301
+/pedais/2026-09-05-cilada-by-strava /pedais/2026-09-05-duas-bocas-sabao-e-uma-cilada-by-strava/ 301
+/pedais/2026-09-06-2-pedal-solidario-piuma/ /pedais/2026-09-06-2-pedal-solidario-piuma-pacote-completo/ 301
+/pedais/2026-09-06-2-pedal-solidario-piuma /pedais/2026-09-06-2-pedal-solidario-piuma-pacote-completo/ 301
+/pedais/2026-09-12-procurando-uma-serra-na-serra/ /pedais/2026-09-12-trilho-pico-e-calogi-procurando-uma-serra-na-serra/ 301
+/pedais/2026-09-12-procurando-uma-serra-na-serra /pedais/2026-09-12-trilho-pico-e-calogi-procurando-uma-serra-na-serra/ 301
+/pedais/2026-09-27-5-cicloturismo-santa-teresa/ /pedais/2026-09-27-5-cicloturismo-santa-teresa-quer-descer-vai-ter-que-subir/ 301
+/pedais/2026-09-27-5-cicloturismo-santa-teresa /pedais/2026-09-27-5-cicloturismo-santa-teresa-quer-descer-vai-ter-que-subir/ 301
+/pedais/2026-10-17-desenferrujando-as-pernas/ /pedais/2026-10-17-desenferrujando-as-pernas-queimados-muribeca-e-xco-carapina/ 301
+/pedais/2026-10-17-desenferrujando-as-pernas /pedais/2026-10-17-desenferrujando-as-pernas-queimados-muribeca-e-xco-carapina/ 301
+/pedais/2026-11-07-bate-e-volta-ate-barra-do-sahy-aracruz/ /pedais/2026-11-07-de-vitoria-ate-barra-do-sahy-em-aracruz/ 301
+/pedais/2026-11-07-bate-e-volta-ate-barra-do-sahy-aracruz /pedais/2026-11-07-de-vitoria-ate-barra-do-sahy-em-aracruz/ 301
+/pedais/2026-11-14-volta-na-ilha-de-vitoria/ /pedais/2026-11-14-volta-na-ilha-de-vitoria-treinos-de-subida/ 301
+/pedais/2026-11-14-volta-na-ilha-de-vitoria /pedais/2026-11-14-volta-na-ilha-de-vitoria-treinos-de-subida/ 301
+# --- fim dos pedais ---
